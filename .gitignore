@@ -1,0 +1,15 @@
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+.swp
+build*/
+.cobaltlog
+.error
+.autosave
+.DS_Store
+cmake-build-debug
+.idea
+*~
+~*
+*.xls
+*.xlsx

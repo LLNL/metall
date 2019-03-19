@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+# Usage
+# cd metall/build/bench/bfs
+# sh ../../../bench/bfs/run_bench.sh -v 31 -f $((2**40)) -t 24 -s static[dynamic,10000] -d /dev/shm
+
+# ----- Options----- #
+V=17
+FILE_SIZE=$((2**30))
+BFS_ROOT=0
+LOG_FILE_PREFIX="out_adj_bfs_bench"
+NUM_THREADS=""
+SCHEDULE=""
+case "$OSTYPE" in
+  darwin*)  GRAPH_DIR_ROOT="/tmp";;
+  linux*)   GRAPH_DIR_ROOT="/dev/shm";;
+esac
+
+while getopts "v:f:r:l:m:t:d:s:" OPT
+do
+  case $OPT in
+    v) V=$OPTARG;;
+    f) FILE_SIZE=$OPTARG;;
+    r) BFS_ROOT=$OPTARG;;
+    l) LOG_FILE_PREFIX=$OPTARG;;
+    t) NUM_THREADS="env OMP_NUM_THREADS=${OPTARG}";;
+    s) SCHEDULE="env OMP_SCHEDULE=${OPTARG}";;
+    d) GRAPH_DIR_ROOT=$OPTARG;;
+    :) echo  "[ERROR] Option argument is undefined.";;   #
+    \?) echo "[ERROR] Undefined options.";;
+  esac
+done
+
+# ----- Configurations ----- #
+A=0.57
+B=0.19
+C=0.19
+SEED=123
+E=$((2**$((${V}+4))))
+MAX_VERTEX_ID=$((2**${V}))
+
+GRAPH_NAME="segment"
+ADJ_LIST_KEY_NAME="adj_list"
+
+case "$OSTYPE" in
+  darwin*)
+    INIT_COMMAND=""
+    ;;
+  linux*)
+    PRE_COMMAND_ADJ_LIST_BENCH="taskset -c 1 " # !!! Not using this anymore !!! #
+    case $HOSTNAME in
+        dst-*)
+            INIT_COMMAND="/home/perma/drop_buffer_cache "
+            ;;
+        *) # Expect other LC machines
+            INIT_COMMAND="srun --drop-caches=pagecache true"
+            ;;
+    esac ;;
+esac
+
+if [[ $MAX_VERTEX_ID -eq 0 ]]; then
+    MAX_VERTEX_ID=$((2**${V}))
+fi
+
+function make_dir() {
+    if [ ! -d "$1" ]; then
+        mkdir $1
+    fi
+}
+
+LOG_FILE=""
+
+function try_to_get_compiler_ver() {
+    strings $1 | grep "GCC" | tee -a ${LOG_FILE}
+}
+
+function execute() {
+    echo "Command: " "$@" | tee -a ${LOG_FILE}
+    echo ">>>>>" | tee -a ${LOG_FILE}
+    time "$@" | tee -a ${LOG_FILE}
+    echo "<<<<<" | tee -a ${LOG_FILE}
+}
+
+function run() {
+    EXEC_NAME=$1
+
+    echo ""
+    echo "----------------------------------------"
+    echo "Dynamic Graph Construction with" ${EXEC_NAME}
+    echo "----------------------------------------"
+
+    LOG_FILE=${LOG_FILE_PREFIX}"_"${EXEC_NAME}".log"
+    echo "" > ${LOG_FILE}
+    GRAPH_DIR=${GRAPH_DIR_ROOT}/${EXEC_NAME}
+
+    make_dir ${GRAPH_DIR}
+    rm -f "${GRAPH_DIR}/${GRAPH_NAME}*"
+
+    ${INIT_COMMAND}
+
+    if [[ $OSTYPE = "linux"* ]]; then
+        free -g  | tee -a ${LOG_FILE}
+    fi
+
+    exec_file_name="../adjacency_lsit/run_adj_list_bench_${EXEC_NAME}"
+    try_to_get_compiler_ver ${exec_file_name}
+    execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o "${GRAPH_DIR}/${GRAPH_NAME}" -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1
+
+    ls -lsth ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
+
+    echo ""
+    echo "----------------------------------------"
+    echo "BFS with" ${EXEC_NAME}
+    echo "----------------------------------------"
+
+    ${INIT_COMMAND}
+    if [[ $OSTYPE = "linux"* ]]; then
+        free -g  | tee -a ${LOG_FILE}
+    fi
+    exec_file_name="./run_bfs_bench_${EXEC_NAME}"
+    try_to_get_compiler_ver ${exec_file_name}
+    execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -g "${GRAPH_DIR}/${GRAPH_NAME}" -k ${ADJ_LIST_KEY_NAME} -r ${BFS_ROOT} -m ${MAX_VERTEX_ID}
+}
+
+run bip
+run metall

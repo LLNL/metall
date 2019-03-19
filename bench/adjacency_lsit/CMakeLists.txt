@@ -1,0 +1,15 @@
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+else()
+    MESSAGE(WARNING "OpenMP is not found. Use single thread in adjacency_list.")
+endif()
+
+add_executable(run_adj_list_bench_stl run_adj_list_bench_stl.cpp)
+add_executable(run_adj_list_bench_bip run_adj_list_bench_bip.cpp)
+add_executable(run_adj_list_bench_bip_extend run_adj_list_bench_bip_extend.cpp)
+add_executable(run_adj_list_bench_metall run_adj_list_bench_metall.cpp)
+
+add_subdirectory(edge_generator)
+add_subdirectory(test)

@@ -1,0 +1,1 @@
+add_executable(open_metall open_metall.cpp)

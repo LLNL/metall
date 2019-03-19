@@ -1,0 +1,1 @@
+add_executable(generate_rmat_edge_list generate_rmat_edge_list.cpp)
