@@ -184,7 +184,7 @@ class manager_kernel {
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
           lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
-          new_chunk_no = m_chunk_directory.insert_small_chunk(bin_no);
+          new_chunk_no = m_chunk_directory.insert(bin_no);
         }
         m_bin_directory.insert(bin_no, new_chunk_no);
       }
@@ -205,7 +205,7 @@ class manager_kernel {
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
       lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
-      const chunk_no_type new_chunk_no = m_chunk_directory.insert_large_chunk(bin_no);
+      const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
       return static_cast<char *>(m_segment_storage.segment()) + k_chunk_size * new_chunk_no;
     }
 
@@ -358,6 +358,9 @@ class manager_kernel {
   static bool remove_file(const char *base_path) {
     return priv_remove_backing_files(base_path);
   }
+
+  // Implemented in another file.
+  void profile() const;
 
  private:
   // -------------------------------------------------------------------------------- //
