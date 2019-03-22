@@ -67,7 +67,7 @@ class file_mapped_segment_storage {
     if (!util::create_file(path)) return false;
     if (!util::extend_file_size(path, nbytes)) return false;
 
-    assert(util::get_file_size(path) == nbytes);
+    assert(static_cast<size_type>(util::get_file_size(path)) == nbytes);
 
     return priv_map_segment(path);
   }

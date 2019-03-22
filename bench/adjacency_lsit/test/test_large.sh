@@ -30,11 +30,11 @@ function compare {
     wc -l "${out_path}/${file2}"
 
     echo "Sort the dumped edges"
-    sort -k 1,1n -k2,2n < "${out_path}/${file1}" > "${out_path}/tmp1"
-    sort -k 1,1n -k2,2n < "${out_path}/${file2}" > "${out_path}/tmp2"
+    sort -k 1,1n -k2,2n < "${out_path}/${file1}" > "${out_path}/tmp_sorted1"
+    sort -k 1,1n -k2,2n < "${out_path}/${file2}" > "${out_path}/tmp_sorted2"
 
     echo "Compare the dumped edges"
-    diff "${out_path}/tmp1" "${out_path}/tmp2" > ${out_path}/adj_diff
+    diff "${out_path}/tmp_sorted1" "${out_path}/tmp_sorted2" > ${out_path}/adj_diff
     num_diff=$(< ${out_path}/adj_diff wc -l)
 
     if [ ${num_diff} -eq 0 ]; then
@@ -45,7 +45,7 @@ function compare {
     fi
     echo ""
 
-    /bin/rm "${out_path}/${file1}" "${out_path}/${file2}" "${out_path}/tmp1" "${out_path}/tmp2" ${out_path}/adj_diff
+    /bin/rm "${out_path}/${file1}" "${out_path}/${file2}" "${out_path}/tmp_sorted1" "${out_path}/tmp_sorted2" ${out_path}/adj_diff
     echo ""
 }
 
@@ -68,7 +68,7 @@ echo ""
 
 compare ${out_name} ${out_ref}
 
-
+# ----- Reopen the file for persistency test----- #
 ./test/open_metall -o "${out_path}/segment" -d "${out_path}/${out_name}"
 check_program_exit_status
 echo ""

@@ -17,6 +17,8 @@
 #include <boost/unordered_map.hpp>
 #include <boost/container/scoped_allocator.hpp>
 
+#include "../utility/hash.hpp"
+
 namespace data_structure {
 
 namespace {
@@ -41,7 +43,7 @@ class multithread_adjacency_list {
 
   using key_table_allocator_type = bct::scoped_allocator_adaptor<other_allocator_type<std::pair<const key_type,
                                                                                                 list_type>>>;
-  using key_table_type = boost::unordered_map<key_type, list_type, std::hash<key_type>, std::equal_to<key_type>,
+  using key_table_type = boost::unordered_map<key_type, list_type, utility::hash<key_type>, std::equal_to<key_type>,
                                               key_table_allocator_type>;
 
   using bank_table_allocator_type = bct::scoped_allocator_adaptor<other_allocator_type<key_table_type>>;

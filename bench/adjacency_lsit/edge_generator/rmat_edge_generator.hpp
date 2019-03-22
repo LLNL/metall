@@ -9,59 +9,48 @@
 #include <iostream>
 #include <cassert>
 #include <limits>
+#include <utility>
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/graph/rmat_graph_generator.hpp>
-#include <boost/graph/adjacency_list.hpp>
+
+#include "../../utility/hash.hpp"
 
 namespace edge_generator {
 
 /// \brief Iterator for rmat_edge_generator class
+template <typename parent_type>
 class rmat_edge_generator_iterator {
  private:
   using rnd_generator_type = boost::random::mt19937;
-  using boost_graph_type = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS>;
-  using rmat_iterator_type = boost::rmat_iterator<rnd_generator_type, boost_graph_type>;
 
  public:
-  using value_type = rmat_iterator_type::value_type;
-  using reference = rmat_iterator_type::reference;
-  using pointer = rmat_iterator_type::pointer;
+  using value_type = std::pair<uint64_t, uint64_t>;
+  using const_reference = const value_type &;
+  using const_pointer = value_type *const;
 
-  rmat_edge_generator_iterator()
-      : m_rnd_generator(),
-        m_rmat_iterator(),
-        m_undirected(),
+  explicit rmat_edge_generator_iterator(const parent_type &parent, const std::size_t offset)
+      : m_ptr_parent(&parent),
+        m_rnd_generator(nullptr),
         m_current_edge(),
-        m_generate_reverse_edge() {}
-
-  // !!! CAUTION !!!
-  // In Boost 1.69, boost::rmat_iterator generates one less than the number of specified edges and
-  // cannot generate more than '2^31 - 1' edges as it uses a 'int' variable to count edges.
-  rmat_edge_generator_iterator(const uint32_t seed, const uint64_t vertex_scale, const uint64_t num_edges,
-                               const double a, const double b, const double c, const double d,
-                               const bool scramble_id, const bool undirected)
-      : m_rnd_generator(seed),
-        m_rmat_iterator(m_rnd_generator, 1ULL << vertex_scale, num_edges + 1, a, b, c, d, scramble_id),
-        m_undirected(undirected),
-        m_current_edge(*m_rmat_iterator),
-        m_generate_reverse_edge(true) {
-    if (num_edges > std::numeric_limits<int>::max()) {
-      std::cerr << "Too many edges to generate: " << num_edges << std::endl;
-      std::abort();
+        m_generate_reverse_edge(true),
+        m_num_generated_edges(offset) {
+    if (m_num_generated_edges < m_ptr_parent->m_num_edges) {
+      m_rnd_generator.reset(new boost::uniform_01<rnd_generator_type>(rnd_generator_type(m_ptr_parent->m_seed)));
+      generate_new_edge();
     }
   }
 
   rmat_edge_generator_iterator(const rmat_edge_generator_iterator &) = default;
-  rmat_edge_generator_iterator(rmat_edge_generator_iterator &&) = default;
+  rmat_edge_generator_iterator(rmat_edge_generator_iterator &&) noexcept = default;
   rmat_edge_generator_iterator &operator=(const rmat_edge_generator_iterator &) = default;
-  rmat_edge_generator_iterator &operator=(rmat_edge_generator_iterator &&) = default;
+  rmat_edge_generator_iterator &operator=(rmat_edge_generator_iterator &&) noexcept = default;
 
-  reference operator*() const {
+  const_reference operator*() const {
     return m_current_edge;
   }
 
-  pointer operator->() const {
+  const_pointer operator->() const {
     return &m_current_edge;
   }
 
@@ -70,14 +59,14 @@ class rmat_edge_generator_iterator {
     return *(this);
   }
 
-  rmat_edge_generator_iterator operator++(int) {
+  const rmat_edge_generator_iterator operator++(int) {
     rmat_edge_generator_iterator tmp(*this);
     operator++();
     return tmp;
   }
 
   bool operator==(const rmat_edge_generator_iterator &other) const {
-    return m_rmat_iterator == other.m_rmat_iterator;
+    return m_num_generated_edges == other.m_num_generated_edges;
   }
 
   bool operator!=(const rmat_edge_generator_iterator &other) const {
@@ -86,22 +75,35 @@ class rmat_edge_generator_iterator {
 
  private:
   void next() {
-    if (m_undirected & m_generate_reverse_edge) {
+    if (m_ptr_parent->m_undirected & m_generate_reverse_edge) {
       std::swap(m_current_edge.first, m_current_edge.second);
       m_generate_reverse_edge = false;
       return;
     }
 
-    ++m_rmat_iterator; // You can do '*m_rmat_iterator' even after m_rmat_iterator is at the end
-    m_current_edge = *m_rmat_iterator;
+    generate_new_edge();
 
-    if (m_undirected)
+    if (m_ptr_parent->m_undirected)
       m_generate_reverse_edge = true;
   }
 
-  rnd_generator_type m_rnd_generator;
-  rmat_iterator_type m_rmat_iterator;
-  const bool m_undirected;
+  void generate_new_edge() {
+    m_current_edge = generate_edge(m_rnd_generator,
+                                   1ULL << m_ptr_parent->m_vertex_scale,
+                                   m_ptr_parent->m_vertex_scale,
+                                   m_ptr_parent->m_a,
+                                   m_ptr_parent->m_b,
+                                   m_ptr_parent->m_c,
+                                   m_ptr_parent->m_d);
+    if (m_ptr_parent->m_scramble_id) {
+      m_current_edge.first = utility::hash<uint64_t>()(m_current_edge.first);
+      m_current_edge.second = utility::hash<uint64_t>()(m_current_edge.second);
+    }
+    ++m_num_generated_edges;
+  }
+
+  const parent_type *const m_ptr_parent;
+  boost::shared_ptr<boost::uniform_01<rnd_generator_type>> m_rnd_generator;
   value_type m_current_edge;
   bool m_generate_reverse_edge;
   std::size_t m_num_generated_edges;
@@ -109,8 +111,10 @@ class rmat_edge_generator_iterator {
 
 /// \brief R-MAT Edge Generator
 class rmat_edge_generator {
+
  public:
-  using iterator = rmat_edge_generator_iterator;
+  using iterator = rmat_edge_generator_iterator<rmat_edge_generator>;
+  friend iterator;
 
   rmat_edge_generator(const uint32_t seed, const uint64_t vertex_scale, const uint64_t num_edges,
                       const double a, const double b, const double c,
@@ -131,11 +135,11 @@ class rmat_edge_generator {
   }
 
   iterator begin() const {
-    return iterator(m_seed, m_vertex_scale, m_num_edges, m_a, m_b, m_c, m_d, m_scramble_id, m_undirected);
+    return iterator(*this, 0);
   }
 
   iterator end() const {
-    return iterator();
+    return iterator(*this, m_num_edges + 1);
   }
 
  private:

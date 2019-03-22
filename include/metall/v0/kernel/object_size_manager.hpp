@@ -98,8 +98,8 @@ constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> k_size_
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
 constexpr int32_t find_in_size_table(const std::size_t size, const uint32_t offset = 0) noexcept {
-  for (int32_t i = offset; i < k_size_table<k_chunk_size, k_max_size>.size(); ++i) {
-    if (size <= k_size_table<k_chunk_size, k_max_size>[i]) return i;
+  for (uint32_t i = offset; i < k_size_table<k_chunk_size, k_max_size>.size(); ++i) {
+    if (size <= k_size_table<k_chunk_size, k_max_size>[i]) return static_cast<int32_t>(i);
   }
   return -1; // Error
 }
