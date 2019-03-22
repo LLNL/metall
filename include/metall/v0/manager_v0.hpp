@@ -125,6 +125,10 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
     return kernel_type::remove_file(base_path);
   }
 
+  void profile(const std::string& log_file_name) const {
+    m_kernel.profile(log_file_name);
+  }
+
  private:
   /// -------------------------------------------------------------------------------- ///
   /// Private methods (required by the base class)

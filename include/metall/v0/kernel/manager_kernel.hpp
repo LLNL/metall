@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_MANAGER_V0_HPP
-#define METALL_DETAIL_V0_MANAGER_V0_HPP
+#ifndef METALL_DETAIL_V0_KERNEL_MANAGER_V0_HPP
+#define METALL_DETAIL_V0_KERNEL_MANAGER_V0_HPP
 
 #include <iostream>
 #include <cassert>
@@ -171,9 +171,10 @@ class manager_kernel {
     assert(priv_initialized());
 
     const bin_no_type bin_no = bin_no_mngr::to_bin_no(nbytes);
-    const size_type object_size = bin_no_mngr::to_object_size(bin_no);
 
-    if (object_size <= k_max_small_object_size) {
+    if (bin_no < k_num_small_bins) {
+      const size_type object_size = bin_no_mngr::to_object_size(bin_no);
+
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
       lock_guard_type bin_guard(m_bin_mutex[bin_no]);
 #endif
@@ -360,7 +361,7 @@ class manager_kernel {
   }
 
   // Implemented in another file.
-  void profile() const;
+  void profile(const std::string &log_file_name) const;
 
  private:
   // -------------------------------------------------------------------------------- //
@@ -506,4 +507,7 @@ class manager_kernel {
 } // namespace kernel
 } // namespace v0
 } // namespace metall
-#endif //METALL_DETAIL_V0_MANAGER_V0_HPP
+
+#endif //METALL_DETAIL_V0_KERNEL_MANAGER_V0_HPP
+
+#include <metall/v0/kernel/manager_kernel_profile_impl.ipp>

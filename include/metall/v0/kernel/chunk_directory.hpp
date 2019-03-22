@@ -42,7 +42,7 @@ class chunk_directory {
   using chunk_no_type = _chunk_no_type;
   using bin_no_type = typename bin_no_mngr::bin_no_type;
   using slot_no_type = typename util::unsigned_variable_type<k_num_max_slots - 1>::type;
-  using slot_size_type = typename util::unsigned_variable_type<k_num_max_slots>::type;
+  using slot_count_type = typename util::unsigned_variable_type<k_num_max_slots>::type;
 
  private:
   // -------------------------------------------------------------------------------- //
@@ -64,7 +64,7 @@ class chunk_directory {
 
     bin_no_type bin_no; // 1B
     chunk_type type;    // 1B
-    slot_size_type num_occupied_slots; // 4B
+    slot_count_type num_occupied_slots; // 4B
     multilayer_bitset slot_occupancy; // 8B
   };
 
@@ -122,7 +122,7 @@ class chunk_directory {
     if (empty_chunk(chunk_no)) return;
 
     if (m_table[chunk_no].type == chunk_type::small_chunk) {
-      const slot_size_type num_slots = k_chunk_size / bin_no_mngr::to_object_size(m_table[chunk_no].bin_no);
+      const slot_count_type num_slots = slots(chunk_no);
       m_table[chunk_no].type = chunk_type::empty;
       m_table[chunk_no].num_occupied_slots = 0;
       m_table[chunk_no].slot_occupancy.free(num_slots);
@@ -134,7 +134,8 @@ class chunk_directory {
     } else {
       m_table[chunk_no].type = chunk_type::empty;
       chunk_no_type offset = 1;
-      for (; chunk_no + offset < m_num_chunks && m_table[chunk_no + offset].type == chunk_type::large_chunk_tail; ++offset) {
+      for (; chunk_no + offset < m_num_chunks && m_table[chunk_no + offset].type == chunk_type::large_chunk_tail;
+             ++offset) {
         m_table[chunk_no + offset].type = chunk_type::empty;
       }
 
@@ -152,7 +153,7 @@ class chunk_directory {
     assert(chunk_no <= max_used_chunk_no());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
-    const slot_size_type num_slots = k_chunk_size / bin_no_mngr::to_object_size(m_table[chunk_no].bin_no);
+    const slot_count_type num_slots = slots(chunk_no);
     assert(num_slots >= 1);
 
     assert(m_table[chunk_no].num_occupied_slots < num_slots);
@@ -170,7 +171,7 @@ class chunk_directory {
     assert(chunk_no <= max_used_chunk_no());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
-    const slot_size_type num_slots = k_chunk_size / bin_no_mngr::to_object_size(m_table[chunk_no].bin_no);
+    const slot_count_type num_slots = slots(chunk_no);
     assert(num_slots >= 1);
 
     assert(m_table[chunk_no].num_occupied_slots > 0);
@@ -185,7 +186,7 @@ class chunk_directory {
     assert(chunk_no <= max_used_chunk_no());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
-    const slot_size_type num_slots = k_chunk_size / bin_no_mngr::to_object_size(m_table[chunk_no].bin_no);
+    const slot_count_type num_slots = slots(chunk_no);
     assert(num_slots >= 1);
 
     return (m_table[chunk_no].num_occupied_slots == num_slots);
@@ -224,7 +225,18 @@ class chunk_directory {
   /// \brief
   /// \param chunk_no
   /// \return
-  slot_size_type num_empty_slots(const chunk_no_type chunk_no) const {
+  const slot_count_type slots(const chunk_no_type chunk_no) const {
+    assert(chunk_no <= max_used_chunk_no());
+    assert(m_table[chunk_no].type == chunk_type::small_chunk);
+
+    const auto bin_no = m_table[chunk_no].bin_no;
+    return calc_num_slots(bin_no_mngr::to_object_size(bin_no));
+  }
+
+  /// \brief
+  /// \param chunk_no
+  /// \return
+  slot_count_type occupied_slots(const chunk_no_type chunk_no) const {
     assert(chunk_no <= max_used_chunk_no());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
     return m_table[chunk_no].num_occupied_slots;
@@ -250,7 +262,7 @@ class chunk_directory {
       if (!ofs) std::cerr << "Something happened in the ofstream: " << path << std::endl;
 
       if (m_table[chunk_no].type == chunk_type::small_chunk) {
-        const slot_size_type num_slots = k_chunk_size / bin_no_mngr::to_object_size(m_table[chunk_no].bin_no);
+        const slot_count_type num_slots = slots(chunk_no);
         ofs << " " << static_cast<uint64_t>(m_table[chunk_no].num_occupied_slots)
             << " " << m_table[chunk_no].slot_occupancy.serialize(num_slots) << "\n";
         if (!ofs) std::cerr << "Something happened in the ofstream: " << path << std::endl;
@@ -303,7 +315,7 @@ class chunk_directory {
       }
 
       if (m_table[chunk_no].type == chunk_type::small_chunk) {
-        const slot_size_type num_slots = k_chunk_size / bin_no_mngr::to_object_size(bin_no);
+        const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no));
         if (!(ifs >> buf1)) {
           std::cerr << "Cannot read a file: " << path << std::endl;
           std::abort();
@@ -353,6 +365,11 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   // Private methods
   // -------------------------------------------------------------------------------- //
+  constexpr slot_count_type calc_num_slots(const std::size_t object_size) const {
+    assert(k_chunk_size >= object_size);
+    return k_chunk_size / object_size;
+  }
+
   void allocate_table() {
     /// CAUTION: Assumes that mmap + MAP_ANONYMOUS returns zero-initialized region
     m_table = static_cast<entry_type *>(util::os_mmap(nullptr, m_num_chunks * sizeof(entry_type),
@@ -375,7 +392,7 @@ class chunk_directory {
   /// \param num_slots
   /// \return
   chunk_no_type insert_small_chunk(const bin_no_type bin_no) {
-    const slot_size_type num_slots = k_chunk_size / bin_no_mngr::to_object_size(bin_no);
+    const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no));
     assert(num_slots > 1);
 
     for (chunk_no_type chunk_no = 0; chunk_no < m_num_chunks; ++chunk_no) {
@@ -398,7 +415,7 @@ class chunk_directory {
   /// \param bin_no
   /// \return
   chunk_no_type insert_large_chunk(const bin_no_type bin_no) {
-    const std::size_t num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1)  / k_chunk_size;
+    const std::size_t num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
     assert(num_chunks >= 1);
 
     chunk_no_type count_empty_chunks = 0;
