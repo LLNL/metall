@@ -46,6 +46,11 @@ class bin_directory {
 
  public:
   // -------------------------------------------------------------------------------- //
+  // Public types and static values
+  // -------------------------------------------------------------------------------- //
+  using bin_const_iterator = typename bin_type::const_iterator;
+
+  // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
   bin_directory() = default;
@@ -90,6 +95,10 @@ class bin_directory {
     m_table[bin_no].pop_front();
   }
 
+  /// \brief
+  /// \param bin_no
+  /// \param chunk_no
+  /// \return
   bool erase(const bin_no_type bin_no, const chunk_no_type chunk_no) {
     assert(bin_no < k_num_bins);
     for (auto itr = m_table[bin_no].begin(), end = m_table[bin_no].end(); itr != end; ++itr) {
@@ -99,6 +108,16 @@ class bin_directory {
       }
     }
     return false;
+  }
+
+  bin_const_iterator begin(const bin_no_type bin_no) const {
+    assert(bin_no < k_num_bins);
+    return m_table[bin_no].begin();
+  }
+
+  bin_const_iterator end(const bin_no_type bin_no) const {
+    assert(bin_no < k_num_bins);
+    return m_table[bin_no].end();
   }
 
   /// \brief

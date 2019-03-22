@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
     const auto elapsed_time = utility::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
+    std::cout << "Writing profile" << std::endl;
     manager.profile("/tmp/metall_profile.log");
   }
 

@@ -10,6 +10,7 @@
 #include <string>
 #include <iomanip>
 #include <vector>
+#include <iterator>
 
 #include <metall/v0/kernel/manager_kernel.hpp>
 
@@ -28,8 +29,9 @@ void manager_kernel<chunk_no_type, k_chunk_size>::profile(const std::string &log
   std::vector<std::size_t> bin_no_dist(bin_no_mngr::num_bins(), 0);
 
   log_file  << std::fixed;
-  log_file << std::setprecision(1);
+  log_file << std::setprecision(2);
 
+  log_file << "\nChunk Directory" << "\n";
   for (chunk_no_type chunk_no = 0; chunk_no <= m_chunk_directory.max_used_chunk_no(); ++chunk_no) {
     log_file << chunk_no << "\t";
     if (m_chunk_directory.empty_chunk(chunk_no)) {
@@ -51,11 +53,17 @@ void manager_kernel<chunk_no_type, k_chunk_size>::profile(const std::string &log
     }
   }
 
-  log_file << std::endl;
-
-  for(std::size_t i = 0; i < bin_no_dist.size(); ++i) {
-    log_file << i << "\t" << bin_no_mngr::to_object_size(i) << "\t" << bin_no_dist[i] << "\n";
+  log_file << "\nBeeing Used Bins" << "\n";
+  for(std::size_t bin_no = 0; bin_no < bin_no_dist.size(); ++bin_no) {
+    log_file << bin_no << "\t" << bin_no_mngr::to_object_size(bin_no) << "\t" << bin_no_dist[bin_no] << "\n";
   }
+
+  log_file << "\nBin Directory" << "\n";
+  for (std::size_t bin_no = 0; bin_no < bin_no_mngr::num_small_bins(); ++bin_no) {
+    std::size_t count = std::distance(m_bin_directory.begin(bin_no), m_bin_directory.end(bin_no));
+    log_file << bin_no << "\t" << bin_no_mngr::to_object_size(bin_no) << "\t" << count << "\n";
+  }
+
   log_file.close();
 }
 
