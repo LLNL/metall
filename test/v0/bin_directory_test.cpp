@@ -24,13 +24,21 @@ TEST(BinDirectoryTest, Front) {
   ASSERT_EQ(obj.front(0), 1);
 
   obj.insert(0, 2);
+#ifdef USE_SPACE_AWARE_BIN
+  ASSERT_EQ(obj.front(0), 1);
+#else
   ASSERT_EQ(obj.front(0), 2);
+#endif
 
   obj.insert(num_small_bins - 1, 3);
   ASSERT_EQ(obj.front(num_small_bins - 1), 3);
 
   obj.insert(num_small_bins - 1, 4);
+#ifdef USE_SPACE_AWARE_BIN
+  ASSERT_EQ(obj.front(num_small_bins - 1), 3);
+#else
   ASSERT_EQ(obj.front(num_small_bins - 1), 4);
+#endif
 }
 
 TEST(BinDirectoryTest, Empty) {
@@ -101,13 +109,26 @@ TEST(BinDirectoryTest, Deserialize) {
     directory_type obj;
     ASSERT_TRUE(obj.deserialize("/tmp/bin_directory_test_file"));
 
+#ifdef USE_SPACE_AWARE_BIN
+    ASSERT_EQ(obj.front(0), 1);
+    obj.pop(0);
+    ASSERT_EQ(obj.front(0), 2);
+#else
     ASSERT_EQ(obj.front(0), 2);
     obj.pop(0);
     ASSERT_EQ(obj.front(0), 1);
+#endif
 
+#ifdef USE_SPACE_AWARE_BIN
+    ASSERT_EQ(obj.front(num_small_bins - 1), 3);
+    obj.pop(num_small_bins - 1);
+    ASSERT_EQ(obj.front(num_small_bins - 1), 4);
+#else
     ASSERT_EQ(obj.front(num_small_bins - 1), 4);
     obj.pop(num_small_bins - 1);
     ASSERT_EQ(obj.front(num_small_bins - 1), 3);
+#endif
+
   }
 }
 

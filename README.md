@@ -26,7 +26,7 @@ make test    # option; BUILD_TEST must be ON
 
  - cmake 3.5 or more.
  - GCC (g++) supports C++17.
- - Boost C++ Libraries 1.50 or more (build is not required; needs only their header files).
+ - Boost C++ Libraries 1.60 or more (build is not required; needs only their header files).
 
 
 ### Additional Cmake Options

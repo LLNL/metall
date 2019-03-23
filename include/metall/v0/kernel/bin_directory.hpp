@@ -11,8 +11,16 @@
 #include <fstream>
 #include <string>
 #include <array>
-#include <deque>
 #include <cassert>
+#include <functional>
+
+#define USE_SPACE_AWARE_BIN
+
+#ifdef USE_SPACE_AWARE_BIN
+#include <boost/container/flat_set.hpp>
+#else
+#include <deque>
+#endif
 
 #include <metall/detail/utility/common.hpp>
 
@@ -25,8 +33,8 @@ namespace util = metall::detail::utility;
 }
 
 /// \brief
+/// \tparam _k_num_bins
 /// \tparam _chunk_no_type
-/// \tparam bin_number_manager
 template <std::size_t _k_num_bins, typename _chunk_no_type>
 class bin_directory {
  public:
@@ -41,7 +49,11 @@ class bin_directory {
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
+#ifdef USE_SPACE_AWARE_BIN
+  using bin_type = boost::container::flat_set<chunk_no_type, std::greater<chunk_no_type>>;
+#else
   using bin_type = std::deque<chunk_no_type>;
+#endif
   using table_type = std::array<bin_type, k_num_bins>;
 
  public:
@@ -77,7 +89,11 @@ class bin_directory {
   chunk_no_type front(const bin_no_type bin_no) const {
     assert(bin_no < k_num_bins);
     assert(!empty(bin_no));
+#ifdef USE_SPACE_AWARE_BIN
+    return *(m_table[bin_no].end() - 1);
+#else
     return m_table[bin_no].front();
+#endif
   }
 
   /// \brief
@@ -85,14 +101,22 @@ class bin_directory {
   /// \param chunk_no
   void insert(const bin_no_type bin_no, const chunk_no_type chunk_no) {
     assert(bin_no < k_num_bins);
+#ifdef USE_SPACE_AWARE_BIN
+    m_table[bin_no].insert(chunk_no);
+#else
     m_table[bin_no].emplace_front(chunk_no);
+#endif
   }
 
   /// \brief
   /// \param bin_no
   void pop(const bin_no_type bin_no) {
     assert(bin_no < k_num_bins);
+#ifdef USE_SPACE_AWARE_BIN
+    m_table[bin_no].erase(m_table[bin_no].end() - 1);
+#else
     m_table[bin_no].pop_front();
+#endif
   }
 
   /// \brief
@@ -101,12 +125,20 @@ class bin_directory {
   /// \return
   bool erase(const bin_no_type bin_no, const chunk_no_type chunk_no) {
     assert(bin_no < k_num_bins);
+#ifdef USE_SPACE_AWARE_BIN
+    const auto itr = m_table[bin_no].find(chunk_no);
+    if (itr != m_table[bin_no].end()) {
+      m_table[bin_no].erase(itr);
+      return true;
+    }
+#else
     for (auto itr = m_table[bin_no].begin(), end = m_table[bin_no].end(); itr != end; ++itr) {
       if (*itr == chunk_no) {
         m_table[bin_no].erase(itr);
         return true;
       }
     }
+#endif
     return false;
   }
 
@@ -162,7 +194,7 @@ class bin_directory {
         std::cerr << "Too large bin number is found: " << bin_no << std::endl;
         return false;
       }
-      m_table[bin_no].emplace_back(chunk_no);
+      insert(bin_no, chunk_no);
     }
 
     if (!ifs.eof()) {

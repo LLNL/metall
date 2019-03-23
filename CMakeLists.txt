@@ -7,7 +7,8 @@ project(Metall)
 option(BUILD_BENCH "Build the benchmark" ON)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
-option(BUILD_DOC "Build documentation" ON)
+option(BUILD_DOC "Build documentation" OFF)
+option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 
 # ----- Experimental options ----- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
@@ -28,6 +29,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_C_FLAGS "-Wall -v -pthread")
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+
+if (USE_SPACE_AWARE_BIN)
+    add_definitions(-DUSE_SPACE_AWARE_BIN)
+    message(WARNING "Try to fill from lower address.")
+endif()
 
 if (USE_ANONYMOUS_MAP)
     add_definitions(-DUSE_ANONYMOUS_MAP)

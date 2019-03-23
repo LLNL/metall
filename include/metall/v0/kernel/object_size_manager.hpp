@@ -23,11 +23,12 @@ namespace object_size_manager_detail {
 constexpr std::size_t k_page_size = 4096;
 
 // CAUTION:
-// assume that page size is 4 KiB and chunk size is less than 1 GiB
+// assume that page size is 4 KiB
 constexpr std::size_t k_class1_small_size_table[] = {
     // Class 1 (small class in SuperMalloc): limit internal fragmentation to at most 25%.
     8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224,
-    // Class 2 (medium class in SuperMalloc): a multiple of 64.
+    // Class 2 (medium class in SuperMalloc): powers of two and prime multiples of cache line size
+    // We use powers of two even requested sizes don't mach exactly to them
     256, 320, 448, 512, 576, 704, 960, 1024, 1216, 1472, 1984, 2048, 2752, 3904, 4096, 5312, 7232, 8192, 10048, 14272,
 };
 constexpr uint32_t k_class1_small_size_table_length = (uint32_t)std::extent<decltype(k_class1_small_size_table)>::value - 1;
