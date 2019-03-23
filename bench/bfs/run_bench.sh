@@ -15,8 +15,9 @@ case "$OSTYPE" in
   darwin*)  GRAPH_DIR_ROOT="/tmp";;
   linux*)   GRAPH_DIR_ROOT="/dev/shm";;
 esac
+NO_DELETE_FILES_AT_END=false
 
-while getopts "v:f:r:l:m:t:d:s:" OPT
+while getopts "v:f:r:l:m:t:s:g:n" OPT
 do
   case $OPT in
     v) V=$OPTARG;;
@@ -25,7 +26,8 @@ do
     l) LOG_FILE_PREFIX=$OPTARG;;
     t) NUM_THREADS="env OMP_NUM_THREADS=${OPTARG}";;
     s) SCHEDULE="env OMP_SCHEDULE=${OPTARG}";;
-    d) GRAPH_DIR_ROOT=$OPTARG;;
+    g) GRAPH_DIR_ROOT=$OPTARG;;
+    n) NO_DELETE_FILES_AT_END=true;;
     :) echo  "[ERROR] Option argument is undefined.";;   #
     \?) echo "[ERROR] Undefined options.";;
   esac
@@ -94,7 +96,7 @@ function run() {
     GRAPH_DIR=${GRAPH_DIR_ROOT}/${EXEC_NAME}
 
     make_dir ${GRAPH_DIR}
-    rm -f "${GRAPH_DIR}/${GRAPH_NAME}*"
+    rm -f "${GRAPH_DIR}/*"
 
     ${INIT_COMMAND}
 
@@ -120,6 +122,14 @@ function run() {
     exec_file_name="./run_bfs_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
     execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -g "${GRAPH_DIR}/${GRAPH_NAME}" -k ${ADJ_LIST_KEY_NAME} -r ${BFS_ROOT} -m ${MAX_VERTEX_ID}
+
+
+    if ${NO_DELETE_FILES_AT_END}; then
+        echo "Do not delete the used directory"
+    else
+        echo "Delete the used directory"
+        rm -rf ${GRAPH_DIR}
+    fi
 }
 
 run bip
