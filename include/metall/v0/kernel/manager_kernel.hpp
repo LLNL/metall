@@ -10,6 +10,7 @@
 #include <cassert>
 #include <string>
 #include <utility>
+#include <memory>
 
 #include <metall/offset_ptr.hpp>
 #include <metall/v0/kernel/bin_number_manager.hpp>
@@ -41,7 +42,8 @@ namespace util = metall::detail::utility;
 /// \brief Manager kernel class version 0
 /// \tparam chunk_no_type Type of chunk number
 /// \tparam k_chunk_size Size of single chunk in byte
-template <typename chunk_no_type, std::size_t k_chunk_size>
+/// \tparam allocator_type Allocator used to allocate internal data
+template <typename chunk_no_type, std::size_t k_chunk_size, typename allocator_type>
 class manager_kernel {
 
  public:
@@ -59,7 +61,7 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  using self_type = manager_kernel<chunk_no_type, k_chunk_size>;
+  using self_type = manager_kernel<chunk_no_type, k_chunk_size, allocator_type>;
 
   static constexpr size_type k_max_size = 1ULL << 48; // TODO: get from somewhere else
 
@@ -70,16 +72,16 @@ class manager_kernel {
   static constexpr const char *k_segment_file_name = "segment";
 
   // For bin directory (NOTE: we only manage small bins)
-  using bin_directory_type = bin_directory<k_num_small_bins, chunk_no_type>;
+  using bin_directory_type = bin_directory<k_num_small_bins, chunk_no_type, allocator_type>;
   static constexpr const char *k_bin_directory_file_name = "bin_directory";
 
   // For chunk directory
-  using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size>;
+  using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size, allocator_type>;
   using chunk_slot_no_type = typename chunk_directory_type::slot_no_type;
   static constexpr const char *k_chunk_directory_file_name = "chunk_directory";
 
   // For named object directory
-  using named_object_directory_type = named_object_directory<difference_type, size_type>;
+  using named_object_directory_type = named_object_directory<difference_type, size_type, allocator_type>;
   static constexpr const char *k_named_object_directory_file_name = "named_object_directory";
 
   // For data segment manager
@@ -96,7 +98,13 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  manager_kernel() = default;
+  explicit manager_kernel(const allocator_type &allocator)
+      : m_file_base_path(),
+        m_bin_directory(allocator),
+        m_chunk_directory(allocator),
+        m_named_object_directory(allocator),
+        m_segment_storage()
+  {}
 
   ~manager_kernel() {
     close();
@@ -123,7 +131,7 @@ class manager_kernel {
       std::abort();
     }
 
-    m_chunk_directory.initialize(priv_num_chunks());
+    m_chunk_directory.reserve(priv_num_chunks());
   }
 
   /// \brief Expect to be called by a single thread
@@ -134,7 +142,7 @@ class manager_kernel {
 
     if (!m_segment_storage.open(priv_file_name(k_segment_file_name).c_str())) return false;
 
-    m_chunk_directory.initialize(priv_num_chunks());
+    m_chunk_directory.reserve(priv_num_chunks());
 
     if (!m_bin_directory.deserialize(priv_file_name(k_bin_directory_file_name).c_str()) ||
         !m_chunk_directory.deserialize(priv_file_name(k_chunk_directory_file_name).c_str()) ||
@@ -279,10 +287,9 @@ class manager_kernel {
       return std::make_pair<T *, size_type>(nullptr, 0);
     }
 
-    const auto offset_and_size = iterator->second;
-    return std::make_pair(reinterpret_cast<T *>(offset_and_size.first
-                              + static_cast<char *>(m_segment_storage.segment())),
-                          offset_and_size.second);
+    const auto offset = std::get<1>(iterator->second);
+    const auto length = std::get<2>(iterator->second);
+    return std::make_pair(reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.segment())), length);
   }
 
   template <typename T>
@@ -293,7 +300,8 @@ class manager_kernel {
       return false;
     }
 
-    typename named_object_directory_type::mapped_type offset_and_size;
+    difference_type offset;
+    size_type length;
     { // Erase from named_object_directory
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
       lock_guard_type guard(m_named_object_directory_mutex);
@@ -304,18 +312,18 @@ class manager_kernel {
       const auto iterator = m_named_object_directory.find(raw_name);
       if (iterator == m_named_object_directory.end()) return false; // No object with the name
       m_named_object_directory.erase(iterator);
-      offset_and_size = iterator->second;
+      offset = std::get<1>(iterator->second);
+      length = std::get<2>(iterator->second);
     }
 
     // Destruct each object
-    auto ptr = static_cast<T *>(static_cast<void *>(offset_and_size.first
-        + static_cast<char *>(m_segment_storage.segment())));
-    for (size_type i = 0; i < offset_and_size.second; ++i) {
+    auto ptr = static_cast<T *>(static_cast<void *>(offset + static_cast<char *>(m_segment_storage.segment())));
+    for (size_type i = 0; i < length; ++i) {
       ptr->~T();
       ++ptr;
     }
 
-    deallocate(offset_and_size.first + static_cast<char *>(m_segment_storage.segment()));
+    deallocate(offset + static_cast<char *>(m_segment_storage.segment()));
 
     return true;
   }
@@ -346,6 +354,9 @@ class manager_kernel {
     }
   }
 
+  /// \brief
+  /// \param base_path
+  /// \return
   bool snapshot(const char *base_path) {
     sync();
 
@@ -356,6 +367,9 @@ class manager_kernel {
     return true;
   }
 
+  /// \brief
+  /// \param base_path
+  /// \return
   static bool remove_file(const char *base_path) {
     return priv_remove_backing_files(base_path);
   }
@@ -408,8 +422,8 @@ class manager_kernel {
       const auto iterator = m_named_object_directory.find(name);
       if (iterator != m_named_object_directory.end()) { // Found an entry
         if (try2find) {
-          const auto offset_and_size = iterator->second;
-          return reinterpret_cast<T *>(offset_and_size.first + static_cast<char *>(m_segment_storage.segment()));
+          const auto offset = std::get<1>(iterator->second);
+          return reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.segment()));
         } else {
           return nullptr;
         }

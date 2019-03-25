@@ -10,16 +10,17 @@
 #include <limits>
 #include <fstream>
 #include <string>
-#include <array>
 #include <cassert>
 #include <functional>
+#include <memory>
 
-#define USE_SPACE_AWARE_BIN
+#include <boost/container/vector.hpp>
+#include <boost/container/scoped_allocator.hpp>
 
 #ifdef USE_SPACE_AWARE_BIN
 #include <boost/container/flat_set.hpp>
 #else
-#include <deque>
+#include <boost/container/deque.hpp>
 #endif
 
 #include <metall/detail/utility/common.hpp>
@@ -35,7 +36,8 @@ namespace util = metall::detail::utility;
 /// \brief
 /// \tparam _k_num_bins
 /// \tparam _chunk_no_type
-template <std::size_t _k_num_bins, typename _chunk_no_type>
+/// \tparam allocator_type
+template <std::size_t _k_num_bins, typename _chunk_no_type, typename allocator_type>
 class bin_directory {
  public:
   // -------------------------------------------------------------------------------- //
@@ -49,12 +51,17 @@ class bin_directory {
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
+  template <typename T>
+  using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
 #ifdef USE_SPACE_AWARE_BIN
-  using bin_type = boost::container::flat_set<chunk_no_type, std::greater<chunk_no_type>>;
+  using bin_allocator_type = other_allocator_type<chunk_no_type>;
+  using bin_type = boost::container::flat_set<chunk_no_type, std::greater<chunk_no_type>, bin_allocator_type>;
 #else
-  using bin_type = std::deque<chunk_no_type>;
+  using bin_allocator_type = other_allocator_type<chunk_no_type>;
+  using bin_type = boost::container::deque<chunk_no_type, bin_allocator_type>;
 #endif
-  using table_type = std::array<bin_type, k_num_bins>;
+  using table_allocator = boost::container::scoped_allocator_adaptor<other_allocator_type<bin_type>>;
+  using table_type = boost::container::vector<bin_type, table_allocator>;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -65,7 +72,9 @@ class bin_directory {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  bin_directory() = default;
+  explicit bin_directory(const allocator_type &allocator)
+      : m_table(k_num_bins, bin_type(allocator), allocator) {}
+
   ~bin_directory() = default;
   bin_directory(const bin_directory &) = default;
   bin_directory(bin_directory &&) noexcept = default;

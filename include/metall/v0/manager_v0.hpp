@@ -6,6 +6,8 @@
 #ifndef METALL_MANAGER_V0_HPP
 #define METALL_MANAGER_V0_HPP
 
+#include <memory>
+
 #include <metall/stl_allocator.hpp>
 #include <metall/detail/base_manager.hpp>
 #include <metall/v0/kernel/manager_kernel.hpp>
@@ -20,7 +22,7 @@ namespace util = metall::detail::utility;
 }
 
 // Forward declaration
-template <typename chunk_no_type, std::size_t k_chunk_size>
+template <typename chunk_no_type, std::size_t k_chunk_size, typename kernel_allocator_type>
 class manager_v0;
 
 // Detailed types
@@ -28,10 +30,10 @@ namespace detail {
 /// \brief This is just a utility class to hold important types in manager
 /// \tparam chunk_no_type
 /// \tparam k_chunk_size
-template <typename chunk_no_type,
-    std::size_t k_chunk_size>
+/// \tparam kernel_allocator_type
+template <typename chunk_no_type, std::size_t k_chunk_size, typename kernel_allocator_type>
 struct manager_type_holder {
-  using kernel_type = kernel::manager_kernel<chunk_no_type, k_chunk_size>;
+  using kernel_type = kernel::manager_kernel<chunk_no_type, k_chunk_size, kernel_allocator_type>;
   using void_pointer = typename kernel_type::void_pointer;
   using size_type = typename kernel_type::size_type;
   using difference_type = typename kernel_type::difference_type;
@@ -44,8 +46,6 @@ struct manager_type_holder {
 };
 }
 
-// TODO: takes an allocator type
-
 /// \brief Manager class version 0.
 ///
 /// This class is designed to be a delivered class of base_manager with Curiously Recurring Template Pattern (CRTP).
@@ -56,17 +56,21 @@ struct manager_type_holder {
 /// The type of chunk number such as uint32_t.
 /// \tparam k_chunk_size
 /// The chunk size in byte.
-template <typename chunk_no_type,
-          std::size_t k_chunk_size>
-class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type, k_chunk_size>,
+/// \tparam kernel_allocator_type
+/// The type of the internal allocator
+template <typename chunk_no_type = uint32_t,
+          std::size_t k_chunk_size = 1 << 21,
+          typename kernel_allocator_type = std::allocator<char>>
+class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type, k_chunk_size, kernel_allocator_type>,
                                                        detail::manager_type_holder<chunk_no_type,
-                                                                                   k_chunk_size>> {
+                                                                                   k_chunk_size,
+                                                                                   kernel_allocator_type>> {
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  using self_type = manager_v0<chunk_no_type, k_chunk_size>;
-  using type_holder = detail::manager_type_holder<chunk_no_type, k_chunk_size>;
+  using self_type = manager_v0<chunk_no_type, k_chunk_size, kernel_allocator_type>;
+  using type_holder = detail::manager_type_holder<chunk_no_type, k_chunk_size, kernel_allocator_type>;
   using base_type = metall::detail::base_manager<self_type, type_holder>;
   friend base_type;
   using kernel_type = typename type_holder::kernel_type;
@@ -87,24 +91,29 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   template <typename T>
   using construct_iter_proxy = typename type_holder::template construct_iter_proxy<T>;
 
+  using chunk_number_type = chunk_no_type;
+
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  manager_v0(open_only_t, const char *base_path)
-      : m_kernel() {
+  manager_v0(open_only_t, const char *base_path,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
     if (!m_kernel.open(base_path)) {
       std::cerr << "Cannot open " << base_path << std::endl;
       std::abort();
     }
   }
 
-  manager_v0(create_only_t, const char *base_path, const size_type capacity)
-      : m_kernel() {
+  manager_v0(create_only_t, const char *base_path, const size_type capacity,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
     m_kernel.create(base_path, capacity);
   }
 
-  manager_v0(open_or_create_t, const char *base_path, const size_type capacity)
-      : m_kernel() {
+  manager_v0(open_or_create_t, const char *base_path, const size_type capacity,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
     if (!m_kernel.open(base_path)) {
       m_kernel.create(base_path, capacity);
     }
@@ -125,7 +134,11 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
     return kernel_type::remove_file(base_path);
   }
 
-  void profile(const std::string& log_file_name) const {
+  static constexpr size_type chunk_size() {
+    return k_chunk_size;
+  }
+
+  void profile(const std::string &log_file_name) const {
     m_kernel.profile(log_file_name);
   }
 

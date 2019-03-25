@@ -14,6 +14,8 @@
 #include <tuple>
 #include <string>
 #include <sstream>
+#include <memory>
+#include <algorithm>
 
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/bitset.hpp>
@@ -50,10 +52,6 @@ constexpr uint64_t num_index_blocks(const uint64_t num_local_blocks,
           * util::power_cpt(num_local_blocks, index_depth - 2); // top layer and #blocks for the trees
 }
 
-} // namespace multilayer_bitset_detail
-
-namespace bs = metall::detail::utility::bitset_detail;
-namespace mlbs = multilayer_bitset_detail;
 
 // Index is log2(#of bits)
 // !!! This array supports up to 4 layers for now !!!
@@ -88,7 +86,14 @@ static constexpr std::size_t k_num_blocks_table[25][4] = {
     {1, 32, 2048, 131072},
     {1, 64, 4096, 262144}
 };
+} // namespace multilayer_bitset_detail
 
+namespace {
+namespace bs = metall::detail::utility::bitset_detail;
+namespace mlbs = multilayer_bitset_detail;
+}
+
+template <typename allocator_type>
 class multilayer_bitset {
  public:
   // -------------------------------------------------------------------------------- //
@@ -104,7 +109,7 @@ class multilayer_bitset {
                                                                                     uint32_t,
                                                                                     uint64_t>::type>::type>::type;
 
-    block_holder() : block(0) {}; // TODO: doesn't need to initialize ?
+    block_holder() = default;
     ~block_holder() = default;
     block_holder(const block_holder &) = default;
     block_holder(block_holder &&other) noexcept = default;
@@ -114,13 +119,16 @@ class multilayer_bitset {
     block_type block; // Construct a bitset into this space directly if #of required bits are small
     block_type *array; // Holds a pointer to a multi-layer bitset table
   };
+  using block_type = typename block_holder::block_type;
+  static constexpr std::size_t k_num_bits_in_block = sizeof(block_type) * 8;
 
-  static constexpr std::size_t k_num_bits_in_block = sizeof(block_holder::block_type) * 8;
+  using rebind_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<block_type>;
 
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
   multilayer_bitset() = default;
+  ~multilayer_bitset() = default;
   multilayer_bitset(const multilayer_bitset &) = default;
   multilayer_bitset(multilayer_bitset &&other) noexcept = default;
   multilayer_bitset &operator=(const multilayer_bitset &) = default;
@@ -129,41 +137,41 @@ class multilayer_bitset {
   /// -------------------------------------------------------------------------------- ///
   /// Public methods
   /// -------------------------------------------------------------------------------- ///
-  void allocate(const std::size_t _num_bits) {
-    const std::size_t num_bits = util::next_power_of_2(_num_bits);
-    if (num_bits <= k_num_bits_in_block) {
+  void allocate(const std::size_t num_bits, rebind_allocator_type& allocator) {
+    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    if (num_bits_power2 <= k_num_bits_in_block) {
       m_data.block = 0;
     } else {
-      allocate_multilayer_bitset(num_bits);
+      allocate_multilayer_bitset(num_bits_power2, allocator);
     }
   }
 
   /// \brief Users have to explicitly free bitset table
-  void free(const std::size_t _num_bits) {
-    const std::size_t num_bits = util::next_power_of_2(_num_bits);
-    if (k_num_bits_in_block < num_bits) {
-      free_multilayer_bitset();
+  void free(const std::size_t num_bits, rebind_allocator_type& allocator) {
+    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    if (k_num_bits_in_block < num_bits_power2) {
+      free_multilayer_bitset(num_bits_power2, allocator);
     }
   }
 
   /// \brief
   /// \param num_bits
   /// \return
-  ssize_t find_and_set(const std::size_t _num_bits) {
-    const std::size_t num_bits = util::next_power_of_2(_num_bits);
-    if (num_bits <= k_num_bits_in_block) {
-      return find_and_set_in_single_block(num_bits);
+  ssize_t find_and_set(const std::size_t num_bits) {
+    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    if (num_bits_power2 <= k_num_bits_in_block) {
+      return find_and_set_in_single_block(num_bits_power2);
     } else {
-      return find_and_set_in_multilayers(num_bits);
+      return find_and_set_in_multilayers(num_bits_power2);
     }
   }
 
-  void reset(const std::size_t _num_bits, const ssize_t bit_no) {
-    const std::size_t num_bits = util::next_power_of_2(_num_bits);
-    if (num_bits <= k_num_bits_in_block) {
+  void reset(const std::size_t num_bits, const ssize_t bit_no) {
+    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    if (num_bits_power2 <= k_num_bits_in_block) {
       bs::reset(&m_data.block, bit_no);
     } else {
-      reset_bit_in_multilayers(num_bits, bit_no);
+      reset_bit_in_multilayers(num_bits_power2, bit_no);
     }
   }
 
@@ -171,13 +179,13 @@ class multilayer_bitset {
     return m_data;
   }
 
-  std::string serialize(const std::size_t _num_bits) const {
-    const std::size_t num_bits = util::next_power_of_2(_num_bits);
-    if (num_bits <= k_num_bits_in_block) {
+  std::string serialize(const std::size_t num_bits) const {
+    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    if (num_bits_power2 <= k_num_bits_in_block) {
       return std::to_string(static_cast<uint64_t>(m_data.block));
     } else {
       std::string buf;
-      const std::size_t nb = num_all_blokcs(num_bits);
+      const std::size_t nb = num_all_blokcs(num_bits_power2);
       for (std::size_t i = 0; i < nb; ++i) {
         if (i != 0) buf += " ";
         buf += std::to_string(static_cast<uint64_t>(m_data.array[i]));
@@ -186,15 +194,15 @@ class multilayer_bitset {
     }
   }
 
-  bool deserialize(const std::size_t _num_bits, const std::string &input_string) {
-    const std::size_t num_bits = util::next_power_of_2(_num_bits);
-    if (num_bits <= k_num_bits_in_block) {
+  bool deserialize(const std::size_t num_bits, const std::string &input_string) {
+    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    if (num_bits_power2 <= k_num_bits_in_block) {
       std::istringstream ss(input_string);
       uint64_t buf;
       ss >> buf;
       m_data.block = buf;
     } else {
-      const std::size_t num_blocks = num_all_blokcs(num_bits);
+      const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
       std::stringstream ss(input_string);
 
       std::size_t count = 0;
@@ -203,7 +211,7 @@ class multilayer_bitset {
         if (num_blocks < count) {
           return false;
         }
-        m_data.array[count] = static_cast<block_holder::block_type>(buf);
+        m_data.array[count] = static_cast<block_type>(buf);
         ++count;
       }
       if (count != num_blocks) return false;
@@ -216,16 +224,19 @@ class multilayer_bitset {
   /// Private methods
   /// -------------------------------------------------------------------------------- ///
   // -------------------- Allocation and free -------------------- //
-  void allocate_multilayer_bitset(const std::size_t num_bits_power2) {
-    m_data.array = new block_holder::block_type[num_all_blokcs(num_bits_power2)](); // Allocate region zero-initializing
+  void allocate_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
+    const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
+    m_data.array = std::allocator_traits<rebind_allocator_type>::allocate(allocator, num_blocks);
+    std::fill(&m_data.array[0], &m_data.array[num_blocks], 0);
+
     if (!m_data.array) {
       std::cerr << "Cannot allocate multi-layer bitset" << std::endl;
       std::abort();
     }
   }
 
-  void free_multilayer_bitset() {
-    delete[] m_data.array;
+  void free_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
+    std::allocator_traits<rebind_allocator_type>::deallocate(allocator, m_data.array, num_all_blokcs(num_bits_power2));
   }
 
   // -------------------- Find, set, and reset bits -------------------- //
@@ -242,12 +253,12 @@ class multilayer_bitset {
   ssize_t find_and_set_in_multilayers(const std::size_t num_bits_power2) {
     const std::size_t idx = util::log2_dynamic(num_bits_power2);
 
-    const ssize_t bit_index_in_leaf_layer = find_in_multilayers(k_num_layers_table[idx], k_num_blocks_table[idx]);
+    const ssize_t bit_index_in_leaf_layer = find_in_multilayers(mlbs::k_num_layers_table[idx], mlbs::k_num_blocks_table[idx]);
     assert(bit_index_in_leaf_layer < static_cast<ssize_t>(num_bits_power2));
     if (bit_index_in_leaf_layer < 0) return -1; // Error
 
-    set_in_multilayers(k_num_layers_table[idx], k_num_index_blocks_table[idx],
-                       k_num_blocks_table[idx], bit_index_in_leaf_layer);
+    set_in_multilayers(mlbs::k_num_layers_table[idx], mlbs::k_num_index_blocks_table[idx],
+                       mlbs::k_num_blocks_table[idx], bit_index_in_leaf_layer);
     return bit_index_in_leaf_layer;
   }
 
@@ -278,7 +289,7 @@ class multilayer_bitset {
 
     for (int layer = static_cast<int>(num_layers) - 1; layer >= 0; --layer) {
       const ssize_t block_index = num_parent_blocks + bit_index / k_num_bits_in_block;
-      bs::set(&m_data.array[block_index], bs::local_index<block_holder::block_type>(static_cast<std::size_t>(bit_index)));
+      bs::set(&m_data.array[block_index], bs::local_index<block_type>(static_cast<std::size_t>(bit_index)));
 
       if (!full_block(m_data.array[block_index])) break;
       if (layer == 0) break;
@@ -291,8 +302,8 @@ class multilayer_bitset {
   void reset_bit_in_multilayers(const std::size_t num_bits_power2, const ssize_t bit_index) {
     const std::size_t idx = util::log2_dynamic(num_bits_power2);
 
-    const std::size_t num_layers = k_num_layers_table[idx];
-    std::size_t num_parent_index_block = k_num_index_blocks_table[idx];
+    const std::size_t num_layers = mlbs::k_num_layers_table[idx];
+    std::size_t num_parent_index_block = mlbs::k_num_index_blocks_table[idx];
     ssize_t bit_index_in_current_layer = bit_index;
 
     for (ssize_t layer = num_layers - 1; layer >= 0; --layer) {
@@ -300,29 +311,29 @@ class multilayer_bitset {
           + bit_index_in_current_layer / k_num_bits_in_block]);
       bs::reset(&m_data.array[num_parent_index_block], static_cast<std::size_t>(bit_index_in_current_layer));
       if (!was_full || layer == 0) break;
-      num_parent_index_block -= k_num_blocks_table[idx][layer - 1];
+      num_parent_index_block -= mlbs::k_num_blocks_table[idx][layer - 1];
       bit_index_in_current_layer = bit_index_in_current_layer / k_num_bits_in_block;
     }
   }
 
   // -------------------- Utilities -------------------- //
-  ssize_t find_first_zero_in_block(block_holder::block_type block) const {
-    static_assert(sizeof(block_holder::block_type) == sizeof(uint64_t),
+  ssize_t find_first_zero_in_block(block_type block) const {
+    static_assert(sizeof(block_type) == sizeof(uint64_t),
                   "This implementation works on only 64bit system now");
     static_assert(sizeof(unsigned long long) == sizeof(uint64_t), "sizeof(unsigned long long) != sizeof(uint64_t)");
 
     return (block == 0) ? 0 : __builtin_clzll(~block);
   }
 
-  bool full_block(block_holder::block_type block) const {
-    return block == ~static_cast<block_holder::block_type>(0);
+  bool full_block(block_type block) const {
+    return block == ~static_cast<block_type>(0);
   }
 
   std::size_t num_all_blokcs(const std::size_t num_bits_power2) const {
     const std::size_t index = util::log2_dynamic(num_bits_power2);
     std::size_t num_blocks = 0;
-    for (int layer = 0; layer < static_cast<int>(k_num_layers_table[index]); ++layer) {
-      num_blocks += k_num_blocks_table[index][layer];
+    for (int layer = 0; layer < static_cast<int>(mlbs::k_num_layers_table[index]); ++layer) {
+      num_blocks += mlbs::k_num_blocks_table[index][layer];
     }
     return num_blocks;
   }

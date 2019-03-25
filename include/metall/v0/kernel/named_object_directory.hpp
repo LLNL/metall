@@ -9,9 +9,15 @@
 #include <iostream>
 #include <utility>
 #include <string>
-#include <unordered_map>
 #include <fstream>
 #include <cassert>
+#include <functional>
+#include <tuple>
+#include <sstream>
+
+#include <boost/container/scoped_allocator.hpp>
+#include <boost/container/string.hpp>
+#include <boost/unordered_map.hpp>
 
 namespace metall {
 namespace v0 {
@@ -19,31 +25,39 @@ namespace kernel {
 
 /// \brief Directory for namaed objects.
 /// \tparam offset_type
-template <typename offset_type, typename size_type>
+template <typename offset_type, typename size_type, typename allocator_type>
 class named_object_directory {
  public:
   // -------------------------------------------------------------------------------- //
   // Public types and static values
   // -------------------------------------------------------------------------------- //
-  using key_type = std::string;
 
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  using table_type = std::unordered_map<key_type, std::pair<offset_type, size_type>>;
+  template <typename T>
+  using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
+
+  static constexpr std::size_t k_max_char_size = 256;
+  using serialized_string_type = std::array<char, k_max_char_size>;
+  using mapped_type = std::tuple<serialized_string_type, offset_type, size_type>;
+  using key_type = uint64_t;
+  using value_type = std::pair<const key_type, mapped_type>;
+
+  using table_type = boost::unordered_multimap<key_type,
+                                               mapped_type,
+                                               std::hash<key_type>,
+                                               std::equal_to<key_type>,
+                                               other_allocator_type<value_type>>;
   using const_iterator = typename table_type::const_iterator;
 
  public:
   // -------------------------------------------------------------------------------- //
-  // Public types and static values
-  // -------------------------------------------------------------------------------- //
-  using mapped_type = typename table_type::mapped_type;
-
-  // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  named_object_directory() = default;
+  explicit named_object_directory(const allocator_type &allocator)
+      : m_table(allocator) {}
   ~named_object_directory() = default;
   named_object_directory(const named_object_directory &) = default;
   named_object_directory(named_object_directory &&) noexcept = default;
@@ -56,28 +70,38 @@ class named_object_directory {
   /// \brief
   /// \param name
   /// \param offset
-  /// \param lenght
+  /// \param length
   /// \return
-  bool insert(const key_type &name, const offset_type offset, const size_type lenght) {
-    const auto ret = m_table.emplace(name, mapped_type{offset, lenght});
-    return ret.second;
+  bool insert(const std::string &name, const offset_type offset, const size_type length) {
+    serialized_string_type serialized_name;
+    if (!serialize_string(name, &serialized_name)) {
+      return false;
+    }
+
+    if (find(name) != end()) return false; // Duplicate element exists
+
+    m_table.emplace(hash_string(name), std::make_tuple(serialized_name, offset, length));
+    return true;
   }
 
   /// \brief
   /// \param name
-  /// \param offset
-  /// \param lenght
   /// \return
-  bool insert(key_type &&name, const offset_type offset, const size_type lenght) {
-    const auto ret = m_table.emplace(std::move(name), mapped_type{offset, lenght});
-    return ret.second;
-  }
+  const_iterator find(const std::string &name) const {
+    auto itr = m_table.find(hash_string(name));
 
-  /// \brief
-  /// \param name
-  /// \return
-  const_iterator find(const key_type &name) const {
-    return m_table.find(name);
+    serialized_string_type serialized_name;
+    if (!serialize_string(name, &serialized_name)) {
+      return m_table.end();
+    }
+
+    for (; itr != m_table.end(); ++itr) {
+      if (serialized_name == std::get<0>(itr->second)) {
+        return itr;
+      }
+    }
+
+    return m_table.end();
   }
 
   /// \brief
@@ -101,7 +125,7 @@ class named_object_directory {
 
   /// \brief
   /// \param path
-  bool serialize(const char *path) const {
+  bool serialize(const char *const path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
       std::cerr << "Cannot open: " << path << std::endl;
@@ -109,9 +133,20 @@ class named_object_directory {
     }
 
     for (const auto &item : m_table) {
-      ofs << item.first // Key
-          << " " << static_cast<uint64_t>(item.second.first) // Offset
-          << " " << static_cast<uint64_t>(item.second.second) << "\n"; // Length
+      std::stringstream ss;
+
+      ss << item.first; // Key
+
+      // Serialized name
+      const auto &serialized_name = std::get<0>(item.second);
+      for (std::size_t i = 0; i < serialized_name.size(); ++i) {
+        ss << " " << static_cast<uint64_t>(serialized_name[i]);
+      }
+
+      ss << " " << static_cast<uint64_t>(std::get<1>(item.second)) // Offset
+         << " " << static_cast<uint64_t>(std::get<2>(item.second)); // Length
+
+      ofs << ss.str() << "\n";
       if (!ofs) {
         std::cerr << "Something happened in the ofstream: " << path << std::endl;
         return false;
@@ -124,25 +159,48 @@ class named_object_directory {
 
   /// \brief
   /// \param path
-  bool deserialize(const char *path) {
+  bool deserialize(const char *const path) {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
       std::cerr << "Cannot open: " << path << std::endl;
       return false;
     }
 
-    key_type key;
-    uint64_t buf1;
-    uint64_t buf2;
-    while (ifs >> key >> buf1 >> buf2) {
-      auto offset = static_cast<offset_type>(buf1);
-      auto length = static_cast<size_type>(buf2);
+    std::size_t count = 0;
+    const std::size_t num_reads_per_item = 1 + std::tuple_size<serialized_string_type>::value + 2;
+    uint64_t buf;
 
-      const bool ret = insert(std::move(key), offset, length);
-      if (!ret) {
-        std::cerr << "Duplicate item is found" << std::endl;
-        return false;
+    key_type key;
+    serialized_string_type serialized_name;
+    offset_type offset;
+    size_type length;
+    while (ifs >> buf) {
+      if (count == 0) {
+        key = buf;
+      } else if (1 <= count && count < num_reads_per_item - 2) {
+        serialized_name[count - 1] = static_cast<char>(buf);
+      } else if (count == num_reads_per_item - 2) {
+        offset = buf;
+      } else if (count == num_reads_per_item - 1) {
+        length = buf;
+
+        const std::string name = deserialize_string(serialized_name);
+        if (key != hash_string(name)) {
+          std::cerr << "Something is wrong in the read data" << std::endl;
+          return false;
+        }
+
+        const bool ret = insert(name, offset, length);
+        if (!ret) {
+          std::cerr << "Failed to insert" << std::endl;
+          return false;
+        }
+      } else {
+        assert(false);
       }
+
+      ++count;
+      count %= num_reads_per_item;
     }
 
     if (!ifs.eof()) {
@@ -160,13 +218,36 @@ class named_object_directory {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private methods
+  // -------------------------------------------------------------------------------- //
+  key_type hash_string(const std::string &name) const {
+    return std::hash<std::string>()(std::string(name));
+  }
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private fields
-  /// -------------------------------------------------------------------------------- ///
+  bool serialize_string(const std::string &name, serialized_string_type *out) const {
+    if (name.size() > std::tuple_size<serialized_string_type>::value) {
+      std::cerr << "Too long name: " << name << std::endl;
+      return false;
+    }
+    out->fill('\0');
+    for (std::size_t i = 0; i < name.size(); ++i) {
+      (*out)[i] = name[i];
+    }
+    return true;
+  }
+
+  std::string deserialize_string(const serialized_string_type &serialized_string) const {
+    std::string str;
+    for (const auto &c : serialized_string) {
+      if (c == '\0') break;
+      str.push_back(c);
+    }
+    return str;
+  }
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
   table_type m_table;
 };
 

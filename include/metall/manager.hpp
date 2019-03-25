@@ -10,13 +10,8 @@
 
 namespace metall {
 
-namespace detail {
-using v0_chunk_no_type = uint32_t;
-constexpr std::size_t k_v0_chunk_size = 1 << 21;
-}
-
 /// \brief Default manager type
-using manager = v0::manager_v0<detail::v0_chunk_no_type, detail::k_v0_chunk_size>;
+using manager = v0::manager_v0<>;
 
 } // namespace metall
 

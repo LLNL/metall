@@ -22,11 +22,11 @@ if (NOT CMAKE_BUILD_TYPE)
     message("CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
-set(CMAKE_CXX_FLAGS "-Wall -v -pthread")
+set(CMAKE_CXX_FLAGS "-Wall -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-set(CMAKE_C_FLAGS "-Wall -v -pthread")
+set(CMAKE_C_FLAGS "-Wall -pthread")
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 

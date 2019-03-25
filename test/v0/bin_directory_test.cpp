@@ -4,21 +4,21 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include "gtest/gtest.h"
-
+#include <memory>
 #include <metall/v0/kernel/bin_directory.hpp>
 #include <metall/v0/kernel/bin_number_manager.hpp>
 #include <metall/manager.hpp>
 
 namespace {
-using namespace metall::detail;
-
-using bin_no_mngr = metall::v0::kernel::bin_number_manager<k_v0_chunk_size, 1ULL << 48>;
-constexpr int num_small_bins = bin_no_mngr::to_bin_no(metall::detail::k_v0_chunk_size / 2) + 1;
+using bin_no_mngr = metall::v0::kernel::bin_number_manager<metall::manager::chunk_size(), 1ULL << 48>;
+constexpr int num_small_bins = bin_no_mngr::to_bin_no(metall::manager::chunk_size() / 2) + 1;
 using directory_type = metall::v0::kernel::bin_directory<num_small_bins,
-                                                         metall::detail::v0_chunk_no_type>;
+                                                         metall::manager::chunk_number_type,
+                                                         std::allocator<char>>;
 
 TEST(BinDirectoryTest, Front) {
-  directory_type obj;
+  std::allocator<char> allocator;
+  directory_type obj(allocator);
 
   obj.insert(0, 1);
   ASSERT_EQ(obj.front(0), 1);
@@ -42,7 +42,8 @@ TEST(BinDirectoryTest, Front) {
 }
 
 TEST(BinDirectoryTest, Empty) {
-  directory_type obj;
+  std::allocator<char> allocator;
+  directory_type obj(allocator);
 
   ASSERT_TRUE(obj.empty(0));
   obj.insert(0, 1);
@@ -54,7 +55,8 @@ TEST(BinDirectoryTest, Empty) {
 }
 
 TEST(BinDirectoryTest, Pop) {
-  directory_type obj;
+  std::allocator<char> allocator;
+  directory_type obj(allocator);
 
   ASSERT_TRUE(obj.empty(0));
   obj.insert(0, 1);
@@ -70,7 +72,8 @@ TEST(BinDirectoryTest, Pop) {
 }
 
 TEST(BinDirectoryTest, Erase) {
-  directory_type obj;
+  std::allocator<char> allocator;
+  directory_type obj(allocator);
 
   obj.insert(0, 1);
   ASSERT_TRUE(obj.erase(0, 1));
@@ -83,7 +86,8 @@ TEST(BinDirectoryTest, Erase) {
 }
 
 TEST(BinDirectoryTest, Serialize) {
-  directory_type obj;
+  std::allocator<char> allocator;
+  directory_type obj(allocator);
 
   obj.insert(0, 1);
   obj.insert(0, 2);
@@ -95,7 +99,8 @@ TEST(BinDirectoryTest, Serialize) {
 
 TEST(BinDirectoryTest, Deserialize) {
   {
-    directory_type obj;
+    std::allocator<char> allocator;
+    directory_type obj(allocator);
 
     obj.insert(0, 1);
     obj.insert(0, 2);
@@ -106,7 +111,8 @@ TEST(BinDirectoryTest, Deserialize) {
   }
 
   {
-    directory_type obj;
+    std::allocator<char> allocator;
+    directory_type obj(allocator);
     ASSERT_TRUE(obj.deserialize("/tmp/bin_directory_test_file"));
 
 #ifdef USE_SPACE_AWARE_BIN

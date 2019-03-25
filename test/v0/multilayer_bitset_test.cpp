@@ -7,6 +7,8 @@
 #include <cmath>
 #include <vector>
 #include <random>
+#include <memory>
+
 #include <metall/detail/utility/bitset.hpp>
 #include <metall/v0/kernel/multilayer_bitset.hpp>
 
@@ -57,19 +59,21 @@ TEST(MultilayerBitsetTest, NumInternalTrees) {
 
 TEST(MultilayerBitsetTest, FindAndSet) {
   for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 64); num_bits *= 2) { // Test up to 4 layers
-    metall::v0::kernel::multilayer_bitset bitset;
-    bitset.allocate(num_bits);
+    metall::v0::kernel::multilayer_bitset<std::allocator<void>> bitset;
+    auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<void>>::rebind_allocator_type();
+    bitset.allocate(num_bits, allocator);
     for (uint64_t i = 0; i < num_bits; ++i) {
       ASSERT_EQ(bitset.find_and_set(num_bits), i);
     }
-    bitset.free(num_bits);
+    bitset.free(num_bits, allocator);
   }
 }
 
 TEST(MultilayerBitsetTest, Reset) {
   for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 64); num_bits *= 2) { // Test up to 4 layers
-    metall::v0::kernel::multilayer_bitset bitset;
-    bitset.allocate(num_bits);
+    metall::v0::kernel::multilayer_bitset<std::allocator<void>> bitset;
+    auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<void>>::rebind_allocator_type();
+    bitset.allocate(num_bits, allocator);
     for (uint64_t i = 0; i < num_bits; ++i) {
       bitset.find_and_set(num_bits);
     }
@@ -79,13 +83,14 @@ TEST(MultilayerBitsetTest, Reset) {
       ASSERT_EQ(bitset.find_and_set(num_bits), i);
     }
 
-    bitset.free(num_bits);
+    bitset.free(num_bits, allocator);
   }
 }
 
 void RandomAccessHelper(const std::size_t num_bits) {
-  metall::v0::kernel::multilayer_bitset bitset;
-  bitset.allocate(num_bits);
+  metall::v0::kernel::multilayer_bitset<std::allocator<void>> bitset;
+  auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<void>>::rebind_allocator_type();
+  bitset.allocate(num_bits, allocator);
 
   std::vector<bool> reference(num_bits, false);
 
@@ -123,7 +128,7 @@ void RandomAccessHelper(const std::size_t num_bits) {
     }
   }
 
-  bitset.free(num_bits);
+  bitset.free(num_bits, allocator);
 }
 
 TEST(MultilayerBitsetTest, RandomOperation) {

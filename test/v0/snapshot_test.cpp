@@ -13,7 +13,7 @@
 namespace {
 
 TEST(SnapshotTest, SparseCopy) {
-  metall::manager manager(metall::create_only, "/tmp/snapshot_test_file", metall::detail::k_v0_chunk_size);
+  metall::manager manager(metall::create_only, "/tmp/snapshot_test_file", metall::manager::chunk_size());
 
   manager.construct<uint8_t>(metall::unique_instance)(1);
   manager.construct<uint16_t>(metall::unique_instance)(1);

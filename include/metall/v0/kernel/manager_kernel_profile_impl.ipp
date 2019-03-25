@@ -18,8 +18,8 @@ namespace metall {
 namespace v0 {
 namespace kernel {
 
-template <typename chunk_no_type, std::size_t k_chunk_size>
-void manager_kernel<chunk_no_type, k_chunk_size>::profile(const std::string &log_file_name) const {
+template <typename chunk_no_type, std::size_t k_chunk_size, typename internal_allocator>
+void manager_kernel<chunk_no_type, k_chunk_size, internal_allocator>::profile(const std::string &log_file_name) const {
   std::ofstream log_file(log_file_name);
   if (!log_file.is_open()) {
     std::cerr << "Cannot open " << log_file_name << std::endl;
@@ -32,7 +32,7 @@ void manager_kernel<chunk_no_type, k_chunk_size>::profile(const std::string &log
   log_file << std::setprecision(2);
 
   log_file << "\nChunk Directory" << "\n";
-  for (chunk_no_type chunk_no = 0; chunk_no <= m_chunk_directory.max_used_chunk_no(); ++chunk_no) {
+  for (chunk_no_type chunk_no = 0; chunk_no < m_chunk_directory.size(); ++chunk_no) {
     log_file << chunk_no << "\t";
     if (m_chunk_directory.empty_chunk(chunk_no)) {
       log_file << "[empty]" << std::endl;

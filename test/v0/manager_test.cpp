@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-#include <scoped_allocator>
+#include <boost/container/scoped_allocator.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -224,8 +224,7 @@ TEST(ManagerTest, NestedContainer) {
                                         vector_type, // Value
                                         std::hash<element_type>, // Hash function
                                         std::equal_to<element_type>, // Equal function
-                                        std::scoped_allocator_adaptor<allocator_type<std::pair<const element_type,
-                                                                                               vector_type>>>>;
+                                        boost::container::scoped_allocator_adaptor<allocator_type<std::pair<const element_type, vector_type>>>>;
 
   manager_type manager(metall::create_only, "/tmp/manager_test_file", k_chunk_size * 8);
 
@@ -323,11 +322,10 @@ TEST(ManagerTest, PersistentNestedContainer) {
                                         vector_type, // Value
                                         std::hash<element_type>, // Hash function
                                         std::equal_to<element_type>, // Equal function
-                                        std::scoped_allocator_adaptor<allocator_type<std::pair<const element_type,
-                                                                                               vector_type>>>>;
+                                        boost::container::scoped_allocator_adaptor<allocator_type<std::pair<const element_type, vector_type>>>>;
 
   {
-    manager_type manager(metall::create_only, "/tmp/manager_test_file", k_chunk_size * 4);
+    manager_type manager(metall::create_only, "/tmp/manager_test_file", k_chunk_size * 8);
     map_type *map = manager.construct<map_type>("map")(manager.get_allocator<>());
     (*map)[0].emplace_back(1);
     (*map)[0].emplace_back(2);

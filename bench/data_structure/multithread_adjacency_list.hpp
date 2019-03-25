@@ -65,8 +65,8 @@ class multithread_adjacency_list {
       : m_bank_table(k_default_num_banks, allocator),
         m_mutex(k_default_num_banks) {}
 
-  multithread_adjacency_list(const std::size_t num_banks,
-                             const _base_allocator_type &allocator = _base_allocator_type())
+  explicit multithread_adjacency_list(const std::size_t num_banks,
+                                      const _base_allocator_type &allocator = _base_allocator_type())
       : m_bank_table(num_banks, allocator),
         m_mutex(num_banks) {}
 
