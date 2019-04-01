@@ -20,108 +20,111 @@ namespace util = metall::detail::utility;
 }
 
 namespace object_size_manager_detail {
-constexpr std::size_t k_page_size = 4096;
 
-// CAUTION:
-// assume that page size is 4 KiB
+// Sizes are coming from SuperMalloc
 constexpr std::size_t k_class1_small_size_table[] = {
-    // Class 1 (small class in SuperMalloc): limit internal fragmentation to at most 25%.
-    8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224,
-    // Class 2 (medium class in SuperMalloc): powers of two and prime multiples of cache line size
-    // We use powers of two even requested sizes don't mach exactly to them
-    256, 320, 448, 512, 576, 704, 960, 1024, 1216, 1472, 1984, 2048, 2752, 3904, 4096, 5312, 7232, 8192, 10048, 14272,
+    8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256,
 };
-constexpr uint32_t k_class1_small_size_table_length = (uint32_t)std::extent<decltype(k_class1_small_size_table)>::value - 1;
-constexpr std::size_t k_min_class2_small_size = (std::size_t)util::round_up((int64_t)k_class1_small_size_table[k_class1_small_size_table_length - 1] + 1, k_page_size);
 
-constexpr uint32_t num_class1_small_sizes(const std::size_t chunk_size) noexcept {
-  if (chunk_size <= k_class1_small_size_table[0]) return 0;
+constexpr uint64_t k_num_class1_small_sizes = (uint64_t)std::extent<decltype(k_class1_small_size_table)>::value;
+constexpr std::size_t k_min_class2_offset = 64;
+template <std::size_t k_chunk_size>
+constexpr std::size_t k_max_small_size = k_chunk_size / 2;
 
-  for (uint32_t i = 0; i < k_class1_small_size_table_length; ++i) {
-    if (chunk_size <= k_class1_small_size_table[i])
-      return i;
+// Sizes are coming from jemalloc
+template <std::size_t k_chunk_size>
+constexpr uint64_t num_class2_small_sizes() noexcept {
+  std::size_t size = k_class1_small_size_table[k_num_class1_small_sizes - 1];
+  uint64_t num_class2_small_sizes = 0;
+  uint64_t offset = k_min_class2_offset;
+
+  while (size <= k_max_small_size<k_chunk_size>) {
+    for (int i = 0; i < 4; ++i) {
+      size += offset;
+      if (size > k_max_small_size<k_chunk_size>) break;
+      ++num_class2_small_sizes;
+    }
+    offset *= 2;
   }
 
-  return k_class1_small_size_table_length;
+  return num_class2_small_sizes;
 }
 
-constexpr uint32_t num_class2_small_sizes(const std::size_t chunk_size) noexcept {
-  std::size_t size = k_min_class2_small_size;
-  uint32_t um_class1_small_sizes = 0;
-  while (size <= chunk_size / 2) {
-    size *= 2;
-    ++um_class1_small_sizes;
-  }
-
-  return um_class1_small_sizes;
-}
-
-constexpr uint32_t num_large_sizes(const std::size_t chunk_size, const std::size_t max_size) noexcept {
-  uint32_t count = 0;
-  for (std::size_t size = chunk_size; size <= max_size; size *= 2) {
+template <std::size_t k_chunk_size, std::size_t k_max_size>
+constexpr uint64_t num_large_sizes() noexcept {
+  uint64_t count = 0;
+  for (std::size_t size = k_chunk_size; size <= k_max_size; size *= 2) {
     ++count;
   }
   return count;
 }
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr uint32_t k_num_sizes = num_class1_small_sizes(k_chunk_size) + num_class2_small_sizes(k_chunk_size) + num_large_sizes(k_chunk_size, k_max_size);
-
+constexpr uint64_t k_num_sizes = k_num_class1_small_sizes + num_class2_small_sizes<k_chunk_size>()
+    + num_large_sizes<k_chunk_size, k_max_size>();
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
 constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> init_size_table() noexcept {
   std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> table{0};
 
-  for (uint32_t i = 0; i < num_class1_small_sizes(k_chunk_size); ++i) {
-    if (k_chunk_size < k_class1_small_size_table[i]) break;
-    table[i] = k_class1_small_size_table[i];
+  uint64_t index = 0;
+
+  for (; index < k_num_class1_small_sizes; ++index) {
+    table[index] = k_class1_small_size_table[index];
   }
 
-  std::size_t offset = num_class1_small_sizes(k_chunk_size);
-  std::size_t size = k_min_class2_small_size;
-  for (uint32_t i = 0; i < num_class2_small_sizes(k_chunk_size); ++i) {
-    table[i + offset] = size;
-    size *= 2;
+  {
+    std::size_t size = k_class1_small_size_table[k_num_class1_small_sizes - 1];
+    uint64_t offset = k_min_class2_offset;
+    while (size <= k_max_small_size<k_chunk_size>) {
+      for (int i = 0; i < 4; ++i) {
+        size += offset;
+        if (size > k_max_small_size<k_chunk_size>) break;
+        table[index] = size;
+        ++index;
+      }
+      offset *= 2;
+    }
   }
 
-  offset += num_class2_small_sizes(k_chunk_size);
-  size = k_chunk_size;
-  for (uint32_t i = 0; i < num_large_sizes(k_chunk_size, k_max_size); ++i) {
-    table[i + offset] = size;
-    size *= 2;
+  {
+    std::size_t size = k_chunk_size;
+    for (uint64_t i = 0; i < num_large_sizes<k_chunk_size, k_max_size>(); ++i) {
+      table[index] = size;
+      size *= 2;
+      ++index;
+    }
   }
 
   return table;
 }
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> k_size_table = init_size_table<k_chunk_size, k_max_size>();
+constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>>
+    k_size_table = init_size_table<k_chunk_size, k_max_size>();
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr int32_t find_in_size_table(const std::size_t size, const uint32_t offset = 0) noexcept {
-  for (uint32_t i = offset; i < k_size_table<k_chunk_size, k_max_size>.size(); ++i) {
-    if (size <= k_size_table<k_chunk_size, k_max_size>[i]) return static_cast<int32_t>(i);
+constexpr int64_t find_in_size_table(const std::size_t size, const uint64_t offset = 0) noexcept {
+  for (uint64_t i = offset; i < k_size_table<k_chunk_size, k_max_size>.size(); ++i) {
+    if (size <= k_size_table<k_chunk_size, k_max_size>[i]) return static_cast<int64_t>(i);
   }
   return -1; // Error
 }
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr int32_t object_size_index(const std::size_t size) noexcept {
+constexpr int64_t object_size_index(const std::size_t size) noexcept {
 
   if (size <= k_size_table<k_chunk_size, k_max_size>[0]) return 0;
 
-  if (size <= 320) {
+  if (size <= k_class1_small_size_table[k_num_class1_small_sizes - 1]) {
     const int z = __builtin_clzll(size);
     const std::size_t r = size + (1ul << (61 - z)) - 1;
     const int y = __builtin_clzll(r);
     const int index = static_cast<int>(4 * (60 - y) + ((r >> (61 - y)) & 3));
-    return static_cast<uint32_t>(index);
+    return static_cast<int64_t>(index);
   }
 
-  const int pos_320 = find_in_size_table<k_chunk_size, k_max_size>(320);
-  if constexpr (pos_320 < 0) return -1; // Error;
-
-  return find_in_size_table<k_chunk_size, k_max_size>(size, static_cast<uint32_t>(pos_320) + 1);
+  return find_in_size_table<k_chunk_size, k_max_size>(size, k_num_class1_small_sizes);
 }
 
 } // namespace object_size_manager_detail
@@ -153,14 +156,14 @@ class object_size_manager {
   }
 
   static constexpr size_type num_small_sizes() noexcept {
-    return dtl::num_class1_small_sizes(k_chunk_size) + dtl::num_class2_small_sizes(k_chunk_size);
+    return dtl::k_num_class1_small_sizes + dtl::num_class2_small_sizes<k_chunk_size>();
   }
 
   static constexpr size_type num_large_sizes() noexcept {
-    return dtl::num_large_sizes(k_chunk_size, k_max_object_size);
+    return dtl::num_large_sizes<k_chunk_size, k_max_object_size>();
   }
 
-  static constexpr int32_t index(const size_type size) noexcept {
+  static constexpr int64_t index(const size_type size) noexcept {
     return dtl::object_size_index<k_chunk_size, k_max_object_size>(size);
   }
 };

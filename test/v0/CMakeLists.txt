@@ -10,6 +10,10 @@ add_executable(bin_directory_test bin_directory_test.cpp)
 target_link_libraries(bin_directory_test gtest_main)
 add_test(NAME bin_directory_test COMMAND bin_directory_test)
 
+add_executable(multilayer_bitset_test multilayer_bitset_test.cpp)
+target_link_libraries(multilayer_bitset_test gtest_main)
+add_test(NAME multilayer_bitset_test COMMAND multilayer_bitset_test)
+
 add_executable(chunk_directory_test chunk_directory_test.cpp)
 target_link_libraries(chunk_directory_test gtest_main)
 add_test(NAME chunk_directory_test COMMAND chunk_directory_test)
@@ -17,10 +21,6 @@ add_test(NAME chunk_directory_test COMMAND chunk_directory_test)
 add_executable(manager_test manager_test.cpp)
 target_link_libraries(manager_test gtest_main)
 add_test(NAME manager_test COMMAND manager_test)
-
-add_executable(multilayer_bitset_test multilayer_bitset_test.cpp)
-target_link_libraries(multilayer_bitset_test gtest_main)
-add_test(NAME multilayer_bitset_test COMMAND multilayer_bitset_test)
 
 add_executable(snapshot_test snapshot_test.cpp)
 target_link_libraries(snapshot_test gtest_main)

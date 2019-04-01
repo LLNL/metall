@@ -82,7 +82,7 @@ TEST(ChunkDirectoryTest, UnmarkSlot) {
   for (uint32_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
     auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
     auto chunk_no = static_cast<chunk_no_type>(i);
-    const std::size_t object_size = 1ULL << (bin_no + 3);
+    const std::size_t object_size = bin_no_mngr::to_object_size(bin_no);
     for (uint64_t k = 0; k < k_chunk_size / object_size; ++k) {
       directory.find_and_mark_slot(chunk_no);
       directory.unmark_slot(chunk_no, k);
