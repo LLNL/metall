@@ -16,7 +16,7 @@ namespace metall {
 namespace detail {
 namespace utility {
 
-ssize_t get_page_size() {
+ssize_t get_page_size() noexcept {
   const ssize_t page_size = ::sysconf(_SC_PAGE_SIZE);
   if (page_size == -1) {
     ::perror("sysconf(_SC_PAGE_SIZE)");
