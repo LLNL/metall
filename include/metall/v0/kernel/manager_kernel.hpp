@@ -360,11 +360,7 @@ class manager_kernel {
   bool snapshot(const char *base_path) {
     sync();
 
-    if (priv_copy_backing_files(base_path)) {
-      return false;
-    }
-
-    return true;
+    return priv_copy_backing_files(base_path);
   }
 
   /// \brief

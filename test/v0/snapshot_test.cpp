@@ -13,20 +13,23 @@
 namespace {
 
 TEST(SnapshotTest, SparseCopy) {
-  metall::manager manager(metall::create_only, "/tmp/snapshot_test_file", metall::manager::chunk_size());
+  metall::manager manager(metall::create_only, "/tmp/snapshot_test_file", metall::manager::chunk_size() * 2);
 
-  manager.construct<uint8_t>(metall::unique_instance)(1);
-  manager.construct<uint16_t>(metall::unique_instance)(1);
-  manager.construct<uint32_t>(metall::unique_instance)(1);
-  manager.construct<uint64_t>(metall::unique_instance)(1);
+  uint64_t *a = static_cast<uint64_t *>(manager.allocate(sizeof(uint64_t)));
+  *a = 0;
 
-  metall::manager::remove_file("/tmp/snapshot_test_file_snapshot");
-  manager.snapshot("/tmp/snapshot_test_file_snapshot");
+  uint64_t *b = static_cast<uint64_t *>(manager.allocate(sizeof(uint64_t) * 2));
+  b[0] = 0;
+  b[1] = 0;
+
+  ASSERT_TRUE(manager.snapshot("/tmp/snapshot_test_file_snapshot"));
 
   EXPECT_EQ(metall::detail::utility::get_file_size("/tmp/snapshot_test_file_segment"),
             metall::detail::utility::get_file_size("/tmp/snapshot_test_file_snapshot_segment"));
 
   EXPECT_EQ(metall::detail::utility::get_actual_file_size("/tmp/snapshot_test_file_segment"),
             metall::detail::utility::get_actual_file_size("/tmp/snapshot_test_file_snapshot_segment"));
+
+  ASSERT_TRUE(metall::manager::remove_file("/tmp/snapshot_test_file_snapshot"));
 }
 }
