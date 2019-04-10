@@ -20,10 +20,17 @@
 
 #include <iostream>
 #include <fstream>
+#include  <filesystem>
+
+// TODO: change to C++17
 
 namespace metall {
 namespace detail {
 namespace utility {
+
+namespace {
+namespace fs = std::filesystem;
+}
 
 void extend_file_size_manually(const int fd, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
@@ -129,50 +136,9 @@ void deallocate_file_space(const int fd, const off_t off, const off_t len) {
 
 bool copy_file(const std::string &source_path, const std::string &destination_path) {
 
-  {
-    const ssize_t source_file_size = get_file_size(source_path);
-    const ssize_t actual_source_file_size = get_actual_file_size(source_path);
-    if (source_file_size == -1 || actual_source_file_size == -1) {
-      return false;
-    }
-
-    // If the source file is empty, just create the destination file and done.
-    if (source_file_size == 0 || actual_source_file_size == 0) {
-      create_file(destination_path);
-      return true;
-    }
-  }
-
-  {
-    std::ifstream source(source_path);
-    if (!source.is_open()) {
-      std::cerr << "Cannot open: " << source_path << std::endl;
-      return false;
-    }
-
-    std::ofstream destination(destination_path);
-    if (!destination.is_open()) {
-      std::cerr << "Cannot open: " << destination_path << std::endl;
-      return false;
-    }
-
-    destination << source.rdbuf();
-    if (!destination) {
-      std::cerr << "Something happened in the ofstream: " << destination_path << std::endl;
-      return false;
-    }
-
-    destination.close();
-  }
-
-  {
-    // Sanity check
-    const ssize_t s1 = get_file_size(source_path);
-    const ssize_t s2 = get_file_size(destination_path);
-    if (s1 < 0 || s1 != s2) {
-      std::cerr << "Something wrong in file sizes: " << s1 << " " << s2 << std::endl;
-      return false;
-    }
+  if (!fs::copy_file(source_path, destination_path)) {
+    std::cerr << "Failed copying file: " << source_path << " -> " << destination_path << std::endl;
+    return false;
   }
 
   return true;
