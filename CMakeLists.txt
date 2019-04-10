@@ -22,7 +22,7 @@ if (NOT CMAKE_BUILD_TYPE)
     message("CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
-set(CMAKE_CXX_FLAGS "-Wall -pthread -lstdc++fs")
+set(CMAKE_CXX_FLAGS "-Wall -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
@@ -68,6 +68,9 @@ endif()
 if ((NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
     message(FATAL_ERROR "GCC (C/C++) is requred to buid")
 endif ()
+
+# Required by GCC for the filesystem library
+link_libraries(stdc++fs)
 
 # Requre Boost
 find_package(Boost)

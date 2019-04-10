@@ -25,7 +25,7 @@ make test    # option; BUILD_TEST must be ON
 ### Required
 
  - cmake 3.5 or more.
- - GCC (g++) supports C++17.
+ - GCC (g++) 8.0 or more.
  - Boost C++ Libraries 1.60 or more (build is not required; needs only their header files).
 
 
@@ -68,14 +68,14 @@ Google Test is downloaded in the first step and built in the second step.
 ## Use Metall in Other Projects
 
 Metall consists of only header files and requires some header files in Boost C++ Libraries.
-All core files exist under /metall/include/metall/.
+All core files exist under metall/include/metall/.
 All you have to do is just setting include paths such as '-I' or CPLUS_INCLUDE_PATH.
 
 For example,
 ```bash
-g++ -std=c++11 your_project.cpp -I/path/to/metall/include -I/path/to/boost/include
+g++ -std=c++17 -lstdc++fs your_program.cpp -I/path/to/metall/include -I/path/to/boost/include
 ```
-
+Note GCC requires linking stdc++fs to use the Filesystem library in C++17.
 
 ## Limitations To Store Objects Persistently
 
