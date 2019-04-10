@@ -9,7 +9,7 @@
 
 #include <metall/v0/kernel/bin_number_manager.hpp>
 #include <metall/v0/kernel/object_size_manager.hpp>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 namespace {
 using namespace metall::v0::kernel::object_size_manager_detail;

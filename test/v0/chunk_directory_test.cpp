@@ -8,7 +8,7 @@
 #include <memory>
 #include <metall/v0/kernel/chunk_directory.hpp>
 #include <metall/v0/kernel/bin_number_manager.hpp>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 namespace {
 using chunk_no_type = metall::manager::chunk_number_type;

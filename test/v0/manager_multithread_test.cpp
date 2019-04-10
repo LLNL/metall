@@ -21,7 +21,7 @@
 #include <omp.h>
 #endif
 
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 namespace {
 

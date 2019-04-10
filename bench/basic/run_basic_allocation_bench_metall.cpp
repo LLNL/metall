@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 #include "kernel.hpp"
 
 template <typename T>

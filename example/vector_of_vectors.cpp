@@ -8,7 +8,7 @@
 #include <iostream>
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/container/vector.hpp>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 namespace bc = boost::container;
 

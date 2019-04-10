@@ -6,7 +6,7 @@
 #include <iostream>
 #include <boost/container/vector.hpp>
 
-#include <metall/manager.hpp> // Only one header file is required to be included
+#include <metall/metall.hpp> // Only one header file is required to be included
 
 // Type alias
 // This is a standard way to give a custom allocator to a container

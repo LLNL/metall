@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
 

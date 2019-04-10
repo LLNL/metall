@@ -7,7 +7,7 @@
 #include <memory>
 #include <metall/v0/kernel/bin_directory.hpp>
 #include <metall/v0/kernel/bin_number_manager.hpp>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 namespace {
 using bin_no_mngr = metall::v0::kernel::bin_number_manager<metall::manager::chunk_size(), 1ULL << 48>;

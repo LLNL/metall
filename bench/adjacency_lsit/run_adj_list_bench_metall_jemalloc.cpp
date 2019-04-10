@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
 #include "../utility/time.hpp"

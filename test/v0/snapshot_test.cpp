@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 #include <metall/detail/utility/file.hpp>
 

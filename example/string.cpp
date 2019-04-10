@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <boost/container/string.hpp>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 #include <string>
 
 // String with Metall

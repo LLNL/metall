@@ -8,7 +8,7 @@
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/container/string.hpp>
 #include <boost/container/map.hpp>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 // String with Metall
 using persistent_string = boost::container::basic_string<char,

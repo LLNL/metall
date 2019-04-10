@@ -6,7 +6,7 @@
 // This is an example shows how to store pointers in persistent memory using the offset pointer
 
 #include <iostream>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 struct my_class {
   metall::offset_ptr<int> array; // Offset pointer to hold int*

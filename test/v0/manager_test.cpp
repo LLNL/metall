@@ -10,7 +10,7 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 #include <metall/v0/kernel/object_size_manager.hpp>
 
 namespace {

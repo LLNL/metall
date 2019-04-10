@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 int main() {
   {
