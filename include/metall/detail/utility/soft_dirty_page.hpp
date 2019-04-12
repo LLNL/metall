@@ -28,7 +28,7 @@ bool reset_soft_dirty() {
 }
 
 constexpr bool check_soft_dirty(const uint64_t pagemap_value) {
-  return pagemap_value & 0x80000000000000ULL;
+  return (pagemap_value >> 55ULL) & 1ULL;
 }
 
 } // namespace utility

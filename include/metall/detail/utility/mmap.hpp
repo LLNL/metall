@@ -184,11 +184,11 @@ bool uncommit_private_pages(void *const addr, const size_t length) {
   }
 #else
 #warning "MADV_FREE is not defined"
-    if (::madvise(addr, length, MADV_DONTNEED) != 0) {
-    ::perror("madvise MADV_DONTNEED");
-    std::cerr << "errno: " << errno << std::endl;
-    return false;
-  }
+  if (::madvise(addr, length, MADV_DONTNEED) != 0) {
+  ::perror("madvise MADV_DONTNEED");
+  std::cerr << "errno: " << errno << std::endl;
+  return false;
+}
 #endif
   return true;
 }
@@ -207,8 +207,10 @@ class pagemap_reader {
   static constexpr uint64_t error_value = static_cast<uint64_t>(-1);
 
   pagemap_reader()
-      : m_ifs("/proc/self/pagemap") {
-    if (!m_ifs) {
+      : m_fd(-1) {
+    m_fd = ::open("/proc/self/pagemap", O_RDONLY);
+    if (m_fd < 0) {
+      ::perror("open");
       std::cerr << "Cannot open /proc/self/pagemap" << std::endl;
     }
   }
@@ -222,31 +224,27 @@ class pagemap_reader {
   // Bit  61    page is file-page or shared-anon (since 3.5)
   // Bit  62    page swapped
   // Bit  63    page present
-  uint64_t at(uint64_t page_no) {
-    if (!m_ifs) {
-      return error_value;
-    }
-
-    m_ifs.seekg(page_no * sizeof(uint64_t));
-    if (!m_ifs) {
-      // std::cerr << "Failed seekg" << std::endl;
+  uint64_t at(const uint64_t page_no) {
+    if (m_fd < 0) {
       return error_value;
     }
 
     uint64_t buf;
-    if (m_ifs.read(reinterpret_cast<char*>(&buf), sizeof(buf))) {
-      if (buf & 0x1E00000000000000ULL) { // Sanity check; 57-60 bits are must be 0.
-        // std::cerr << "57-60 bits of the pagemap are not 0" << std::endl;
-        return error_value;
-      }
-      return buf;
+    if (::pread(m_fd, &buf, sizeof(buf), page_no * sizeof(uint64_t)) == -1) {
+      // ::perror("pread");
+      return error_value;
     }
 
-    return error_value;
+    if (buf & 0x1E00000000000000ULL) { // Sanity check; 57-60 bits are must be 0.
+      // std::cerr << "57-60 bits of the pagemap are not 0" << std::endl;
+      return error_value;
+    }
+
+    return buf;
   }
 
  private:
-  std::ifstream m_ifs;
+  int m_fd;
 };
 
 } // namespace utility
