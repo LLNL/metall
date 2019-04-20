@@ -19,7 +19,7 @@ int main() {
     // The current version assumes that there is only one manager object per process
     metall::manager manager(metall::create_only,  // Create a new one
                              "/tmp/file_path",    // The prefix of backing files
-                             1ULL << 25);         // The size of the maximum total allocation size.
+                             1 << 25);            // The size of the maximum total allocation size.
                                                   // Metall reserves a contiguous region in virtual memory space with this size;
                                                   // however, it does not consume actual memory spaces in DRAM and file until
                                                   // the corresponding pages are touched.
@@ -33,7 +33,7 @@ int main() {
 
     manager.sync(); // Explicitly sync with files
 
-  } // Implicitly sync with files
+  } // Implicitly sync with files, i.e., sync() is called in metall::manager's destructor
 
   {
     // Reload the manager object

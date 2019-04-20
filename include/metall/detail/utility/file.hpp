@@ -71,10 +71,11 @@ bool extend_file_size(const std::string &file_name, const size_t file_size) {
     return false;
   }
 
-  if (!extend_file_size(fd, file_size)) return false;
+  const bool ret = extend_file_size(fd, file_size);
+
   ::close(fd);
 
-  return true;
+  return ret;
 }
 
 bool create_file(const std::string &file_name) {
@@ -110,15 +111,10 @@ ssize_t get_actual_file_size(const std::string &file_name) {
 }
 
 bool remove_file(const std::string &file_name) {
-  const int ret = std::remove(file_name.c_str());
-  if (ret) {
-    std::cerr << "Failed to remove a file: " << file_name << std::endl;
-    return false;
-  }
-  return true;
+  return (std::remove(file_name.c_str()) == 0);
 }
 
-bool file_exist (const std::string& file_name) {
+bool file_exist(const std::string &file_name) {
   struct stat statbuf;
   return (::stat(file_name.c_str(), &statbuf) == 0);
 }
@@ -136,12 +132,19 @@ void deallocate_file_space(const int fd, const off_t off, const off_t len) {
 
 bool copy_file(const std::string &source_path, const std::string &destination_path) {
 
-  if (!fs::copy_file(source_path, destination_path)) {
-    std::cerr << "Failed copying file: " << source_path << " -> " << destination_path << std::endl;
-    return false;
+  bool success = true;
+
+  try {
+    if (!fs::copy_file(source_path, destination_path, fs::copy_options::overwrite_existing)) {
+      std::cerr << "Failed copying file: " << source_path << " -> " << destination_path << std::endl;
+      success = false;
+    }
+  } catch (fs::filesystem_error &e) {
+    std::cerr << e.what() << std::endl;
+    success = false;
   }
 
-  return true;
+  return success;
 }
 
 bool os_fsync(const int fd) {

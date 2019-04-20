@@ -16,7 +16,7 @@ TEST(SoftDirtyTest, PageMapFile) {
 }
 
 TEST(SoftDirtyTest, ResetSoftDirty) {
-  ASSERT_TRUE(metall::detail::utility::reset_soft_dirty());
+  ASSERT_TRUE(metall::detail::utility::reset_soft_dirty_bit());
 }
 
 void run_in_core_test(const std::size_t num_pages, char *const map) {
@@ -25,14 +25,14 @@ void run_in_core_test(const std::size_t num_pages, char *const map) {
 
   const uint64_t page_no_offset = reinterpret_cast<uint64_t>(map) / page_size;
   for (uint64_t i = 0; i < 2; ++i) {
-    ASSERT_TRUE(metall::detail::utility::reset_soft_dirty());
+    ASSERT_TRUE(metall::detail::utility::reset_soft_dirty_bit());
 
     {
       metall::detail::utility::pagemap_reader pr;
 
       for (uint64_t p = 0; p < num_pages; ++p) {
-        ASSERT_NE(pr.at(page_no_offset + p), pr.error_value) << "Cannot get pagemap of " << p;
-        ASSERT_FALSE(metall::detail::utility::check_soft_dirty(pr.at(page_no_offset + p))) << "Not clear at " << p;
+        ASSERT_NE(pr.at(page_no_offset + p), pr.error_value) << "page no " << p;
+        ASSERT_FALSE(metall::detail::utility::check_soft_dirty_page(pr.at(page_no_offset + p))) << "page no " << p;
       }
     }
 
@@ -40,15 +40,20 @@ void run_in_core_test(const std::size_t num_pages, char *const map) {
       if (p % 2 == i % 2)
         map[page_size * p] = 0;
     }
+    // metall::detail::utility::os_msync(map, page_size * num_pages);
 
     {
       metall::detail::utility::pagemap_reader pr;
       for (uint64_t p = 0; p < num_pages; ++p) {
-        ASSERT_NE(pr.at(page_no_offset + p), pr.error_value) << "Cannot get pagemap of " << p;
+        volatile int c = map[p * page_size];
+        const auto pagemap_value = pr.at(page_no_offset + p);
+        ASSERT_NE(pagemap_value, pr.error_value) << "Cannot read pagemap at " << p;
         if (p % 2 == i % 2)
-          ASSERT_TRUE(metall::detail::utility::check_soft_dirty(pr.at(page_no_offset + p))) << "Wrong value at " << p;
+          ASSERT_TRUE(metall::detail::utility::check_soft_dirty_page(pagemap_value))
+          << "page no " << p << ", pagemap value " << pagemap_value;
         else
-          ASSERT_FALSE(metall::detail::utility::check_soft_dirty(pr.at(page_no_offset + p))) << "Wrong value at " << p;
+          ASSERT_FALSE(metall::detail::utility::check_soft_dirty_page(pagemap_value))
+          << "page no " << p << ", pagemap value " << pagemap_value;
       }
     }
   }

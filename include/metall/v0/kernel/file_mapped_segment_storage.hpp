@@ -137,19 +137,6 @@ class file_mapped_segment_storage {
     }
     m_segment_size = static_cast<size_type>(size);
 
-//    m_segment = priv_reserve_vm_address(m_segment_size);
-//    if (!m_segment) {
-//      priv_reset();
-//      return false;
-//    }
-//
-//    const auto ret = util::map_file_write_mode(path, m_segment, m_segment_size, 0, MAP_FIXED);
-//    if (ret.first == -1 || ret.second != m_segment) {
-//      std::cerr << "Failed mmap" << std::endl;
-//      priv_reset();
-//      return false;
-//    }
-
     const int additional_map_flag =
 #ifdef MAP_NOSYNC
         MAP_NOSYNC;

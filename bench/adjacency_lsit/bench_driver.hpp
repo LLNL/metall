@@ -28,7 +28,7 @@ struct bench_options {
   std::string segment_file_name;
   std::string adj_list_key_name{"adj_list"};
 
-  std::size_t segment_size{1ULL << 25};
+  std::size_t segment_size{1 << 25};
   std::vector<std::string> input_file_name_list;
 
   uint64_t seed{123};

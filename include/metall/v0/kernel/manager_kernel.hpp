@@ -11,6 +11,9 @@
 #include <string>
 #include <utility>
 #include <memory>
+#include <future>
+#include <vector>
+#include <map>
 
 #include <metall/offset_ptr.hpp>
 #include <metall/v0/kernel/bin_number_manager.hpp>
@@ -25,6 +28,7 @@
 #include <metall/detail/utility/mmap.hpp>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
+#include <metall/detail/utility/soft_dirty_page.hpp>
 
 #define ENABLE_MUTEX_IN_V0_MANAGER_KERNEL 1
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
@@ -89,6 +93,11 @@ class manager_kernel {
 
   static constexpr size_type k_max_small_object_size = bin_no_mngr::to_object_size(bin_no_mngr::num_small_bins() - 1);
 
+  // For snapshot
+  static constexpr size_type k_snapshot_no_safeguard = 1ULL << 20ULL; // Safeguard, you could increase this number
+  static constexpr const char *k_diff_snapshot_file_name_prefix = "ssdf";
+  static constexpr size_type k_min_snapshot_no = 1;
+
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
   using mutex_type = util::mutex;
   using lock_guard_type = util::mutex_lock_guard;
@@ -103,8 +112,7 @@ class manager_kernel {
         m_bin_directory(allocator),
         m_chunk_directory(allocator),
         m_named_object_directory(allocator),
-        m_segment_storage()
-  {}
+        m_segment_storage() {}
 
   ~manager_kernel() {
     close();
@@ -126,7 +134,7 @@ class manager_kernel {
   void create(const char *path, const size_type nbytes) {
     m_file_base_path = path;
 
-    if (!m_segment_storage.create(priv_file_name(k_segment_file_name).c_str(), nbytes)) {
+    if (!m_segment_storage.create(priv_make_file_name(k_segment_file_name).c_str(), nbytes)) {
       std::cerr << "Can not create segment" << std::endl;
       std::abort();
     }
@@ -140,18 +148,26 @@ class manager_kernel {
   bool open(const char *path) {
     m_file_base_path = path;
 
-    if (!m_segment_storage.open(priv_file_name(k_segment_file_name).c_str())) return false;
+    if (!m_segment_storage.open(priv_make_file_name(k_segment_file_name).c_str())) return false;
 
     m_chunk_directory.reserve(priv_num_chunks());
 
-    if (!m_bin_directory.deserialize(priv_file_name(k_bin_directory_file_name).c_str()) ||
-        !m_chunk_directory.deserialize(priv_file_name(k_chunk_directory_file_name).c_str()) ||
-        !m_named_object_directory.deserialize(priv_file_name(k_named_object_directory_file_name).c_str())) {
-      std::cerr << "Cannot deserialize internal data" << std::endl;
+    const auto snapshot_no = priv_find_next_snapshot_no(path);
+    if (snapshot_no == 0) {
       std::abort();
+    } else if (snapshot_no == k_min_snapshot_no) { // Open normal files, i.e., not diff snapshot
+      return deserialize_management_data(path);
+    } else { // Open diff snapshot files
+      const auto diff_pages_list = priv_merge_segment_diff_list(path, snapshot_no - 1);
+      if (!priv_apply_segment_diff(path, snapshot_no - 1, diff_pages_list)) {
+        std::cerr << "Cannot apply segment diff" << std::endl;
+        std::abort();
+      }
+      return deserialize_management_data(priv_make_snapshot_base_file_name(path, snapshot_no - 1).c_str());
     }
 
-    return true;
+    assert(false);
+    return false;
   }
 
   /// \brief Expect to be called by a single thread
@@ -162,14 +178,15 @@ class manager_kernel {
     }
   }
 
+  /// \brief Sync with backing files
   void sync() {
     assert(priv_initialized());
 
     m_segment_storage.sync();
 
-    if (!m_bin_directory.serialize(priv_file_name(k_bin_directory_file_name).c_str()) ||
-        !m_chunk_directory.serialize(priv_file_name(k_chunk_directory_file_name).c_str()) ||
-        !m_named_object_directory.serialize(priv_file_name(k_named_object_directory_file_name).c_str())) {
+    if (!m_bin_directory.serialize(priv_make_file_name(k_bin_directory_file_name).c_str()) ||
+        !m_chunk_directory.serialize(priv_make_file_name(k_chunk_directory_file_name).c_str()) ||
+        !m_named_object_directory.serialize(priv_make_file_name(k_named_object_directory_file_name).c_str())) {
       std::cerr << "Failed to serialize internal data" << std::endl;
       std::abort();
     }
@@ -357,17 +374,50 @@ class manager_kernel {
   /// \brief
   /// \param base_path
   /// \return
-  bool snapshot(const char *base_path) {
+  bool snapshot(const char *destination_base_path) {
     sync();
-
-    return priv_copy_backing_files(base_path);
+    return priv_snapshot_entire_data(destination_base_path);
   }
 
   /// \brief
-  /// \param base_path
+  /// \param destination_base_path
   /// \return
+  bool snapshot_diff(const char *destination_base_path) {
+    sync();
+    return priv_snapshot_diff_data(destination_base_path);
+  }
+
+  /// \brief Copies backing files synchronously
+  /// \param source_base_path
+  /// \param destination_base_path
+  /// \return If succeeded, returns True; other false
+  static bool copy_file(const char *source_base_path, const char *destination_base_path) {
+    return priv_copy_all_backing_files(source_base_path, destination_base_path,
+                                       priv_find_next_snapshot_no(source_base_path) - 1);
+  }
+
+  /// \brief Copies backing files asynchronously
+  /// \param source_base_path
+  /// \param destination_base_path
+  /// \return Returns an object of std::future
+  /// If succeeded, its get() returns True; other false
+  static std::future<bool> copy_file_async(const char *source_base_path, const char *destination_base_path) {
+    return std::async(std::launch::async, copy_file, source_base_path, destination_base_path);
+  }
+
+  /// \brief Remove backing files synchronously
+  /// \param base_path
+  /// \return If succeeded, returns True; other false
   static bool remove_file(const char *base_path) {
-    return priv_remove_backing_files(base_path);
+    return priv_remove_all_backing_files(base_path, priv_find_next_snapshot_no(base_path) - 1);
+  }
+
+  /// \brief Remove backing files asynchronously
+  /// \param base_path
+  /// \return Returns an object of std::future
+  /// If succeeded, its get() returns True; other false
+  static std::future<bool> remove_file_async(const char *base_path) {
+    return std::async(std::launch::async, remove_file, base_path);
   }
 
   // Implemented in another file.
@@ -381,16 +431,16 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private methods (not designed to be used by the base class)
   // -------------------------------------------------------------------------------- //
+  static std::string priv_make_file_name(const std::string &base_name, const std::string &item_name) {
+    return base_name + "_" + item_name;
+  }
+
   bool priv_initialized() const {
     return (m_segment_storage.segment() && m_segment_storage.size() && !m_file_base_path.empty());
   }
 
-  static std::string priv_file_name(const std::string &base_name, const std::string &name) {
-    return base_name + "_" + name;
-  }
-
-  std::string priv_file_name(const std::string &name) const {
-    return priv_file_name(m_file_base_path, name);
+  std::string priv_make_file_name(const std::string &item_name) const {
+    return priv_make_file_name(m_file_base_path, item_name);
   }
 
   void priv_free_chunk(const chunk_no_type head_chunk_no, const std::size_t num_chunks) {
@@ -443,56 +493,309 @@ class manager_kernel {
     return static_cast<T *>(ptr);
   }
 
-  bool priv_copy_backing_files(const char *const base_name) const {
-    if (!util::copy_file(priv_file_name(k_segment_file_name),
-                         priv_file_name(base_name, k_segment_file_name))) {
-      std::cerr << "Failed to copy a backing file: " << priv_file_name(base_name, k_segment_file_name) << std::endl;
+  bool deserialize_management_data(const char *const base_path) {
+    if (!m_bin_directory.deserialize(priv_make_file_name(base_path, k_bin_directory_file_name).c_str()) ||
+        !m_chunk_directory.deserialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str()) ||
+        !m_named_object_directory.deserialize(priv_make_file_name(base_path,
+                                                                  k_named_object_directory_file_name).c_str())) {
+      std::cerr << "Cannot deserialize internal data" << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  // ---------------------------------------- File operations ---------------------------------------- //
+  static bool priv_copy_backing_file(const char *const src_base_name,
+                                     const char *const dst_base_name,
+                                     const char *const item_name) {
+    if (!util::copy_file(priv_make_file_name(src_base_name, item_name),
+                         priv_make_file_name(dst_base_name, item_name))) {
+//      std::cerr << "Failed to copy a backing file: " << priv_make_file_name(dst_base_name, item_name)
+//                << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  /// \brief Copies all backing files
+  static bool priv_copy_all_backing_files(const char *const src_base_name,
+                                          const char *const dst_base_name) {
+    bool ret = true;
+    ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_segment_file_name);
+    ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_bin_directory_file_name);
+    ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_chunk_directory_file_name);
+    ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_named_object_directory_file_name);
+
+    return ret;
+  }
+
+  /// \brief Copies all backing files including snapshots
+  static bool priv_copy_all_backing_files(const char *const src_base_name,
+                                          const char *const dst_base_name,
+                                          const size_type max_snapshot_no) {
+    bool ret = true;
+
+    ret &= priv_copy_all_backing_files(src_base_name, dst_base_name);
+
+    for (size_type snapshop_no = k_min_snapshot_no; snapshop_no <= max_snapshot_no; ++snapshop_no) {
+      const std::string src_base_file_name = priv_make_snapshot_base_file_name(src_base_name, snapshop_no);
+      const std::string dst_base_file_name = priv_make_snapshot_base_file_name(dst_base_name, snapshop_no);
+      ret &= priv_copy_all_backing_files(src_base_file_name.c_str(), dst_base_file_name.c_str());
+    }
+
+    return ret;
+  }
+
+  static bool priv_remove_backing_file(const char *const base_name, const char *const item_name) {
+    if (!util::remove_file(priv_make_file_name(base_name, item_name))) {
+//      std::cerr << "Failed to remove a backing file: "
+//                << priv_make_file_name(base_name, item_name) << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  /// \brief Removes all backing files
+  static bool priv_remove_all_backing_files(const char *const base_name) {
+    bool ret = true;
+
+    ret &= priv_remove_backing_file(base_name, k_segment_file_name);
+    ret &= priv_remove_backing_file(base_name, k_chunk_directory_file_name);
+    ret &= priv_remove_backing_file(base_name, k_bin_directory_file_name);
+    ret &= priv_remove_backing_file(base_name, k_named_object_directory_file_name);
+
+    return ret;
+  }
+
+  /// \brief Removes all backing files including snapshots
+  static bool priv_remove_all_backing_files(const char *const base_name,
+                                            const size_type max_snapshot_no) {
+    bool ret = true;
+
+    ret &= priv_remove_all_backing_files(base_name);
+
+    for (size_type snapshop_no = k_min_snapshot_no; snapshop_no <= max_snapshot_no; ++snapshop_no) {
+      const std::string base_file_name = priv_make_snapshot_base_file_name(base_name, snapshop_no);
+      ret &= priv_remove_all_backing_files(base_file_name.c_str());
+    }
+
+    return ret;
+  }
+
+  // ---------------------------------------- Snapshot ---------------------------------------- //
+  bool priv_snapshot_entire_data(const char *snapshot_base_path) const {
+    return priv_copy_all_backing_files(m_file_base_path.c_str(), snapshot_base_path);
+  }
+
+  bool priv_snapshot_diff_data(const char *snapshot_base_path) const {
+    // This is the first time to snapshot, just copy all
+    if (!util::file_exist(priv_make_file_name(snapshot_base_path, k_segment_file_name))) {
+      return priv_snapshot_entire_data(snapshot_base_path) && reset_soft_dirty_bit();
+    }
+
+    const size_type snapshot_no = priv_find_next_snapshot_no(snapshot_base_path);
+    assert(snapshot_no > 0);
+
+    const std::string base_file_name = priv_make_snapshot_base_file_name(snapshot_base_path, snapshot_no);
+
+    // We take diff only for the segment data
+    if (!priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_chunk_directory_file_name) ||
+        !priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_bin_directory_file_name) ||
+        !priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_named_object_directory_file_name)) {
+      std::cerr << "Cannot snapshot backing file" << std::endl;
       return false;
     }
 
-    if (!util::copy_file(priv_file_name(k_bin_directory_file_name),
-                         priv_file_name(base_name, k_bin_directory_file_name))) {
-      std::cerr << "Failed to copy a backing file: " << priv_file_name(base_name, k_bin_directory_file_name)
-                << std::endl;
+    return priv_snapshot_segment_diff(base_file_name.c_str()) && reset_soft_dirty_bit();
+  }
+
+  static std::string priv_make_snapshot_base_file_name(const std::string &base_name,
+                                                       const size_type snapshot_no) {
+    return base_name + "_" + k_diff_snapshot_file_name_prefix + "_" + std::to_string(snapshot_no);
+  }
+
+  static std::vector<std::string> priv_make_all_snapshot_base_file_names(const std::string &base_name,
+                                                                         const size_type max_snapshot_no) {
+
+    std::vector<std::string> list;
+    list.reserve(max_snapshot_no - k_min_snapshot_no + 1);
+    for (size_type snapshop_no = k_min_snapshot_no; snapshop_no <= max_snapshot_no; ++snapshop_no) {
+      const std::string base_file_name = priv_make_snapshot_base_file_name(base_name, snapshop_no);
+      list.emplace_back(base_file_name);
+    }
+
+    return list;
+  }
+
+  static bool reset_soft_dirty_bit() {
+    if (!util::reset_soft_dirty_bit()) {
+      std::cerr << "Failed to reset soft-dirty bit" << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  /// \brief Assume the minimum snapshot number is 1
+  /// \param snapshot_base_path
+  /// \return Returns 0 on error
+  static size_type priv_find_next_snapshot_no(const char *snapshot_base_path) {
+
+    for (size_type snapshot_no = k_min_snapshot_no; snapshot_no < k_snapshot_no_safeguard; ++snapshot_no) {
+      const auto file_name = priv_make_file_name(priv_make_snapshot_base_file_name(snapshot_base_path, snapshot_no),
+                                                 k_segment_file_name);
+      if (!util::file_exist(file_name)) {
+        return snapshot_no;
+      }
+    }
+
+    std::cerr << "There are already too many snapshots: " << k_snapshot_no_safeguard << std::endl;
+    return 0;
+  }
+
+  bool priv_snapshot_segment_diff(const char *snapshot_base_file_name) const {
+    const auto soft_dirty_page_no_list = priv_get_soft_dirty_page_no_list();
+
+    const auto segment_diff_file_name = priv_make_file_name(snapshot_base_file_name, k_segment_file_name);
+    std::ofstream segment_diff_file(segment_diff_file_name, std::ios::binary);
+    if (!segment_diff_file) {
+      std::cerr << "Cannot create a file: " << segment_diff_file_name << std::endl;
       return false;
     }
 
-    if (!util::copy_file(priv_file_name(k_chunk_directory_file_name),
-                         priv_file_name(base_name, k_chunk_directory_file_name))) {
-      std::cerr << "Failed to copy a backing file: " << priv_file_name(base_name, k_chunk_directory_file_name)
-                << std::endl;
+    {
+      size_type buf = soft_dirty_page_no_list.size();
+      segment_diff_file.write(reinterpret_cast<char *>(&buf), sizeof(size_type));
+    }
+
+    for (size_type page_no : soft_dirty_page_no_list) {
+      segment_diff_file.write(reinterpret_cast<char *>(&page_no), sizeof(size_type));
+    }
+
+    const ssize_t page_size = util::get_page_size();
+    assert(page_size > 0);
+
+    for (const auto page_no : soft_dirty_page_no_list) {
+      const char *const segment = static_cast<char *>(m_segment_storage.segment());
+      segment_diff_file.write(&segment[page_no * page_size], page_size);
+    }
+
+    if (!segment_diff_file) {
+      std::cerr << "Cannot write data to " << segment_diff_file_name << std::endl;
       return false;
     }
 
-    if (!util::copy_file(priv_file_name(k_named_object_directory_file_name),
-                         priv_file_name(base_name, k_named_object_directory_file_name))) {
-      std::cerr << "Failed to copy a backing file: " << priv_file_name(base_name, k_named_object_directory_file_name)
-                << std::endl;
-      return false;
-    }
+    segment_diff_file.close();
 
     return true;
   }
 
-  static bool priv_remove_backing_files(const char *const base_name) {
-    if (!util::remove_file(priv_file_name(base_name, k_segment_file_name))) {
-      std::cerr << "Failed to remove a backing file" << std::endl;
-      return false;
+  auto priv_get_soft_dirty_page_no_list() const {
+    std::vector<ssize_t> list;
+
+    const ssize_t page_size = util::get_page_size();
+    assert(page_size > 0);
+
+    const size_type num_used_pages = m_chunk_directory.size() * k_chunk_size / page_size;
+    const size_type page_no_offset = reinterpret_cast<uint64_t>(m_segment_storage.segment()) / page_size;
+    for (size_type page_no = 0; page_no < num_used_pages; ++page_no) {
+      util::pagemap_reader pr;
+      const auto pagemap_value = pr.at(page_no_offset + page_no);
+      if (pagemap_value == util::pagemap_reader::error_value) {
+        std::cerr << "Cannot read pagemap at " << page_no
+                  << " (" << (page_no_offset + page_no) * page_size << ")" << std::endl;
+        return list;
+      }
+      if (util::check_soft_dirty_page(pagemap_value)) {
+        list.emplace_back(page_no);
+      }
     }
 
-    if (!util::remove_file(priv_file_name(base_name, k_bin_directory_file_name))) {
-      std::cerr << "Failed to remove a backing file" << std::endl;
-      return false;
+    return list;
+  }
+
+  auto priv_merge_segment_diff_list(const char *snapshot_base_path,
+                                    const size_type max_snapshot_no) const {
+    std::map<size_type, std::pair<size_type, size_type>> segment_diff_list;
+
+    for (size_type snapshop_no = k_min_snapshot_no; snapshop_no <= max_snapshot_no; ++snapshop_no) {
+      const std::string base_file_name = priv_make_snapshot_base_file_name(snapshot_base_path, snapshop_no);
+      const auto segment_diff_file_name = priv_make_file_name(base_file_name, k_segment_file_name);
+
+      std::ifstream ifs(segment_diff_file_name, std::ios::binary);
+      if (!ifs.is_open()) {
+        std::cerr << "Cannot open: " << segment_diff_file_name << std::endl;
+        return segment_diff_list;
+      }
+
+      size_type num_diff_pages;
+      ifs.read(reinterpret_cast<char *>(&num_diff_pages), sizeof(size_type));
+      for (size_type offset = 0; offset < num_diff_pages; ++offset) {
+        size_type page_no;
+        ifs.read(reinterpret_cast<char *>(&page_no), sizeof(size_type));
+        segment_diff_list[page_no] = std::make_pair(snapshop_no, offset);
+      }
+      if (!ifs.good()) {
+        std::cerr << "Cannot read: " << segment_diff_file_name << std::endl;
+      }
     }
 
-    if (!util::remove_file(priv_file_name(base_name, k_chunk_directory_file_name))) {
-      std::cerr << "Failed to remove a backing file" << std::endl;
-      return false;
+    return segment_diff_list;
+  }
+
+  bool priv_apply_segment_diff(const char *snapshot_base_path,
+                               const size_type max_snapshot_no,
+                               const std::map<size_type, std::pair<size_type, size_type>> &segment_diff_list) {
+
+    std::vector<std::ifstream *> diff_file_list(max_snapshot_no + 1, nullptr);
+    std::vector<size_type> num_diff_list(max_snapshot_no + 1, 0);
+    for (size_type snapshop_no = k_min_snapshot_no; snapshop_no <= max_snapshot_no; ++snapshop_no) {
+      const std::string base_file_name = priv_make_snapshot_base_file_name(snapshot_base_path, snapshop_no);
+      const auto segment_diff_file_name = priv_make_file_name(base_file_name, k_segment_file_name);
+
+      auto ifs = new std::ifstream(segment_diff_file_name, std::ios::binary);
+      if (!ifs->is_open()) {
+        std::cerr << "Cannot open: " << segment_diff_file_name << std::endl;
+        return false;
+      }
+      diff_file_list[snapshop_no] = ifs;
+
+      size_type num_diff;
+      ifs->read(reinterpret_cast<char *>(&num_diff), sizeof(size_type));
+      num_diff_list[snapshop_no] = num_diff;
     }
 
-    if (!util::remove_file(priv_file_name(base_name, k_named_object_directory_file_name))) {
-      std::cerr << "Failed to remove a backing file" << std::endl;
-      return false;
+    const ssize_t page_size = util::get_page_size();
+    assert(page_size > 0);
+
+    char *const segment = static_cast<char *>(m_segment_storage.segment());
+    for (const auto &item : segment_diff_list) {
+      const ssize_t page_no = item.first;
+      assert(page_no * page_size < m_segment_storage.size());
+
+      const ssize_t snapshot_no = item.second.first;
+      assert(snapshot_no < diff_file_list.size());
+
+      const ssize_t diff_no = item.second.second;
+      assert(diff_no < num_diff_list[snapshot_no]);
+
+      const ssize_t offset = diff_no + num_diff_list[snapshot_no] + 1;
+
+      assert(diff_file_list[snapshot_no]->good());
+      if (!diff_file_list[snapshot_no]->seekg(offset * sizeof(size_type))) {
+        std::cerr << "Cannot seek to " << offset * sizeof(size_type) << " in " << snapshot_no << std::endl;
+        return false;
+      }
+
+      assert(diff_file_list[snapshot_no]->good());
+      if (!diff_file_list[snapshot_no]->read(&segment[page_no * page_size], page_size)) {
+        std::cerr << "Cannot read diff page value at " << offset * sizeof(size_type) << " in " << snapshot_no
+                  << std::endl;
+        return false;
+      }
+    }
+
+    for (const auto ifs : diff_file_list) {
+      delete ifs;
     }
 
     return true;

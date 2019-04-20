@@ -59,7 +59,7 @@ struct manager_type_holder {
 /// \tparam kernel_allocator_type
 /// The type of the internal allocator
 template <typename chunk_no_type = uint32_t,
-          std::size_t k_chunk_size = 1 << 21,
+    std::size_t k_chunk_size = 1 << 21,
           typename kernel_allocator_type = std::allocator<char>>
 class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type, k_chunk_size, kernel_allocator_type>,
                                                        detail::manager_type_holder<chunk_no_type,
@@ -126,18 +126,64 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   manager_v0 &operator=(const manager_v0 &) = delete;
   manager_v0 &operator=(manager_v0 &&) noexcept = default;
 
-  bool snapshot(char_ptr_holder_type name) {
-    return m_kernel.snapshot(name);
+  // ---------------------------------------- v0's unique functions ---------------------------------------- //
+
+  /// \brief Snapshot the entier data
+  /// \param base_path The prefix of the snapshot files
+  /// \return Returns true on success; other false
+  bool snapshot(char_ptr_holder_type base_path) {
+    return m_kernel.snapshot(base_path);
   }
 
+  /// \brief Snapshot diff if possible
+  /// This is an experimental API
+  /// Will be deleted in the future
+  /// \param base_path
+  /// \return Returns true on success; other false
+  bool snapshot_diff(char_ptr_holder_type base_path) {
+    return m_kernel.snapshot_diff(base_path);
+  }
+
+  /// \brief Copies backing files synchronously
+  /// \param source_base_path
+  /// \param destination_base_path
+  /// \return If succeeded, returns True; other false
+  static bool copy_file(const char *source_base_path, const char *destination_base_path) {
+    return kernel_type::copy_file(source_base_path, destination_base_path);
+  }
+
+  /// \brief Copies backing files asynchronously
+  /// \param source_base_path
+  /// \param destination_base_path
+  /// \return Returns an object of std::future
+  /// If succeeded, its get() returns True; other false
+  static auto copy_file_async(const char *source_base_path, const char *destination_base_path) {
+    return kernel_type::copy_file_async(source_base_path, destination_base_path);
+  }
+
+  /// \brief Remove backing files synchronously
+  /// \param base_path
+  /// \return If succeeded, returns True; other false
   static bool remove_file(const char *base_path) {
     return kernel_type::remove_file(base_path);
   }
 
+  /// \brief Remove backing files asynchronously
+  /// \param base_path
+  /// \return Returns an object of std::future
+  /// If succeeded, its get() returns True; other false
+  static std::future<bool> remove_file_async(const char *base_path) {
+    return std::async(std::launch::async, remove_file, base_path);
+  }
+
+  /// \brief
+  /// \return
   static constexpr size_type chunk_size() {
     return k_chunk_size;
   }
 
+  /// \brief
+  /// \param log_file_name
   void profile(const std::string &log_file_name) const {
     m_kernel.profile(log_file_name);
   }

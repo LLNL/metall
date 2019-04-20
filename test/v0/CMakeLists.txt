@@ -26,6 +26,10 @@ add_executable(snapshot_test snapshot_test.cpp)
 target_link_libraries(snapshot_test gtest_main)
 add_test(NAME snapshot_test COMMAND snapshot_test)
 
+add_executable(copy_file_test copy_file_test.cpp)
+target_link_libraries(copy_file_test gtest_main)
+add_test(NAME copy_file_test COMMAND copy_file_test)
+
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

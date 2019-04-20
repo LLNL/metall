@@ -215,6 +215,10 @@ class pagemap_reader {
     }
   }
 
+  ~pagemap_reader() {
+    ::close(m_fd);
+  }
+
   // Bits 0-54  page frame number (PFN) if present
   // Bits 0-4   swap type if swapped
   // Bits 5-54  swap offset if swapped

@@ -15,7 +15,7 @@ struct my_class {
 int main()
 {
   {
-    metall::manager manager(metall::create_only, "./metall_segment", 1 << 25);
+    metall::manager manager(metall::create_only, "/tmp/metall_segment", 1 << 25);
 
     int* array = static_cast<int *>(manager.allocate(10 * sizeof(int))); // Allocate an array in persistent memory
     array[0] = 1;
@@ -26,7 +26,7 @@ int main()
   }
 
   {
-    metall::manager manager(metall::open_only, "./metall_segment");
+    metall::manager manager(metall::open_only, "/tmp/metall_segment");
 
     auto object = manager.find<my_class>("root_object").first;
 

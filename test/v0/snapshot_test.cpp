@@ -6,30 +6,102 @@
 
 #include "gtest/gtest.h"
 
-#include <metall/metall.hpp>
+#include <string>
 
+#include <metall/metall.hpp>
 #include <metall/detail/utility/file.hpp>
 
 namespace {
 
-TEST(SnapshotTest, SparseCopy) {
-  metall::manager manager(metall::create_only, "/tmp/snapshot_test_file", metall::manager::chunk_size() * 2);
+const char * k_origin_path = "/tmp/snapshot_test_file";
+const char * k_snapshot_path = "/tmp/snapshot_test_file_snapshot";
 
-  uint64_t *a = static_cast<uint64_t *>(manager.allocate(sizeof(uint64_t)));
-  *a = 0;
+TEST(SnapshotTest, Snapshot) {
+  metall::manager::remove_file(k_origin_path);
+  metall::manager::remove_file(k_snapshot_path);
 
-  uint64_t *b = static_cast<uint64_t *>(manager.allocate(sizeof(uint64_t) * 2));
-  b[0] = 0;
-  b[1] = 0;
+  metall::manager manager(metall::create_only, k_origin_path, metall::manager::chunk_size() * 2);
 
-  ASSERT_TRUE(manager.snapshot("/tmp/snapshot_test_file_snapshot"));
+  auto a = manager.construct<uint32_t>("a")(1);
+  auto b = manager.construct<uint64_t>("b")(2);
 
-  EXPECT_EQ(metall::detail::utility::get_file_size("/tmp/snapshot_test_file_segment"),
-            metall::detail::utility::get_file_size("/tmp/snapshot_test_file_snapshot_segment"));
+  ASSERT_TRUE(manager.snapshot(k_snapshot_path));
 
-  EXPECT_EQ(metall::detail::utility::get_actual_file_size("/tmp/snapshot_test_file_segment"),
-            metall::detail::utility::get_actual_file_size("/tmp/snapshot_test_file_snapshot_segment"));
+  EXPECT_EQ(metall::detail::utility::get_file_size(std::string(k_origin_path) + "_segment"),
+            metall::detail::utility::get_file_size(std::string(k_snapshot_path) + "_segment"));
 
-  ASSERT_TRUE(metall::manager::remove_file("/tmp/snapshot_test_file_snapshot"));
+  EXPECT_EQ(metall::detail::utility::get_actual_file_size(std::string(k_origin_path) + "_segment"),
+            metall::detail::utility::get_actual_file_size(std::string(k_snapshot_path) + "_segment"));
+}
+
+TEST(SnapshotTest, Open) {
+  metall::manager manager(metall::open_only, k_snapshot_path);
+
+  auto a = manager.find<uint32_t>("a").first;
+  ASSERT_EQ(*a, 1);
+
+  auto b = manager.find<uint64_t>("b").first;
+  ASSERT_EQ(*b, 2);
+}
+
+TEST(SnapshotTest, SnapshotDiff0) {
+  metall::manager::remove_file(k_origin_path);
+  metall::manager::remove_file(k_snapshot_path);
+
+  metall::manager manager(metall::create_only, k_origin_path, metall::manager::chunk_size() * 3);
+
+  auto a = manager.construct<uint32_t>("a")(1);
+  auto b = manager.construct<uint64_t>("b")(2);
+
+  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+
+  EXPECT_EQ(metall::detail::utility::get_file_size(std::string(k_origin_path) + "_segment"),
+            metall::detail::utility::get_file_size(std::string(k_snapshot_path) + "_segment"));
+
+  EXPECT_EQ(metall::detail::utility::get_actual_file_size(std::string(k_origin_path) + "_segment"),
+            metall::detail::utility::get_actual_file_size(std::string(k_snapshot_path) + "_segment"));
+}
+
+TEST(SnapshotTest, SnapshotDiff1) {
+  metall::manager manager(metall::open_only, k_snapshot_path);
+
+  auto a = manager.find<uint32_t>("a").first;
+  ASSERT_EQ(*a, 1);
+  *a = 3;
+
+  auto b = manager.find<uint64_t>("b").first;
+  ASSERT_EQ(*b, 2);
+  *b = 4;
+
+  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+}
+
+TEST(SnapshotTest, SnapshotDiff2) {
+  metall::manager manager(metall::open_only, k_snapshot_path);
+
+  auto a = manager.find<uint32_t>("a").first;
+  ASSERT_EQ(*a, 3);
+  *a = 5;
+
+  auto b = manager.find<uint64_t>("b").first;
+  ASSERT_EQ(*b, 4);
+  *b = 6;
+
+  auto c = manager.construct<uint8_t>("c")(7);
+
+  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+}
+
+TEST(SnapshotTest, OpenDiff) {
+  metall::manager manager(metall::open_only, k_snapshot_path);
+
+  auto a = manager.find<uint32_t>("a").first;
+  ASSERT_EQ(*a, 5);
+
+  auto b = manager.find<uint64_t>("b").first;
+  ASSERT_EQ(*b, 6);
+
+  auto c = manager.find<uint8_t>("c").first;
+  ASSERT_EQ(*c, 7);
 }
 }
