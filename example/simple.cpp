@@ -35,6 +35,8 @@ int main() {
 
   } // Implicitly sync with files, i.e., sync() is called in metall::manager's destructor
 
+  // ---------- Assume exit and restart the program at this point ---------- //
+
   {
     // Reload the manager object
     metall::manager manager(metall::open_only, "/tmp/file_path");
@@ -43,7 +45,10 @@ int main() {
     // Please do not forget to use ".first" at the end
     auto pvec = manager.find<vector_t>("vec").first;
 
+    pvec->push_back(10); // Can restart to use containers normally
+
     std::cout << (*pvec)[0] << std::endl; // Will print "5"
+    std::cout << (*pvec)[1] << std::endl; // Will print "10"
 
     manager.destroy<vector_t>("vec"); // Destroy the object
   }
