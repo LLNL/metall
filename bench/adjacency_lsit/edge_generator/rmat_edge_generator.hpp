@@ -22,12 +22,12 @@ namespace edge_generator {
 template <typename parent_type>
 class rmat_edge_generator_iterator {
  private:
-  using rnd_generator_type = boost::random::mt19937;
+  using rnd_generator_type = boost::random::mt19937_64;
 
  public:
   using value_type = std::pair<uint64_t, uint64_t>;
   using const_reference = const value_type &;
-  using const_pointer = value_type *const;
+  using const_pointer = const value_type *;
 
   explicit rmat_edge_generator_iterator(const parent_type &parent, const std::size_t offset)
       : m_ptr_parent(&parent),

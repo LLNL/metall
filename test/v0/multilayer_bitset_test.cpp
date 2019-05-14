@@ -94,7 +94,7 @@ void RandomAccessHelper(const std::size_t num_bits) {
 
   std::vector<bool> reference(num_bits, false);
 
-  std::mt19937 mt;
+  std::mt19937_64 mt;
   std::uniform_int_distribution<uint64_t> rand_dist(0, num_bits * 2);
 
   uint64_t min_free_pos = 0;

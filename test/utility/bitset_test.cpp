@@ -69,7 +69,7 @@ void RandomAccessHelper()  {
   std::bitset<num_bits> reference;
   auto bitset = new block_type<num_bits>[num_blocks<block_type<num_bits>>(num_bits)](); // () is for zero initialization
 
-  std::mt19937 mt;
+  std::mt19937_64 mt;
   std::uniform_int_distribution<uint64_t> rand_dist(0, num_bits * 2);
 
   for (uint64_t i = 0; i < num_bits * 8; ++i) { // 8 is just a random number

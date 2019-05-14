@@ -83,7 +83,7 @@ std::pair<void *, void *> get_addr_range(const list_type &addr_and_size_lists) {
 template <typename list_type>
 void shuffle_list(list_type *list) {
   std::random_device rd;
-  std::mt19937 g(rd());
+  std::mt19937_64 g(rd());
   std::shuffle(list->begin(), list->end(), g);
 }
 
