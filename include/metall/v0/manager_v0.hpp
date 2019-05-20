@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_MANAGER_V0_HPP
-#define METALL_MANAGER_V0_HPP
+#ifndef METALL_V0_MANAGER_V0_HPP
+#define METALL_V0_MANAGER_V0_HPP
 
 #include <memory>
 
-#include <metall/stl_allocator.hpp>
+#include <metall/v0/stl_allocator_v0.hpp>
 #include <metall/detail/base_manager.hpp>
 #include <metall/v0/kernel/manager_kernel.hpp>
 #include <metall/detail/utility/in_place_interface.hpp>
@@ -38,7 +38,7 @@ struct manager_type_holder {
   using size_type = typename kernel_type::size_type;
   using difference_type = typename kernel_type::difference_type;
   template <typename T>
-  using allocator_type = stl_allocator<T, kernel_type>;
+  using allocator_type = stl_allocator_v0<T, kernel_type>;
   template <typename T>
   using construct_proxy = util::named_proxy<kernel_type, T, false>;
   template <typename T>
@@ -59,7 +59,7 @@ struct manager_type_holder {
 /// \tparam kernel_allocator_type
 /// The type of the internal allocator
 template <typename chunk_no_type = uint32_t,
-    std::size_t k_chunk_size = 1 << 21,
+          std::size_t k_chunk_size = 1 << 21,
           typename kernel_allocator_type = std::allocator<char>>
 class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type, k_chunk_size, kernel_allocator_type>,
                                                        detail::manager_type_holder<chunk_no_type,
@@ -259,4 +259,4 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
 } // namespace v0
 } // namespace metall
 
-#endif //METALL_MANAGER_V0_HPP
+#endif //METALL_V0_MANAGER_V0_HPP
