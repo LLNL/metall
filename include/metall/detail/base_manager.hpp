@@ -16,7 +16,8 @@ namespace detail {
 /// \brief An interface class of manager classes.
 ///
 /// This class is designed as a base class of manager with Curiously Recurring Template Pattern (CRTP)
-/// Manager class provides Boost.Interprocess like APIs. Actual memory allocation algorithm is handled by manage_kernel class
+/// to provide Boost.Interprocess like APIs. impl_type could have additional its original APIs.
+/// The actual memory allocation algorithm is handled by manage_kernel class.
 /// \tparam impl_type Delivered class which has actual implementation
 /// \tparam type_holder A utility struct that holds internal types of the delivered class
 template <typename impl_type,

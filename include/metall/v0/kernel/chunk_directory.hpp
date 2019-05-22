@@ -96,7 +96,7 @@ class chunk_directory {
   /// Public methods
   /// -------------------------------------------------------------------------------- ///
   /// \brief Reserves chunk directory.
-  /// Specifically, it allocates 'uncommited pages' so that not to waste memory space.
+  /// It allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
   /// \param num_chunks
   void reserve(const std::size_t num_chunks) {
     assert(!m_table);
