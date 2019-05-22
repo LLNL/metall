@@ -21,6 +21,7 @@
 #include <metall/v0/kernel/chunk_directory.hpp>
 #include <metall/v0/kernel/named_object_directory.hpp>
 #include <metall/v0/kernel/segment_storage.hpp>
+#include <metall/v0/kernel/segment_header.hpp>
 #include <metall/v0/kernel/object_size_manager.hpp>
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/in_place_interface.hpp>
@@ -89,9 +90,8 @@ class manager_kernel {
   static constexpr const char *k_named_object_directory_file_name = "named_object_directory";
 
   // For data segment manager
-  using segment_storage_type = segment_storage<difference_type, size_type>;
-
-  static constexpr size_type k_max_small_object_size = bin_no_mngr::to_object_size(bin_no_mngr::num_small_bins() - 1);
+  using segment_header_type = segment_header<k_chunk_size>;
+  using segment_storage_type = segment_storage<difference_type, size_type, segment_header_type>;
 
   // For snapshot
   static constexpr size_type k_snapshot_no_safeguard = 1ULL << 20ULL; // Safeguard, you could increase this number
@@ -138,7 +138,7 @@ class manager_kernel {
       std::cerr << "Can not create segment" << std::endl;
       std::abort();
     }
-
+    m_segment_storage.get_header()->manager_kernel_address = this;
     m_chunk_directory.reserve(priv_num_chunks());
   }
 
@@ -149,6 +149,7 @@ class manager_kernel {
     m_file_base_path = path;
 
     if (!m_segment_storage.open(priv_make_file_name(k_segment_file_name).c_str())) return false;
+    m_segment_storage.get_header()->manager_kernel_address = this;
 
     m_chunk_directory.reserve(priv_num_chunks());
 
@@ -225,14 +226,14 @@ class manager_kernel {
         m_bin_directory.pop(bin_no);
       }
 
-      return static_cast<char *>(m_segment_storage.segment()) + k_chunk_size * chunk_no + object_size * chunk_slot_no;
+      return static_cast<char *>(m_segment_storage.get_segment()) + k_chunk_size * chunk_no + object_size * chunk_slot_no;
 
     } else {
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
       lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
       const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
-      return static_cast<char *>(m_segment_storage.segment()) + k_chunk_size * new_chunk_no;
+      return static_cast<char *>(m_segment_storage.get_segment()) + k_chunk_size * new_chunk_no;
     }
 
     return nullptr;
@@ -249,7 +250,7 @@ class manager_kernel {
 
     if (!addr) return;
 
-    const difference_type offset = static_cast<char *>(addr) - static_cast<char *>(m_segment_storage.segment());
+    const difference_type offset = static_cast<char *>(addr) - static_cast<char *>(m_segment_storage.get_segment());
     const chunk_no_type chunk_no = offset / k_chunk_size;
     const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
 
@@ -306,7 +307,7 @@ class manager_kernel {
 
     const auto offset = std::get<1>(iterator->second);
     const auto length = std::get<2>(iterator->second);
-    return std::make_pair(reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.segment())), length);
+    return std::make_pair(reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.get_segment())), length);
   }
 
   template <typename T>
@@ -334,13 +335,13 @@ class manager_kernel {
     }
 
     // Destruct each object
-    auto ptr = static_cast<T *>(static_cast<void *>(offset + static_cast<char *>(m_segment_storage.segment())));
+    auto ptr = static_cast<T *>(static_cast<void *>(offset + static_cast<char *>(m_segment_storage.get_segment())));
     for (size_type i = 0; i < length; ++i) {
       ptr->~T();
       ++ptr;
     }
 
-    deallocate(offset + static_cast<char *>(m_segment_storage.segment()));
+    deallocate(offset + static_cast<char *>(m_segment_storage.get_segment()));
 
     return true;
   }
@@ -369,6 +370,10 @@ class manager_kernel {
       const char *const raw_name = (name.is_unique()) ? typeid(T).name() : name.get();
       return priv_generic_named_construct<T>(raw_name, num, try2find, dothrow, table);
     }
+  }
+
+  segment_header_type* get_segment_header() const {
+    return m_segment_storage.get_header();
   }
 
   /// \brief
@@ -436,7 +441,7 @@ class manager_kernel {
   }
 
   bool priv_initialized() const {
-    return (m_segment_storage.segment() && m_segment_storage.size() && !m_file_base_path.empty());
+    return (m_segment_storage.get_header() && m_segment_storage.get_segment() && m_segment_storage.size() && !m_file_base_path.empty());
   }
 
   std::string priv_make_file_name(const std::string &item_name) const {
@@ -469,7 +474,7 @@ class manager_kernel {
       if (iterator != m_named_object_directory.end()) { // Found an entry
         if (try2find) {
           const auto offset = std::get<1>(iterator->second);
-          return reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.segment()));
+          return reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.get_segment()));
         } else {
           return nullptr;
         }
@@ -480,7 +485,7 @@ class manager_kernel {
       // Insert into named_object_directory
       const auto insert_ret = m_named_object_directory.insert(name,
                                                               static_cast<char *>(ptr)
-                                                                  - static_cast<char *>(m_segment_storage.segment()),
+                                                                  - static_cast<char *>(m_segment_storage.get_segment()),
                                                               num);
       if (!insert_ret) {
         std::cerr << "Failed to insert a new name: " << name << std::endl;
@@ -675,7 +680,7 @@ class manager_kernel {
     assert(page_size > 0);
 
     for (const auto page_no : soft_dirty_page_no_list) {
-      const char *const segment = static_cast<char *>(m_segment_storage.segment());
+      const char *const segment = static_cast<char *>(m_segment_storage.get_segment());
       segment_diff_file.write(&segment[page_no * page_size], page_size);
     }
 
@@ -696,7 +701,7 @@ class manager_kernel {
     assert(page_size > 0);
 
     const size_type num_used_pages = m_chunk_directory.size() * k_chunk_size / page_size;
-    const size_type page_no_offset = reinterpret_cast<uint64_t>(m_segment_storage.segment()) / page_size;
+    const size_type page_no_offset = reinterpret_cast<uint64_t>(m_segment_storage.get_segment()) / page_size;
     for (size_type page_no = 0; page_no < num_used_pages; ++page_no) {
       util::pagemap_reader pr;
       const auto pagemap_value = pr.at(page_no_offset + page_no);
@@ -767,7 +772,7 @@ class manager_kernel {
     const ssize_t page_size = util::get_page_size();
     assert(page_size > 0);
 
-    char *const segment = static_cast<char *>(m_segment_storage.segment());
+    char *const segment = static_cast<char *>(m_segment_storage.get_segment());
     for (const auto &item : segment_diff_list) {
       const ssize_t page_no = item.first;
       assert(page_no * page_size < m_segment_storage.size());

@@ -11,25 +11,11 @@
 #include <limits>
 
 #include <metall/detail/base_stl_allocator.hpp>
-
-namespace metall {
-namespace detail {
-std::size_t g_max_manager_kernel_id;
-
-template <typename manager_kernel_type>
-manager_kernel_type** manager_kernel_table(typename manager_kernel_type::id_type id) {
-  static std::array<manager_kernel_type*, 1024> table;
-  assert(id < 1024);
-  assert(id <= g_max_manager_kernel_id);
-  return &(table[id]);
-}
-
-} // namespace detail
-} // namespace metall
+#include <metall/offset_ptr.hpp>
 
 namespace metall::v0::detail {
 
-/// \brief A STL compatible allocator
+/// \brief This is a utility structure that declare and holds some impormant types used in stl_allocator_v0
 /// \tparam T The type of the object
 /// \tparam manager_kernel_type The type of the manager kernel
 template <typename T, typename manager_kernel_type>
@@ -45,7 +31,12 @@ struct stl_allocator_type_holder {
 
 } // namespace metall::v0::detail
 
+
 namespace metall::v0 {
+
+/// \brief A STL compatible allocator
+/// \tparam T The type of the object
+/// \tparam manager_kernel_type The type of the manager kernel
 template <typename T, typename manager_kernel_type>
 class stl_allocator_v0
     : public metall::detail::base_stl_allocator<stl_allocator_v0<T, manager_kernel_type>,
@@ -59,8 +50,6 @@ class stl_allocator_v0
   using type_holder = detail::stl_allocator_type_holder<T, manager_kernel_type>;
   using base_type = metall::detail::base_stl_allocator<self_type, type_holder>;
   friend base_type;
-
-  using kernel_id_type = typename manager_kernel_type::id_type;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -80,14 +69,14 @@ class stl_allocator_v0
   // -------------------------------------------------------------------------------- //
   // Note: same as manager.hpp in Boost.interprocess,
   // 'explicit' keyword is not used on purpose to enable to call this constructor w/o arguments
-  // although this allocator won't work correctly w/o a valid kernel_id
-  stl_allocator_v0(kernel_id_type kernel_id)
-      : m_kernel_id(kernel_id) {}
+  // although this allocator won't work correctly w/o a valid manager_kernel_address
+  stl_allocator_v0(manager_kernel_type **const pointer_manager_kernel_address)
+      : m_ptr_manager_kernel_address(pointer_manager_kernel_address) {}
 
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
   stl_allocator_v0(const stl_allocator_v0<T2, manager_kernel_type> &allocator_instance)
-      : m_kernel_id(allocator_instance.get_kernel_id()) {}
+      : m_ptr_manager_kernel_address(allocator_instance.get_manager_kernel()) {}
 
   stl_allocator_v0(const stl_allocator_v0<T, manager_kernel_type> &other) = default;
   stl_allocator_v0(stl_allocator_v0<T, manager_kernel_type> &&other) noexcept = default;
@@ -98,20 +87,20 @@ class stl_allocator_v0
   /// \brief Copy assign operator for another T
   template <typename T2>
   stl_allocator_v0 &operator=(const stl_allocator_v0<T2, manager_kernel_type> &other) {
-    m_kernel_id = other.m_kernel_id;
+    m_ptr_manager_kernel_address = other.m_ptr_manager_kernel_address;
     return *this;
   }
 
   /// \brief Move assign operator for another T
   template <typename T2>
   stl_allocator_v0 &operator=(stl_allocator_v0<T2, manager_kernel_type> &&other) noexcept {
-    m_kernel_id = other.m_kernel_id;
+    m_ptr_manager_kernel_address = other.m_ptr_manager_kernel_address;
     return *this;
   }
 
   // ----------------------------------- This class's unique public functions ----------------------------------- //
-  kernel_id_type get_kernel_id() const {
-    return m_kernel_id;
+  manager_kernel_type **get_manager_kernel() const {
+    return metall::to_raw_pointer(m_ptr_manager_kernel_address);
   }
 
  private:
@@ -124,13 +113,13 @@ class stl_allocator_v0
   };
 
   pointer allocate_impl(const size_type n) const {
-    manager_kernel_type *const kernel = *(metall::detail::manager_kernel_table<manager_kernel_type>(m_kernel_id));
-    return pointer(static_cast<value_type *>(kernel->allocate(n * sizeof(T))));
+    auto& manager_kernel = **m_ptr_manager_kernel_address;
+    return pointer(static_cast<value_type *>(manager_kernel.allocate(n * sizeof(T))));
   }
 
   void deallocate_impl(pointer ptr, const size_type size) const noexcept {
-    manager_kernel_type *const kernel = *(metall::detail::manager_kernel_table<manager_kernel_type>(m_kernel_id));
-    kernel->deallocate(to_raw_pointer(ptr));
+    auto& manager_kernel = **m_ptr_manager_kernel_address;
+    manager_kernel.deallocate(to_raw_pointer(ptr));
   }
 
   size_type max_size_impl() const noexcept {
@@ -171,14 +160,15 @@ class stl_allocator_v0
   /// Private fields
   /// -------------------------------------------------------------------------------- ///
  private:
-  // Initialize with a large value to detect uninitialized situations
-  kernel_id_type m_kernel_id{std::numeric_limits<kernel_id_type>::max()};
-
+  // (offset)pointer to a raw pointer that points the address of the manager kernel allocated in DRAM
+  typename std::pointer_traits<typename manager_kernel_type::void_pointer>::template rebind<manager_kernel_type *>
+      m_ptr_manager_kernel_address;
 };
 
 template <typename T, typename kernel>
 bool operator==(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
-  return rhd.get_kernel_id() == lhd.get_kernel_id();
+  // Return true if they point to the same manager kernel
+  return *(rhd.get_manager_kernel()) == *(lhd.get_manager_kernel());
 }
 
 template <typename T, typename kernel>
