@@ -2,6 +2,8 @@ add_executable(simple simple.cpp)
 
 add_executable(vector_of_vectors vector_of_vectors.cpp)
 
+add_executable(multilevel_containers multilevel_containers.cpp)
+
 add_executable(string string.cpp)
 
 add_executable(string_map string_map.cpp)
