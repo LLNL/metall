@@ -76,7 +76,7 @@ class stl_allocator_v0
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
   stl_allocator_v0(const stl_allocator_v0<T2, manager_kernel_type> &allocator_instance)
-      : m_ptr_manager_kernel_address(allocator_instance.get_manager_kernel()) {}
+      : m_ptr_manager_kernel_address(allocator_instance.get_pointer_to_manager_kernel()) {}
 
   stl_allocator_v0(const stl_allocator_v0<T, manager_kernel_type> &other) = default;
   stl_allocator_v0(stl_allocator_v0<T, manager_kernel_type> &&other) noexcept = default;
@@ -99,7 +99,7 @@ class stl_allocator_v0
   }
 
   // ----------------------------------- This class's unique public functions ----------------------------------- //
-  manager_kernel_type **get_manager_kernel() const {
+  manager_kernel_type **get_pointer_to_manager_kernel() const {
     return metall::to_raw_pointer(m_ptr_manager_kernel_address);
   }
 
@@ -113,13 +113,13 @@ class stl_allocator_v0
   };
 
   pointer allocate_impl(const size_type n) const {
-    auto& manager_kernel = **m_ptr_manager_kernel_address;
-    return pointer(static_cast<value_type *>(manager_kernel.allocate(n * sizeof(T))));
+    auto manager_kernel = *get_pointer_to_manager_kernel();
+    return pointer(static_cast<value_type *>(manager_kernel->allocate(n * sizeof(T))));
   }
 
   void deallocate_impl(pointer ptr, const size_type size) const noexcept {
-    auto& manager_kernel = **m_ptr_manager_kernel_address;
-    manager_kernel.deallocate(to_raw_pointer(ptr));
+    auto manager_kernel = *get_pointer_to_manager_kernel();
+    manager_kernel->deallocate(to_raw_pointer(ptr));
   }
 
   size_type max_size_impl() const noexcept {
@@ -168,7 +168,7 @@ class stl_allocator_v0
 template <typename T, typename kernel>
 bool operator==(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
   // Return true if they point to the same manager kernel
-  return *(rhd.get_manager_kernel()) == *(lhd.get_manager_kernel());
+  return *(rhd.get_pointer_to_manager_kernel()) == *(lhd.get_pointer_to_manager_kernel());
 }
 
 template <typename T, typename kernel>

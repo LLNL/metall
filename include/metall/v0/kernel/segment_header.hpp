@@ -10,7 +10,7 @@
 template <std::size_t chunk_size>
 struct segment_header {
   union {
-    void* manager_kernel_address;
+    void* manager_kernel_address{nullptr};
     char raw_buffer[chunk_size];
   };
 };

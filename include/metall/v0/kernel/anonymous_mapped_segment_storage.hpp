@@ -12,7 +12,6 @@
 #include <fstream>
 #include <string>
 
-#include <metall/v0/kernel/segment_header.hpp>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/mmap.hpp>
 
@@ -24,7 +23,7 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <typename offset_type, typename size_type, typename header_type>
+template <typename offset_type, typename size_type, std::size_t header_size>
 class anonymous_mapped_segment_storage {
 
  public:
@@ -118,7 +117,7 @@ class anonymous_mapped_segment_storage {
     priv_free_region(offset, nbytes);
   }
 
-  header_type *get_header() const {
+  void *get_header() const {
     return m_header;
   }
 
@@ -155,15 +154,15 @@ class anonymous_mapped_segment_storage {
     if (size <= 0) return false;
     m_segment_size = size;
 
-    char* addr = reinterpret_cast<char*>(util::map_anonymous_write_mode(nullptr, sizeof(header_type) + m_segment_size, 0));
+    char* addr = reinterpret_cast<char*>(util::map_anonymous_write_mode(nullptr, header_size + m_segment_size, 0));
     if (!addr) {
       std::cerr << "Failed to allocate header and segment" << std::endl;
       priv_reset();
       return false;
     }
 
-    m_header = reinterpret_cast<header_type*>(addr);
-    m_segment = addr + sizeof(header_type);
+    m_header = addr;
+    m_segment = addr + header_size;
 
     return true;
   }
@@ -185,7 +184,7 @@ class anonymous_mapped_segment_storage {
   void priv_unmap_segment() {
     if (!priv_mapped()) return;
 
-    util::munmap(m_fd, m_header, sizeof(header_type) + m_segment_size, false);
+    util::munmap(m_fd, m_header, header_size + m_segment_size, false);
     priv_reset();
   }
 
@@ -216,7 +215,7 @@ class anonymous_mapped_segment_storage {
   /// Private fields
   /// -------------------------------------------------------------------------------- ///
   int m_fd{-1};
-  header_type *m_header{nullptr};
+  void *m_header{nullptr};
   void *m_segment{nullptr};
   size_type m_segment_size{0};
 };

@@ -91,7 +91,7 @@ class manager_kernel {
 
   // For data segment manager
   using segment_header_type = segment_header<k_chunk_size>;
-  using segment_storage_type = segment_storage<difference_type, size_type, segment_header_type>;
+  using segment_storage_type = segment_storage<difference_type, size_type, sizeof(segment_header_type)>;
 
   // For snapshot
   static constexpr size_type k_snapshot_no_safeguard = 1ULL << 20ULL; // Safeguard, you could increase this number
@@ -138,7 +138,8 @@ class manager_kernel {
       std::cerr << "Can not create segment" << std::endl;
       std::abort();
     }
-    m_segment_storage.get_header()->manager_kernel_address = this;
+
+    priv_init_segment_header();
     m_chunk_directory.reserve(priv_num_chunks());
   }
 
@@ -148,8 +149,10 @@ class manager_kernel {
   bool open(const char *path) {
     m_file_base_path = path;
 
-    if (!m_segment_storage.open(priv_make_file_name(k_segment_file_name).c_str())) return false;
-    m_segment_storage.get_header()->manager_kernel_address = this;
+    if (!m_segment_storage.open(priv_make_file_name(k_segment_file_name).c_str())) {
+      return false; // Note: this is not an fatal error due to open_or_create mode
+    }
+    priv_init_segment_header();
 
     m_chunk_directory.reserve(priv_num_chunks());
 
@@ -157,14 +160,14 @@ class manager_kernel {
     if (snapshot_no == 0) {
       std::abort();
     } else if (snapshot_no == k_min_snapshot_no) { // Open normal files, i.e., not diff snapshot
-      return deserialize_management_data(path);
+      return priv_deserialize_management_data(path);
     } else { // Open diff snapshot files
       const auto diff_pages_list = priv_merge_segment_diff_list(path, snapshot_no - 1);
       if (!priv_apply_segment_diff(path, snapshot_no - 1, diff_pages_list)) {
         std::cerr << "Cannot apply segment diff" << std::endl;
         std::abort();
       }
-      return deserialize_management_data(priv_make_snapshot_base_file_name(path, snapshot_no - 1).c_str());
+      return priv_deserialize_management_data(priv_make_snapshot_base_file_name(path, snapshot_no - 1).c_str());
     }
 
     assert(false);
@@ -373,7 +376,7 @@ class manager_kernel {
   }
 
   segment_header_type* get_segment_header() const {
-    return m_segment_storage.get_header();
+    return reinterpret_cast<segment_header_type *>(m_segment_storage.get_header());
   }
 
   /// \brief
@@ -458,6 +461,11 @@ class manager_kernel {
     return m_segment_storage.size() / k_chunk_size;
   }
 
+  void priv_init_segment_header() {
+    new(get_segment_header()) segment_header_type();
+    get_segment_header()->manager_kernel_address = this;
+  }
+
   template <typename T>
   T *priv_generic_named_construct(const char_type *const name,
                                   const size_type num,
@@ -498,7 +506,7 @@ class manager_kernel {
     return static_cast<T *>(ptr);
   }
 
-  bool deserialize_management_data(const char *const base_path) {
+  bool priv_deserialize_management_data(const char *const base_path) {
     if (!m_bin_directory.deserialize(priv_make_file_name(base_path, k_bin_directory_file_name).c_str()) ||
         !m_chunk_directory.deserialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str()) ||
         !m_named_object_directory.deserialize(priv_make_file_name(base_path,
@@ -515,8 +523,6 @@ class manager_kernel {
                                      const char *const item_name) {
     if (!util::copy_file(priv_make_file_name(src_base_name, item_name),
                          priv_make_file_name(dst_base_name, item_name))) {
-//      std::cerr << "Failed to copy a backing file: " << priv_make_file_name(dst_base_name, item_name)
-//                << std::endl;
       return false;
     }
     return true;
@@ -553,8 +559,6 @@ class manager_kernel {
 
   static bool priv_remove_backing_file(const char *const base_name, const char *const item_name) {
     if (!util::remove_file(priv_make_file_name(base_name, item_name))) {
-//      std::cerr << "Failed to remove a backing file: "
-//                << priv_make_file_name(base_name, item_name) << std::endl;
       return false;
     }
     return true;
