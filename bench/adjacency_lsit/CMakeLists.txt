@@ -11,31 +11,31 @@ add_executable(run_adj_list_bench_bip run_adj_list_bench_bip.cpp)
 add_executable(run_adj_list_bench_bip_extend run_adj_list_bench_bip_extend.cpp)
 add_executable(run_adj_list_bench_metall run_adj_list_bench_metall.cpp)
 
-
-if (JEMALLOC_ROOT)
-    # set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-    add_executable(run_adj_list_bench_metall_jemalloc run_adj_list_bench_metall_jemalloc.cpp)
-
-    # Include jemalloc headers
-    execute_process(COMMAND ${JEMALLOC_ROOT}/bin/jemalloc-config --includedir
-            OUTPUT_VARIABLE JEMALLOC_INCLUDEDIR)
-    string(STRIP ${JEMALLOC_INCLUDEDIR} JEMALLOC_INCLUDEDIR) # Remove the newline at the end
-    target_include_directories(run_adj_list_bench_metall_jemalloc PUBLIC "${JEMALLOC_INCLUDEDIR}")
-
-    # Link to jemalloc library
-    execute_process(COMMAND ${JEMALLOC_ROOT}/bin/jemalloc-config --libdir
-            OUTPUT_VARIABLE JEMALLOC_LIBDIR)
-    string(STRIP ${JEMALLOC_LIBDIR} JEMALLOC_LIBDIR) # Remove the newline at the end
-    target_link_directories(run_adj_list_bench_metall_jemalloc PUBLIC "${JEMALLOC_LIBDIR}")
-    target_link_libraries(run_adj_list_bench_metall_jemalloc -ljemalloc)
-
-    # Libraries required by jemalloc
-    execute_process(COMMAND ${JEMALLOC_ROOT}/bin/jemalloc-config --libs
-            OUTPUT_VARIABLE JEMALLOC_LIBS)
-    string(STRIP ${JEMALLOC_LIBS} JEMALLOC_LIBS) # Remove the newline at the end
-    target_compile_options(run_adj_list_bench_metall_jemalloc PUBLIC "${JEMALLOC_LIBS}")
-endif ()
+# Experimental version
+#if (JEMALLOC_ROOT)
+#    # set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+#
+#    add_executable(run_adj_list_bench_metall_jemalloc run_adj_list_bench_metall_jemalloc.cpp)
+#
+#    # Include jemalloc headers
+#    execute_process(COMMAND ${JEMALLOC_ROOT}/bin/jemalloc-config --includedir
+#            OUTPUT_VARIABLE JEMALLOC_INCLUDEDIR)
+#    string(STRIP ${JEMALLOC_INCLUDEDIR} JEMALLOC_INCLUDEDIR) # Remove the newline at the end
+#    target_include_directories(run_adj_list_bench_metall_jemalloc PUBLIC "${JEMALLOC_INCLUDEDIR}")
+#
+#    # Link to jemalloc library
+#    execute_process(COMMAND ${JEMALLOC_ROOT}/bin/jemalloc-config --libdir
+#            OUTPUT_VARIABLE JEMALLOC_LIBDIR)
+#    string(STRIP ${JEMALLOC_LIBDIR} JEMALLOC_LIBDIR) # Remove the newline at the end
+#    target_link_directories(run_adj_list_bench_metall_jemalloc PUBLIC "${JEMALLOC_LIBDIR}")
+#    target_link_libraries(run_adj_list_bench_metall_jemalloc -ljemalloc)
+#
+#    # Libraries required by jemalloc
+#    execute_process(COMMAND ${JEMALLOC_ROOT}/bin/jemalloc-config --libs
+#            OUTPUT_VARIABLE JEMALLOC_LIBS)
+#    string(STRIP ${JEMALLOC_LIBS} JEMALLOC_LIBS) # Remove the newline at the end
+#    target_compile_options(run_adj_list_bench_metall_jemalloc PUBLIC "${JEMALLOC_LIBS}")
+#endif ()
 
 
 add_subdirectory(edge_generator)

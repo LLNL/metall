@@ -119,16 +119,18 @@ bool file_exist(const std::string &file_name) {
   return (::stat(file_name.c_str(), &statbuf) == 0);
 }
 
-void deallocate_file_space(const int fd, const off_t off, const off_t len) {
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
+void deallocate_file_space(const int fd, const off_t off, const off_t len) {
   if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, off, len) == -1) {
     ::perror("fallocate");
     std::abort();
   }
+}
 #else
 #warning "FALLOC_FL_PUNCH_HOLE or FALLOC_FL_KEEP_SIZE is not supported"
-#endif
+void deallocate_file_space([[maybe_unused]] const int fd, [[maybe_unused]] const off_t off, [[maybe_unused]] const off_t len) {
 }
+#endif
 
 bool copy_file(const std::string &source_path, const std::string &destination_path) {
 

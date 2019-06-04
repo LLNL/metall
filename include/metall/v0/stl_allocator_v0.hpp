@@ -117,7 +117,7 @@ class stl_allocator_v0
     return pointer(static_cast<value_type *>(manager_kernel->allocate(n * sizeof(T))));
   }
 
-  void deallocate_impl(pointer ptr, const size_type size) const noexcept {
+  void deallocate_impl(pointer ptr, [[maybe_unused]] const size_type size) const noexcept {
     auto manager_kernel = *get_pointer_to_manager_kernel();
     manager_kernel->deallocate(to_raw_pointer(ptr));
   }
