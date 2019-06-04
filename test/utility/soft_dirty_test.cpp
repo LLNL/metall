@@ -45,7 +45,7 @@ void run_in_core_test(const std::size_t num_pages, char *const map) {
     {
       metall::detail::utility::pagemap_reader pr;
       for (uint64_t p = 0; p < num_pages; ++p) {
-        volatile int c = map[p * page_size];
+        [[maybe_unused]] volatile int c = map[p * page_size];
         const auto pagemap_value = pr.at(page_no_offset + p);
         ASSERT_NE(pagemap_value, pr.error_value) << "Cannot read pagemap at " << p;
         if (p % 2 == i % 2)

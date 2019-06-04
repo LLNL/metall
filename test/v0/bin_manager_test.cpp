@@ -29,10 +29,14 @@ TEST(BinManagerTest, ToSmallBinNo) {
       break;
     }
 
-    if (i > 0)
-      ASSERT_EQ(bin_no_mngr::to_bin_no(k_size_table<k_chunk_size, k_max_size>[i] - 1), i) << i << " == " << k_size_table<k_chunk_size, k_max_size>[i] - 1;
-    ASSERT_EQ(bin_no_mngr::to_bin_no(k_size_table<k_chunk_size, k_max_size>[i]), i) << i << " == " << k_size_table<k_chunk_size, k_max_size>[i];
-    ASSERT_EQ(bin_no_mngr::to_bin_no(k_size_table<k_chunk_size, k_max_size>[i] + 1), i + 1) << i << " == " << k_size_table<k_chunk_size, k_max_size>[i] + 1;
+    if (i > 0) {
+      ASSERT_EQ(bin_no_mngr::to_bin_no(k_size_table<k_chunk_size, k_max_size>[i] - 1), i)
+                << i << " == " << k_size_table<k_chunk_size, k_max_size>[i] - 1;
+    }
+    ASSERT_EQ(bin_no_mngr::to_bin_no(k_size_table<k_chunk_size, k_max_size>[i]), i)
+                << i << " == " << k_size_table<k_chunk_size, k_max_size>[i];
+    ASSERT_EQ(bin_no_mngr::to_bin_no(k_size_table<k_chunk_size, k_max_size>[i] + 1), i + 1)
+                << i << " == " << k_size_table<k_chunk_size, k_max_size>[i] + 1;
   }
 }
 
