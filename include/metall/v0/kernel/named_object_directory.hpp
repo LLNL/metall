@@ -170,10 +170,10 @@ class named_object_directory {
     const std::size_t num_reads_per_item = 1 + std::tuple_size<serialized_string_type>::value + 2;
     uint64_t buf;
 
-    key_type key;
-    serialized_string_type serialized_name;
-    offset_type offset;
-    size_type length;
+    key_type key = key_type();
+    serialized_string_type serialized_name = serialized_string_type();
+    offset_type offset = 0;
+    size_type length = 0;
     while (ifs >> buf) {
       if (count == 0) {
         key = buf;

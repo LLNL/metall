@@ -104,4 +104,6 @@ TEST(SnapshotTest, OpenDiff) {
   auto c = manager.find<uint8_t>("c").first;
   ASSERT_EQ(*c, 7);
 }
+
+// TODO: add random and large-scale diff snapshot test
 }

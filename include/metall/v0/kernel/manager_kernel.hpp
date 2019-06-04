@@ -733,10 +733,10 @@ class manager_kernel {
 
       size_type num_diff_pages;
       ifs.read(reinterpret_cast<char *>(&num_diff_pages), sizeof(size_type));
-      for (size_type local_index = 0; local_index < num_diff_pages; ++local_index) {
+      for (size_type diff_page_index = 0; diff_page_index < num_diff_pages; ++diff_page_index) {
         size_type page_no;
         ifs.read(reinterpret_cast<char *>(&page_no), sizeof(size_type));
-        segment_diff_list[page_no] = std::make_pair(snapshop_no, local_index);
+        segment_diff_list[page_no] = std::make_pair(snapshop_no, diff_page_index);
       }
       if (!ifs.good()) {
         std::cerr << "Cannot read: " << segment_diff_file_name << std::endl;
@@ -777,21 +777,21 @@ class manager_kernel {
       const size_t snapshot_no = item.second.first;
       assert(snapshot_no < diff_file_list.size());
 
-      const size_t diff_no = item.second.second;
-      assert(diff_no < num_diff_list[snapshot_no]);
+      const size_t diff_page_index = item.second.second;
+      assert(diff_page_index < num_diff_list[snapshot_no]);
 
-      const size_t offset = diff_no + num_diff_list[snapshot_no] + 1;
+      const size_t offset = (num_diff_list[snapshot_no] + 1) * sizeof(size_type) // Skip the list of diff page numbers
+                            + diff_page_index * page_size; // Offset to the target page data
 
       assert(diff_file_list[snapshot_no]->good());
-      if (!diff_file_list[snapshot_no]->seekg(offset * sizeof(size_type))) {
-        std::cerr << "Cannot seek to " << offset * sizeof(size_type) << " in " << snapshot_no << std::endl;
+      if (!diff_file_list[snapshot_no]->seekg(offset)) {
+        std::cerr << "Cannot seek to " << offset << " of " << snapshot_no << std::endl;
         return false;
       }
 
       assert(diff_file_list[snapshot_no]->good());
       if (!diff_file_list[snapshot_no]->read(&segment[page_no * page_size], page_size)) {
-        std::cerr << "Cannot read diff page value at " << offset * sizeof(size_type) << " in " << snapshot_no
-                  << std::endl;
+        std::cerr << "Cannot read diff page value at " << offset << " of " << snapshot_no << std::endl;
         return false;
       }
     }
