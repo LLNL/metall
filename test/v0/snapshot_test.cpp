@@ -22,8 +22,8 @@ TEST(SnapshotTest, Snapshot) {
 
   metall::manager manager(metall::create_only, k_origin_path, metall::manager::chunk_size() * 2);
 
-  auto a = manager.construct<uint32_t>("a")(1);
-  auto b = manager.construct<uint64_t>("b")(2);
+  [[maybe_unused]] auto a = manager.construct<uint32_t>("a")(1);
+  [[maybe_unused]] auto b = manager.construct<uint64_t>("b")(2);
 
   ASSERT_TRUE(manager.snapshot(k_snapshot_path));
 
@@ -50,8 +50,8 @@ TEST(SnapshotTest, SnapshotDiff0) {
 
   metall::manager manager(metall::create_only, k_origin_path, metall::manager::chunk_size() * 3);
 
-  auto a = manager.construct<uint32_t>("a")(1);
-  auto b = manager.construct<uint64_t>("b")(2);
+  [[maybe_unused]] auto a = manager.construct<uint32_t>("a")(1);
+  [[maybe_unused]] auto b = manager.construct<uint64_t>("b")(2);
 
   ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
 
@@ -87,7 +87,7 @@ TEST(SnapshotTest, SnapshotDiff2) {
   ASSERT_EQ(*b, 4);
   *b = 6;
 
-  auto c = manager.construct<uint8_t>("c")(7);
+  [[maybe_unused]] auto c = manager.construct<uint8_t>("c")(7);
 
   ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
 }
