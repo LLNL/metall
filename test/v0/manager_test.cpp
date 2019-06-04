@@ -438,5 +438,70 @@ TEST(ManagerTest, UniqueConstruct) {
   delete manager;
 }
 
+TEST(ManagerTest, MultiManegerPersistentNestedContainer) {
+  using element_type = uint64_t;
+  using vector_type = boost::interprocess::vector<element_type, typename manager_type::allocator_type<element_type>>;
+  using map_type = boost::unordered_map<element_type, // Key
+                                        vector_type, // Value
+                                        std::hash<element_type>, // Hash function
+                                        std::equal_to<element_type>, // Equal function
+                                        boost::container::scoped_allocator_adaptor<allocator_type<std::pair<const element_type, vector_type>>>>;
+
+  {
+    manager_type manager1(metall::create_only, "/tmp/manager_test_file1", k_chunk_size * 8);
+    manager_type manager2(metall::create_only, "/tmp/manager_test_file2", k_chunk_size * 8);
+
+    map_type *map1 = manager1.construct<map_type>("map")(manager1.get_allocator<>());
+    map_type *map2 = manager2.construct<map_type>("map")(manager2.get_allocator<>());
+
+    (*map1)[0].emplace_back(1);
+    (*map1)[0].emplace_back(2);
+
+    (*map2)[0].emplace_back(3);
+    (*map2)[0].emplace_back(4);
+  }
+
+  {
+    manager_type manager1(metall::open_only, "/tmp/manager_test_file1");
+    manager_type manager2(metall::open_only, "/tmp/manager_test_file2");
+
+    map_type *map1;
+    std::size_t n1;
+    std::tie(map1, n1) = manager1.find<map_type>("map");
+
+    map_type *map2;
+    std::size_t n2;
+    std::tie(map2, n2) = manager2.find<map_type>("map");
+
+    ASSERT_EQ((*map1)[0][0], 1);
+    ASSERT_EQ((*map1)[0][1], 2);
+    (*map1)[1].emplace_back(5);
+
+    ASSERT_EQ((*map2)[0][0], 3);
+    ASSERT_EQ((*map2)[0][1], 4);
+    (*map2)[1].emplace_back(6);
+  }
+
+  {
+    manager_type manager1(metall::open_only, "/tmp/manager_test_file1");
+    manager_type manager2(metall::open_only, "/tmp/manager_test_file2");
+
+    map_type *map1;
+    std::size_t n1;
+    std::tie(map1, n1) = manager1.find<map_type>("map");
+
+    map_type *map2;
+    std::size_t n2;
+    std::tie(map2, n2) = manager2.find<map_type>("map");
+
+    ASSERT_EQ((*map1)[0][0], 1);
+    ASSERT_EQ((*map1)[0][1], 2);
+    ASSERT_EQ((*map1)[1][0], 5);
+
+    ASSERT_EQ((*map2)[0][0], 3);
+    ASSERT_EQ((*map2)[0][1], 4);
+    ASSERT_EQ((*map2)[1][0], 6);
+  }
+}
 }
 
