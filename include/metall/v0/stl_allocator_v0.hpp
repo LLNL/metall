@@ -128,7 +128,7 @@ class stl_allocator_v0
     return pointer(static_cast<value_type *>(kernel->allocate(n * sizeof(T))));
   }
 
-  void deallocate_impl(pointer ptr, const size_type size) const noexcept {
+  void deallocate_impl(pointer ptr, [[maybe_unused]] const size_type size) const noexcept {
     manager_kernel_type *const kernel = *(metall::detail::manager_kernel_table<manager_kernel_type>(m_kernel_id));
     kernel->deallocate(to_raw_pointer(ptr));
   }

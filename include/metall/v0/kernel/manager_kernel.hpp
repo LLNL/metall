@@ -652,6 +652,10 @@ class manager_kernel {
     return 0;
   }
 
+  /// \brief Format of a diff file:
+  /// Line 1: #of diff pages (N) in the file
+  /// Line [2 ~ N+1): list of diff page numbers
+  /// Line [N+1 + 2N +1): list of diffs by page
   bool priv_snapshot_segment_diff(const char *snapshot_base_file_name) const {
     const auto soft_dirty_page_no_list = priv_get_soft_dirty_page_no_list();
 
@@ -729,10 +733,10 @@ class manager_kernel {
 
       size_type num_diff_pages;
       ifs.read(reinterpret_cast<char *>(&num_diff_pages), sizeof(size_type));
-      for (size_type offset = 0; offset < num_diff_pages; ++offset) {
+      for (size_type local_index = 0; local_index < num_diff_pages; ++local_index) {
         size_type page_no;
         ifs.read(reinterpret_cast<char *>(&page_no), sizeof(size_type));
-        segment_diff_list[page_no] = std::make_pair(snapshop_no, offset);
+        segment_diff_list[page_no] = std::make_pair(snapshop_no, local_index);
       }
       if (!ifs.good()) {
         std::cerr << "Cannot read: " << segment_diff_file_name << std::endl;
@@ -759,9 +763,7 @@ class manager_kernel {
       }
       diff_file_list[snapshop_no] = ifs;
 
-      size_type num_diff;
-      ifs->read(reinterpret_cast<char *>(&num_diff), sizeof(size_type));
-      num_diff_list[snapshop_no] = num_diff;
+      ifs->read(reinterpret_cast<char *>(&num_diff_list[snapshop_no]), sizeof(size_type));
     }
 
     const ssize_t page_size = util::get_page_size();
@@ -769,16 +771,16 @@ class manager_kernel {
 
     char *const segment = static_cast<char *>(m_segment_storage.segment());
     for (const auto &item : segment_diff_list) {
-      const ssize_t page_no = item.first;
+      const size_t page_no = item.first;
       assert(page_no * page_size < m_segment_storage.size());
 
-      const ssize_t snapshot_no = item.second.first;
+      const size_t snapshot_no = item.second.first;
       assert(snapshot_no < diff_file_list.size());
 
-      const ssize_t diff_no = item.second.second;
+      const size_t diff_no = item.second.second;
       assert(diff_no < num_diff_list[snapshot_no]);
 
-      const ssize_t offset = diff_no + num_diff_list[snapshot_no] + 1;
+      const size_t offset = diff_no + num_diff_list[snapshot_no] + 1;
 
       assert(diff_file_list[snapshot_no]->good());
       if (!diff_file_list[snapshot_no]->seekg(offset * sizeof(size_type))) {
