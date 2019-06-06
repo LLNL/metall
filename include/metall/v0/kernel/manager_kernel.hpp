@@ -67,7 +67,7 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   using self_type = manager_kernel<chunk_no_type, k_chunk_size, allocator_type>;
 
-  static constexpr size_type k_max_size = 1ULL << 48; // TODO: get from somewhere else
+  static constexpr size_type k_max_size = 1ULL << 48ULL; // TODO: get from somewhere else
 
   // For bin
   using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
@@ -132,6 +132,12 @@ class manager_kernel {
   /// \param path
   /// \param nbytes
   void create(const char *path, const size_type nbytes) {
+    if (nbytes > k_max_size) {
+      std::cerr << "Too large size was requested " << nbytes << " byte." << std::endl;
+      std::cerr << "You should be able to fix this error by increasing k_max_size in " << __FILE__ << std::endl;
+      std::abort();
+    }
+
     m_file_base_path = path;
 
     if (!m_segment_storage.create(priv_make_file_name(k_segment_file_name).c_str(), nbytes)) {
@@ -772,7 +778,7 @@ class manager_kernel {
     char *const segment = static_cast<char *>(m_segment_storage.segment());
     for (const auto &item : segment_diff_list) {
       const size_t page_no = item.first;
-      assert(page_no * page_size < m_segment_storage.size());
+      assert(page_no * static_cast<std::size_t>(page_size) < m_segment_storage.size());
 
       const size_t snapshot_no = item.second.first;
       assert(snapshot_no < diff_file_list.size());
@@ -781,7 +787,7 @@ class manager_kernel {
       assert(diff_page_index < num_diff_list[snapshot_no]);
 
       const size_t offset = (num_diff_list[snapshot_no] + 1) * sizeof(size_type) // Skip the list of diff page numbers
-                            + diff_page_index * page_size; // Offset to the target page data
+                            + diff_page_index * static_cast<std::size_t>(page_size); // Offset to the target page data
 
       assert(diff_file_list[snapshot_no]->good());
       if (!diff_file_list[snapshot_no]->seekg(offset)) {
@@ -790,7 +796,7 @@ class manager_kernel {
       }
 
       assert(diff_file_list[snapshot_no]->good());
-      if (!diff_file_list[snapshot_no]->read(&segment[page_no * page_size], page_size)) {
+      if (!diff_file_list[snapshot_no]->read(&segment[page_no * static_cast<std::size_t>(page_size)], page_size)) {
         std::cerr << "Cannot read diff page value at " << offset << " of " << snapshot_no << std::endl;
         return false;
       }
