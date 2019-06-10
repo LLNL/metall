@@ -12,9 +12,9 @@
 #include <cassert>
 #include <algorithm>
 
-namespace metall {
-namespace detail {
-namespace utility {
+#include <metall/detail/utility/builtin_functions.hpp>
+
+namespace metall::detail::utility {
 
 /// \brief Computes the next power of 2
 /// \param n Input value
@@ -23,12 +23,12 @@ constexpr uint64_t next_power_of_2(const uint64_t n) noexcept {
   uint64_t x(n);
 
   x--;
-  x |= x >> 1;
-  x |= x >> 2;
-  x |= x >> 4;
-  x |= x >> 8;
-  x |= x >> 16;
-  x |= x >> 32;
+  x |= x >> 1ULL;
+  x |= x >> 2ULL;
+  x |= x >> 4ULL;
+  x |= x >> 8ULL;
+  x |= x >> 16ULL;
+  x |= x >> 32ULL;
   x++;
 
   return x;
@@ -57,14 +57,15 @@ constexpr uint64_t log_cpt(const uint64_t n, const uint64_t base) noexcept {
 /// \param n Input value
 /// \return Returns base 2 logarithm of 2
 uint64_t log2_dynamic(const uint64_t n) noexcept {
-  return __builtin_ctzll(n);
+  assert(n && !(n & (n - 1))); // n > 0 && a power of 2
+  return ctzll(n);
 }
 
 /// \brief Computes the 'exp'-th power of base.
 /// NOTE that this method causes a recursive function call if non-constexpr value is given
 /// \param base Base
 /// \param exp Exponent
-/// \return Rturns the 'exp'-th power of base.
+/// \return Returns the 'exp'-th power of base.
 constexpr uint64_t power_cpt(const uint64_t base, const uint64_t exp) noexcept {
   return (exp == 0) ? 1 : base * power_cpt(base, exp - 1);
 }
@@ -93,7 +94,5 @@ struct unsigned_variable_type {
                                                                                       void>::type>::type>::type>::type;
 };
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::detail::utility
 #endif //METALL_DETAIL_UTILITY_COMMON_HPP

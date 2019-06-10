@@ -19,6 +19,7 @@
 
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/bitset.hpp>
+#include <metall/detail/utility/builtin_functions.hpp>
 
 namespace metall {
 namespace v0 {
@@ -322,7 +323,7 @@ class multilayer_bitset {
                   "This implementation works on only 64bit system now");
     static_assert(sizeof(unsigned long long) == sizeof(uint64_t), "sizeof(unsigned long long) != sizeof(uint64_t)");
 
-    return (block == 0) ? 0 : __builtin_clzll(~block);
+    return (block == 0) ? 0 : util::clzll(~block);
   }
 
   bool full_block(block_type block) const {

@@ -10,6 +10,7 @@
 #include <type_traits>
 
 #include <metall/detail/utility/common.hpp>
+#include <metall/detail/utility/builtin_functions.hpp>
 
 namespace metall {
 namespace v0 {
@@ -117,10 +118,10 @@ constexpr int64_t object_size_index(const std::size_t size) noexcept {
   if (size <= k_size_table<k_chunk_size, k_max_size>[0]) return 0;
 
   if (size <= k_class1_small_size_table[k_num_class1_small_sizes - 1]) {
-    const int z = __builtin_clzll(size);
-    const std::size_t r = size + (1ul << (61 - z)) - 1;
-    const int y = __builtin_clzll(r);
-    const int index = static_cast<int>(4 * (60 - y) + ((r >> (61 - y)) & 3));
+    const int z = util::clzll(size);
+    const std::size_t r = size + (1ULL << (61ULL - z)) - 1;
+    const int y = util::clzll(r);
+    const int index = static_cast<int>(4 * (60 - y) + ((r >> (61ULL - y)) & 3ULL));
     return static_cast<int64_t>(index);
   }
 
