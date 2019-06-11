@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(Metall)
 
+
 # -------------------------------------------------------------------------------- #
 # Options
 # -------------------------------------------------------------------------------- #
@@ -33,12 +34,13 @@ set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 if (USE_SPACE_AWARE_BIN)
     add_definitions(-DUSE_SPACE_AWARE_BIN)
     message(WARNING "Try to fill from lower address.")
-endif()
+endif ()
 
 if (USE_ANONYMOUS_MAP)
     add_definitions(-DUSE_ANONYMOUS_MAP)
     message(WARNING "Use anonymous mapping.")
-endif()
+endif ()
+
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
@@ -52,28 +54,42 @@ if (BUILD_DOC)
         configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
         add_custom_target(doc_doxygen ALL
-                          COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-                          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                          COMMENT "Generating API documentation with Doxygen"
-                          VERBATIM)
+                COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                COMMENT "Generating API documentation with Doxygen"
+                VERBATIM)
     else ()
         message(WARNING "Can not find Doxygen")
     endif ()
-endif()
+endif ()
+
 
 # -------------------------------------------------------------------------------- #
 # Executables
 # -------------------------------------------------------------------------------- #
-# Requre GCC
-if ((NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-    message(FATAL_ERROR "GCC (C/C++) is requred to buid")
+# Requrements for GCC
+if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+        message(FATAL_ERROR "GCC version must be at least 8.0")
+    endif ()
 endif ()
 
+# ---------- filesytem ---------- #
 # Required by GCC for the filesystem library
-link_libraries(stdc++fs)
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+    link_libraries(stdc++fs)
+endif ()
+
+# Xcode 11 Beta Release Notes
+# Clang now supports the C++17 <filesystem> library for iOS 13, macOS 10.15, watchOS 6, and tvOS 13. (50988273)
+# https://developer.apple.com/documentation/xcode_release_notes/xcode_11_beta_release_notes?language=objc
+## Required by Clang for the filesystem library
+#if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$")
+#    message("Clang compiler ${CMAKE_CXX_COMPILER_ID}")
+#endif()
 
 # Requre Boost
-find_package(Boost)
+find_package(Boost 1.60)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     include_directories(include)
