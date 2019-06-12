@@ -14,7 +14,7 @@
 
 namespace metall {
 namespace detail {
-std::size_t g_max_manager_kernel_id;
+static std::size_t g_max_manager_kernel_id;
 
 template <typename manager_kernel_type>
 inline manager_kernel_type** manager_kernel_table(typename manager_kernel_type::id_type id) {
