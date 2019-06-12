@@ -13,7 +13,7 @@
 #endif
 
 namespace utility {
-std::string omp_schedule_kind_name(const int kind_in_int) {
+inline std::string omp_schedule_kind_name(const int kind_in_int) {
 #ifdef _OPENMP
   if (kind_in_int == omp_sched_static) {
     return std::string("omp_sched_static (" + std::to_string(kind_in_int) + ")");

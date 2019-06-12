@@ -14,7 +14,7 @@ namespace metall {
 namespace detail {
 namespace utility {
 
-bool reset_soft_dirty_bit() {
+inline bool reset_soft_dirty_bit() {
   std::ofstream ofs("/proc/self/clear_refs");
   if (!ofs.is_open()) {
     std::cerr << "Cannot open file clear_refs" << std::endl;
@@ -32,15 +32,15 @@ bool reset_soft_dirty_bit() {
   return true;
 }
 
-constexpr bool check_soft_dirty_page(const uint64_t pagemap_value) {
+inline constexpr bool check_soft_dirty_page(const uint64_t pagemap_value) {
   return (pagemap_value >> 55ULL) & 1ULL;
 }
 
-constexpr bool check_swapped_page(const uint64_t pagemap_value) {
+inline constexpr bool check_swapped_page(const uint64_t pagemap_value) {
   return (pagemap_value >> 62ULL) & 1ULL;
 }
 
-constexpr bool check_present_page(const uint64_t pagemap_value) {
+inline constexpr bool check_present_page(const uint64_t pagemap_value) {
   return (pagemap_value >> 63ULL) & 1ULL;
 }
 

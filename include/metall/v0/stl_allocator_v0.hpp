@@ -17,7 +17,7 @@ namespace detail {
 std::size_t g_max_manager_kernel_id;
 
 template <typename manager_kernel_type>
-manager_kernel_type** manager_kernel_table(typename manager_kernel_type::id_type id) {
+inline manager_kernel_type** manager_kernel_table(typename manager_kernel_type::id_type id) {
   static std::array<manager_kernel_type*, 1024> table;
   assert(id < 1024);
   assert(id <= g_max_manager_kernel_id);
@@ -177,12 +177,12 @@ class stl_allocator_v0
 };
 
 template <typename T, typename kernel>
-bool operator==(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
+inline bool operator==(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
   return rhd.get_kernel_id() == lhd.get_kernel_id();
 }
 
 template <typename T, typename kernel>
-bool operator!=(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
+inline bool operator!=(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
   return !(rhd == lhd);
 }
 

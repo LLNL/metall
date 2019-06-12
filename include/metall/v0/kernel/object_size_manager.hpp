@@ -34,7 +34,7 @@ constexpr std::size_t k_max_small_size = k_chunk_size / 2;
 
 // Sizes are coming from jemalloc
 template <std::size_t k_chunk_size>
-constexpr uint64_t num_class2_small_sizes() noexcept {
+inline constexpr uint64_t num_class2_small_sizes() noexcept {
   std::size_t size = k_class1_small_size_table[k_num_class1_small_sizes - 1];
   uint64_t num_class2_small_sizes = 0;
   uint64_t offset = k_min_class2_offset;
@@ -52,7 +52,7 @@ constexpr uint64_t num_class2_small_sizes() noexcept {
 }
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr uint64_t num_large_sizes() noexcept {
+inline constexpr uint64_t num_large_sizes() noexcept {
   uint64_t count = 0;
   for (std::size_t size = k_chunk_size; size <= k_max_size; size *= 2) {
     ++count;
@@ -65,7 +65,7 @@ constexpr uint64_t k_num_sizes = k_num_class1_small_sizes + num_class2_small_siz
     + num_large_sizes<k_chunk_size, k_max_size>();
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> init_size_table() noexcept {
+inline constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> init_size_table() noexcept {
   std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> table{0};
 
   uint64_t index = 0;
@@ -105,7 +105,7 @@ constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>>
     k_size_table = init_size_table<k_chunk_size, k_max_size>();
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr int64_t find_in_size_table(const std::size_t size, const uint64_t offset = 0) noexcept {
+inline constexpr int64_t find_in_size_table(const std::size_t size, const uint64_t offset = 0) noexcept {
   for (uint64_t i = offset; i < k_size_table<k_chunk_size, k_max_size>.size(); ++i) {
     if (size <= k_size_table<k_chunk_size, k_max_size>[i]) return static_cast<int64_t>(i);
   }
@@ -113,7 +113,7 @@ constexpr int64_t find_in_size_table(const std::size_t size, const uint64_t offs
 }
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr int64_t object_size_index(const std::size_t size) noexcept {
+inline constexpr int64_t object_size_index(const std::size_t size) noexcept {
 
   if (size <= k_size_table<k_chunk_size, k_max_size>[0]) return 0;
 

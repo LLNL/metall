@@ -20,7 +20,7 @@ namespace utility {
 // domain. The author hereby disclaims copyright to this source code.
 //
 //-----------------------------------------------------------------------------
-constexpr uint64_t MurmurHash64A(const void *key, int len, uint64_t seed) {
+inline constexpr uint64_t MurmurHash64A(const void *key, int len, uint64_t seed) {
   constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
   constexpr int r = 47;
 

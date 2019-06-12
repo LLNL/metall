@@ -105,12 +105,12 @@ class jemalloc_allocator {
 };
 
 template <typename T>
-bool operator==(const jemalloc_allocator<T> &rhd, const jemalloc_allocator<T> &lhd) {
+inline bool operator==(const jemalloc_allocator<T> &rhd, const jemalloc_allocator<T> &lhd) {
   return true;
 }
 
 template <typename T>
-bool operator!=(const jemalloc_allocator<T> &rhd, const jemalloc_allocator<T> &lhd) {
+inline bool operator!=(const jemalloc_allocator<T> &rhd, const jemalloc_allocator<T> &lhd) {
   return !(rhd == lhd);
 }
 

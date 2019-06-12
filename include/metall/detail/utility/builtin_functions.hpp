@@ -8,7 +8,7 @@
 
 namespace metall::detail::utility {
 
-int clzll (unsigned long long x) {
+inline int clzll (unsigned long long x) {
 #if defined(__GNUG__) || defined(__clang__)
   return __builtin_clzll(x);
 #else
@@ -16,7 +16,7 @@ int clzll (unsigned long long x) {
 #endif
 }
 
-int ctzll (unsigned long long x) {
+inline int ctzll (unsigned long long x) {
 #if defined(__GNUG__) || defined(__clang__)
   return __builtin_ctzll(x);
 #else
