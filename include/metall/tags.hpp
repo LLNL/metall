@@ -14,35 +14,35 @@ namespace metall
 ///
 /// The existing segment with the same name is over written.
 struct create_only_t {};
-const create_only_t create_only{};
+static const create_only_t create_only{};
 
 /// \brief Tag to open an already created segment.
 struct open_only_t {};
-const open_only_t open_only{};
+static const open_only_t open_only{};
 
 /// \brief Tag to open a segment if it exists.
 ///
 /// If it does not exist, creates a new one
 struct open_or_create_t {};
-const open_or_create_t open_or_create{};
+static const open_or_create_t open_or_create{};
 
 /// \brief Not implemented
 struct open_read_only_t {};
-const open_read_only_t open_read_only{};
+static const open_read_only_t open_read_only{};
 
 /// \brief Not implemented
 struct open_read_private_t {};
-const open_read_private_t open_read_private{};
+static const open_read_private_t open_read_private{};
 
 /// \brief Not implemented
 struct open_copy_on_write_t {};
-const open_copy_on_write_t open_copy_on_write{};
+static const open_copy_on_write_t open_copy_on_write{};
 
 /// \brief Tag to construct anonymous instances.
-const detail::utility::anonymous_instance_t * anonymous_instance = nullptr;
+static const detail::utility::anonymous_instance_t * anonymous_instance = nullptr;
 
 /// \brief Tag to construct a unique instance of a type
-const detail::utility::unique_instance_t * unique_instance = nullptr;
+static const detail::utility::unique_instance_t * unique_instance = nullptr;
 }
 
 #endif //METALL_TAGS_HPP
