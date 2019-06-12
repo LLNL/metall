@@ -22,12 +22,12 @@ namespace bitset_detail {
 /// example (sizeof(bitset_base_type) is 8 byte)
 /// input 0 ~ 63 -> return 0; input 64 ~ 127 -> return 1;
 template <typename bitset_base_type>
-constexpr std::size_t bitset_global_pos(const std::size_t pos) {
+inline constexpr std::size_t bitset_global_pos(const std::size_t pos) {
   return (pos >> cal_log2(sizeof(bitset_base_type) * 8ULL));
 }
 
 template <typename bitset_base_type>
-constexpr std::size_t bitset_local_pos(const std::size_t pos) {
+inline constexpr std::size_t bitset_local_pos(const std::size_t pos) {
   return pos & (sizeof(bitset_base_type) * 8 - 1);
 }
 
@@ -54,33 +54,33 @@ typename std::conditional<num_bits <= 8,
 /// exapmles: bitset_base_type = uint64_t
 /// input 1 ~ 64 -> return 1;  input 65 ~ 128 -> return 2
 template <typename bitset_base_type>
-constexpr std::size_t bitset_size(const std::size_t size) {
+inline constexpr std::size_t bitset_size(const std::size_t size) {
   return (size == 0) ? 0 : (size - 1ULL) / (sizeof(bitset_base_type) * 8ULL) + 1ULL;
 }
 
 template <typename bitset_base_type>
-bool get_bit(const bitset_base_type *const bitset, const std::size_t pos) {
+inline bool get_bit(const bitset_base_type *const bitset, const std::size_t pos) {
   const bitset_base_type
       mask = (0x1ULL << (sizeof(bitset_base_type) * 8ULL - bitset_local_pos<bitset_base_type>(pos) - 1));
   return (bitset[bitset_global_pos<bitset_base_type>(pos)] & mask);
 }
 
 template <typename bitset_base_type>
-void set_bit(bitset_base_type *const bitset, const std::size_t pos) {
+inline void set_bit(bitset_base_type *const bitset, const std::size_t pos) {
   const bitset_base_type
       mask = (0x1ULL << (sizeof(bitset_base_type) * 8ULL - bitset_local_pos<bitset_base_type>(pos) - 1));
   bitset[bitset_global_pos<bitset_base_type>(pos)] |= mask;
 }
 
 template <typename bitset_base_type>
-void reset_bit(bitset_base_type *const bitset, const std::size_t pos) {
+inline void reset_bit(bitset_base_type *const bitset, const std::size_t pos) {
   const bitset_base_type
       mask = (0x1ULL << (sizeof(bitset_base_type) * 8ULL - bitset_local_pos<bitset_base_type>(pos) - 1));
   bitset[bitset_global_pos<bitset_base_type>(pos)] &= ~mask;
 }
 
 template <std::size_t local_num_bits>
-bitset_base_type<local_num_bits>
+inline bitset_base_type<local_num_bits>
 fill_bits_local(const std::size_t start_pos, const std::size_t n) {
   using base_type = bitset_base_type<local_num_bits>;
   const auto x = (start_pos == 0) ? ~static_cast<base_type>(0)
@@ -94,7 +94,7 @@ fill_bits_local(const std::size_t start_pos, const std::size_t n) {
 /// set_mode == true -> set mode
 /// set_mode == false -> reset mode
 template <typename bitset_base_type>
-void update_n_bits(bitset_base_type *const bitset,
+inline void update_n_bits(bitset_base_type *const bitset,
                    const std::size_t start_pos,
                    const std::size_t n,
                    const bool set_mode) {

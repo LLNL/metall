@@ -19,6 +19,7 @@
 
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/bitset.hpp>
+#include <metall/detail/utility/builtin_functions.hpp>
 
 namespace metall {
 namespace v0 {
@@ -30,12 +31,12 @@ namespace util = metall::detail::utility;
 
 namespace multilayer_bitset_detail {
 
-constexpr uint64_t index_depth(const uint64_t num_blocks, const uint64_t num_local_blocks) noexcept {
+inline constexpr uint64_t index_depth(const uint64_t num_blocks, const uint64_t num_local_blocks) noexcept {
   return (num_blocks == 0) ? 0 : (num_local_blocks == 1) ? num_blocks : util::log_cpt(num_blocks - 1, num_local_blocks)
       + 1;
 }
 
-constexpr uint64_t num_internal_trees(const uint64_t num_blocks,
+inline constexpr uint64_t num_internal_trees(const uint64_t num_blocks,
                                       const uint64_t num_local_blocks,
                                       const uint64_t index_depth) noexcept {
   return (num_blocks == 0 || index_depth <= 1) ? 0
@@ -44,7 +45,7 @@ constexpr uint64_t num_internal_trees(const uint64_t num_blocks,
               / (util::power_cpt(num_local_blocks, index_depth - 1)) + 1));
 }
 
-constexpr uint64_t num_index_blocks(const uint64_t num_local_blocks,
+inline constexpr uint64_t num_index_blocks(const uint64_t num_local_blocks,
                                     const uint64_t index_depth,
                                     const uint64_t num_full_trees) noexcept {
   return (index_depth <= 1) ? index_depth // no top layer or only top layer
@@ -322,7 +323,7 @@ class multilayer_bitset {
                   "This implementation works on only 64bit system now");
     static_assert(sizeof(unsigned long long) == sizeof(uint64_t), "sizeof(unsigned long long) != sizeof(uint64_t)");
 
-    return (block == 0) ? 0 : __builtin_clzll(~block);
+    return (block == 0) ? 0 : util::clzll(~block);
   }
 
   bool full_block(block_type block) const {

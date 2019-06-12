@@ -31,7 +31,7 @@ namespace utility {
 /// \param offset  Same as mmap(2)
 /// \return On success, returns a pointer to the mapped area.
 /// On error, nullptr is returned.
-void *os_mmap(void *const addr, const size_t length, const int protection, const int flags,
+inline void *os_mmap(void *const addr, const size_t length, const int protection, const int flags,
               const int fd, const off_t offset) {
   const ssize_t page_size = get_page_size();
   if (page_size == -1) {
@@ -72,7 +72,7 @@ void *os_mmap(void *const addr, const size_t length, const int protection, const
 /// \param length The lenght of the map
 /// \param additional_flags Additional map flags
 /// \return The starting address for the map. Returns nullptr on error.
-void *map_anonymous_write_mode(void *const addr,
+inline void *map_anonymous_write_mode(void *const addr,
                                const size_t length,
                                const int additional_flags = 0) {
   return os_mmap(addr, length, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | additional_flags, -1, 0);
@@ -85,7 +85,7 @@ void *map_anonymous_write_mode(void *const addr,
 /// \param offset The offset in the file
 /// \param additional_flags Additional map flags
 /// \return A pair of the file descriptor of the file and the starting address for the map
-std::pair<int, void *> map_file_read_mode(const std::string &file_name, void *const addr,
+inline std::pair<int, void *> map_file_read_mode(const std::string &file_name, void *const addr,
                                           const size_t length, const off_t offset,
                                           const int additional_flags = 0) {
   /// ----- Open the file ----- ///
@@ -112,7 +112,7 @@ std::pair<int, void *> map_file_read_mode(const std::string &file_name, void *co
 /// \param length The lenght of the map
 /// \param offset The offset in the file
 /// \return A pair of the file descriptor of the file and the starting address for the map
-std::pair<int, void *> map_file_write_mode(const std::string &file_name, void *const addr,
+inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, void *const addr,
                                            const size_t length, const off_t offset,
                                            const int additional_flags = 0) {
   /// ----- Open the file ----- ///
@@ -133,7 +133,7 @@ std::pair<int, void *> map_file_write_mode(const std::string &file_name, void *c
   return std::make_pair(fd, mapped_addr);
 }
 
-bool os_msync(void *const addr, const size_t length) {
+inline bool os_msync(void *const addr, const size_t length) {
   if (::msync(addr, length, MS_SYNC) != 0) {
     ::perror("msync");
     std::cerr << "errno: " << errno << std::endl;
@@ -142,7 +142,7 @@ bool os_msync(void *const addr, const size_t length) {
   return true;
 }
 
-bool os_munmap(void *const addr, const size_t length) {
+inline bool os_munmap(void *const addr, const size_t length) {
   if (::munmap(addr, length) != 0) {
     ::perror("munmap");
     std::cerr << "errno: " << errno << std::endl;
@@ -151,21 +151,21 @@ bool os_munmap(void *const addr, const size_t length) {
   return true;
 }
 
-bool munmap(void *const addr, const size_t length, const bool call_msync) {
+inline bool munmap(void *const addr, const size_t length, const bool call_msync) {
   if (call_msync) return os_msync(addr, length);
   return os_munmap(addr, length);
 }
 
-bool munmap(const int fd, void *const addr, const size_t length, const bool call_msync) {
+inline bool munmap(const int fd, void *const addr, const size_t length, const bool call_msync) {
   ::close(fd);
   return munmap(addr, length, call_msync);
 }
 
-bool map_with_prot_none(void *const addr, const size_t length) {
+inline bool map_with_prot_none(void *const addr, const size_t length) {
   return (os_mmap(addr, length, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0) == addr);
 }
 
-bool uncommit_shared_pages(void *const addr, const size_t length) {
+inline bool uncommit_shared_pages(void *const addr, const size_t length) {
   if (::madvise(addr, length, MADV_DONTNEED) != 0) {
     ::perror("madvise MADV_DONTNEED");
     std::cerr << "errno: " << errno << std::endl;
@@ -175,7 +175,7 @@ bool uncommit_shared_pages(void *const addr, const size_t length) {
 }
 
 // NOTE: the MADV_FREE operation can be applied only to private anonymous pages.
-bool uncommit_private_pages(void *const addr, const size_t length) {
+inline bool uncommit_private_pages(void *const addr, const size_t length) {
 #ifdef MADV_FREE
   if (::madvise(addr, length, MADV_FREE) != 0) {
     ::perror("madvise MADV_FREE");
@@ -196,7 +196,7 @@ bool uncommit_private_pages(void *const addr, const size_t length) {
 /// \brief Reserve a vm address region
 /// \param length Length of region
 /// \return The address of the region
-void *reserve_vm_region(const size_t length) {
+inline void *reserve_vm_region(const size_t length) {
   /// MEMO: MAP_SHARED doesn't work at least when try to reserve a large size??
   void *mapped_addr = os_mmap(nullptr, length, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   return mapped_addr;

@@ -166,13 +166,13 @@ class stl_allocator_v0
 };
 
 template <typename T, typename kernel>
-bool operator==(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
+inline bool operator==(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
   // Return true if they point to the same manager kernel
   return *(rhd.get_pointer_to_manager_kernel()) == *(lhd.get_pointer_to_manager_kernel());
 }
 
 template <typename T, typename kernel>
-bool operator!=(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
+inline bool operator!=(const stl_allocator_v0<T, kernel> &rhd, const stl_allocator_v0<T, kernel> &lhd) {
   return !(rhd == lhd);
 }
 

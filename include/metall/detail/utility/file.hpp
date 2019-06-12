@@ -20,7 +20,7 @@
 
 #include <iostream>
 #include <fstream>
-#include  <filesystem>
+#include <filesystem>
 
 // TODO: change to C++17
 
@@ -32,7 +32,7 @@ namespace {
 namespace fs = std::filesystem;
 }
 
-void extend_file_size_manually(const int fd, const ssize_t file_size) {
+inline void extend_file_size_manually(const int fd, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
   for (off_t i = 0; i < file_size / 4096; ++i) {
     ::pwrite(fd, buffer, 4096, i * 4096);
@@ -45,7 +45,7 @@ void extend_file_size_manually(const int fd, const ssize_t file_size) {
   delete[] buffer;
 }
 
-bool extend_file_size(const int fd, const size_t file_size) {
+inline bool extend_file_size(const int fd, const size_t file_size) {
   /// -----  extend the file if its size is smaller than that of mapped area ----- ///
   struct stat statbuf;
   if (::fstat(fd, &statbuf) == -1) {
@@ -63,7 +63,7 @@ bool extend_file_size(const int fd, const size_t file_size) {
   return true;
 }
 
-bool extend_file_size(const std::string &file_name, const size_t file_size) {
+inline bool extend_file_size(const std::string &file_name, const size_t file_size) {
   const int fd = ::open(file_name.c_str(), O_RDWR);
   if (fd == -1) {
     ::perror("open");
@@ -78,7 +78,7 @@ bool extend_file_size(const std::string &file_name, const size_t file_size) {
   return ret;
 }
 
-bool create_file(const std::string &file_name) {
+inline bool create_file(const std::string &file_name) {
   const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     ::perror("open");
@@ -90,7 +90,7 @@ bool create_file(const std::string &file_name) {
   return true;
 }
 
-ssize_t get_file_size(const std::string &file_name) {
+inline ssize_t get_file_size(const std::string &file_name) {
   std::ifstream ifs(file_name, std::ifstream::binary | std::ifstream::ate);
   ssize_t size = ifs.tellg();
   if (size == -1) {
@@ -100,7 +100,7 @@ ssize_t get_file_size(const std::string &file_name) {
   return size;
 }
 
-ssize_t get_actual_file_size(const std::string &file_name) {
+inline ssize_t get_actual_file_size(const std::string &file_name) {
   struct stat statbuf;
   if (::stat(file_name.c_str(), &statbuf) != 0) {
     ::perror("stat");
@@ -110,17 +110,17 @@ ssize_t get_actual_file_size(const std::string &file_name) {
   return statbuf.st_blocks * 512LL;
 }
 
-bool remove_file(const std::string &file_name) {
+inline bool remove_file(const std::string &file_name) {
   return (std::remove(file_name.c_str()) == 0);
 }
 
-bool file_exist(const std::string &file_name) {
+inline bool file_exist(const std::string &file_name) {
   struct stat statbuf;
   return (::stat(file_name.c_str(), &statbuf) == 0);
 }
 
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
-void deallocate_file_space(const int fd, const off_t off, const off_t len) {
+inline void deallocate_file_space(const int fd, const off_t off, const off_t len) {
   if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, off, len) == -1) {
     ::perror("fallocate");
     std::abort();
@@ -128,11 +128,11 @@ void deallocate_file_space(const int fd, const off_t off, const off_t len) {
 }
 #else
 #warning "FALLOC_FL_PUNCH_HOLE or FALLOC_FL_KEEP_SIZE is not supported"
-void deallocate_file_space([[maybe_unused]] const int fd, [[maybe_unused]] const off_t off, [[maybe_unused]] const off_t len) {
+inline void deallocate_file_space([[maybe_unused]] const int fd, [[maybe_unused]] const off_t off, [[maybe_unused]] const off_t len) {
 }
 #endif
 
-bool copy_file(const std::string &source_path, const std::string &destination_path) {
+inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
 
   bool success = true;
 
@@ -149,7 +149,7 @@ bool copy_file(const std::string &source_path, const std::string &destination_pa
   return success;
 }
 
-bool os_fsync(const int fd) {
+inline bool os_fsync(const int fd) {
   if (::fsync(fd) != 0) {
     ::perror("fsync");
     std::cerr << "errno: " << errno << std::endl;
