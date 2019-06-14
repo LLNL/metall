@@ -69,7 +69,7 @@ make test    # option; BUILD_TEST must be ON
 
  - cmake 3.8 or more.
  - GCC 8.0 or more.
- - Boost C++ Libraries 1.60 or more (build is not required; needs only their header files).
+ - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
 
 
 ### Additional Cmake Options
