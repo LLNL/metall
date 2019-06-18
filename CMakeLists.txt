@@ -89,7 +89,7 @@ endif ()
 #endif()
 
 # Requre Boost
-find_package(Boost 1.60)
+find_package(Boost 1.64)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     include_directories(include)
