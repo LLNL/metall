@@ -8,6 +8,7 @@
 #include <string>
 #include <cassert>
 #include <iomanip>
+#include <type_traits>
 
 #include "../utility/time.hpp"
 #include "../../include/metall/detail/utility/mmap.hpp"
@@ -49,7 +50,7 @@ void validate_array(random_iterator_type first, random_iterator_type last) {
   const auto start = utility::elapsed_time_sec();
 
   for (auto itr = first; itr != last; ++itr) {
-    if (*itr != std::distance(first, itr)) {
+    if (*itr != static_cast<typename std::remove_reference<decltype(*itr)>::type>(std::distance(first, itr))) {
       std::cerr << __LINE__ << " Sort result is not correct: "
                 << *itr << " != " << std::distance(first, itr) << std::endl;
       std::abort();
