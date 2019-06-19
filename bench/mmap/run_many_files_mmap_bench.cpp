@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <cassert>
+#include <iomanip>
 
 #include "../utility/time.hpp"
 #include "../../include/metall/detail/utility/mmap.hpp"
