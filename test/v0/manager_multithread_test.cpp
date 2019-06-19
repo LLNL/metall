@@ -256,7 +256,7 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 #endif
 
 #ifdef RUN_LARGE_SCALE_TEST
-TEST(ManagerMultithreadsTest, MixedAllocDeallocSeparated) {
+TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocSeparated) {
 
   const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;
   const std::size_t num_allocations_per_large_size = 1024;
@@ -310,7 +310,7 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
 #endif
 
 #ifdef RUN_LARGE_SCALE_TEST
-TEST(ManagerMultithreadsTest, MixedAllocDeallocMixed) {
+TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
 
   const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;
   const std::size_t num_allocations_per_large_size = 1024;

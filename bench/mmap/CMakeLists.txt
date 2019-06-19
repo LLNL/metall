@@ -1,0 +1,7 @@
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 9.0)
+        add_executable(run_many_files_mmap_bench run_many_files_mmap_bench.cpp)
+    else()
+        message(WARNING "run_many_files_mmap_bench requires GCC >= 9.0")
+    endif ()
+endif ()
