@@ -24,22 +24,44 @@ static constexpr int k_map_nosync =
 template <typename random_iterator_type>
 void run_sort(random_iterator_type first, random_iterator_type last) {
   const auto start = utility::elapsed_time_sec();
+
   std::sort(first, last);
   const auto elapsed_time = utility::elapsed_time_sec(start);
-  std::cout << __FUNCTION__ << " took " << elapsed_time << std::endl;
+
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
 template <typename random_iterator_type>
 void init_array(random_iterator_type first, random_iterator_type last) {
   const auto start = utility::elapsed_time_sec();
+
   for (; first != last; ++first) {
-    *first = std::distance(first, last);
+    *first = std::distance(first, last) - 1;
   }
   const auto elapsed_time = utility::elapsed_time_sec(start);
-  std::cout << __FUNCTION__ << " took " << elapsed_time << std::endl;
+
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
+}
+
+template <typename random_iterator_type>
+void validate_array(random_iterator_type first, random_iterator_type last) {
+  const auto start = utility::elapsed_time_sec();
+
+  for (auto itr = first; itr != last; ++itr) {
+    if (*itr != std::distance(first, itr)) {
+      std::cerr << __LINE__ << " Sort result is not correct: "
+                << *itr << " != " << std::distance(first, itr) << std::endl;
+      std::abort();
+    }
+  }
+  const auto elapsed_time = utility::elapsed_time_sec(start);
+
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
 void *map_with_single_file(const std::string &file_prefix, const std::size_t size) {
+  const auto start = utility::elapsed_time_sec();
+
   const std::string file_name(file_prefix + "_single");
   if (!util::create_file(file_name) || !util::extend_file_size(file_name, size)) {
     std::cerr << __LINE__ << " Failed to initialize file: " << file_name << std::endl;
@@ -51,11 +73,16 @@ void *map_with_single_file(const std::string &file_prefix, const std::size_t siz
     std::cerr << __LINE__ << " Failed mapping" << std::endl;
     std::abort();
   }
+
+  const auto elapsed_time = utility::elapsed_time_sec(start);
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
+
   return ret.second;
 }
 
 void *map_with_multiple_files(const std::string &file_prefix, const std::size_t size, const std::size_t chunk_size) {
   assert(size % chunk_size == 0);
+  const auto start = utility::elapsed_time_sec();
 
   char *addr = reinterpret_cast<char *>(util::reserve_vm_region(size));
   if (!addr) {
@@ -83,14 +110,22 @@ void *map_with_multiple_files(const std::string &file_prefix, const std::size_t 
     }
   }
 
+  const auto elapsed_time = utility::elapsed_time_sec(start);
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
+
   return addr;
 }
 
 void unmap(void *addr, const std::size_t size) {
+  const auto start = utility::elapsed_time_sec();
+
   if (!util::munmap(addr, size, false)) {
     std::cerr << __LINE__ << " Failed to munmap" << std::endl;
     std::abort();
   }
+
+  const auto elapsed_time = utility::elapsed_time_sec(start);
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -99,7 +134,10 @@ int main(int argc, char *argv[]) {
     std::cerr << "Wrong arguments" << std::endl;
     std::abort();
   }
+  std::cout << std::fixed;
+  std::cout << std::setprecision(2);
 
+  std::cout << "\nSingle file" << std::endl;
   const std::string file_prefix(argv[1]);
   const std::size_t length = std::stoll(argv[2]);
   const std::size_t chunk_length = std::stoll(argv[3]);
@@ -107,15 +145,18 @@ int main(int argc, char *argv[]) {
     auto array = reinterpret_cast<uint64_t *>(map_with_single_file(file_prefix, length * sizeof(uint64_t)));
     init_array(array, array + length);
     run_sort(array, array + length);
+    validate_array(array, array + length);
     unmap(array, length * sizeof(uint64_t));
   }
 
+  std::cout << "\nMany files" << std::endl;
   {
     auto array = reinterpret_cast<uint64_t *>(map_with_multiple_files(file_prefix,
                                                                       length * sizeof(uint64_t),
                                                                       chunk_length * sizeof(uint64_t)));
     init_array(array, array + length);
     run_sort(array, array + length);
+    validate_array(array, array + length);
     unmap(array, length * sizeof(uint64_t));
   }
 
