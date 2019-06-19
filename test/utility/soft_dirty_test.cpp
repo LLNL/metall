@@ -50,10 +50,10 @@ void run_in_core_test(const std::size_t num_pages, char *const map) {
         ASSERT_NE(pagemap_value, pr.error_value) << "Cannot read pagemap at " << p;
         if (p % 2 == i % 2)
           ASSERT_TRUE(metall::detail::utility::check_soft_dirty_page(pagemap_value))
-          << "page no " << p << ", pagemap value " << pagemap_value;
+                        << "page no " << p << ", pagemap value " << pagemap_value;
         else
           ASSERT_FALSE(metall::detail::utility::check_soft_dirty_page(pagemap_value))
-          << "page no " << p << ", pagemap value " << pagemap_value;
+                        << "page no " << p << ", pagemap value " << pagemap_value;
       }
     }
   }
@@ -77,7 +77,7 @@ TEST(SoftDirtyTest, MapFileBacked) {
   const ssize_t page_size = metall::detail::utility::get_page_size();
   ASSERT_GT(page_size, 0);
 
-  const char * const k_file_path = "/tmp/soft_dirty_test_file";
+  const char *const k_file_path = "/tmp/soft_dirty_test_file";
   const std::size_t k_num_pages = 4;
 
   metall::detail::utility::create_file(k_file_path);
@@ -87,6 +87,32 @@ TEST(SoftDirtyTest, MapFileBacked) {
                                                                                nullptr,
                                                                                page_size * k_num_pages,
                                                                                0).second);
+  ASSERT_TRUE(map);
+
+  run_in_core_test(k_num_pages, map);
+
+  ASSERT_TRUE(metall::detail::utility::munmap(map, page_size * k_num_pages, false));
+}
+
+TEST(SoftDirtyTest, MapPrivateFileBacked) {
+  const ssize_t page_size = metall::detail::utility::get_page_size();
+  ASSERT_GT(page_size, 0);
+
+  const char *const k_file_path = "/tmp/soft_dirty_test_file";
+  const std::size_t k_num_pages = 4;
+
+  metall::detail::utility::create_file(k_file_path);
+  metall::detail::utility::extend_file_size(k_file_path, page_size * k_num_pages);
+
+  const int fd = ::open(k_file_path, O_RDWR);
+  ASSERT_NE(fd, -1);
+
+  auto map = reinterpret_cast<char *>(metall::detail::utility::os_mmap(nullptr,
+                                                                       page_size * k_num_pages,
+                                                                       PROT_READ | PROT_WRITE,
+                                                                       MAP_PRIVATE,
+                                                                       fd,
+                                                                       0));
   ASSERT_TRUE(map);
 
   run_in_core_test(k_num_pages, map);
