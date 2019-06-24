@@ -23,14 +23,17 @@ if (NOT CMAKE_BUILD_TYPE)
     message("CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
+# ----- CPP ----- #
 set(CMAKE_CXX_FLAGS "-Wall -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
+# ----- C ----- #
 set(CMAKE_C_FLAGS "-Wall -pthread")
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 
+# ----- Configure Metall ----- #
 if (USE_SPACE_AWARE_BIN)
     add_definitions(-DUSE_SPACE_AWARE_BIN)
     message(WARNING "Try to fill from lower address.")
