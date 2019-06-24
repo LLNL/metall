@@ -17,13 +17,13 @@ namespace metall {
 namespace v0 {
 namespace kernel {
 
-template <typename offset_type, typename size_type>
+template <typename offset_type, typename size_type, std::size_t header_size>
 using segment_storage =
 
 #ifdef USE_ANONYMOUS_MAP
-    anonymous_mapped_segment_storage<offset_type, size_type>;
+    anonymous_mapped_segment_storage<offset_type, size_type, header_size>;
 #else
-    file_mapped_segment_storage<offset_type, size_type>;
+    file_mapped_segment_storage<offset_type, size_type, header_size>;
 #endif
 
 } // namespace kernel

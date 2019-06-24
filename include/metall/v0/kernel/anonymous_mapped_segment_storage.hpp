@@ -23,7 +23,7 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <typename offset_type, typename size_type>
+template <typename offset_type, typename size_type, std::size_t header_size>
 class anonymous_mapped_segment_storage {
 
  public:
@@ -46,6 +46,7 @@ class anonymous_mapped_segment_storage {
 
   anonymous_mapped_segment_storage(anonymous_mapped_segment_storage &&other) noexcept :
       m_fd(other.m_fd),
+      m_header(other.m_header),
       m_segment(other.m_segment),
       m_segment_size(other.m_segment_size) {
     other.priv_reset();
@@ -53,6 +54,7 @@ class anonymous_mapped_segment_storage {
 
   anonymous_mapped_segment_storage &operator=(anonymous_mapped_segment_storage &&other) noexcept {
     m_fd = other.m_fd;
+    m_header = other.m_header;
     m_segment = other.m_segment;
     m_segment_size = other.m_segment_size;
 
@@ -79,7 +81,7 @@ class anonymous_mapped_segment_storage {
       return false;
     }
 
-    if (!priv_map_anonymous(nbytes)) return false;
+    if (!priv_allocate_header_and_segment(nbytes)) return false;
 
     return true;
   }
@@ -96,7 +98,7 @@ class anonymous_mapped_segment_storage {
       return false;
     }
 
-    if (!priv_map_anonymous(util::get_file_size(path))) return false;
+    if (!priv_allocate_header_and_segment(util::get_file_size(path))) return false;
 
     if (!priv_read_file()) return false;
 
@@ -115,7 +117,11 @@ class anonymous_mapped_segment_storage {
     priv_free_region(offset, nbytes);
   }
 
-  void *segment() const {
+  void *get_header() const {
+    return m_header;
+  }
+
+  void *get_segment() const {
     return m_segment;
   }
 
@@ -133,26 +139,30 @@ class anonymous_mapped_segment_storage {
   // -------------------------------------------------------------------------------- //
   void priv_reset() {
     m_fd = -1;
+    m_header = nullptr;
     m_segment = nullptr;
     m_segment_size = 0;
   }
 
   bool priv_mapped() const {
-    return (m_segment && m_segment_size > 0); // does not check m_fd on purpose
+    return (m_header && m_segment && m_segment_size > 0); // does not check m_fd on purpose
   }
 
-  bool priv_map_anonymous(const size_type size) {
+  bool priv_allocate_header_and_segment(const size_type size) {
     assert(!priv_mapped());
 
     if (size <= 0) return false;
     m_segment_size = size;
 
-    m_segment = util::map_anonymous_write_mode(nullptr, m_segment_size, 0);
-    if (!m_segment) {
-      std::cerr << "Failed to allocate segment" << std::endl;
+    char* addr = reinterpret_cast<char*>(util::map_anonymous_write_mode(nullptr, header_size + m_segment_size, 0));
+    if (!addr) {
+      std::cerr << "Failed to allocate header and segment" << std::endl;
       priv_reset();
       return false;
     }
+
+    m_header = addr;
+    m_segment = addr + header_size;
 
     return true;
   }
@@ -174,7 +184,7 @@ class anonymous_mapped_segment_storage {
   void priv_unmap_segment() {
     if (!priv_mapped()) return;
 
-    util::munmap(m_fd, m_segment, m_segment_size, false);
+    util::munmap(m_fd, m_header, header_size + m_segment_size, false);
     priv_reset();
   }
 
@@ -205,6 +215,7 @@ class anonymous_mapped_segment_storage {
   /// Private fields
   /// -------------------------------------------------------------------------------- ///
   int m_fd{-1};
+  void *m_header{nullptr};
   void *m_segment{nullptr};
   size_type m_segment_size{0};
 };

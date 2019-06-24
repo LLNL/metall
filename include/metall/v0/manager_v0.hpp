@@ -246,9 +246,7 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
 
   template <typename T = void>
   allocator_type<T> get_allocator_impl() {
-    metall::detail::g_max_manager_kernel_id = 0;
-    *(metall::detail::manager_kernel_table<kernel_type>(typename kernel_type::id_type(0))) = base_type::get_kernel();
-    return allocator_type<T>(0); // for now, just support single database mode
+    return allocator_type<T>(reinterpret_cast<kernel_type **>(&(m_kernel.get_segment_header()->manager_kernel_address)));
   }
 
   /// -------------------------------------------------------------------------------- ///
