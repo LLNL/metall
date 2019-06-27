@@ -99,8 +99,8 @@ else()
     find_package(Boost 1.64)
 endif()
 
-if (BOOST_FOUND)
-    include_directories(${BOOST_INCLUDE_DIRS})
+if (Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
     include_directories(include)
 
     add_subdirectory(src lib)
