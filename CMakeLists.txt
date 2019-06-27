@@ -14,6 +14,7 @@ option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 # ----- Experimental options ----- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
 option(USE_ANONYMOUS_MAP "Use anonymous mapping instead of file-backed mapping for application's segment data" OFF)
+option(BOOST_VERSION_TEST "Accept any Boost versions for test" OFF)
 # -------------------------------------------------------------------------------- #
 
 set(CMAKE_CXX_STANDARD 17)
@@ -92,9 +93,14 @@ endif ()
 #endif()
 
 # Requre Boost
-find_package(Boost 1.64)
-if (Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
+if (BOOST_VERSION_TEST)
+    find_package(Boost)
+else()
+    find_package(Boost 1.64)
+endif()
+
+if (BOOST_FOUND)
+    include_directories(${BOOST_INCLUDE_DIRS})
     include_directories(include)
 
     add_subdirectory(src lib)
