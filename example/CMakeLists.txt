@@ -12,7 +12,9 @@ add_executable(offset_pointer offset_pointer.cpp)
 
 add_executable(snapshot snapshot.cpp)
 
-add_executable(custom_kernel_allocator custom_kernel_allocator.cpp)
+if (NUMA_AVAILABLE)
+    add_executable(custom_kernel_allocator custom_kernel_allocator.cpp)
+endif()
 
 add_executable(c_api c_api.c)
 target_link_libraries(c_api metall_c)

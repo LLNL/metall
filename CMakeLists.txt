@@ -15,6 +15,7 @@ option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
 option(USE_ANONYMOUS_MAP "Use anonymous mapping instead of file-backed mapping for application's segment data" OFF)
 option(BOOST_VERSION_TEST "Accept any Boost versions for test" OFF)
+option(NUMA_AVAILABLE "Build programs that require the NUMA policy library (numa.h)" OFF)
 # -------------------------------------------------------------------------------- #
 
 set(CMAKE_CXX_STANDARD 17)

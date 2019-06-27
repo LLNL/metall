@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 /// \brief An simple example of a numa-aware STL compatible allocator
+/// Note that this version works on only Linux
 template <typename T>
 class numa_allocator {
 
