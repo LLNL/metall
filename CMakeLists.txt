@@ -10,12 +10,12 @@ option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
+option(NUMA_AVAILABLE "Build programs that require the NUMA policy library (numa.h)" OFF)
+option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 
-# ----- Experimental options ----- #
+# ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
 option(USE_ANONYMOUS_MAP "Use anonymous mapping instead of file-backed mapping for application's segment data" OFF)
-option(BOOST_VERSION_TEST "Accept any Boost versions for test" OFF)
-option(NUMA_AVAILABLE "Build programs that require the NUMA policy library (numa.h)" OFF)
 # -------------------------------------------------------------------------------- #
 
 set(CMAKE_CXX_STANDARD 17)
@@ -25,17 +25,55 @@ if (NOT CMAKE_BUILD_TYPE)
     message("CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
-# ----- CPP ----- #
+# ---------- CPP ---------- #
+# Basic
 set(CMAKE_CXX_FLAGS "-Wall -pthread")
+
+# Debug
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
+if (Linux)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
+endif()
+
+# Release
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-# ----- C ----- #
+# Release with debug info
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -Og")
+if (Linux)
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -pg")
+endif()
+
+# CI
+if (RUN_BUILD_AND_TEST_WITH_CI)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+endif ()
+
+# ---------- C ---------- #
+# Basic
 set(CMAKE_C_FLAGS "-Wall -pthread")
+
+# Debug
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
+if (Linux)
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -pg")
+endif()
+
+# Release
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-# ----- Configure Metall ----- #
+# Release with debug info
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g3 -Og")
+if (Linux)
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -pg")
+endif()
+
+# CI
+if (RUN_BUILD_AND_TEST_WITH_CI)
+    set(CMAKE_C_FLAGS_RELEASE "-O3")
+endif ()
+
+# ---------- Configure Metall ---------- #
 if (USE_SPACE_AWARE_BIN)
     add_definitions(-DUSE_SPACE_AWARE_BIN)
     message(WARNING "Try to fill from lower address.")
@@ -73,9 +111,11 @@ endif ()
 # Executables
 # -------------------------------------------------------------------------------- #
 # Requrements for GCC
-if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-        message(FATAL_ERROR "GCC version must be at least 8.0")
+if (NOT RUN_BUILD_AND_TEST_WITH_CI)
+    if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+            message(FATAL_ERROR "GCC version must be at least 8.0")
+        endif ()
     endif ()
 endif ()
 
@@ -94,11 +134,11 @@ endif ()
 #endif()
 
 # Requre Boost
-if (BOOST_VERSION_TEST)
+if (RUN_BUILD_AND_TEST_WITH_CI)
     find_package(Boost)
-else()
+else ()
     find_package(Boost 1.64)
-endif()
+endif ()
 
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})

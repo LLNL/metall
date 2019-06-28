@@ -332,23 +332,25 @@ TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
 #endif
 
 TEST(ManagerMultithreadsTest, ConstructAndFind) {
-  using allocation_element_type = uint64_t;
+  using allocation_element_type = std::array<char, 256>;
 
   const std::size_t file_size = k_chunk_size;
   manager_type manager(metall::create_only, "/tmp/manager_test_file", file_size);
 
   for (uint64_t i = 0; i < file_size / sizeof(allocation_element_type); ++i) {
 
-    // Allocation
-    std::vector<allocation_element_type*> addr_list(get_num_threads(), nullptr);
+    // Allocation (one of threads 'construct' the object and the rest 'find' the address)
+    std::vector<allocation_element_type *> addr_list(get_num_threads(), nullptr);
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
     {
       addr_list[get_thread_num()] = manager.find_or_construct<allocation_element_type>(std::to_string(i).c_str())();
     }
+
+    // All threads must point to the same address
     for (int t = 0; t < get_num_threads() - 1; ++t) {
-      ASSERT_EQ(addr_list[t], addr_list[t+1]);
+      ASSERT_EQ(addr_list[t], addr_list[t + 1]);
     }
 
     // Deallocation
