@@ -203,7 +203,11 @@ class bin_directory {
         std::cerr << "Too large bin number is found: " << bin_no << std::endl;
         return false;
       }
-      insert(bin_no, chunk_no);
+#ifdef USE_SPACE_AWARE_BIN
+      m_table[bin_no].insert(chunk_no);
+#else
+      m_table[bin_no].emplace_back(chunk_no);
+#endif
     }
 
     if (!ifs.eof()) {
