@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # USAGE
 # cd metall/build/bench/adjacency_lsit/
@@ -21,62 +21,70 @@ out_name="dumped_edge_list"
 out_ref="ref_edge_list"
 # --------------- #
 
-function compare {
-    file1=$1
-    file2=$2
-
-    echo "Number of dumped edges"
-    wc -l "${out_path}/${file1}"
-    wc -l "${out_path}/${file2}"
-
-    echo "Sort the dumped edges"
-    sort -k 1,1n -k2,2n < "${out_path}/${file1}" > "${out_path}/tmp_sorted1"
-    sort -k 1,1n -k2,2n < "${out_path}/${file2}" > "${out_path}/tmp_sorted2"
-
-    echo "Compare the dumped edges"
-    diff "${out_path}/tmp_sorted1" "${out_path}/tmp_sorted2" > ${out_path}/adj_diff
-    num_diff=$(< ${out_path}/adj_diff wc -l)
-
-    if [ ${num_diff} -eq 0 ]; then
-        echo "<< Passed the test!! >>"
-    else
-        echo "<< Failed the test!! >>"
-        exit
-    fi
-    echo ""
-
-    /bin/rm "${out_path}/${file1}" "${out_path}/${file2}" "${out_path}/tmp_sorted1" "${out_path}/tmp_sorted2" ${out_path}/adj_diff
-    echo ""
+err() {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
 }
 
-function check_program_exit_status() {
-    ret=$?
+compare() {
+  file1=$1
+  file2=$2
 
-    if [ $ret -ne 0 ]; then
-        echo "<< The program did not finished correctly!! >>"
-        exit
-    fi
+  echo "Number of dumped edges"
+  wc -l "${out_path}/${file1}"
+  wc -l "${out_path}/${file2}"
+
+  echo "Sort the dumped edges"
+  sort -k 1,1n -k2,2n < "${out_path}/${file1}" > "${out_path}/tmp_sorted1"
+  sort -k 1,1n -k2,2n < "${out_path}/${file2}" > "${out_path}/tmp_sorted2"
+
+  echo "Compare the dumped edges"
+  diff "${out_path}/tmp_sorted1" "${out_path}/tmp_sorted2" > ${out_path}/adj_diff
+  num_diff=$(< ${out_path}/adj_diff wc -l)
+
+  if [ ${num_diff} -eq 0 ]; then
+    echo "<< Passed the test!! >>"
+  else
+    err "<< Failed the test!! >>"
+    exit
+  fi
+  echo ""
+
+  /bin/rm "${out_path}/${file1}" "${out_path}/${file2}" "${out_path}/tmp_sorted1" "${out_path}/tmp_sorted2" ${out_path}/adj_diff
+  echo ""
 }
 
-./run_adj_list_bench_metall -o "${out_path}/segment" -f ${file_size} -d "${out_path}/${out_name}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
-check_program_exit_status
-echo ""
+check_program_exit_status() {
+  ret=$?
 
-./edge_generator/generate_rmat_edge_list -o "${out_path}/${out_ref}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
-check_program_exit_status
-echo ""
+  if [ $ret -ne 0 ]; then
+    err "<< The program did not finished correctly!! >>"
+    exit
+  fi
+}
 
-compare ${out_name} ${out_ref}
+main() {
+  ./run_adj_list_bench_metall -o "${out_path}/segment" -f ${file_size} -d "${out_path}/${out_name}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
+  check_program_exit_status
+  echo ""
 
-# ----- Reopen the file for persistency test----- #
-./test/open_metall -o "${out_path}/segment" -d "${out_path}/${out_name}"
-check_program_exit_status
-echo ""
+  ./edge_generator/generate_rmat_edge_list -o "${out_path}/${out_ref}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
+  check_program_exit_status
+  echo ""
 
-./edge_generator/generate_rmat_edge_list -o "${out_path}/${out_ref}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
-check_program_exit_status
-echo ""
+  compare ${out_name} ${out_ref}
 
-compare ${out_name} ${out_ref}
+  # ----- Reopen the file for persistency test----- #
+  ./test/open_metall -o "${out_path}/segment" -d "${out_path}/${out_name}"
+  check_program_exit_status
+  echo ""
 
-/bin/rm ${out_path}/segment*
+  ./edge_generator/generate_rmat_edge_list -o "${out_path}/${out_ref}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
+  check_program_exit_status
+  echo ""
+
+  compare ${out_name} ${out_ref}
+
+  /bin/rm ${out_path}/segment*
+}
+
+main "$@"
