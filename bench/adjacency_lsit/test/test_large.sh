@@ -41,7 +41,7 @@ compare() {
   diff "${out_path}/tmp_sorted1" "${out_path}/tmp_sorted2" > ${out_path}/adj_diff
   num_diff=$(< ${out_path}/adj_diff wc -l)
 
-  if [ ${num_diff} -eq 0 ]; then
+  if [[ ${num_diff} -eq 0 ]]; then
     echo "<< Passed the test!! >>"
   else
     err "<< Failed the test!! >>"
@@ -56,7 +56,7 @@ compare() {
 check_program_exit_status() {
   ret=$?
 
-  if [ $ret -ne 0 ]; then
+  if [[ $ret -ne 0 ]]; then
     err "<< The program did not finished correctly!! >>"
     exit
   fi
@@ -73,7 +73,7 @@ main() {
 
   compare ${out_name} ${out_ref}
 
-  # ----- Reopen the file for persistency test----- #
+  # ----- Reopen the file for persistence test----- #
   ./test/open_metall -o "${out_path}/segment" -d "${out_path}/${out_name}"
   check_program_exit_status
   echo ""

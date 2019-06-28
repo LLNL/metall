@@ -15,7 +15,7 @@ compare() {
   file2=$2
 
   num_elements=$(< ${file1} wc -l)
-  if [ ${num_elements} -eq 0 ]; then
+  if [[ ${num_elements} -eq 0 ]]; then
     echo "<< ${file1} is empty!! >>"
     exit
   fi
@@ -28,7 +28,7 @@ compare() {
   diff /tmp/file1_sorted /tmp/file2_sorted > /tmp/file_diff
   num_diff=$(< /tmp/file_diff wc -l)
 
-  if [ ${num_diff} -eq 0 ]; then
+  if [[ ${num_diff} -eq 0 ]]; then
     echo "<< Passed the test!! >>"
   else
     err "<< Failed the test!! >>"
@@ -41,7 +41,7 @@ compare() {
 check_program_exit_status() {
   ret=$?
 
-  if [ $ret -ne 0 ]; then
+  if [[ $ret -ne 0 ]]; then
     err "<< The program did not finished correctly!! >>"
     exit
   fi
