@@ -19,15 +19,19 @@
 
 #include <iostream>
 #include <fstream>
+#ifdef FOUND_CPP17_FILESYSTEM_LIB
 #include <filesystem>
+#endif
 
 namespace metall {
 namespace detail {
 namespace utility {
 
+#ifdef FOUND_CPP17_FILESYSTEM_LIB
 namespace {
 namespace fs = std::filesystem;
 }
+#endif
 
 inline void extend_file_size_manually(const int fd, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
@@ -135,10 +139,9 @@ inline bool deallocate_file_space([[maybe_unused]] const int fd,
 }
 #endif
 
+#ifdef FOUND_CPP17_FILESYSTEM_LIB
 inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
-
   bool success = true;
-
   try {
     if (!fs::copy_file(source_path, destination_path, fs::copy_options::overwrite_existing)) {
       std::cerr << "Failed copying file: " << source_path << " -> " << destination_path << std::endl;
@@ -148,9 +151,61 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     std::cerr << e.what() << std::endl;
     success = false;
   }
-
   return success;
 }
+
+#else
+
+inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
+  {
+    const ssize_t source_file_size = get_file_size(source_path);
+    const ssize_t actual_source_file_size = get_actual_file_size(source_path);
+    if (source_file_size == -1 || actual_source_file_size == -1) {
+      return false;
+    }
+
+    // If the source file is empty, just create the destination file and done.
+    if (source_file_size == 0 || actual_source_file_size == 0) {
+      create_file(destination_path);
+      return true;
+    }
+  }
+
+  {
+    std::ifstream source(source_path);
+    if (!source.is_open()) {
+      std::cerr << "Cannot open: " << source_path << std::endl;
+      return false;
+    }
+
+    std::ofstream destination(destination_path);
+    if (!destination.is_open()) {
+      std::cerr << "Cannot open: " << destination_path << std::endl;
+      return false;
+    }
+
+    destination << source.rdbuf();
+    if (!destination) {
+      std::cerr << "Something happened in the ofstream: " << destination_path << std::endl;
+      return false;
+    }
+
+    destination.close();
+  }
+
+  {
+    // Sanity check
+    const ssize_t s1 = get_file_size(source_path);
+    const ssize_t s2 = get_file_size(destination_path);
+    if (s1 < 0 || s1 != s2) {
+      std::cerr << "Something wrong in file sizes: " << s1 << " " << s2 << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
+#endif
 
 inline bool os_fsync(const int fd) {
   if (::fsync(fd) != 0) {

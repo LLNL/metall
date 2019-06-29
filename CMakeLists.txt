@@ -33,7 +33,7 @@ set(CMAKE_CXX_FLAGS "-Wall -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
 if (Linux)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
-endif()
+endif ()
 
 # Release
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -42,7 +42,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -Og")
 if (Linux)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -pg")
-endif()
+endif ()
 
 # CI
 if (RUN_BUILD_AND_TEST_WITH_CI)
@@ -57,7 +57,7 @@ set(CMAKE_C_FLAGS "-Wall -pthread")
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
 if (Linux)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -pg")
-endif()
+endif ()
 
 # Release
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -66,7 +66,7 @@ set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g3 -Og")
 if (Linux)
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -pg")
-endif()
+endif ()
 
 # CI
 if (RUN_BUILD_AND_TEST_WITH_CI)
@@ -76,12 +76,12 @@ endif ()
 # ---------- Configure Metall ---------- #
 if (USE_SPACE_AWARE_BIN)
     add_definitions(-DUSE_SPACE_AWARE_BIN)
-    message(WARNING "Try to fill from lower address.")
+    message(STATUS "Try to fill from lower address.")
 endif ()
 
 if (USE_ANONYMOUS_MAP)
     add_definitions(-DUSE_ANONYMOUS_MAP)
-    message(WARNING "Use anonymous mapping.")
+    message(STATUS "Use anonymous mapping.")
 endif ()
 
 
@@ -120,18 +120,26 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
 endif ()
 
 # ---------- filesytem ---------- #
-# Required by GCC for the filesystem library
-if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-    link_libraries(stdc++fs)
+include(CheckIncludeFileCXX)
+CHECK_INCLUDE_FILE_CXX(filesystem FILESYSTEM_INCLUDE_FILE)
+if (FILESYSTEM_INCLUDE_FILE)
+    add_definitions(-DFOUND_CPP17_FILESYSTEM_LIB)
+
+    # GCC
+    if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+        link_libraries(stdc++fs)
+    endif ()
+    # Clang or AppleClang
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        link_libraries(c++fs)
+    endif ()
+else()
+    message(STATUS "Cannot find the filesystem library (C++17)")
 endif ()
 
 # Xcode 11 Beta Release Notes
 # Clang now supports the C++17 <filesystem> library for iOS 13, macOS 10.15, watchOS 6, and tvOS 13. (50988273)
 # https://developer.apple.com/documentation/xcode_release_notes/xcode_11_beta_release_notes?language=objc
-## Required by Clang for the filesystem library
-#if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$")
-#    message("Clang compiler ${CMAKE_CXX_COMPILER_ID}")
-#endif()
 
 # Requre Boost
 if (RUN_BUILD_AND_TEST_WITH_CI)
@@ -154,7 +162,7 @@ if (Boost_FOUND)
     if (BUILD_TEST)
         if (RUN_LARGE_SCALE_TEST)
             add_definitions(-DRUN_LARGE_SCALE_TEST)
-            message("RUN_LARGE_SCALE_TEST is ON")
+            message(STATUS "RUN_LARGE_SCALE_TEST is ON")
         endif ()
         enable_testing()
         add_subdirectory(test)
