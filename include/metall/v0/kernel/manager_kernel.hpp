@@ -146,7 +146,7 @@ class manager_kernel {
     }
 
     priv_init_segment_header();
-    m_chunk_directory.reserve(priv_num_chunks());
+    m_chunk_directory.allocate(priv_num_chunks());
   }
 
   /// \brief Expect to be called by a single thread
@@ -160,7 +160,7 @@ class manager_kernel {
     }
     priv_init_segment_header();
 
-    m_chunk_directory.reserve(priv_num_chunks());
+    m_chunk_directory.allocate(priv_num_chunks());
 
     const auto snapshot_no = priv_find_next_snapshot_no(path);
     if (snapshot_no == 0) {

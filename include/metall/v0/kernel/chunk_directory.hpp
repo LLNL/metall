@@ -98,7 +98,7 @@ class chunk_directory {
   /// \brief Reserves chunk directory.
   /// It allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
   /// \param num_chunks
-  void reserve(const std::size_t num_chunks) {
+  void allocate(const std::size_t num_chunks) {
     assert(!m_table);
     m_num_chunks = num_chunks;
     /// CAUTION: Assumes that mmap + MAP_ANONYMOUS returns zero-initialized region
@@ -416,7 +416,7 @@ class chunk_directory {
         return chunk_no;
       }
     }
-    std::cerr << "All chunks are occupied" << std::endl;
+    std::cerr << "No empty chunk (out of space)" << std::endl;
     std::abort();
   }
 
@@ -450,7 +450,7 @@ class chunk_directory {
       }
     }
 
-    std::cerr << "Do not have enough chunks" << std::endl;
+    std::cerr << "No enough continuous space for multiple chunks (out of space)" << std::endl;
     std::abort();
   }
 

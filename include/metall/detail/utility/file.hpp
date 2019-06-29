@@ -12,7 +12,6 @@
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <fstream>
 
 #ifdef __linux__
 #include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
@@ -21,8 +20,6 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-
-// TODO: change to C++17
 
 namespace metall {
 namespace detail {
@@ -120,15 +117,21 @@ inline bool file_exist(const std::string &file_name) {
 }
 
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
-inline void deallocate_file_space(const int fd, const off_t off, const off_t len) {
+inline bool deallocate_file_space(const int fd, const off_t off, const off_t len) {
   if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, off, len) == -1) {
-    ::perror("fallocate");
-    std::abort();
+    // TODO: use a logger to record this warning
+    // ::perror("fallocate");
+    // std::abort();
+    return false;
   }
+  return true;
 }
 #else
 #warning "FALLOC_FL_PUNCH_HOLE or FALLOC_FL_KEEP_SIZE is not supported"
-inline void deallocate_file_space([[maybe_unused]] const int fd, [[maybe_unused]] const off_t off, [[maybe_unused]] const off_t len) {
+inline bool deallocate_file_space([[maybe_unused]] const int fd,
+                                  [[maybe_unused]] const off_t off,
+                                  [[maybe_unused]] const off_t len) {
+  return false;
 }
 #endif
 

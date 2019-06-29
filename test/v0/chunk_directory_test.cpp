@@ -26,7 +26,7 @@ using chunk_directory_type = metall::v0::kernel::chunk_directory<chunk_no_type,
 TEST(ChunkDirectoryTest, InsertSmallChunk) {
   std::allocator<char> allocator;
   chunk_directory_type directory(allocator);
-  directory.reserve(k_num_small_bins);
+  directory.allocate(k_num_small_bins);
 
   for (uint32_t i = 0; i < k_num_small_bins - 1; ++i) {
     auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
@@ -37,7 +37,7 @@ TEST(ChunkDirectoryTest, InsertSmallChunk) {
 TEST(ChunkDirectoryTest, InsertLargeChunk) {
   std::allocator<char> allocator;
   chunk_directory_type directory(allocator);
-  directory.reserve(1 << 20);
+  directory.allocate(1 << 20);
 
   std::size_t offset = 0;
   for (uint32_t i = k_num_small_bins; i < k_num_small_bins + 10; ++i) {
@@ -50,7 +50,7 @@ TEST(ChunkDirectoryTest, InsertLargeChunk) {
 TEST(ChunkDirectoryTest, MarkSlot) {
   std::allocator<char> allocator;
   chunk_directory_type directory(allocator);
-  directory.reserve(bin_no_mngr::num_small_bins() + 1);
+  directory.allocate(bin_no_mngr::num_small_bins() + 1);
 
   for (uint32_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
     auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
@@ -72,7 +72,7 @@ TEST(ChunkDirectoryTest, MarkSlot) {
 TEST(ChunkDirectoryTest, UnmarkSlot) {
   std::allocator<char> allocator;
   chunk_directory_type directory(allocator);
-  directory.reserve(bin_no_mngr::num_small_bins() + 1);
+  directory.allocate(bin_no_mngr::num_small_bins() + 1);
 
   for (uint32_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
     auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
@@ -94,7 +94,7 @@ TEST(ChunkDirectoryTest, UnmarkSlot) {
 TEST(ChunkDirectoryTest, Serialize) {
   std::allocator<char> allocator;
   chunk_directory_type directory(allocator);
-  directory.reserve(bin_no_mngr::num_small_bins() + 4);
+  directory.allocate(bin_no_mngr::num_small_bins() + 4);
 
   for (uint32_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
     auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
@@ -110,7 +110,7 @@ TEST(ChunkDirectoryTest, Deserialize) {
   {
     std::allocator<char> allocator;
     chunk_directory_type directory(allocator);
-    directory.reserve(bin_no_mngr::num_small_bins() + 5);
+    directory.allocate(bin_no_mngr::num_small_bins() + 5);
 
     for (typename bin_no_mngr::bin_no_type bin_no = 0; bin_no < bin_no_mngr::num_small_bins(); ++bin_no) {
       chunk_no_type new_chunk_no = directory.insert(bin_no);
@@ -128,7 +128,7 @@ TEST(ChunkDirectoryTest, Deserialize) {
   {
     std::allocator<char> allocator;
     chunk_directory_type directory(allocator);
-    directory.reserve(bin_no_mngr::num_small_bins() + 4);
+    directory.allocate(bin_no_mngr::num_small_bins() + 4);
 
     ASSERT_TRUE(directory.deserialize("/tmp/chunk_directory_test_file"));
     for (uint64_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
