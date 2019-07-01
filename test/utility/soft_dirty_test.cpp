@@ -8,6 +8,7 @@
 #include <metall/detail/utility/mmap.hpp>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/memory.hpp>
+#include "../test_utility.hpp"
 
 namespace {
 
@@ -77,13 +78,13 @@ TEST(SoftDirtyTest, MapFileBacked) {
   const ssize_t page_size = metall::detail::utility::get_page_size();
   ASSERT_GT(page_size, 0);
 
-  const char *const k_file_path = "/tmp/soft_dirty_test_file";
+  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   const std::size_t k_num_pages = 4;
 
-  metall::detail::utility::create_file(k_file_path);
-  metall::detail::utility::extend_file_size(k_file_path, page_size * k_num_pages);
+  metall::detail::utility::create_file(file.c_str());
+  metall::detail::utility::extend_file_size(file.c_str(), page_size * k_num_pages);
 
-  char *map = static_cast<char *>(metall::detail::utility::map_file_write_mode(k_file_path,
+  char *map = static_cast<char *>(metall::detail::utility::map_file_write_mode(file.c_str(),
                                                                                nullptr,
                                                                                page_size * k_num_pages,
                                                                                0).second);
@@ -98,13 +99,13 @@ TEST(SoftDirtyTest, MapPrivateFileBacked) {
   const ssize_t page_size = metall::detail::utility::get_page_size();
   ASSERT_GT(page_size, 0);
 
-  const char *const k_file_path = "/tmp/soft_dirty_test_file";
+  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   const std::size_t k_num_pages = 4;
 
-  metall::detail::utility::create_file(k_file_path);
-  metall::detail::utility::extend_file_size(k_file_path, page_size * k_num_pages);
+  metall::detail::utility::create_file(file.c_str());
+  metall::detail::utility::extend_file_size(file.c_str(), page_size * k_num_pages);
 
-  const int fd = ::open(k_file_path, O_RDWR);
+  const int fd = ::open(file.c_str(), O_RDWR);
   ASSERT_NE(fd, -1);
 
   auto map = reinterpret_cast<char *>(metall::detail::utility::os_mmap(nullptr,

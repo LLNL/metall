@@ -15,6 +15,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <metall/metall.hpp>
+#include "../test_utility.hpp"
 
 namespace {
 using chunk_no_type = uint32_t;
@@ -25,7 +26,7 @@ using manager_type = metall::v0::manager_v0<chunk_no_type, k_chunk_size>;
 template <typename T>
 using metall_allocator = typename manager_type::allocator_type<T>;
 
-TEST(ManagerTest, SingleThread) {
+TEST(MultiManagerTest, SingleThread) {
   using element_type = uint64_t;
   using vector_type = boost::interprocess::vector<element_type, metall_allocator<element_type>>;
   using map_type = boost::unordered_map<element_type, // Key
@@ -34,9 +35,15 @@ TEST(ManagerTest, SingleThread) {
                                         std::equal_to<>, // Equal function
                                         boost::container::scoped_allocator_adaptor<metall_allocator<std::pair<const element_type,
                                                                                                               vector_type>>>>;
+
+  const auto file_path1(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
+                                                         + std::to_string(1)));
+  const auto file_path2(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
+                                                         + std::to_string(2)));
+
   {
-    manager_type manager1(metall::create_only, "/tmp/manager_test_file1", k_chunk_size * 8);
-    manager_type manager2(metall::create_only, "/tmp/manager_test_file2", k_chunk_size * 8);
+    manager_type manager1(metall::create_only, file_path1.c_str(), k_chunk_size * 8);
+    manager_type manager2(metall::create_only, file_path2.c_str(), k_chunk_size * 8);
 
     map_type *map1 = manager1.construct<map_type>("map")(manager1.get_allocator<>());
     map_type *map2 = manager2.construct<map_type>("map")(manager2.get_allocator<>());
@@ -49,8 +56,8 @@ TEST(ManagerTest, SingleThread) {
   }
 
   {
-    manager_type manager1(metall::open_only, "/tmp/manager_test_file1");
-    manager_type manager2(metall::open_only, "/tmp/manager_test_file2");
+    manager_type manager1(metall::open_only, file_path1.c_str());
+    manager_type manager2(metall::open_only, file_path2.c_str());
 
     map_type *map1;
     std::size_t n1;
@@ -70,8 +77,8 @@ TEST(ManagerTest, SingleThread) {
   }
 
   {
-    manager_type manager1(metall::open_only, "/tmp/manager_test_file1");
-    manager_type manager2(metall::open_only, "/tmp/manager_test_file2");
+    manager_type manager1(metall::open_only, file_path1.c_str());
+    manager_type manager2(metall::open_only, file_path2.c_str());
 
     map_type *map1;
     std::size_t n1;
@@ -112,7 +119,7 @@ int get_thread_num() {
 
 }
 
-TEST(ManagerTest, MultiThread) {
+TEST(MultiManagerTest, MultiThread) {
   using element_type = uint64_t;
   using vector_type = boost::interprocess::vector<element_type, metall_allocator<element_type>>;
   using map_type = boost::unordered_map<element_type, // Key
@@ -126,8 +133,10 @@ TEST(ManagerTest, MultiThread) {
 #pragma omp parallel
 #endif
   {
-    const std::string file = "/tmp/manager_test_file" + std::to_string(get_thread_num());
-    manager_type manager(metall::create_only, file.c_str(), k_chunk_size * 16);
+    const auto file_path(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
+                                                           + std::to_string(get_thread_num())));
+
+    manager_type manager(metall::create_only, file_path.c_str(), k_chunk_size * 16);
     map_type *map = manager.construct<map_type>("map")(manager.get_allocator<>());
 
     for (int i = 0; i < 64; ++i) {
@@ -136,8 +145,9 @@ TEST(ManagerTest, MultiThread) {
   }
 
   for (int t = 0; t < get_num_threads(); ++t) {
-    const std::string file = "/tmp/manager_test_file" + std::to_string(t);
-    manager_type manager(metall::open_only, file.c_str());
+    const auto file_path(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
+                                                          + std::to_string(t)));
+    manager_type manager(metall::open_only, file_path.c_str());
 
     map_type *map;
     std::size_t n;

@@ -15,33 +15,42 @@
 #include <metall/metall.hpp>
 #include <metall/detail/utility/file.hpp>
 
+#include "../test_utility.hpp"
+
 namespace {
 
-const char *k_origin_path = "/tmp/snapshot_test_file";
-const char *k_snapshot_path = "/tmp/snapshot_test_file_snapshot";
+const std::string& original_file_path() {
+  const static std::string path(test_utility::test_file_path("SnapshotTest"));
+  return path;
+}
+
+const std::string& snapshot_file_path() {
+  const static std::string path(test_utility::test_file_path("SnapshotTest"));
+  return path;
+}
 
 TEST(SnapshotTest, Snapshot) {
-  metall::manager::remove_file(k_origin_path);
-  metall::manager::remove_file(k_snapshot_path);
+  metall::manager::remove_file(original_file_path().c_str());
+  metall::manager::remove_file(snapshot_file_path().c_str());
 
-  metall::manager manager(metall::create_only, k_origin_path, metall::manager::chunk_size() * 2);
+  metall::manager manager(metall::create_only, original_file_path().c_str(), metall::manager::chunk_size() * 2);
 
   [[maybe_unused]] auto a = manager.construct<uint32_t>("a")(1);
   [[maybe_unused]] auto b = manager.construct<uint64_t>("b")(2);
 
-  ASSERT_TRUE(manager.snapshot(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot(snapshot_file_path().c_str()));
 
   // Check sparse file copy
   // Could fail if the underling file system does not support sparse copy
-  EXPECT_EQ(metall::detail::utility::get_file_size(std::string(k_origin_path) + "_segment"),
-            metall::detail::utility::get_file_size(std::string(k_snapshot_path) + "_segment"));
+  EXPECT_EQ(metall::detail::utility::get_file_size(original_file_path() + "_segment"),
+            metall::detail::utility::get_file_size(snapshot_file_path() + "_segment"));
 
-  EXPECT_EQ(metall::detail::utility::get_actual_file_size(std::string(k_origin_path) + "_segment"),
-            metall::detail::utility::get_actual_file_size(std::string(k_snapshot_path) + "_segment"));
+  EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_file_path() + "_segment"),
+            metall::detail::utility::get_actual_file_size(snapshot_file_path() + "_segment"));
 }
 
 TEST(SnapshotTest, Open) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto a = manager.find<uint32_t>("a").first;
   ASSERT_EQ(*a, 1);
@@ -51,27 +60,27 @@ TEST(SnapshotTest, Open) {
 }
 
 TEST(SnapshotTest, SnapshotDiff0) {
-  metall::manager::remove_file(k_origin_path);
-  metall::manager::remove_file(k_snapshot_path);
+  metall::manager::remove_file(original_file_path().c_str());
+  metall::manager::remove_file(snapshot_file_path().c_str());
 
-  metall::manager manager(metall::create_only, k_origin_path, metall::manager::chunk_size() * 3);
+  metall::manager manager(metall::create_only, original_file_path().c_str(), metall::manager::chunk_size() * 3);
 
   [[maybe_unused]] auto a = manager.construct<uint32_t>("a")(1);
   [[maybe_unused]] auto b = manager.construct<uint64_t>("b")(2);
 
-  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot_diff(snapshot_file_path().c_str()));
 
   // Check sparse file copy
   // Could fail if the underling file system does not support sparse copy
-  EXPECT_EQ(metall::detail::utility::get_file_size(std::string(k_origin_path) + "_segment"),
-            metall::detail::utility::get_file_size(std::string(k_snapshot_path) + "_segment"));
+  EXPECT_EQ(metall::detail::utility::get_file_size(original_file_path() + "_segment"),
+            metall::detail::utility::get_file_size(snapshot_file_path() + "_segment"));
 
-  EXPECT_EQ(metall::detail::utility::get_actual_file_size(std::string(k_origin_path) + "_segment"),
-            metall::detail::utility::get_actual_file_size(std::string(k_snapshot_path) + "_segment"));
+  EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_file_path() + "_segment"),
+            metall::detail::utility::get_actual_file_size(snapshot_file_path() + "_segment"));
 }
 
 TEST(SnapshotTest, SnapshotDiff1) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto a = manager.find<uint32_t>("a").first;
   ASSERT_EQ(*a, 1);
@@ -81,11 +90,11 @@ TEST(SnapshotTest, SnapshotDiff1) {
   ASSERT_EQ(*b, 2);
   *b = 4;
 
-  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot_diff(snapshot_file_path().c_str()));
 }
 
 TEST(SnapshotTest, SnapshotDiff2) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto a = manager.find<uint32_t>("a").first;
   ASSERT_EQ(*a, 3);
@@ -97,11 +106,11 @@ TEST(SnapshotTest, SnapshotDiff2) {
 
   [[maybe_unused]] auto c = manager.construct<uint8_t>("c")(7);
 
-  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot_diff(snapshot_file_path().c_str()));
 }
 
 TEST(SnapshotTest, OpenDiff) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto a = manager.find<uint32_t>("a").first;
   ASSERT_EQ(*a, 5);
@@ -149,10 +158,10 @@ void equal(input_itr first, input_itr last, ref_input_itr ref_first) {
 }
 
 TEST(SnapshotTest, RandomSnapshotDiff0) {
-  metall::manager::remove_file(k_origin_path);
-  metall::manager::remove_file(k_snapshot_path);
+  metall::manager::remove_file(original_file_path().c_str());
+  metall::manager::remove_file(snapshot_file_path().c_str());
 
-  metall::manager manager(metall::create_only, k_origin_path, metall::manager::chunk_size() * 16);
+  metall::manager manager(metall::create_only, original_file_path().c_str(), metall::manager::chunk_size() * 16);
   auto pvec = manager.construct<metall_vec_t>("vec")(manager.get_allocator<>());
 
   ref_vec.resize(metall::manager::chunk_size() * 2);
@@ -162,20 +171,20 @@ TEST(SnapshotTest, RandomSnapshotDiff0) {
   random_update(11, &ref_vec);
   random_update(11, pvec);
 
-  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot_diff(snapshot_file_path().c_str()));
 
   // Check sparse file copy
   // Could fail if the underling file system does not support sparse copy
-  EXPECT_EQ(metall::detail::utility::get_file_size(std::string(k_origin_path) + "_segment"),
-            metall::detail::utility::get_file_size(std::string(k_snapshot_path) + "_segment"));
+  EXPECT_EQ(metall::detail::utility::get_file_size(original_file_path() + "_segment"),
+            metall::detail::utility::get_file_size(snapshot_file_path() + "_segment"));
 
-  EXPECT_EQ(metall::detail::utility::get_actual_file_size(std::string(k_origin_path) + "_segment"),
-            metall::detail::utility::get_actual_file_size(std::string(k_snapshot_path) + "_segment"));
+  EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_file_path() + "_segment"),
+            metall::detail::utility::get_actual_file_size(snapshot_file_path() + "_segment"));
 }
 
 // Update some spots
 TEST(SnapshotTest, RandomSnapshotDiff1) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto pvec = manager.find<metall_vec_t>("vec").first;
 
@@ -185,12 +194,12 @@ TEST(SnapshotTest, RandomSnapshotDiff1) {
   random_update(22, &ref_vec);
   random_update(22, pvec);
 
-  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot_diff(snapshot_file_path().c_str()));
 }
 
 // Grow the region and update some spots
 TEST(SnapshotTest, RandomSnapshotDiff2) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto pvec = manager.find<metall_vec_t>("vec").first;
 
@@ -203,12 +212,12 @@ TEST(SnapshotTest, RandomSnapshotDiff2) {
   random_update(33, &ref_vec);
   random_update(33, pvec);
 
-  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot_diff(snapshot_file_path().c_str()));
 }
 
 // Shrink the region and update some spots
 TEST(SnapshotTest, RandomSnapshotDiff3) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto pvec = manager.find<metall_vec_t>("vec").first;
 
@@ -221,12 +230,12 @@ TEST(SnapshotTest, RandomSnapshotDiff3) {
   random_update(44, &ref_vec);
   random_update(44, pvec);
 
-  ASSERT_TRUE(manager.snapshot_diff(k_snapshot_path));
+  ASSERT_TRUE(manager.snapshot_diff(snapshot_file_path().c_str()));
 }
 
 // Final step, just check values
 TEST(SnapshotTest, RandomSnapshotDiff4) {
-  metall::manager manager(metall::open_only, k_snapshot_path);
+  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
 
   auto pvec = manager.find<metall_vec_t>("vec").first;
 

@@ -8,6 +8,7 @@
 #include <metall/v0/kernel/bin_directory.hpp>
 #include <metall/v0/kernel/bin_number_manager.hpp>
 #include <metall/metall.hpp>
+#include "../test_utility.hpp"
 
 namespace {
 using bin_no_mngr = metall::v0::kernel::bin_number_manager<metall::manager::chunk_size(), 1ULL << 48>;
@@ -94,7 +95,8 @@ TEST(BinDirectoryTest, Serialize) {
   obj.insert(num_small_bins - 1, 3);
   obj.insert(num_small_bins - 1, 4);
 
-  ASSERT_TRUE(obj.serialize("/tmp/bin_directory_test_file"));
+  const auto file = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
+  ASSERT_TRUE(obj.serialize(file.c_str()));
 }
 
 TEST(BinDirectoryTest, Deserialize) {
@@ -107,13 +109,15 @@ TEST(BinDirectoryTest, Deserialize) {
     obj.insert(num_small_bins - 1, 3);
     obj.insert(num_small_bins - 1, 4);
 
-    obj.serialize("/tmp/bin_directory_test_file");
+    const auto file = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
+    obj.serialize(file.c_str());
   }
 
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
-    ASSERT_TRUE(obj.deserialize("/tmp/bin_directory_test_file"));
+    const auto file = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
+    ASSERT_TRUE(obj.deserialize(file.c_str()));
 
 #ifdef USE_SPACE_AWARE_BIN
     ASSERT_EQ(obj.front(0), 1);

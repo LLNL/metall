@@ -9,6 +9,7 @@
 #include <metall/v0/kernel/chunk_directory.hpp>
 #include <metall/v0/kernel/bin_number_manager.hpp>
 #include <metall/metall.hpp>
+#include "../test_utility.hpp"
 
 namespace {
 using chunk_no_type = metall::manager::chunk_number_type;
@@ -103,7 +104,8 @@ TEST(ChunkDirectoryTest, Serialize) {
   directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
   directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-  ASSERT_TRUE(directory.serialize("/tmp/chunk_directory_test_file"));
+  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  ASSERT_TRUE(directory.serialize(file.c_str()));
 }
 
 TEST(ChunkDirectoryTest, Deserialize) {
@@ -122,7 +124,8 @@ TEST(ChunkDirectoryTest, Deserialize) {
     directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
     directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-    directory.serialize("/tmp/chunk_directory_test_file");
+    const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+    directory.serialize(file.c_str());
   }
 
   {
@@ -130,7 +133,8 @@ TEST(ChunkDirectoryTest, Deserialize) {
     chunk_directory_type directory(allocator);
     directory.allocate(bin_no_mngr::num_small_bins() + 4);
 
-    ASSERT_TRUE(directory.deserialize("/tmp/chunk_directory_test_file"));
+    const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+    ASSERT_TRUE(directory.deserialize(file.c_str()));
     for (uint64_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
       const auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
       const auto chunk_no = static_cast<chunk_no_type>(i);

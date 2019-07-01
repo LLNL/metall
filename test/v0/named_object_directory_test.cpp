@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 #include <memory>
 #include <metall/v0/kernel/named_object_directory.hpp>
+#include "../test_utility.hpp"
 
 namespace {
 
@@ -81,22 +82,25 @@ TEST(NambedObjectDirectoryTest, Serialize) {
   obj.insert("item1", 1, 2);
   obj.insert("item2", 3, 4);
 
-  ASSERT_TRUE(obj.serialize("./named_object_directory_test_file"));
+  const auto file_path(test_utility::test_file_path("NambedObjectDirectoryTest"));
+  ASSERT_TRUE(obj.serialize(file_path.c_str()));
 }
 
 TEST(NambedObjectDirectoryTest, Deserialize) {
+  const auto file_path(test_utility::test_file_path("NambedObjectDirectoryTest"));
+
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
     obj.insert("item1", 1, 2);
     obj.insert("item2", 3, 4);
-    obj.serialize("./named_object_directory_test_file");
+    obj.serialize(file_path.c_str());
   }
 
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
-    ASSERT_TRUE(obj.deserialize("./named_object_directory_test_file"));
+    ASSERT_TRUE(obj.deserialize(file_path.c_str()));
     ASSERT_EQ(std::get<1>(obj.find("item1")->second), 1);
     ASSERT_EQ(std::get<2>(obj.find("item1")->second), 2);
     ASSERT_EQ(std::get<1>(obj.find("item2")->second), 3);

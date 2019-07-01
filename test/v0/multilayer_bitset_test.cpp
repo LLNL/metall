@@ -88,6 +88,8 @@ TEST(MultilayerBitsetTest, Reset) {
 }
 
 void RandomAccessHelper(const std::size_t num_bits) {
+  SCOPED_TRACE("num_bits = " + std::to_string(num_bits));
+
   metall::v0::kernel::multilayer_bitset<std::allocator<void>> bitset;
   auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<void>>::rebind_allocator_type();
   bitset.allocate(num_bits, allocator);

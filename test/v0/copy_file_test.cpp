@@ -9,11 +9,12 @@
 #include <metall/metall.hpp>
 
 #include <metall/detail/utility/file.hpp>
+#include "../test_utility.hpp"
 
 namespace {
 
-void open() {
-  metall::manager manager(metall::open_only, "/tmp/copy_file_test_file_copy");
+void open(const std::string& file_name) {
+  metall::manager manager(metall::open_only, file_name.c_str());
 
   auto a = manager.find<uint32_t>("a").first;
   ASSERT_EQ(*a, 1);
@@ -22,12 +23,22 @@ void open() {
   ASSERT_EQ(*b, 2);
 }
 
+const std::string& original_file_path() {
+  const static std::string file_path(test_utility::test_file_path("CopyFileTest"));
+  return file_path;
+}
+
+const std::string& copy_file_path() {
+  const static std::string file_path(test_utility::test_file_path("CopyFileTest_copy"));
+  return file_path;
+}
+
 TEST(CopyFileTest, SyncCopy) {
-  metall::manager::remove_file("/tmp/copy_file_test_file");
-  metall::manager::remove_file("/tmp/copy_file_test_file_copy");
+  metall::manager::remove_file(original_file_path().c_str());
+  metall::manager::remove_file(copy_file_path().c_str());
 
   {
-    metall::manager manager(metall::create_only, "/tmp/copy_file_test_file", metall::manager::chunk_size() * 2);
+    metall::manager manager(metall::create_only, original_file_path().c_str(), metall::manager::chunk_size() * 2);
 
     manager.construct<uint32_t>("a")(1);
 
@@ -35,23 +46,24 @@ TEST(CopyFileTest, SyncCopy) {
 
     manager.sync();
 
-    ASSERT_TRUE(metall::manager::copy_file("/tmp/copy_file_test_file", "/tmp/copy_file_test_file_copy"));
+    ASSERT_TRUE(metall::manager::copy_file(original_file_path().c_str(), copy_file_path().c_str()));
 
-    EXPECT_EQ(metall::detail::utility::get_file_size("/tmp/copy_file_test_file_segment"),
-              metall::detail::utility::get_file_size("/tmp/copy_file_test_file_copy_segment"));
+    // Check sparse file copy
+    EXPECT_EQ(metall::detail::utility::get_file_size(original_file_path() + "_segment"),
+              metall::detail::utility::get_file_size(copy_file_path() + "_segment"));
 
-    EXPECT_EQ(metall::detail::utility::get_actual_file_size("/tmp/copy_file_test_file_segment"),
-              metall::detail::utility::get_actual_file_size("/tmp/copy_file_test_file_copy_segment"));
+    EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_file_path() + "_segment"),
+              metall::detail::utility::get_actual_file_size(copy_file_path() + "_segment"));
   }
-  open();
+  open(copy_file_path());
 }
 
 TEST(CopyFileTest, AsyncCopy) {
-  metall::manager::remove_file("/tmp/copy_file_test_file");
-  metall::manager::remove_file("/tmp/copy_file_test_file_copy");
+  metall::manager::remove_file(original_file_path().c_str());
+  metall::manager::remove_file(copy_file_path().c_str());
 
   {
-    metall::manager manager(metall::create_only, "/tmp/copy_file_test_file", metall::manager::chunk_size() * 2);
+    metall::manager manager(metall::create_only, original_file_path().c_str(), metall::manager::chunk_size() * 2);
 
     manager.construct<uint32_t>("a")(1);
 
@@ -59,15 +71,16 @@ TEST(CopyFileTest, AsyncCopy) {
 
     manager.sync();
 
-    auto handler = metall::manager::copy_file_async("/tmp/copy_file_test_file", "/tmp/copy_file_test_file_copy");
+    auto handler = metall::manager::copy_file_async(original_file_path().c_str(), copy_file_path().c_str());
     ASSERT_TRUE(handler.get());
 
-    EXPECT_EQ(metall::detail::utility::get_file_size("/tmp/copy_file_test_file_segment"),
-              metall::detail::utility::get_file_size("/tmp/copy_file_test_file_copy_segment"));
+    // Check sparse file copy
+    EXPECT_EQ(metall::detail::utility::get_file_size(original_file_path() + "_segment"),
+              metall::detail::utility::get_file_size(copy_file_path() + "_segment"));
 
-    EXPECT_EQ(metall::detail::utility::get_actual_file_size("/tmp/copy_file_test_file_segment"),
-              metall::detail::utility::get_actual_file_size("/tmp/copy_file_test_file_copy_segment"));
+    EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_file_path() + "_segment"),
+              metall::detail::utility::get_actual_file_size(copy_file_path() + "_segment"));
   }
-  open();
+  open(copy_file_path());
 }
 }
