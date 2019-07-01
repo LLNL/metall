@@ -25,7 +25,7 @@ const std::string& original_file_path() {
 }
 
 const std::string& snapshot_file_path() {
-  const static std::string path(test_utility::test_file_path("SnapshotTest"));
+  const static std::string path(test_utility::test_file_path("SnapshotTest_snapshot"));
   return path;
 }
 

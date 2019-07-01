@@ -11,7 +11,7 @@
 
 namespace test_utility {
 
-const char *k_test_dir_env_name = "METALL_TEST_DIR_PATH";
+const char *k_test_dir_env_name = "METALL_TEST_DIR";
 const char *k_default_test_dir = "/tmp";
 
 inline std::string get_test_dir() {
