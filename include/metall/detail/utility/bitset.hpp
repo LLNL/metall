@@ -229,7 +229,7 @@ class static_bitset {
   }
 
   // TODO: implement
-  void flip(const uint64_t idx) { assert(false); }
+  void flip([[maybe_unused]] const uint64_t idx) { assert(false); }
 
   void set_n_bits(const uint64_t idx, const uint64_t n) {
     bitset_detail::update_n_bits<block_type>(m_table.data(), idx, n, true);
@@ -357,7 +357,7 @@ class bitset {
   }
 
   // TODO: implement
-  void flip(const uint64_t idx) { assert(false); }
+  void flip([[maybe_unused]] const uint64_t idx) { assert(false); }
 
   void set_n_bits(const uint64_t idx, const uint64_t n) {
     bitset_detail::update_n_bits<block_type>(m_table.data(), idx, n, true);

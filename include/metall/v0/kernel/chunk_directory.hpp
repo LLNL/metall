@@ -89,8 +89,8 @@ class chunk_directory {
   chunk_directory(const chunk_directory &) = delete;
   chunk_directory &operator=(const chunk_directory &) = delete;
 
-  chunk_directory(chunk_directory &&) noexcept = default;
-  chunk_directory &operator=(chunk_directory &&) noexcept = default;
+  chunk_directory(chunk_directory &&) = default;
+  chunk_directory &operator=(chunk_directory &&) = default;
 
   /// -------------------------------------------------------------------------------- ///
   /// Public methods

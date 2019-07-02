@@ -122,9 +122,9 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   manager_v0() = delete;
   ~manager_v0() = default;
   manager_v0(const manager_v0 &) = delete;
-  manager_v0(manager_v0 &&) noexcept = default;
+  manager_v0(manager_v0 &&) = default;
   manager_v0 &operator=(const manager_v0 &) = delete;
-  manager_v0 &operator=(manager_v0 &&) noexcept = default;
+  manager_v0 &operator=(manager_v0 &&) = default;
 
   // ---------------------------------------- v0's unique functions ---------------------------------------- //
 

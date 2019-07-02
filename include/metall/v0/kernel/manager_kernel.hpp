@@ -121,8 +121,8 @@ class manager_kernel {
   manager_kernel(const manager_kernel &) = delete;
   manager_kernel &operator=(const manager_kernel &) = delete;
 
-  manager_kernel(manager_kernel &&) noexcept = default;
-  manager_kernel &operator=(manager_kernel &&) noexcept = default;
+  manager_kernel(manager_kernel &&) = default;
+  manager_kernel &operator=(manager_kernel &&) = default;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -249,7 +249,7 @@ class manager_kernel {
   }
 
   // \TODO: implement
-  void *allocate_aligned(const size_type nbytes, const size_type alignment) {
+  void *allocate_aligned([[maybe_unused]] const size_type nbytes, [[maybe_unused]] const size_type alignment) {
     assert(false);
     return nullptr;
   }

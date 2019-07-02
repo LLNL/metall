@@ -42,10 +42,10 @@ class base_stl_allocator {
   ~base_stl_allocator() = default;
 
   base_stl_allocator(const base_stl_allocator &other) = default;
-  base_stl_allocator(base_stl_allocator &&other) noexcept = default;
+  base_stl_allocator(base_stl_allocator &&other) = default;
 
   base_stl_allocator &operator=(const base_stl_allocator &) = default;
-  base_stl_allocator &operator=(base_stl_allocator &&other) noexcept = default;
+  base_stl_allocator &operator=(base_stl_allocator &&other) = default;
 
   /// \brief Makes another allocator type for type T2
   /// \tparam T2 The type of the object

@@ -47,8 +47,8 @@ class base_manager {
   base_manager(const base_manager &) = delete;
   base_manager &operator=(const base_manager &) = delete;
 
-  base_manager(base_manager &&) noexcept = default;
-  base_manager &operator=(base_manager &&) noexcept = default;
+  base_manager(base_manager &&) = default;
+  base_manager &operator=(base_manager &&) = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods

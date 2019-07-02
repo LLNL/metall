@@ -79,10 +79,10 @@ class stl_allocator_v0
       : m_ptr_manager_kernel_address(allocator_instance.get_pointer_to_manager_kernel()) {}
 
   stl_allocator_v0(const stl_allocator_v0<T, manager_kernel_type> &other) = default;
-  stl_allocator_v0(stl_allocator_v0<T, manager_kernel_type> &&other) noexcept = default;
+  stl_allocator_v0(stl_allocator_v0<T, manager_kernel_type> &&other) = default;
 
   stl_allocator_v0 &operator=(const stl_allocator_v0<T, manager_kernel_type> &) = default;
-  stl_allocator_v0 &operator=(stl_allocator_v0<T, manager_kernel_type> &&other) noexcept = default;
+  stl_allocator_v0 &operator=(stl_allocator_v0<T, manager_kernel_type> &&other) = default;
 
   /// \brief Copy assign operator for another T
   template <typename T2>

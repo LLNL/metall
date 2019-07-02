@@ -77,9 +77,9 @@ class bin_directory {
 
   ~bin_directory() = default;
   bin_directory(const bin_directory &) = default;
-  bin_directory(bin_directory &&) noexcept = default;
+  bin_directory(bin_directory &&) = default;
   bin_directory &operator=(const bin_directory &) = default;
-  bin_directory &operator=(bin_directory &&) noexcept = default;
+  bin_directory &operator=(bin_directory &&) = default;
 
   /// -------------------------------------------------------------------------------- ///
   /// Public methods

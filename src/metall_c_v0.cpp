@@ -8,7 +8,6 @@
 
 using chunk_number_type = uint32_t;
 constexpr std::size_t k_chunk_size = 1 << 21;
-constexpr std::size_t k_min_allocation_size = 8;
 using manager_type = metall::v0::manager_v0<chunk_number_type,// Chunk number type
                                             k_chunk_size>;    // Chunk size in byte
 

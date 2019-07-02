@@ -42,9 +42,9 @@ class rmat_edge_generator_iterator {
   }
 
   rmat_edge_generator_iterator(const rmat_edge_generator_iterator &) = default;
-  rmat_edge_generator_iterator(rmat_edge_generator_iterator &&) noexcept = default;
+  rmat_edge_generator_iterator(rmat_edge_generator_iterator &&) = default;
   rmat_edge_generator_iterator &operator=(const rmat_edge_generator_iterator &) = default;
-  rmat_edge_generator_iterator &operator=(rmat_edge_generator_iterator &&) noexcept = default;
+  rmat_edge_generator_iterator &operator=(rmat_edge_generator_iterator &&) = default;
 
   const_reference operator*() const {
     return m_current_edge;

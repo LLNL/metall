@@ -60,9 +60,9 @@ class named_object_directory {
       : m_table(allocator) {}
   ~named_object_directory() = default;
   named_object_directory(const named_object_directory &) = default;
-  named_object_directory(named_object_directory &&) noexcept = default;
+  named_object_directory(named_object_directory &&) = default;
   named_object_directory &operator=(const named_object_directory &) = default;
-  named_object_directory &operator=(named_object_directory &&) noexcept = default;
+  named_object_directory &operator=(named_object_directory &&) = default;
 
   /// -------------------------------------------------------------------------------- ///
   /// Public methods
