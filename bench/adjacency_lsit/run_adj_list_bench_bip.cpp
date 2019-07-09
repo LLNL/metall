@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   }
   if (option.segment_file_name.empty()) {
     std::cerr << "Segment file name is required" << std::endl;
-    return false;
+    std::abort();
   }
 
   {
