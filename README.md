@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/LLNL/metall.svg?branch=develop)](https://travis-ci.org/LLNL/metall)
+
 Metall (Meta Allocator)
 ====================
 * Provides simplified memory allocation interfaces for C++ applications that use persistent memory devices to persistently store heap data on such devices.
