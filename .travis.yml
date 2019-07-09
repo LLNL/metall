@@ -1,0 +1,82 @@
+services: docker
+dist: trusty
+language: cpp
+
+env:
+  global:
+  - DO_BUILD=yes
+  - DO_TEST=yes
+  - GTEST_COLOR=1
+  - BUILD_DIR=travis-build
+  matrix:
+  # - BOOST_VERSION=50 IMG=gcc-8
+  # - BOOST_VERSION=50 IMG=clang-5
+  # - BOOST_VERSION=50 IMG=clang-6
+  # - BOOST_VERSION=51 IMG=gcc-8
+  # - BOOST_VERSION=51 IMG=clang-5
+  # - BOOST_VERSION=51 IMG=clang-6
+  # - BOOST_VERSION=52 IMG=gcc-8
+  # - BOOST_VERSION=52 IMG=clang-5
+  # - BOOST_VERSION=52 IMG=clang-6
+  # - BOOST_VERSION=53 IMG=gcc-8
+  # - BOOST_VERSION=53 IMG=clang-5
+  # - BOOST_VERSION=53 IMG=clang-6
+  # - BOOST_VERSION=54 IMG=gcc-8
+  # - BOOST_VERSION=54 IMG=clang-5
+  # - BOOST_VERSION=54 IMG=clang-6
+  # - BOOST_VERSION=55 IMG=gcc-8
+  # - BOOST_VERSION=55 IMG=clang-5
+  # - BOOST_VERSION=55 IMG=clang-6
+  # - BOOST_VERSION=56 IMG=gcc-8
+  # - BOOST_VERSION=56 IMG=clang-5
+  # - BOOST_VERSION=56 IMG=clang-6
+  # - BOOST_VERSION=57 IMG=gcc-8
+  # - BOOST_VERSION=57 IMG=clang-5
+  # - BOOST_VERSION=57 IMG=clang-6
+  # - BOOST_VERSION=58 IMG=gcc-8
+  # - BOOST_VERSION=58 IMG=clang-5
+  # - BOOST_VERSION=58 IMG=clang-6
+  # - BOOST_VERSION=59 IMG=gcc-8
+  # - BOOST_VERSION=59 IMG=clang-5
+  # - BOOST_VERSION=59 IMG=clang-6
+  # - BOOST_VERSION=60 IMG=gcc-8
+  # - BOOST_VERSION=60 IMG=clang-5
+  # - BOOST_VERSION=60 IMG=clang-6
+  # - BOOST_VERSION=61 IMG=gcc-8
+  # - BOOST_VERSION=61 IMG=clang-5
+  # - BOOST_VERSION=61 IMG=clang-6
+  # - BOOST_VERSION=62 IMG=gcc-8
+  # - BOOST_VERSION=62 IMG=clang-5
+  # - BOOST_VERSION=62 IMG=clang-6
+  # - BOOST_VERSION=63 IMG=gcc-8
+  # - BOOST_VERSION=63 IMG=clang-5
+  # - BOOST_VERSION=63 IMG=clang-6
+  - BOOST_VERSION=64 IMG=gcc-8
+#  - BOOST_VERSION=64 IMG=clang-5
+#  - BOOST_VERSION=64 IMG=clang-6
+  - BOOST_VERSION=65 IMG=gcc-8
+#  - BOOST_VERSION=65 IMG=clang-5
+#  - BOOST_VERSION=65 IMG=clang-6
+  - BOOST_VERSION=66 IMG=gcc-8
+#  - BOOST_VERSION=66 IMG=clang-5
+#  - BOOST_VERSION=66 IMG=clang-6
+  - BOOST_VERSION=67 IMG=gcc-8
+#  - BOOST_VERSION=67 IMG=clang-5
+#  - BOOST_VERSION=67 IMG=clang-6
+  - BOOST_VERSION=68 IMG=gcc-8
+#  - BOOST_VERSION=68 IMG=clang-5
+#  - BOOST_VERSION=68 IMG=clang-6
+  - BOOST_VERSION=69 IMG=gcc-8
+#  - BOOST_VERSION=69 IMG=clang-5
+#  - BOOST_VERSION=69 IMG=clang-6
+  - BOOST_VERSION=70 IMG=gcc-8
+#  - BOOST_VERSION=70 IMG=clang-5
+#  - BOOST_VERSION=70 IMG=clang-6
+
+script:
+  - docker run --rm --user='root' -v ${TRAVIS_BUILD_DIR}:/home/axom axom/compilers:$IMG chown -R axom /home/axom
+  - docker run --rm  -v ${TRAVIS_BUILD_DIR}:/home/axom -e BOOST_VERSION -e BUILD_DIR axom/compilers:$IMG bash ./scripts/travis/download_boost.sh
+  - docker run --rm  -v ${TRAVIS_BUILD_DIR}:/home/axom -e DO_BUILD -e DO_TEST -e BOOST_VERSION -e GTEST_COLOR -e IMG -e BUILD_DIR axom/compilers:$IMG bash ./scripts/travis/build_and_test.sh
+
+after_success:
+  - if [[ "${CMAKE_EXTRA_FLAGS}" == *"ENABLE_COVERAGE"* ]] ; then bash <(curl -s https://codecov.io/bash) -a "-f" >& /dev/null; fi
