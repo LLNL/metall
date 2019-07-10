@@ -195,6 +195,7 @@ class file_mapped_segment_storage {
   void priv_sync_segment() {
     if (!priv_mapped()) return;
 
+    util::os_msync(m_segment, m_segment_size);
     util::os_fsync(m_fd);
   }
 
