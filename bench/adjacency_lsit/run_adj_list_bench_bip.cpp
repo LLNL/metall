@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   if (!parse_options(argc, argv, &option)) {
     std::abort();
   }
-  if (option.segment_file_name.empty()) {
+  if (option.segment_file_name_list.empty()) {
     std::cerr << "Segment file name is required" << std::endl;
     std::abort();
   }
@@ -37,9 +37,11 @@ int main(int argc, char *argv[]) {
 
     // bip::file_mapping::remove(option.segment_file_name.c_str());
 
-    bip::managed_mapped_file mfile(bip::create_only, option.segment_file_name.c_str(), option.segment_size);
-    auto adj_list = mfile.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(mfile.get_allocator<void>());
-
+    bip::managed_mapped_file mfile(bip::create_only, option.segment_file_name_list[0].c_str(), option.segment_size);
+    auto adj_list = mfile.construct<adjacency_list_type>(option.adj_list_key_name.c_str())([&mfile]() {
+                                                                                             mfile.flush();
+                                                                                           },
+                                                                                           mfile.get_allocator<void>());
     run_bench(option, adj_list);
 
     const auto start = utility::elapsed_time_sec();
@@ -47,7 +49,8 @@ int main(int argc, char *argv[]) {
     const auto elapsed_time = utility::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
-    std::cout << "Segment usage (GB)\t" << static_cast<double>(mfile.get_size() - mfile.get_free_memory()) / (1ULL << 30)
+    std::cout << "Segment usage (GB)\t"
+              << static_cast<double>(mfile.get_size() - mfile.get_free_memory()) / (1ULL << 30)
               << std::endl;
   }
 

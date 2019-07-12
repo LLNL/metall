@@ -64,7 +64,7 @@ if [[ $MAX_VERTEX_ID -eq 0 ]]; then
     MAX_VERTEX_ID=$((2**${V}))
 fi
 
-function make_dir() {
+make_dir() {
     if [ ! -d "$1" ]; then
         mkdir $1
     fi
@@ -72,18 +72,18 @@ function make_dir() {
 
 LOG_FILE=""
 
-function try_to_get_compiler_ver() {
+try_to_get_compiler_ver() {
     strings $1 | grep "GCC" | tee -a ${LOG_FILE}
 }
 
-function execute() {
+execute() {
     echo "Command: " "$@" | tee -a ${LOG_FILE}
     echo ">>>>>" | tee -a ${LOG_FILE}
     time "$@" | tee -a ${LOG_FILE}
     echo "<<<<<" | tee -a ${LOG_FILE}
 }
 
-function run() {
+run() {
     EXEC_NAME=$1
 
     echo ""
@@ -132,5 +132,10 @@ function run() {
     fi
 }
 
-run bip
-run metall
+main() {
+    run bip
+    run metall
+    # run metall_multiple
+}
+
+main "$@"

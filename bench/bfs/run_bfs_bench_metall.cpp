@@ -14,7 +14,8 @@ using namespace bfs_bench;
 
 using vertex_id_type = uint64_t;
 
-using adjacency_list_type =  data_structure::multithread_adjacency_list<vertex_id_type, vertex_id_type, typename metall::manager::allocator_type<void>>;
+using adjacency_list_type =  data_structure::multithread_adjacency_list<vertex_id_type, vertex_id_type,
+                                                                        typename metall::manager::allocator_type<void>>;
 
 int main(int argc, char *argv[]) {
 
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    metall::manager manager(metall::open_only, option.graph_file_name.c_str());
+    metall::manager manager(metall::open_only, option.graph_file_name_list[0].c_str());
     auto adj_list = manager.find<adjacency_list_type>(option.graph_key_name.c_str()).first;
 
     run_bench(*adj_list, option);
