@@ -6,8 +6,10 @@
 #ifndef METALL_BENCH_BFS_DRIVER_HPP
 #define METALL_BENCH_BFS_DRIVER_HPP
 
+#include <vector>
 #include <string>
 #include <unistd.h>
+#include <boost/algorithm/string.hpp>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -26,7 +28,7 @@ template <typename _vertex_id_type>
 struct bench_options {
   using vertex_id_type = _vertex_id_type;
 
-  std::string graph_file_name;
+  std::vector<std::string> graph_file_name_list;
   std::string graph_key_name{"adj_list"};
   vertex_id_type root_vertex_id{0};
   vertex_id_type max_vertex_id{0};
@@ -37,8 +39,11 @@ bool parse_options(int argc, char **argv, bench_options<vertex_id_type> *option)
   int p;
   while ((p = ::getopt(argc, argv, "g:k:r:m:")) != -1) {
     switch (p) {
-      case 'g':option->graph_file_name = optarg;
+      case 'g': {
+        option->graph_file_name_list.clear();
+        boost::split(option->graph_file_name_list, optarg, boost::is_any_of(":"));
         break;
+      }
 
       case 'k':option->graph_key_name = optarg;
         break;
@@ -54,7 +59,7 @@ bool parse_options(int argc, char **argv, bench_options<vertex_id_type> *option)
     }
   }
 
-  if (option->graph_file_name.empty()) {
+  if (option->graph_file_name_list.empty()) {
     std::cerr << "graph_file_name is required" << std::endl;
     return false;
   }
@@ -64,10 +69,13 @@ bool parse_options(int argc, char **argv, bench_options<vertex_id_type> *option)
     return false;
   }
 
-  std::cout << "graph_file_name: " << option->graph_file_name
-            << "\ngraph_key_name: " << option->graph_key_name
+  std::cout << "graph_key_name: " << option->graph_key_name
             << "\nroot_vertex_id: " << option->root_vertex_id
             << "\nmax_vertex_id: " << option->max_vertex_id << std::endl;
+  std::cout << "graph_file_name: " << std::endl;
+  for (const auto& name : option->graph_file_name_list) {
+    std::cout << " " << name << std::endl;
+  }
 
   return true;
 }

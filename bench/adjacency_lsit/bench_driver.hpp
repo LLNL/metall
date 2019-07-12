@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <boost/algorithm/string.hpp>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -25,7 +26,7 @@ namespace adjacency_list_bench {
 // Option
 // ---------------------------------------- //
 struct bench_options {
-  std::string segment_file_name;
+  std::vector<std::string> segment_file_name_list;
   std::string adj_list_key_name{"adj_list"};
 
   std::size_t segment_size{1 << 25};
@@ -47,8 +48,11 @@ bool parse_options(int argc, char **argv, bench_options *option) {
   int p;
   while ((p = ::getopt(argc, argv, "o:k:f:s:v:e:a:b:c:r:u:d:")) != -1) {
     switch (p) {
-      case 'o':option->segment_file_name = optarg;
+      case 'o': {
+        option->segment_file_name_list.clear();
+        boost::split(option->segment_file_name_list, optarg, boost::is_any_of(":"));
         break;
+      }
 
       case 'k': option->adj_list_key_name = optarg;
         break;
@@ -93,8 +97,11 @@ bool parse_options(int argc, char **argv, bench_options *option) {
     option->input_file_name_list.emplace_back(argv[index]);
   }
 
-  if (!option->segment_file_name.empty()) {
-    std::cout << "segment_file_name: " << option->segment_file_name << std::endl;
+  if (!option->segment_file_name_list.empty()) {
+    std::cout << "segment_file_name: " << std::endl;
+    for (const auto& name : option->segment_file_name_list) {
+      std::cout << " " << name << std::endl;
+    }
   }
   std::cout << "segment_size: " << option->segment_size << std::endl;
 
@@ -152,10 +159,8 @@ void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
 }
 
 template <typename adjacency_list_type>
-double run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
-                         adjacency_list_type *adj_list) {
-  utility::pair_reader<typename adjacency_list_type::key_type,
-                       typename adjacency_list_type::value_type>
+double run_bench_kv_file(const std::vector<std::string> &input_file_name_list, adjacency_list_type *adj_list) {
+  utility::pair_reader<typename adjacency_list_type::key_type, typename adjacency_list_type::value_type>
       reader(input_file_name_list.begin(), input_file_name_list.end());
   return kernel(reader.begin(), reader.end(), adj_list);
 }

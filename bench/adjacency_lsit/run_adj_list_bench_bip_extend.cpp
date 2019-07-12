@@ -70,18 +70,22 @@ int main(int argc, char *argv[]) {
   }
 
   void *addr = nullptr;
-  if (option.segment_file_name.empty()) {
+  if (option.segment_file_name_list.empty()) {
     std::cout << "!!! Map ANONYMOUS region !!!" << std::endl;
     addr = map_anonymous(option.segment_size);
   } else {
     std::cout << "Map a file" << std::endl;
-    bip::file_mapping::remove(option.segment_file_name.c_str());
-    addr = map_file(option.segment_file_name, option.segment_size);
+    bip::file_mapping::remove(option.segment_file_name_list[0].c_str());
+    addr = map_file(option.segment_file_name_list[0], option.segment_size);
   }
 
   {
     manager_type manager(bip::create_only, addr, option.segment_size);
-    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<void>());
+    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())
+                                                          ([&addr, &option]() {
+                                                             metall::detail::utility::os_msync(addr, option.segment_size);
+                                                           },
+                                                           manager.get_allocator<void>());
 
     run_bench(option, adj_list);
 
@@ -92,7 +96,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Segment usage (GB) "
               << static_cast<double>(manager.get_size() - manager.get_free_memory()) / (1ULL << 30) << std::endl;
-    metall::detail::utility::munmap(addr, option.segment_size, !option.segment_file_name.empty());
+    metall::detail::utility::munmap(addr, option.segment_size, !option.segment_file_name_list.empty());
   }
 
   return 0;

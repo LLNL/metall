@@ -10,6 +10,7 @@ add_executable(run_adj_list_bench_stl run_adj_list_bench_stl.cpp)
 add_executable(run_adj_list_bench_bip run_adj_list_bench_bip.cpp)
 add_executable(run_adj_list_bench_bip_extend run_adj_list_bench_bip_extend.cpp)
 add_executable(run_adj_list_bench_metall run_adj_list_bench_metall.cpp)
+add_executable(run_adj_list_bench_metall_multiple run_adj_list_bench_metall_multiple.cpp)
 
 # Experimental version
 #if (JEMALLOC_ROOT)

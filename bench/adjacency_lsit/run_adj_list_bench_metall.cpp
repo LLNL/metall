@@ -17,7 +17,9 @@ using namespace adjacency_list_bench;
 using key_type = uint64_t;
 using value_type = uint64_t;
 
-using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, typename metall::manager::allocator_type<void>>;
+using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type,
+                                                                        value_type,
+                                                                        typename metall::manager::allocator_type<void>>;
 
 int main(int argc, char *argv[]) {
 
@@ -26,14 +28,17 @@ int main(int argc, char *argv[]) {
     std::abort();
   }
 
-  if (option.segment_file_name.empty()) {
+  if (option.segment_file_name_list.empty()) {
     std::cerr << "Segment file name is required" << std::endl;
     std::abort();
   }
 
   {
-    metall::manager manager(metall::create_only, option.segment_file_name.c_str(), option.segment_size);
-    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<>());
+    metall::manager manager(metall::create_only, option.segment_file_name_list[0].c_str(), option.segment_size);
+    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())([&manager]() {
+                                                                                               manager.sync();
+                                                                                             },
+                                                                                             manager.get_allocator<>());
 
     run_bench(option, adj_list);
 

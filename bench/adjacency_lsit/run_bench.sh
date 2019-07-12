@@ -49,7 +49,7 @@ case "$OSTYPE" in
     esac ;;
 esac
 
-function run() {
+run() {
     echo ""
     echo "--------------------"
     echo ""
@@ -63,7 +63,12 @@ function run() {
     ls -lsth ${OUT_PATH}"/" | tee -a ${LOG_FILE}
 }
 
-run stl
-run bip
-#run bip_extend
-run metall
+main() {
+    run stl
+    run bip
+    #run bip_extend
+    run metall
+    # run metall_multiple
+}
+
+main "$@"
