@@ -53,7 +53,7 @@ int set_node(const int thread_id) noexcept {
 
 int get_local_num_threads(const int thread_id, const int num_threads) noexcept {
 #ifdef __linux__
-  const auto range = utility::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
+  const auto range = metall::detail::utility::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
   return range.second - range.first;
 #else
   return num_threads;

@@ -6,11 +6,20 @@ else ()
     MESSAGE(WARNING "OpenMP is not found. Use single thread in adjacency_list.")
 endif ()
 
+if (NUMA_AVAILABLE)
+    if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
+        link_libraries(numa)
+    endif()
+    add_executable(custom_kernel_allocator custom_kernel_allocator.cpp)
+endif()
+
 add_executable(run_adj_list_bench_stl run_adj_list_bench_stl.cpp)
 add_executable(run_adj_list_bench_bip run_adj_list_bench_bip.cpp)
 add_executable(run_adj_list_bench_bip_extend run_adj_list_bench_bip_extend.cpp)
 add_executable(run_adj_list_bench_metall run_adj_list_bench_metall.cpp)
-add_executable(run_adj_list_bench_metall_multiple run_adj_list_bench_metall_multiple.cpp)
+if (NUMA_AVAILABLE)
+    add_executable(run_adj_list_bench_metall_numa run_adj_list_bench_metall_numa.cpp)
+endif()
 
 # Experimental version
 #if (JEMALLOC_ROOT)
