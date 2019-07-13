@@ -12,7 +12,7 @@ add_executable(offset_pointer offset_pointer.cpp)
 
 add_executable(snapshot snapshot.cpp)
 
-if (NUMA_AVAILABLE)
+if (BUILD_NUMA)
     if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
         link_libraries(numa)
     endif()
