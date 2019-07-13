@@ -10,8 +10,11 @@
 #include <metall/metall.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "../data_structure/partitioned_multithread_adjacency_list.hpp"
-#include "bench_driver.hpp"
 #include "../utility/time.hpp"
+#include "../utility/open_mp.hpp"
+#include "../utility/numa_allocator.hpp"
+#include "../utility/numa.hpp"
+#include "bench_driver.hpp"
 
 using namespace adjacency_list_bench;
 using namespace data_structure;
@@ -19,9 +22,12 @@ using namespace data_structure;
 using key_type = uint64_t;
 using value_type = uint64_t;
 
+using numa_allocator_type = numa::numa_allocator<void>;
+using metall_manager_type = metall::basic_manager<uint32_t, 1 << 21, numa_allocator_type>;
+
 using local_adjacency_list_type =  multithread_adjacency_list<key_type,
                                                               value_type,
-                                                              typename metall::manager::allocator_type<void>>;
+                                                              typename metall_manager_type::allocator_type<void>>;
 using adjacency_list_type =  partitioned_multithread_adjacency_list<local_adjacency_list_type>;
 
 int main(int argc, char *argv[]) {
@@ -37,14 +43,17 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    std::vector<metall::manager *> managers;
+    std::vector<metall_manager_type *> managers;
     for (const auto &file_name : option.segment_file_name_list) {
-      managers.emplace_back(new metall::manager(metall::create_only, file_name.c_str(), option.segment_size));
+      managers.emplace_back(new metall_manager_type(metall::create_only,
+                                                    file_name.c_str(),
+                                                    option.segment_size,
+                                                    numa_allocator_type()));
     }
 
     auto adj_list = adjacency_list_type(option.adj_list_key_name, managers.begin(), managers.end());
 
-    run_bench(option, &adj_list);
+    run_bench(option, numa_aware_bench, &adj_list);
 
     const auto start = utility::elapsed_time_sec();
     for (auto manager : managers) {

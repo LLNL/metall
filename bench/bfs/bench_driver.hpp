@@ -130,7 +130,7 @@ void print_omp_configuration() {
   omp_sched_t kind;
   int chunk_size;
   ::omp_get_schedule(&kind, &chunk_size);
-  std::cout << "kind " << utility::omp_schedule_kind_name(kind)
+  std::cout << "kind " << omp::schedule_kind_name(kind)
             << ", chunk_size " << chunk_size << std::endl;
 #else
   std::cout << "Run with a single thread" << std::endl;

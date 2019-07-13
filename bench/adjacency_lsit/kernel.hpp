@@ -19,12 +19,12 @@ constexpr std::size_t k_chunk_size = 1ULL << 10ULL;
 constexpr std::size_t k_chunk_size = 1ULL << 26ULL;
 #endif
 
-void print_current_num_page_faults() {
+inline void print_current_num_page_faults() {
   const auto page_faults = utility::get_num_page_faults();
   std::cout << "#of page faults (minflt majflt)\t" << page_faults.first << "\t" << page_faults.second << std::endl;
 }
 
-void print_omp_configuration() {
+inline void print_omp_configuration() {
 #ifdef _OPENMP
 #pragma omp parallel
   {
@@ -34,7 +34,7 @@ void print_omp_configuration() {
   omp_sched_t kind;
   int chunk_size;
   ::omp_get_schedule(&kind, &chunk_size);
-  std::cout << "kind " << utility::omp_schedule_kind_name(kind)
+  std::cout << "kind " << omp::schedule_kind_name(kind)
             << ", chunk_size " << chunk_size << std::endl;
 #else
   std::cout << "Run with a single thread" << std::endl;
@@ -42,7 +42,7 @@ void print_omp_configuration() {
 }
 
 template <typename adjacency_list_type, typename input_iterator>
-double kernel(input_iterator itr, input_iterator end, adjacency_list_type *const adj_list) {
+inline double kernel(input_iterator itr, input_iterator end, adjacency_list_type *const adj_list) {
   print_omp_configuration();
 
   std::vector<typename input_iterator::value_type> key_value_list;
@@ -82,6 +82,7 @@ double kernel(input_iterator itr, input_iterator end, adjacency_list_type *const
 
   return total_elapsed_time;
 }
+
 }
 
 #endif //METALL_BENCH_ADJACENCY_LIST_KERNEL_HPP

@@ -109,6 +109,10 @@ class partitioned_multithread_adjacency_list {
     return m_global_adjacency_list.size();
   }
 
+  std::size_t partition_index(const key_type &key) const {
+    return key % num_partition();
+  }
+
   void sync() const {
     for (auto adj_list : m_global_adjacency_list) {
       adj_list->sync();
@@ -116,9 +120,6 @@ class partitioned_multithread_adjacency_list {
   }
 
  private:
-  std::size_t partition_index(const std::size_t i) const {
-    return i % num_partition();
-  }
 
   local_adj_list_type &local_adjacency_list_of(const std::size_t i) {
     return *m_global_adjacency_list[partition_index(i)];
