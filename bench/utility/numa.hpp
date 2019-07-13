@@ -6,7 +6,7 @@
 #ifndef METALL_BENCH_UTILITY_NUMA_HPP
 #define METALL_BENCH_UTILITY_NUMA_HPP
 
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
 #include <numa.h>
 #endif
 
@@ -14,7 +14,7 @@
 
 namespace numa {
 bool available() noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   return ::numa_available();
 #else
   return false;
@@ -22,7 +22,7 @@ bool available() noexcept {
 }
 
 int get_avail_nodes() noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   return ::numa_num_task_nodes();
 #else
   return 1;
@@ -30,7 +30,7 @@ int get_avail_nodes() noexcept {
 }
 
 int get_node(const int thread_id) noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   return thread_id % get_avail_nodes();
 #else
   return 0;
@@ -38,7 +38,7 @@ int get_node(const int thread_id) noexcept {
 }
 
 int set_node(const int thread_id) noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   struct bitmask * mask = numa_bitmask_alloc(numa_num_possible_nodes());
   assert(mask);
   const int node = get_node(thread_id);
@@ -52,7 +52,7 @@ int set_node(const int thread_id) noexcept {
 }
 
 int get_local_num_threads(const int thread_id, const int num_threads) noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   const auto range = metall::detail::utility::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
   return range.second - range.first;
 #else
@@ -61,7 +61,7 @@ int get_local_num_threads(const int thread_id, const int num_threads) noexcept {
 }
 
 int get_local_thread_num(const int thread_id) noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   return thread_id / get_avail_nodes();
 #else
   return thread_id;
@@ -69,7 +69,7 @@ int get_local_thread_num(const int thread_id) noexcept {
 }
 
 void *alloc_local(const std::size_t size) noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   return ::numa_alloc_local(size);
 #else
   return ::malloc(size);
@@ -77,7 +77,7 @@ void *alloc_local(const std::size_t size) noexcept {
 }
 
 void free(void *start, const std::size_t size) noexcept {
-#ifdef __linux__
+#ifdef USE_NUMA_LIB
   ::numa_free(start, size);
 #else
   ::free(start);
