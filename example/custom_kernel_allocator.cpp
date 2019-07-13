@@ -13,11 +13,11 @@
 #include <boost/container/vector.hpp>
 
 #include <metall/metall.hpp>
-#include "numa_allocator.hpp"
+#include "../bench/utility/numa_allocator.hpp"
 
 using chunk_no_type = uint32_t;
 static constexpr std::size_t k_chunk_size = 1UL << 21UL;
-using kernel_allocator = numa_allocator<char>;
+using kernel_allocator = numa::numa_allocator<char>;
 using manager_type = metall::basic_manager<chunk_no_type, k_chunk_size, kernel_allocator>;
 
 using vector_t = boost::container::vector<int, typename manager_type::allocator_type<int>>;
