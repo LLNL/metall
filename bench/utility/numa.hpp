@@ -8,6 +8,8 @@
 
 #ifdef USE_NUMA_LIB
 #include <numa.h>
+#else
+#warning "Does not use NUMA"
 #endif
 
 #include <metall/detail/utility/common.hpp>
