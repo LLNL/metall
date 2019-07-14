@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
-    message("CMAKE_BUILD_TYPE is set as Release")
+    message(STATUS "CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
 # ---------- CPP ---------- #
