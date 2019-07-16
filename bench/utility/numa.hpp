@@ -31,7 +31,7 @@ int get_avail_nodes() noexcept {
 #endif
 }
 
-int get_node(const int thread_id) noexcept {
+int get_node([[maybe_unused]] const int thread_id) noexcept {
 #ifdef USE_NUMA_LIB
   return thread_id % get_avail_nodes();
 #else
@@ -39,7 +39,7 @@ int get_node(const int thread_id) noexcept {
 #endif
 }
 
-int set_node(const int thread_id) noexcept {
+int set_node([[maybe_unused]] const int thread_id) noexcept {
 #ifdef USE_NUMA_LIB
   struct bitmask * mask = numa_bitmask_alloc(numa_num_possible_nodes());
   assert(mask);
@@ -53,7 +53,7 @@ int set_node(const int thread_id) noexcept {
 #endif
 }
 
-int get_local_num_threads(const int thread_id, const int num_threads) noexcept {
+int get_local_num_threads([[maybe_unused]] const int thread_id, const int num_threads) noexcept {
 #ifdef USE_NUMA_LIB
   const auto range = metall::detail::utility::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
   return range.second - range.first;
@@ -78,7 +78,7 @@ void *alloc_local(const std::size_t size) noexcept {
 #endif
 }
 
-void free(void *start, const std::size_t size) noexcept {
+void free(void *start, [[maybe_unused]] const std::size_t size) noexcept {
 #ifdef USE_NUMA_LIB
   ::numa_free(start, size);
 #else
