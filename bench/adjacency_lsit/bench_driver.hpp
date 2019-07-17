@@ -17,9 +17,10 @@
 #include <omp.h>
 #endif
 
-#include "kernel.hpp"
 #include "edge_generator/rmat_edge_generator.hpp"
 #include "../utility/pair_reader.hpp"
+#include "kernel.hpp"
+#include "numa_aware_kernel.hpp"
 
 namespace adjacency_list_bench {
 // ---------------------------------------- //
@@ -44,7 +45,7 @@ struct bench_options {
   std::string dump_file_name;
 };
 
-bool parse_options(int argc, char **argv, bench_options *option) {
+inline bool parse_options(int argc, char **argv, bench_options *option) {
   int p;
   while ((p = ::getopt(argc, argv, "o:k:f:s:v:e:a:b:c:r:u:d:")) != -1) {
     switch (p) {
@@ -99,7 +100,7 @@ bool parse_options(int argc, char **argv, bench_options *option) {
 
   if (!option->segment_file_name_list.empty()) {
     std::cout << "segment_file_name: " << std::endl;
-    for (const auto& name : option->segment_file_name_list) {
+    for (const auto &name : option->segment_file_name_list) {
       std::cout << " " << name << std::endl;
     }
   }
@@ -128,54 +129,64 @@ bool parse_options(int argc, char **argv, bench_options *option) {
 // ---------------------------------------- //
 // Benchmark drivers
 // ---------------------------------------- //
-// ----- Forward declaration ----- //
-template <typename adjacency_list_type>
-double run_bench_kv_file(const std::vector<std::string> &, adjacency_list_type *);
-template <typename adjacency_list_type>
-double run_bench_rmat_edge(uint32_t, uint64_t, uint64_t,
-                           double, double, double,
-                           bool, bool, adjacency_list_type *);
-template <typename adjacency_list_type>
-void dump_adj_list(const adjacency_list_type &, const std::string &);
+struct single_numa_bench_t {};
+[[maybe_unused]] static const single_numa_bench_t single_numa_bench{};
 
+struct numa_aware_bench_t {};
+[[maybe_unused]] static const numa_aware_bench_t numa_aware_bench{};
+
+/// \brief Run benchmark reading files that contain key-value data, such as edge list
 template <typename adjacency_list_type>
-void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
+inline double run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
+                                single_numa_bench_t,
+                                adjacency_list_type *adj_list) {
 
-  double elapsed_time_sec;
-  if (options.input_file_name_list.size() > 0) {
-    std::cout << "Get inputs from key-value files" << std::endl;
-    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list, adj_list);
-  } else {
-    std::cout << "Get inputs from the RMAT edge generator" << std::endl;
-    elapsed_time_sec = run_bench_rmat_edge(options.seed, options.vertex_scale, options.edge_count,
-                                           options.a, options.b, options.c,
-                                           options.scramble_id, options.undirected, adj_list);
-  }
-  std::cout << "Finished adj_list (s)\t" << elapsed_time_sec << std::endl;
-
-  if (!options.dump_file_name.empty()) {
-    dump_adj_list(*adj_list, options.dump_file_name);
-  }
-}
-
-template <typename adjacency_list_type>
-double run_bench_kv_file(const std::vector<std::string> &input_file_name_list, adjacency_list_type *adj_list) {
   utility::pair_reader<typename adjacency_list_type::key_type, typename adjacency_list_type::value_type>
       reader(input_file_name_list.begin(), input_file_name_list.end());
+
   return kernel(reader.begin(), reader.end(), adj_list);
 }
 
+/// \brief Run benchmark reading files that contain key-value data, such as edge list.
+/// Uses the NUMA-aware benchmark kernel
 template <typename adjacency_list_type>
-double run_bench_rmat_edge(const uint32_t seed, const uint64_t vertex_scale, const uint64_t edge_count,
-                           const double a, const double b, const double c,
-                           const bool scramble_id, const bool undirected,
-                           adjacency_list_type *adj_list) {
+inline double run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
+                                numa_aware_bench_t,
+                                adjacency_list_type *adj_list) {
+
+  utility::pair_reader<typename adjacency_list_type::key_type, typename adjacency_list_type::value_type>
+      reader(input_file_name_list.begin(), input_file_name_list.end());
+
+  return numa_aware_kernel(reader.begin(), reader.end(), adj_list);
+}
+
+/// \brief Run benchmark generating an rmat graph
+template <typename adjacency_list_type>
+inline double run_bench_rmat_edge(const uint32_t seed, const uint64_t vertex_scale, const uint64_t edge_count,
+                                  const double a, const double b, const double c,
+                                  const bool scramble_id, const bool undirected,
+                                  single_numa_bench_t,
+                                  adjacency_list_type *adj_list) {
+
   edge_generator::rmat_edge_generator rmat(seed, vertex_scale, edge_count, a, b, c, scramble_id, undirected);
   return kernel(rmat.begin(), rmat.end(), adj_list);
 }
 
+/// \brief Run benchmark generating an rmat graph
+/// Uses the NUMA-aware benchmark kernel
 template <typename adjacency_list_type>
-void dump_adj_list(const adjacency_list_type &adj_list, const std::string &file_name) {
+inline double run_bench_rmat_edge(const uint32_t seed, const uint64_t vertex_scale, const uint64_t edge_count,
+                                  const double a, const double b, const double c,
+                                  const bool scramble_id, const bool undirected,
+                                  numa_aware_bench_t,
+                                  adjacency_list_type *adj_list) {
+
+  edge_generator::rmat_edge_generator rmat(seed, vertex_scale, edge_count, a, b, c, scramble_id, undirected);
+  return numa_aware_kernel(rmat.begin(), rmat.end(), adj_list);
+}
+
+template <typename adjacency_list_type>
+inline void dump_adj_list(const adjacency_list_type &adj_list, const std::string &file_name) {
   std::cout << "Dumping adjacency list..." << std::endl;
 
   std::ofstream ofs(file_name);
@@ -195,6 +206,26 @@ void dump_adj_list(const adjacency_list_type &adj_list, const std::string &file_
 
   std::cout << "Finished" << std::endl;
 };
+
+template <typename bench_mode_type, typename adjacency_list_type>
+void run_bench(const bench_options &options, bench_mode_type, adjacency_list_type *adj_list) {
+
+  double elapsed_time_sec;
+  if (options.input_file_name_list.size() > 0) {
+    std::cout << "Get inputs from key-value files" << std::endl;
+    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list, bench_mode_type(), adj_list);
+  } else {
+    std::cout << "Get inputs from the RMAT edge generator" << std::endl;
+    elapsed_time_sec = run_bench_rmat_edge(options.seed, options.vertex_scale, options.edge_count,
+                                           options.a, options.b, options.c,
+                                           options.scramble_id, options.undirected, bench_mode_type(), adj_list);
+  }
+  std::cout << "Finished adj_list (s)\t" << elapsed_time_sec << std::endl;
+
+  if (!options.dump_file_name.empty()) {
+    dump_adj_list(*adj_list, options.dump_file_name);
+  }
+}
 
 }
 #endif //METALL_BENCH_ADJACENCY_LIST_BENCH_DRIVER_HPP

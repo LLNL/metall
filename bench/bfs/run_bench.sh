@@ -135,7 +135,7 @@ run() {
 main() {
     run bip
     run metall
-    # run metall_multiple
+    #run metall_numa
 }
 
 main "$@"

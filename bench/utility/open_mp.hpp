@@ -12,8 +12,9 @@
 #include <omp.h>
 #endif
 
-namespace utility {
-inline std::string omp_schedule_kind_name(const int kind_in_int) {
+namespace omp {
+
+inline std::string schedule_kind_name(const int kind_in_int) {
 #ifdef _OPENMP
   if (kind_in_int == omp_sched_static) {
     return std::string("omp_sched_static (" + std::to_string(kind_in_int) + ")");
@@ -29,6 +30,23 @@ inline std::string omp_schedule_kind_name(const int kind_in_int) {
   return std::string("OpenMP is not supported");
 #endif
 };
+
+inline int get_num_threads() noexcept {
+#ifdef _OPENMP
+  return ::omp_get_num_threads();
+#else
+  return 1;
+#endif
+}
+
+inline int get_thread_num() noexcept {
+#ifdef _OPENMP
+  return ::omp_get_thread_num();
+#else
+  return 0;
+#endif
+}
+
 } // namespace utility
 
 #endif //METALL_BENCH_UTILITY_OPEN_MP_HPP

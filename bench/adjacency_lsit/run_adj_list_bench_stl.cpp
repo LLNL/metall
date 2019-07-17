@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   {
     allocator_type allocator;
     adjacency_list_type adj_list(allocator);
-    run_bench(option, &adj_list);
+    run_bench(option, single_numa_bench, &adj_list);
   }
 
   return 0;

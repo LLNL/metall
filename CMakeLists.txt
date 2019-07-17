@@ -10,7 +10,7 @@ option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
-option(NUMA_AVAILABLE "Build programs that require the NUMA policy library (numa.h)" OFF)
+option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 
 # ---------- Experimental options ---------- #
@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
-    message("CMAKE_BUILD_TYPE is set as Release")
+    message(STATUS "CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
 # ---------- CPP ---------- #

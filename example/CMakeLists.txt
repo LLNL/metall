@@ -12,9 +12,13 @@ add_executable(offset_pointer offset_pointer.cpp)
 
 add_executable(snapshot snapshot.cpp)
 
-if (NUMA_AVAILABLE)
-    add_executable(custom_kernel_allocator custom_kernel_allocator.cpp)
+if (USE_NUMA_LIB)
+    if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
+        link_libraries(numa)
+        add_definitions(-DUSE_NUMA_LIB)
+    endif()
 endif()
+add_executable(custom_kernel_allocator custom_kernel_allocator.cpp)
 
 add_executable(c_api c_api.c)
 target_link_libraries(c_api metall_c)

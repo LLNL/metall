@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
                                                                                              },
                                                                                              manager.get_allocator<>());
 
-    run_bench(option, adj_list);
+    run_bench(option, single_numa_bench, adj_list);
 
     const auto start = utility::elapsed_time_sec();
     manager.sync();

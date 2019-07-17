@@ -3,17 +3,14 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_EXAMPLE_NUMA_ALLOCATOR_HPP
-#define METALL_EXAMPLE_NUMA_ALLOCATOR_HPP
+#ifndef METALL_UTILITY_NUMA_ALLOCATOR_HPP
+#define METALL_UTILITY_NUMA_ALLOCATOR_HPP
 
-#ifdef __linux__
-#include <numa.h>
-#endif
+#include <memory>
+#include "numa.hpp"
 
-#include <stdlib.h>
+namespace numa {
 
-/// \brief An simple example of a numa-aware STL compatible allocator
-/// Note that this version works on only Linux
 template <typename T>
 class numa_allocator {
 
@@ -59,22 +56,14 @@ class numa_allocator {
   /// \param n The size to allocation
   /// \return Returns a pointer
   pointer allocate(const size_type n) const {
-#ifdef __linux__
-    return pointer(static_cast<value_type *>(::numa_alloc_local(n * sizeof(T)));
-#else
-    return pointer(static_cast<value_type *>(::malloc(n * sizeof(T))));
-#endif
+    return pointer(numa::alloc_local(n * sizeof(T)));
   }
 
   /// \brief Deallocates the storage reference by the pointer ptr
   /// \param ptr A pointer to the storage
   /// \param size The size of the storage
-  void deallocate(pointer ptr, [[maybe_unused]] const size_type size) const noexcept {
-#ifdef __linux__
-    ::numa_free(ptr, size);
-#else
-    ::free(ptr);
-#endif
+  void deallocate(pointer ptr, const size_type size) const noexcept {
+    numa::free(ptr, size);
   }
 
   // TODO: Implement
@@ -124,4 +113,5 @@ bool operator!=(const numa_allocator<T> &rhd, const numa_allocator<T> &lhd) {
   return !(rhd == lhd);
 }
 
-#endif //METALL_EXAMPLE_NUMA_ALLOCATOR_HPP
+}
+#endif //METALL_UTILITY_NUMA_ALLOCATOR_HPP

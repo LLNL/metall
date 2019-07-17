@@ -10,9 +10,9 @@
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 
+#include "../utility/time.hpp"
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
-#include "../utility/time.hpp"
 
 using namespace adjacency_list_bench;
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
                                                                                              mfile.flush();
                                                                                            },
                                                                                            mfile.get_allocator<void>());
-    run_bench(option, adj_list);
+    run_bench(option, single_numa_bench, adj_list);
 
     const auto start = utility::elapsed_time_sec();
     mfile.flush();
