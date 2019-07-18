@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <type_traits>
 
+#include <parallel/algorithm>
+
 #include "../utility/time.hpp"
 #include "../../include/metall/detail/utility/mmap.hpp"
 #include "../../include/metall/detail/utility/file.hpp"
@@ -25,19 +27,9 @@ static constexpr int k_map_nosync =
 #endif
 
 template <typename random_iterator_type>
-void run_sort(random_iterator_type first, random_iterator_type last) {
-  const auto start = utility::elapsed_time_sec();
-
-  std::sort(first, last);
-  const auto elapsed_time = utility::elapsed_time_sec(start);
-
-  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
-}
-
-template <typename random_iterator_type>
 void init_array(random_iterator_type first, random_iterator_type last) {
-  const auto start = utility::elapsed_time_sec();
 
+  const auto start = utility::elapsed_time_sec();
   for (; first != last; ++first) {
     *first = std::distance(first, last) - 1;
   }
@@ -47,9 +39,34 @@ void init_array(random_iterator_type first, random_iterator_type last) {
 }
 
 template <typename random_iterator_type>
-void validate_array(random_iterator_type first, random_iterator_type last) {
+void run_sort(random_iterator_type first, random_iterator_type last) {
+
   const auto start = utility::elapsed_time_sec();
 
+#if (defined __GNUG__ && defined _OPENMP)
+  __gnu_parallel::sort(first, last, std::less<decltype(*first)>(), __gnu_parallel::quicksort_tag());
+#else
+  std::sort(first, last);
+#endif
+
+  const auto elapsed_time = utility::elapsed_time_sec(start);
+
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
+}
+
+void sync_region(void *const address, const std::size_t size) {
+
+  const auto start = utility::elapsed_time_sec();
+  util::os_msync(address, size);
+  const auto elapsed_time = utility::elapsed_time_sec(start);
+
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
+}
+
+template <typename random_iterator_type>
+void validate_array(random_iterator_type first, random_iterator_type last) {
+
+  const auto start = utility::elapsed_time_sec();
   for (auto itr = first; itr != last; ++itr) {
     if (*itr != static_cast<typename std::remove_reference<decltype(*itr)>::type>(std::distance(first, itr))) {
       std::cerr << __LINE__ << " Sort result is not correct: "
@@ -65,6 +82,8 @@ void validate_array(random_iterator_type first, random_iterator_type last) {
 void *map_with_single_file(const std::string &file_prefix, const std::size_t size) {
   const auto start = utility::elapsed_time_sec();
 
+  std::cout << "size: " << size << std::endl;
+
   const std::string file_name(file_prefix + "_single");
   if (!util::create_file(file_name) || !util::extend_file_size(file_name, size)) {
     std::cerr << __LINE__ << " Failed to initialize file: " << file_name << std::endl;
@@ -76,6 +95,7 @@ void *map_with_single_file(const std::string &file_prefix, const std::size_t siz
     std::cerr << __LINE__ << " Failed mapping" << std::endl;
     std::abort();
   }
+  ::close(ret.first);
 
   const auto elapsed_time = utility::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
@@ -94,9 +114,12 @@ void *map_with_multiple_files(const std::string &file_prefix, const std::size_t 
   }
 
   const std::size_t num_files = size / chunk_size;
+  std::cout << "size: " << size
+            << "\nchunk_size: " << chunk_size
+            << "\nnum_files: " << num_files << std::endl;
 
   for (std::size_t i = 0; i < num_files; ++i) {
-    const std::string file_name(file_prefix + "_" + std::to_string(i));
+    const std::string file_name(file_prefix + "_1_" + std::to_string(i));
     if (!util::create_file(file_name) || !util::extend_file_size(file_name, chunk_size)) {
       std::cerr << __LINE__ << " Failed to initialize file: " << file_name << std::endl;
       std::abort();
@@ -111,6 +134,7 @@ void *map_with_multiple_files(const std::string &file_prefix, const std::size_t 
       std::cerr << __LINE__ << " Failed mapping" << std::endl;
       std::abort();
     }
+    ::close(ret.first);
   }
 
   const auto elapsed_time = utility::elapsed_time_sec(start);
@@ -119,7 +143,62 @@ void *map_with_multiple_files(const std::string &file_prefix, const std::size_t 
   return addr;
 }
 
-void unmap(void *addr, const std::size_t size) {
+void *map_with_multiple_files_round_robin(const std::string &file_prefix,
+                                          const std::size_t size,
+                                          const std::size_t file_size,
+                                          const std::size_t chunk_size) {
+  assert(size % file_size == 0);
+  const std::size_t num_files = size / file_size;
+  assert(size % num_files == 0);
+
+  const auto start = utility::elapsed_time_sec();
+
+  char *addr = reinterpret_cast<char *>(util::reserve_vm_region(size));
+  if (!addr) {
+    std::cerr << "Failed to reserve VM region" << std::endl;
+    std::abort();
+  }
+
+  const std::size_t num_chunks = size / chunk_size;
+  const std::size_t num_chunks_per_file = num_chunks / num_files;
+
+  std::cout << "size: " << size
+            << "\nfile_size: " << file_size
+            << "\nchunk_size: " << chunk_size
+            << "\nnum_files: " << num_files
+            << "\nnum chunks: " << num_chunks
+            << "\nnum_chunks_per_file: " << num_chunks_per_file << std::endl;
+  for (std::size_t chunk_no = 0; chunk_no < num_chunks; ++chunk_no) {
+    const std::size_t round_no = chunk_no / num_files;
+    const std::size_t file_no = chunk_no % num_files;
+
+    const std::string file_name(file_prefix + "_2_" + std::to_string(file_no));
+    if (round_no == 0) { // first chunk of each file
+      if (!util::create_file(file_name) || !util::extend_file_size(file_name, chunk_size * num_chunks_per_file)) {
+        std::cerr << __LINE__ << " Failed to initialize file: " << file_name << std::endl;
+        std::abort();
+      }
+    }
+
+    const auto ret = util::map_file_write_mode(file_name,
+                                               reinterpret_cast<void *>(addr + chunk_size * chunk_no),
+                                               chunk_size,
+                                               chunk_size * round_no,
+                                               k_map_nosync | MAP_FIXED);
+    if (ret.first == -1 || !ret.second) {
+      std::cerr << __LINE__ << " Failed mapping" << std::endl;
+      std::abort();
+    }
+    ::close(ret.first);
+  }
+
+  const auto elapsed_time = utility::elapsed_time_sec(start);
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
+
+  return addr;
+}
+
+void unmap(void *const addr, const std::size_t size) {
   const auto start = utility::elapsed_time_sec();
 
   if (!util::munmap(addr, size, false)) {
@@ -131,36 +210,60 @@ void unmap(void *addr, const std::size_t size) {
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
+template <typename T>
+void run_bench(T *array, const std::size_t size) {
+  init_array(array, array + size / sizeof(uint64_t));
+  run_sort(array, array + size / sizeof(uint64_t));
+  sync_region(array, size);
+  validate_array(array, array + size / sizeof(uint64_t));
+  unmap(array, size);
+}
+
+// ./a.out [mode] [file prefix] [total size] [each_file_size] [round_robin_chunk_size]
 int main(int argc, char *argv[]) {
 
-  if (argc != 4) {
-    std::cerr << "Wrong arguments" << std::endl;
-    std::abort();
+  const int mode = std::stoul(argv[1]);
+
+  const std::string file_prefix(argv[2]);
+  assert(!file_prefix.empty());
+
+  const std::size_t size = std::stoll(argv[3]);
+  assert(size > sizeof(uint64_t));
+  assert(size % sizeof(uint64_t) == 0);
+
+  std::size_t each_file_size{0};
+  if (mode == 1 || mode == 2) {
+    each_file_size = std::stoll(argv[4]);
+    assert(size % each_file_size == 0);
   }
+
+  std::size_t round_robin_chunk_size{0};
+  if (mode == 2) {
+    round_robin_chunk_size = std::stoll(argv[5]);
+    assert(size % round_robin_chunk_size == 0);
+  }
+
   std::cout << std::fixed;
   std::cout << std::setprecision(2);
 
-  std::cout << "\nSingle file" << std::endl;
-  const std::string file_prefix(argv[1]);
-  const std::size_t length = std::stoll(argv[2]);
-  const std::size_t chunk_length = std::stoll(argv[3]);
-  {
-    auto array = reinterpret_cast<uint64_t *>(map_with_single_file(file_prefix, length * sizeof(uint64_t)));
-    init_array(array, array + length);
-    run_sort(array, array + length);
-    validate_array(array, array + length);
-    unmap(array, length * sizeof(uint64_t));
-  }
+  if (mode == 0) {
+    std::cout << "\nSingle file" << std::endl;
+    auto array = reinterpret_cast<uint64_t *>(map_with_single_file(file_prefix, size));
+    run_bench(array, size);
+  } else if (mode == 1) {
+    std::cout << "\nMany files (partition)" << std::endl;
 
-  std::cout << "\nMany files" << std::endl;
-  {
-    auto array = reinterpret_cast<uint64_t *>(map_with_multiple_files(file_prefix,
-                                                                      length * sizeof(uint64_t),
-                                                                      chunk_length * sizeof(uint64_t)));
-    init_array(array, array + length);
-    run_sort(array, array + length);
-    validate_array(array, array + length);
-    unmap(array, length * sizeof(uint64_t));
+    auto array = reinterpret_cast<uint64_t *>(map_with_multiple_files(file_prefix, size, each_file_size));
+    run_bench(array, size);
+
+  } else if (mode == 2) {
+    std::cout << "\nMany files (round robin)" << std::endl;
+
+    auto array = reinterpret_cast<uint64_t *>(map_with_multiple_files_round_robin(file_prefix,
+                                                                                  size,
+                                                                                  each_file_size,
+                                                                                  round_robin_chunk_size));
+    run_bench(array, size);
   }
 
   return 0;
