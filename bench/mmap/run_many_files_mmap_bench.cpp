@@ -9,12 +9,12 @@
 #include <cassert>
 #include <iomanip>
 #include <type_traits>
-
-#include <parallel/algorithm>
+#include <thread>
 
 #include "../utility/time.hpp"
-#include "../../include/metall/detail/utility/mmap.hpp"
-#include "../../include/metall/detail/utility/file.hpp"
+#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utility/mmap.hpp>
+#include <metall/detail/utility/file.hpp>
 
 namespace util = metall::detail::utility;
 
@@ -41,14 +41,22 @@ void init_array(random_iterator_type first, random_iterator_type last) {
 template <typename random_iterator_type>
 void run_sort(random_iterator_type first, random_iterator_type last) {
 
+  const std::size_t length = std::abs(std::distance(first, last));
+  const auto num_threads = std::min((int)length, (int)std::thread::hardware_concurrency());
+  std::vector<std::thread *> threads(num_threads, nullptr);
+
   const auto start = utility::elapsed_time_sec();
-
-#if (defined __GNUG__ && defined _OPENMP)
-  __gnu_parallel::sort(first, last, std::less<decltype(*first)>(), __gnu_parallel::quicksort_tag());
-#else
-  std::sort(first, last);
-#endif
-
+  for (int t = 0; t < num_threads; ++t) {
+    const auto range = util::partial_range(length, t, num_threads);
+    threads[t] = new std::thread([](random_iterator_type partial_first, random_iterator_type partial_last) {
+                                   std::sort(partial_first, partial_last);
+                                 },
+                                 first + range.first,
+                                 first + range.second);
+  }
+  for (auto& th : threads) {
+    th->join();
+  }
   const auto elapsed_time = utility::elapsed_time_sec(start);
 
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
@@ -66,16 +74,20 @@ void sync_region(void *const address, const std::size_t size) {
 template <typename random_iterator_type>
 void validate_array(random_iterator_type first, random_iterator_type last) {
 
+  const std::size_t length = std::abs(std::distance(first, last));
+  const auto num_threads = std::min((int)length, (int)std::thread::hardware_concurrency());
+
   const auto start = utility::elapsed_time_sec();
-  for (auto itr = first; itr != last; ++itr) {
-    if (*itr != static_cast<typename std::remove_reference<decltype(*itr)>::type>(std::distance(first, itr))) {
-      std::cerr << __LINE__ << " Sort result is not correct: "
-                << *itr << " != " << std::distance(first, itr) << std::endl;
-      std::abort();
+  for (int t = 0; t < num_threads; ++t) {
+    const auto range = util::partial_range(length, t, num_threads);
+    for (auto itr = first + range.first; itr != (first + range.second - 1); ++itr) {
+      if (*itr > *(itr + 1)) {
+        std::cerr << __LINE__ << " Sort result is not correct: " << *itr << " > " << *(itr + 1) << std::endl;
+        std::abort();
+      }
     }
   }
   const auto elapsed_time = utility::elapsed_time_sec(start);
-
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
