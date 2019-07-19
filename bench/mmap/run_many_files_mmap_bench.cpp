@@ -42,7 +42,7 @@ template <typename random_iterator_type>
 void run_sort(random_iterator_type first, random_iterator_type last) {
 
   const std::size_t length = std::abs(std::distance(first, last));
-  const auto num_threads = std::min((int)length, (int)std::thread::hardware_concurrency());
+  const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
   std::vector<std::thread *> threads(num_threads, nullptr);
 
   const auto start = utility::elapsed_time_sec();
@@ -75,12 +75,15 @@ template <typename random_iterator_type>
 void validate_array(random_iterator_type first, random_iterator_type last) {
 
   const std::size_t length = std::abs(std::distance(first, last));
-  const auto num_threads = std::min((int)length, (int)std::thread::hardware_concurrency());
+  const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
 
   const auto start = utility::elapsed_time_sec();
   for (int t = 0; t < num_threads; ++t) {
     const auto range = util::partial_range(length, t, num_threads);
-    for (auto itr = first + range.first; itr != (first + range.second - 1); ++itr) {
+
+    if (range.second - range.first == 1) continue;
+
+    for (auto itr = first + range.first; itr != (first + range.second - 2); ++itr) {
       if (*itr > *(itr + 1)) {
         std::cerr << __LINE__ << " Sort result is not correct: " << *itr << " > " << *(itr + 1) << std::endl;
         std::abort();
