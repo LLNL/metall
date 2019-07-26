@@ -22,20 +22,42 @@ int;
 #endif
 
 inline std::string schedule_kind_name([[maybe_unused]] const omp_sched_type kind) {
+  std::string name;
+
 #ifdef _OPENMP
-  if (kind == omp_sched_static) {
-    return std::string("omp_sched_static (" + std::to_string(kind) + ")");
-  } else if (kind == omp_sched_dynamic) {
-    return std::string("omp_sched_dynamic (" + std::to_string(kind) + ")");
-  } else if (kind == omp_sched_guided) {
-    return std::string("omp_sched_guided (" + std::to_string(kind) + ")");
-  } else if (kind == omp_sched_auto) {
-    return std::string("omp_sched_auto (" + std::to_string(kind) + ")");
-  }
-  return std::string("Unknown kind (" + std::to_string(kind) + ")");
+  #if _OPENMP >= 201511
+    if (kind == omp_sched_static || kind == (omp_sched_static | omp_sched_monotonic)) {
+      name = "omp_sched_static";
+    } else if (kind == omp_sched_dynamic || kind == (omp_sched_dynamic | omp_sched_monotonic)) {
+      name = "omp_sched_dynamic";
+    } else if (kind == omp_sched_guided || kind == (omp_sched_guided | omp_sched_monotonic)) {
+      name = "omp_sched_guided";
+    } else if (kind == omp_sched_auto || kind == (omp_sched_auto | omp_sched_monotonic)) {
+      name = "omp_sched_auto";
+    } else {
+      name = "Unknown kind (" + std::to_string((uint64_t)kind) + ")";
+    }
+    if (kind & omp_sched_monotonic) {
+      name += " with omp_sched_monotonic";
+    }
+  #else
+    if (kind == omp_sched_static) {
+      name = "omp_sched_static";
+    } else if (kind == omp_sched_dynamic) {
+      name = "omp_sched_dynamic";
+    } else if (kind == omp_sched_guided) {
+      name = "omp_sched_guided";
+    } else if (kind == omp_sched_auto) {
+      name = "omp_sched_auto";
+    } else {
+      name = "Unknown kind (" + std::to_string((uint64_t)kind) + ")";
+    }
+  #endif
 #else
-  return std::string("OpenMP is not supported");
+  name = "OpenMP is not supported";
 #endif
+
+  return name;
 }
 
 inline std::pair<omp_sched_type, int> get_schedule() {
