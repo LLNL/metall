@@ -204,8 +204,7 @@ class file_mapped_segment_storage {
 
     if (offset + nbytes > m_segment_size) return;
 
-    util::deallocate_file_space(m_fd, offset, nbytes);
-    util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
   }
 
   /// -------------------------------------------------------------------------------- ///
