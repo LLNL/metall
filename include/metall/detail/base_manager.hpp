@@ -13,6 +13,10 @@
 namespace metall {
 namespace detail {
 
+// Forward declaration
+template <typename impl_type, typename type_holder>
+class base_manager;
+
 /// \brief An interface class of manager classes.
 ///
 /// This class is designed as a base class of manager with Curiously Recurring Template Pattern (CRTP)
@@ -20,8 +24,7 @@ namespace detail {
 /// The actual memory allocation algorithm is handled by manage_kernel class.
 /// \tparam impl_type Delivered class which has actual implementation
 /// \tparam type_holder A utility struct that holds internal types of the delivered class
-template <typename impl_type,
-          typename type_holder>
+template <typename impl_type, typename type_holder>
 class base_manager {
  public:
   using void_pointer = typename type_holder::void_pointer;
