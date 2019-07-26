@@ -83,20 +83,42 @@ execute() {
     echo "<<<<<" | tee -a ${LOG_FILE}
 }
 
+get_system_info() {
+    echo "" | tee -a ${LOG_FILE}
+
+    echo "/proc/sys/vm/dirty_expire_centisecs" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_expire_centisecs | tee -a ${LOG_FILE}
+    echo "/proc/sys/vm/dirty_ratio" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_ratio | tee -a ${LOG_FILE}
+    echo "/proc/sys/vm/dirty_background_ratio" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_background_ratio | tee -a ${LOG_FILE}
+    echo "/proc/sys/vm/dirty_writeback_centisecs" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_writeback_centisecs | tee -a ${LOG_FILE}
+
+    echo "" | tee -a ${LOG_FILE}
+}
+
 run() {
+    # ------------------------- #
+    # Configure
+    # ------------------------- #
     EXEC_NAME=$1
-
-    echo ""
-    echo "----------------------------------------"
-    echo "Dynamic Graph Construction with" ${EXEC_NAME}
-    echo "----------------------------------------"
-
     LOG_FILE=${LOG_FILE_PREFIX}"_"${EXEC_NAME}".log"
     echo "" > ${LOG_FILE}
-    GRAPH_DIR=${GRAPH_DIR_ROOT}/${EXEC_NAME}
 
+    GRAPH_DIR=${GRAPH_DIR_ROOT}/${EXEC_NAME}
     make_dir ${GRAPH_DIR}
     rm -f "${GRAPH_DIR}/*"
+
+    # ------------------------- #
+    # Start benchmark
+    # ------------------------- #
+    get_system_info
+
+    echo "" | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
+    echo "Dynamic Graph Construction with" ${EXEC_NAME} | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
 
     ${INIT_COMMAND}
 
@@ -110,10 +132,10 @@ run() {
 
     ls -lsth ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
 
-    echo ""
-    echo "----------------------------------------"
-    echo "BFS with" ${EXEC_NAME}
-    echo "----------------------------------------"
+    echo "" | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
+    echo "BFS with" ${EXEC_NAME} | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
 
     ${INIT_COMMAND}
     if [[ $OSTYPE = "linux"* ]]; then
