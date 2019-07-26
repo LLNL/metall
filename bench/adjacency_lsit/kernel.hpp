@@ -32,18 +32,15 @@ inline void print_current_num_page_faults() {
 inline void print_omp_configuration() {
 #ifdef _OPENMP
 #pragma omp parallel
-  {
-    if (::omp_get_thread_num() == 0)
-      std::cout << "Run with " << ::omp_get_num_threads() << " threads" << std::endl;
-  }
-  omp_sched_t kind;
-  int chunk_size;
-  ::omp_get_schedule(&kind, &chunk_size);
-  std::cout << "kind " << omp::schedule_kind_name(kind)
-            << ", chunk_size " << chunk_size << std::endl;
-#else
-  std::cout << "Run with a single thread" << std::endl;
 #endif
+  {
+    if (omp::get_thread_num() == 0) {
+      std::cout << "Run with " << omp::get_num_threads() << " threads" << std::endl;
+      const auto ret = omp::get_schedule();
+      std::cout << "kind " << omp::schedule_kind_name(ret.first)
+                << ", chunk_size " << ret.second << std::endl;
+    }
+  }
 }
 
 template <typename adjacency_list_type, typename input_iterator>

@@ -95,6 +95,9 @@ get_system_info() {
     echo "/proc/sys/vm/dirty_writeback_centisecs" | tee -a ${LOG_FILE}
     cat /proc/sys/vm/dirty_writeback_centisecs | tee -a ${LOG_FILE}
 
+    df -lh | tee -a ${LOG_FILE}
+    mount | tee -a ${LOG_FILE}
+
     echo "" | tee -a ${LOG_FILE}
 }
 
