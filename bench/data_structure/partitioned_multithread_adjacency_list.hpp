@@ -9,8 +9,6 @@
 #include <vector>
 #include <memory>
 
-#include "../utility/hash.hpp"
-
 namespace data_structure {
 
 template <typename local_adj_list_type,

@@ -8,9 +8,9 @@
 #include <vector>
 
 #include <metall/metall.hpp>
+#include <metall/detail/utility/time.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
-#include "../utility/time.hpp"
 
 using namespace adjacency_list_bench;
 
@@ -42,9 +42,9 @@ int main(int argc, char *argv[]) {
 
     run_bench(option, single_numa_bench, adj_list);
 
-    const auto start = utility::elapsed_time_sec();
+    const auto start = metall::detail::utility::elapsed_time_sec();
     manager.sync();
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Writing profile" << std::endl;

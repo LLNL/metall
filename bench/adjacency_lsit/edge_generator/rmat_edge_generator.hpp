@@ -14,9 +14,13 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/graph/rmat_graph_generator.hpp>
 
-#include "../../utility/hash.hpp"
+#include <metall/detail/utility/hash.hpp>
 
 namespace edge_generator {
+
+namespace {
+namespace util = metall::detail::utility;
+}
 
 /// \brief Iterator for rmat_edge_generator class
 template <typename parent_type>
@@ -98,8 +102,8 @@ class rmat_edge_generator_iterator {
     if (m_ptr_parent->m_scramble_id) {
       const uint64_t mask = (1ULL << m_ptr_parent->m_vertex_scale) - 1;
       // Assume utility::hash is a good hash function
-      m_current_edge.first = utility::hash<uint64_t>()(m_current_edge.first) & mask;
-      m_current_edge.second = utility::hash<uint64_t>()(m_current_edge.second) & mask;
+      m_current_edge.first = util::hash<uint64_t>()(m_current_edge.first) & mask;
+      m_current_edge.second = util::hash<uint64_t>()(m_current_edge.second) & mask;
     }
     ++m_num_generated_edges;
   }

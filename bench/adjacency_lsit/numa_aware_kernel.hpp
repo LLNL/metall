@@ -7,10 +7,15 @@
 #define METALL_BENCH_ADJACENCY_LIST_NUMA_AWARE_KERNEL_HPP
 
 #include <metall/detail/utility/common.hpp>
-#include "kernel.hpp"
+#include <metall/detail/utility/time.hpp>
 #include "../utility/numa.hpp"
+#include "kernel.hpp"
 
 namespace adjacency_list_bench {
+
+namespace {
+namespace util = metall::detail::utility;
+}
 
 inline void configure_numa() {
 #ifdef _OPENMP
@@ -56,7 +61,7 @@ inline double numa_aware_kernel(input_iterator itr, input_iterator end, adjacenc
     }
 
     print_current_num_page_faults();
-    const auto start = utility::elapsed_time_sec();
+    const auto start = util::elapsed_time_sec();
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
@@ -65,8 +70,7 @@ inline double numa_aware_kernel(input_iterator itr, input_iterator end, adjacenc
       const auto num_threads = omp::get_num_threads();
       const auto local_thread_num = numa::get_local_thread_num(thread_id);
       const auto num_local_threads = numa::get_local_num_threads(thread_id, num_threads);
-      const auto range = metall::detail::utility::partial_range(key_value_list.size(),
-                                                                local_thread_num, num_local_threads);
+      const auto range = util::partial_range(key_value_list.size(), local_thread_num, num_local_threads);
 
       for (std::size_t i = range.first; i < range.second; ++i) {
         // If the key is assigned to the local numa node, add to the adjacency list
@@ -76,12 +80,12 @@ inline double numa_aware_kernel(input_iterator itr, input_iterator end, adjacenc
       }
     }
     adj_list->sync();
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = util::elapsed_time_sec(start);
 
     std::cout << "#of inserted elements\t" << key_value_list.size() << std::endl;
     std::cout << "Elapsed time including sync (s)" << "\t" << elapsed_time << std::endl;
     std::cout << "DRAM usage(gb)" << "\t"
-              << static_cast<double>(utility::get_used_ram_size()) / (1ULL << 30ULL) << std::endl;
+              << static_cast<double>(util::get_used_ram_size()) / (1ULL << 30ULL) << std::endl;
     print_current_num_page_faults();
 
     total_elapsed_time += elapsed_time;

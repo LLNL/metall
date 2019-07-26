@@ -89,9 +89,9 @@ int main(int argc, char *argv[]) {
 
     run_bench(option, single_numa_bench, adj_list);
 
-    const auto start = utility::elapsed_time_sec();
+    const auto start = metall::detail::utility::elapsed_time_sec();
     metall::detail::utility::os_msync(addr, option.segment_size);
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Segment usage (GB) "
