@@ -28,10 +28,23 @@ static constexpr int k_map_nosync =
 
 template <typename random_iterator_type>
 void init_array(random_iterator_type first, random_iterator_type last) {
+  const std::size_t length = std::abs(std::distance(first, last));
+  const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
+  std::vector<std::thread *> threads(num_threads, nullptr);
 
   const auto start = util::elapsed_time_sec();
-  for (; first != last; ++first) {
-    *first = std::distance(first, last) - 1;
+  for (int t = 0; t < num_threads; ++t) {
+    const auto range = util::partial_range(length, t, num_threads);
+    threads[t] = new std::thread([](random_iterator_type partial_first, random_iterator_type partial_last) {
+                                   for (; partial_first != partial_last; ++partial_first) {
+                                     *partial_first = std::distance(partial_first, partial_last) - 1;
+                                   }
+                                 },
+                                 first + range.first,
+                                 first + range.second);
+  }
+  for (auto& th : threads) {
+    th->join();
   }
   const auto elapsed_time = util::elapsed_time_sec(start);
 
