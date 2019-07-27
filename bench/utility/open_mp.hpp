@@ -25,7 +25,7 @@ inline std::string schedule_kind_name([[maybe_unused]] const omp_sched_type kind
   std::string name;
 
 #ifdef _OPENMP
-  #if _OPENMP >= 201511
+  #if _OPENMP >= 201811 // OpenMP 5.0
     if (kind == omp_sched_static || kind == (omp_sched_static | omp_sched_monotonic)) {
       name = "omp_sched_static";
     } else if (kind == omp_sched_dynamic || kind == (omp_sched_dynamic | omp_sched_monotonic)) {
