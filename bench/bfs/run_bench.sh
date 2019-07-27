@@ -51,7 +51,7 @@ case "$OSTYPE" in
   linux*)
     PRE_COMMAND_ADJ_LIST_BENCH="taskset -c 1 " # !!! Not using this anymore !!! #
     case $HOSTNAME in
-        "dst-*" | "bertha" | "altus")
+        dst-* | bertha* | altus*)
             INIT_COMMAND="/home/perma/drop_buffer_cache "
             ;;
         *) # Expect other LC machines
