@@ -39,7 +39,7 @@ if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
-    add_executable(manager_multithread_test ../v0/manager_multithread_test.cpp)
+    add_executable(manager_multithread_test manager_multithread_test.cpp)
     target_link_libraries(manager_multithread_test gtest_main)
     add_test(NAME manager_multithread_test COMMAND manager_multithread_test)
 else()
