@@ -78,7 +78,7 @@ void run_sort(random_iterator_type first, random_iterator_type last) {
 void sync_region(void *const address, const std::size_t size) {
 
   const auto start = util::elapsed_time_sec();
-  util::os_msync(address, size);
+  util::os_msync(address, size, true);
   const auto elapsed_time = util::elapsed_time_sec(start);
 
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;

@@ -35,10 +35,7 @@ int main(int argc, char *argv[]) {
 
   {
     metall::manager manager(metall::create_only, option.segment_file_name_list[0].c_str(), option.segment_size);
-    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())([&manager]() {
-                                                                                               manager.sync();
-                                                                                             },
-                                                                                             manager.get_allocator<>());
+    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<>());
 
     run_bench(option, single_numa_bench, adj_list);
 

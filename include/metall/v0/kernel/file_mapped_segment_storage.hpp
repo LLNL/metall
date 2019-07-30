@@ -34,7 +34,7 @@ class file_mapped_segment_storage {
   file_mapped_segment_storage() = default;
 
   ~file_mapped_segment_storage() {
-    sync();
+    sync(true);
     destroy();
   }
 
@@ -86,8 +86,8 @@ class file_mapped_segment_storage {
     priv_destroy_header_and_segment();
   }
 
-  void sync() {
-    priv_sync_segment();
+  void sync(const bool sync) {
+    priv_sync_segment(sync);
   }
 
   void free_region(const offset_type offset, const size_type nbytes) {
@@ -192,11 +192,11 @@ class file_mapped_segment_storage {
     priv_reset();
   }
 
-  void priv_sync_segment() {
+  void priv_sync_segment(const bool sync) {
     if (!priv_mapped()) return;
 
-    util::os_msync(m_segment, m_segment_size);
-    util::os_fsync(m_fd);
+    util::os_msync(m_segment, m_segment_size, sync);
+    // util::os_fsync(m_fd);
   }
 
   void priv_free_region(const offset_type offset, const size_type nbytes) {

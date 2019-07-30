@@ -145,7 +145,7 @@ TEST_F(AnonymousMapUncommitTest, UncommitAnonymousMapUsingMadvFree) {
         ASSERT_EQ(::madvise(&map[i], static_cast<std::size_t>(page_size), MADV_FREE), 0) << "errno: " << errno;
       }
     }
-    util::os_msync(map, total_size);
+    util::os_msync(map, total_size, true);
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     ssize_t ram_usage_after_uncommit;
@@ -165,7 +165,7 @@ TEST_F(AnonymousMapUncommitTest, UncommitAnonymousMapUsingMadvDontNeed) {
         ASSERT_EQ(::madvise(&map[i], static_cast<std::size_t>(page_size), MADV_DONTNEED), 0) << "errno: " << errno;
       }
     }
-    util::os_msync(map, total_size);
+    util::os_msync(map, total_size, true);
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     ssize_t ram_usage_after_uncommit;

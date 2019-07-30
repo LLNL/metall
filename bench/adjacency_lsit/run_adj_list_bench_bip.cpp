@@ -40,16 +40,13 @@ int main(int argc, char *argv[]) {
     // bip::file_mapping::remove(option.segment_file_name.c_str());
 
     bip::managed_mapped_file mfile(bip::create_only, option.segment_file_name_list[0].c_str(), option.segment_size);
-    auto adj_list = mfile.construct<adjacency_list_type>(option.adj_list_key_name.c_str())([&mfile]() {
-                                                                                             mfile.flush();
-                                                                                           },
-                                                                                           mfile.get_allocator<void>());
+    auto adj_list = mfile.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(mfile.get_allocator<void>());
     run_bench(option, single_numa_bench, adj_list);
 
     const auto start = util::elapsed_time_sec();
-    mfile.flush();
+    mfile.flush(); // NOTE: this method calls msync() with MS_ASYNC
     const auto elapsed_time = util::elapsed_time_sec(start);
-    std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
+    std::cout << "Async sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Segment usage (GB)\t"
               << static_cast<double>(mfile.get_size() - mfile.get_free_memory()) / (1ULL << 30)

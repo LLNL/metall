@@ -236,8 +236,8 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   }
   // void deallocate_many_impl(multiallocation_chain &chain);
 
-  void sync_impl() {
-    m_kernel.sync();
+  void sync_impl(const bool sync) {
+    m_kernel.sync(sync);
   }
 
   kernel_type *get_kernel_impl() {

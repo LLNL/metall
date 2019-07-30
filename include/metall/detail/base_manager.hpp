@@ -161,8 +161,10 @@ class base_manager {
 
   // -------------------- Sync -------------------- //
   /// \brief Sync with persistent memory
-  void sync() {
-    impl().sync_impl();
+  /// \param sync If true, performs synchronous synchronization;
+  /// otherwise, performs asynchronous synchronization
+  void sync(const bool sync = true) {
+    impl().sync_impl(sync);
   }
 
   // -------------------- Utility Methods -------------------- //

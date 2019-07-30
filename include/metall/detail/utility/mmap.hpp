@@ -133,8 +133,8 @@ inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, 
   return std::make_pair(fd, mapped_addr);
 }
 
-inline bool os_msync(void *const addr, const size_t length) {
-  if (::msync(addr, length, MS_SYNC) != 0) {
+inline bool os_msync(void *const addr, const size_t length, const bool sync) {
+  if (::msync(addr, length, sync ? MS_SYNC : MS_ASYNC) != 0) {
     ::perror("msync");
     std::cerr << "errno: " << errno << std::endl;
     return false;
@@ -152,7 +152,7 @@ inline bool os_munmap(void *const addr, const size_t length) {
 }
 
 inline bool munmap(void *const addr, const size_t length, const bool call_msync) {
-  if (call_msync) return os_msync(addr, length);
+  if (call_msync) return os_msync(addr, length, true);
   return os_munmap(addr, length);
 }
 

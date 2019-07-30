@@ -82,15 +82,12 @@ int main(int argc, char *argv[]) {
   {
     manager_type manager(bip::create_only, addr, option.segment_size);
     auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())
-                                                          ([&addr, &option]() {
-                                                             metall::detail::utility::os_msync(addr, option.segment_size);
-                                                           },
-                                                           manager.get_allocator<void>());
+                                                          (manager.get_allocator<void>());
 
     run_bench(option, single_numa_bench, adj_list);
 
     const auto start = metall::detail::utility::elapsed_time_sec();
-    metall::detail::utility::os_msync(addr, option.segment_size);
+    metall::detail::utility::os_msync(addr, option.segment_size, true);
     const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
