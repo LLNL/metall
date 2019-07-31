@@ -217,6 +217,21 @@ inline bool os_fsync(const int fd) {
   return true;
 }
 
+inline bool fsync(const std::string &path) {
+  const int fd = ::open(path.c_str(), O_RDWR);
+  if (fd == -1) {
+    ::perror("open");
+    std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+
+  const bool ret = os_fsync(fd);
+
+  ::close(fd);
+
+  return ret;
+}
+
 } // namespace utility
 } // namespace detail
 } // namespace metall

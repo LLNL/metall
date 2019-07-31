@@ -12,6 +12,7 @@ option(BUILD_DOC "Build documentation" OFF)
 option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
+option(BUILD_VERFICATION "Build verification directory" OFF)
 
 # ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
@@ -133,7 +134,7 @@ if (FILESYSTEM_INCLUDE_FILE)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         link_libraries(c++fs)
     endif ()
-else()
+else ()
     message(STATUS "Cannot find the filesystem library (C++17)")
 endif ()
 
@@ -166,6 +167,10 @@ if (Boost_FOUND)
         endif ()
         enable_testing()
         add_subdirectory(test)
+    endif ()
+
+    if (BUILD_VERFICATION)
+        add_subdirectory(verification)
     endif ()
 
 else ()

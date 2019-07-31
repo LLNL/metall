@@ -174,5 +174,4 @@ TEST_F(AnonymousMapUncommitTest, UncommitAnonymousMapUsingMadvDontNeed) {
   }
 }
 #endif
-
 }
