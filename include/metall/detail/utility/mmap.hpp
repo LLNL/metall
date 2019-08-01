@@ -15,6 +15,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#ifdef __linux__
+#include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
+#endif
 
 #include <metall/detail/utility/memory.hpp>
 
@@ -22,7 +25,7 @@ namespace metall {
 namespace detail {
 namespace utility {
 
-/// \brief Map a file checking errors
+/// \brief Maps a file checking errors
 /// \param addr Same as mmap(2)
 /// \param length Same as mmap(2)
 /// \param protection Same as mmap(2)
@@ -32,7 +35,7 @@ namespace utility {
 /// \return On success, returns a pointer to the mapped area.
 /// On error, nullptr is returned.
 inline void *os_mmap(void *const addr, const size_t length, const int protection, const int flags,
-              const int fd, const off_t offset) {
+                     const int fd, const off_t offset) {
   const ssize_t page_size = get_page_size();
   if (page_size == -1) {
     return nullptr;
@@ -50,7 +53,7 @@ inline void *os_mmap(void *const addr, const size_t length, const int protection
     return nullptr;
   }
 
-  /// ----- Map the file ----- ///
+  // ----- Map the file ----- //
   void *mapped_addr = ::mmap(addr, length, protection, flags, fd, offset);
   if (mapped_addr == MAP_FAILED) {
     ::perror("mmap");
@@ -73,8 +76,8 @@ inline void *os_mmap(void *const addr, const size_t length, const int protection
 /// \param additional_flags Additional map flags
 /// \return The starting address for the map. Returns nullptr on error.
 inline void *map_anonymous_write_mode(void *const addr,
-                               const size_t length,
-                               const int additional_flags = 0) {
+                                      const size_t length,
+                                      const int additional_flags = 0) {
   return os_mmap(addr, length, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | additional_flags, -1, 0);
 }
 
@@ -86,9 +89,9 @@ inline void *map_anonymous_write_mode(void *const addr,
 /// \param additional_flags Additional map flags
 /// \return A pair of the file descriptor of the file and the starting address for the map
 inline std::pair<int, void *> map_file_read_mode(const std::string &file_name, void *const addr,
-                                          const size_t length, const off_t offset,
-                                          const int additional_flags = 0) {
-  /// ----- Open the file ----- ///
+                                                 const size_t length, const off_t offset,
+                                                 const int additional_flags = 0) {
+  // ----- Open the file ----- //
   const int fd = ::open(file_name.c_str(), O_RDONLY);
   if (fd == -1) {
     ::perror("open");
@@ -96,7 +99,7 @@ inline std::pair<int, void *> map_file_read_mode(const std::string &file_name, v
     return std::make_pair(-1, nullptr);
   }
 
-  /// ----- Map the file ----- ///
+  // ----- Map the file ----- //
   void *mapped_addr = os_mmap(addr, length, PROT_READ, MAP_SHARED | additional_flags, fd, offset);
   if (mapped_addr == nullptr) {
     close(fd);
@@ -113,9 +116,9 @@ inline std::pair<int, void *> map_file_read_mode(const std::string &file_name, v
 /// \param offset The offset in the file
 /// \return A pair of the file descriptor of the file and the starting address for the map
 inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, void *const addr,
-                                           const size_t length, const off_t offset,
-                                           const int additional_flags = 0) {
-  /// ----- Open the file ----- ///
+                                                  const size_t length, const off_t offset,
+                                                  const int additional_flags = 0) {
+  // ----- Open the file ----- //
   const int fd = ::open(file_name.c_str(), O_RDWR);
   if (fd == -1) {
     ::perror("open");
@@ -123,7 +126,7 @@ inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, 
     return std::make_pair(-1, nullptr);
   }
 
-  /// ----- Map the file ----- ///
+  // ----- Map the file ----- //
   void *mapped_addr = os_mmap(addr, length, PROT_READ | PROT_WRITE, MAP_SHARED | additional_flags, fd, offset);
   if (mapped_addr == nullptr) {
     close(fd);
@@ -133,10 +136,10 @@ inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, 
   return std::make_pair(fd, mapped_addr);
 }
 
-inline bool os_msync(void *const addr, const size_t length) {
-  if (::msync(addr, length, MS_SYNC) != 0) {
-    ::perror("msync");
-    std::cerr << "errno: " << errno << std::endl;
+inline bool os_msync(void *const addr, const size_t length, const bool sync) {
+  if (::msync(addr, length, sync ? MS_SYNC : MS_ASYNC) != 0) {
+    // ::perror("msync");
+    // std::cerr << "errno: " << errno << std::endl;
     return false;
   }
   return true;
@@ -152,7 +155,7 @@ inline bool os_munmap(void *const addr, const size_t length) {
 }
 
 inline bool munmap(void *const addr, const size_t length, const bool call_msync) {
-  if (call_msync) return os_msync(addr, length);
+  if (call_msync) return os_msync(addr, length, true);
   return os_munmap(addr, length);
 }
 
@@ -165,32 +168,47 @@ inline bool map_with_prot_none(void *const addr, const size_t length) {
   return (os_mmap(addr, length, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0) == addr);
 }
 
+// NOTE: the MADV_FREE operation can be applied only to private anonymous pages.
+inline bool uncommit_private_pages(void *const addr, const size_t length) {
+#ifdef MADV_FREE
+  if (::madvise(addr, length, MADV_FREE) != 0) {
+    // ::perror("madvise MADV_FREE");
+    // std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+#else
+  #warning "MADV_FREE is not defined. Metall uses MADV_DONTNEED instead."
+  if (::madvise(addr, length, MADV_DONTNEED) != 0) {
+    // ::perror("madvise MADV_DONTNEED");
+    // std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+#endif
+  return true;
+}
+
 inline bool uncommit_shared_pages(void *const addr, const size_t length) {
   if (::madvise(addr, length, MADV_DONTNEED) != 0) {
-    ::perror("madvise MADV_DONTNEED");
-    std::cerr << "errno: " << errno << std::endl;
+    // ::perror("madvise MADV_DONTNEED");
+    // std::cerr << "errno: " << errno << std::endl;
     return false;
   }
   return true;
 }
 
-// NOTE: the MADV_FREE operation can be applied only to private anonymous pages.
-inline bool uncommit_private_pages(void *const addr, const size_t length) {
-#ifdef MADV_FREE
-  if (::madvise(addr, length, MADV_FREE) != 0) {
-    ::perror("madvise MADV_FREE");
-    std::cerr << "errno: " << errno << std::endl;
+inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
+                                       [[maybe_unused]] const size_t length) {
+#ifdef MADV_REMOVE
+  if (::madvise(addr, length, MADV_REMOVE) != 0) {
+    // ::perror("madvise MADV_REMOVE");
+    // std::cerr << "errno: " << errno << std::endl;
     return false;
   }
-#else
-#warning "MADV_FREE is not defined"
-  if (::madvise(addr, length, MADV_DONTNEED) != 0) {
-  ::perror("madvise MADV_DONTNEED");
-  std::cerr << "errno: " << errno << std::endl;
-  return false;
-}
-#endif
   return true;
+#else
+#warning "MADV_REMOVE is not supported. Metall cannot free file space."
+  return uncommit_shared_pages(addr, length);
+#endif
 }
 
 /// \brief Reserve a vm address region

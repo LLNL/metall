@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <thread>
 
-#include "../utility/time.hpp"
+#include <metall/detail/utility/time.hpp>
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/mmap.hpp>
 #include <metall/detail/utility/file.hpp>
@@ -28,12 +28,25 @@ static constexpr int k_map_nosync =
 
 template <typename random_iterator_type>
 void init_array(random_iterator_type first, random_iterator_type last) {
+  const std::size_t length = std::abs(std::distance(first, last));
+  const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
+  std::vector<std::thread *> threads(num_threads, nullptr);
 
-  const auto start = utility::elapsed_time_sec();
-  for (; first != last; ++first) {
-    *first = std::distance(first, last) - 1;
+  const auto start = util::elapsed_time_sec();
+  for (int t = 0; t < num_threads; ++t) {
+    const auto range = util::partial_range(length, t, num_threads);
+    threads[t] = new std::thread([](random_iterator_type partial_first, random_iterator_type partial_last) {
+                                   for (; partial_first != partial_last; ++partial_first) {
+                                     *partial_first = std::distance(partial_first, partial_last) - 1;
+                                   }
+                                 },
+                                 first + range.first,
+                                 first + range.second);
   }
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  for (auto& th : threads) {
+    th->join();
+  }
+  const auto elapsed_time = util::elapsed_time_sec(start);
 
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
@@ -45,7 +58,7 @@ void run_sort(random_iterator_type first, random_iterator_type last) {
   const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
   std::vector<std::thread *> threads(num_threads, nullptr);
 
-  const auto start = utility::elapsed_time_sec();
+  const auto start = util::elapsed_time_sec();
   for (int t = 0; t < num_threads; ++t) {
     const auto range = util::partial_range(length, t, num_threads);
     threads[t] = new std::thread([](random_iterator_type partial_first, random_iterator_type partial_last) {
@@ -57,16 +70,16 @@ void run_sort(random_iterator_type first, random_iterator_type last) {
   for (auto& th : threads) {
     th->join();
   }
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  const auto elapsed_time = util::elapsed_time_sec(start);
 
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
 void sync_region(void *const address, const std::size_t size) {
 
-  const auto start = utility::elapsed_time_sec();
-  util::os_msync(address, size);
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  const auto start = util::elapsed_time_sec();
+  util::os_msync(address, size, true);
+  const auto elapsed_time = util::elapsed_time_sec(start);
 
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
@@ -77,7 +90,7 @@ void validate_array(random_iterator_type first, random_iterator_type last) {
   const std::size_t length = std::abs(std::distance(first, last));
   const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
 
-  const auto start = utility::elapsed_time_sec();
+  const auto start = util::elapsed_time_sec();
   for (int t = 0; t < num_threads; ++t) {
     const auto range = util::partial_range(length, t, num_threads);
 
@@ -90,12 +103,12 @@ void validate_array(random_iterator_type first, random_iterator_type last) {
       }
     }
   }
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  const auto elapsed_time = util::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
 void *map_with_single_file(const std::string &file_prefix, const std::size_t size) {
-  const auto start = utility::elapsed_time_sec();
+  const auto start = util::elapsed_time_sec();
 
   std::cout << "size: " << size << std::endl;
 
@@ -112,7 +125,7 @@ void *map_with_single_file(const std::string &file_prefix, const std::size_t siz
   }
   ::close(ret.first);
 
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  const auto elapsed_time = util::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 
   return ret.second;
@@ -120,7 +133,7 @@ void *map_with_single_file(const std::string &file_prefix, const std::size_t siz
 
 void *map_with_multiple_files(const std::string &file_prefix, const std::size_t size, const std::size_t chunk_size) {
   assert(size % chunk_size == 0);
-  const auto start = utility::elapsed_time_sec();
+  const auto start = util::elapsed_time_sec();
 
   char *addr = reinterpret_cast<char *>(util::reserve_vm_region(size));
   if (!addr) {
@@ -152,7 +165,7 @@ void *map_with_multiple_files(const std::string &file_prefix, const std::size_t 
     ::close(ret.first);
   }
 
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  const auto elapsed_time = util::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 
   return addr;
@@ -166,7 +179,7 @@ void *map_with_multiple_files_round_robin(const std::string &file_prefix,
   const std::size_t num_files = size / file_size;
   assert(size % num_files == 0);
 
-  const auto start = utility::elapsed_time_sec();
+  const auto start = util::elapsed_time_sec();
 
   char *addr = reinterpret_cast<char *>(util::reserve_vm_region(size));
   if (!addr) {
@@ -207,21 +220,21 @@ void *map_with_multiple_files_round_robin(const std::string &file_prefix,
     ::close(ret.first);
   }
 
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  const auto elapsed_time = util::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 
   return addr;
 }
 
 void unmap(void *const addr, const std::size_t size) {
-  const auto start = utility::elapsed_time_sec();
+  const auto start = util::elapsed_time_sec();
 
   if (!util::munmap(addr, size, false)) {
     std::cerr << __LINE__ << " Failed to munmap" << std::endl;
     std::abort();
   }
 
-  const auto elapsed_time = utility::elapsed_time_sec(start);
+  const auto elapsed_time = util::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 

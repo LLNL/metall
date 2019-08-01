@@ -8,9 +8,10 @@
 #include <vector>
 
 #include <metall/metall.hpp>
+#include <metall/detail/utility/time.hpp>
+
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "../data_structure/partitioned_multithread_adjacency_list.hpp"
-#include "../utility/time.hpp"
 #include "../utility/open_mp.hpp"
 #include "../utility/numa_allocator.hpp"
 #include "../utility/numa.hpp"
@@ -55,11 +56,11 @@ int main(int argc, char *argv[]) {
 
     run_bench(option, numa_aware_bench, &adj_list);
 
-    const auto start = utility::elapsed_time_sec();
+    const auto start = metall::detail::utility::elapsed_time_sec();
     for (auto manager : managers) {
       manager->sync();
     }
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Writing profile" << std::endl;

@@ -10,11 +10,15 @@
 #include <memory>
 #include <vector>
 
-#include "../utility/time.hpp"
+#include <metall/detail/utility/time.hpp>
 
 namespace bench_basic {
 
-template<typename allocator_type>
+namespace {
+namespace util = metall::detail::utility;
+}
+
+template <typename allocator_type>
 void kernel(const std::size_t alloc_size, const std::size_t num_allocations, allocator_type allocator) {
 
   using char_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<char>;
@@ -26,20 +30,20 @@ void kernel(const std::size_t alloc_size, const std::size_t num_allocations, all
   std::cout << "Total allocation size will be: " << alloc_size * num_allocations << std::endl;
 
   {
-    const auto start = utility::elapsed_time_sec();
+    const auto start = util::elapsed_time_sec();
     for (std::size_t i = 0; i < num_allocations; ++i) {
       addr_list[i] = char_allocator.allocate(alloc_size);
     }
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = util::elapsed_time_sec(start);
     std::cout << "Allocation took:\t" << elapsed_time << std::endl;
   }
 
   {
-    const auto start = utility::elapsed_time_sec();
+    const auto start = util::elapsed_time_sec();
     for (std::size_t i = 0; i < num_allocations; ++i) {
       char_allocator.deallocate(addr_list[i], alloc_size);
     }
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = util::elapsed_time_sec(start);
     std::cout << "Deallocation took:\t" << elapsed_time << std::endl;
   }
   std::cout << std::endl;

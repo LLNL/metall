@@ -8,9 +8,9 @@
 #include <vector>
 
 #include <metall/metall.hpp>
+#include <metall/detail/utility/time.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
-#include "../utility/time.hpp"
 
 using namespace adjacency_list_bench;
 
@@ -35,16 +35,13 @@ int main(int argc, char *argv[]) {
 
   {
     metall::manager manager(metall::create_only, option.segment_file_name_list[0].c_str(), option.segment_size);
-    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())([&manager]() {
-                                                                                               manager.sync();
-                                                                                             },
-                                                                                             manager.get_allocator<>());
+    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<>());
 
     run_bench(option, single_numa_bench, adj_list);
 
-    const auto start = utility::elapsed_time_sec();
+    const auto start = metall::detail::utility::elapsed_time_sec();
     manager.sync();
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Writing profile" << std::endl;

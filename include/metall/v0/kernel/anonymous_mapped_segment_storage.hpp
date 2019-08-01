@@ -109,7 +109,7 @@ class anonymous_mapped_segment_storage {
     priv_unmap_segment();
   }
 
-  void sync() {
+  void sync([[maybe_unused]] const bool sync) {
     priv_sync_segment();
   }
 

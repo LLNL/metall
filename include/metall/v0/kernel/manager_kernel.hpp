@@ -183,16 +183,18 @@ class manager_kernel {
   /// \brief Expect to be called by a single thread
   void close() {
     if (priv_initialized()) {
-      sync();
+      sync(true);
       m_segment_storage.destroy();
     }
   }
 
   /// \brief Sync with backing files
-  void sync() {
+  /// \param sync If true, performs synchronous synchronization;
+  /// otherwise, performs asynchronous synchronization
+  void sync(const bool sync) {
     assert(priv_initialized());
 
-    m_segment_storage.sync();
+    m_segment_storage.sync(sync);
 
     if (!m_bin_directory.serialize(priv_make_file_name(k_bin_directory_file_name).c_str()) ||
         !m_chunk_directory.serialize(priv_make_file_name(k_chunk_directory_file_name).c_str()) ||
@@ -389,7 +391,7 @@ class manager_kernel {
   /// \param base_path
   /// \return
   bool snapshot(const char *destination_base_path) {
-    sync();
+    sync(true);
     return priv_snapshot_entire_data(destination_base_path);
   }
 
@@ -397,7 +399,7 @@ class manager_kernel {
   /// \param destination_base_path
   /// \return
   bool snapshot_diff(const char *destination_base_path) {
-    sync();
+    sync(true);
     return priv_snapshot_diff_data(destination_base_path);
   }
 

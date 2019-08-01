@@ -16,7 +16,7 @@
 #include <metall/metall.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
-#include "../utility/time.hpp"
+#include <metall/detail/utility/time.hpp>
 #include "../utility/jemalloc_allocator.hpp"
 
 using namespace adjacency_list_bench;
