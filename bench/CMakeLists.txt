@@ -1,4 +1,5 @@
 add_subdirectory(basic)
 add_subdirectory(adjacency_lsit)
 add_subdirectory(bfs)
+add_subdirectory(free_file_space)
 add_subdirectory(mmap)

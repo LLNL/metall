@@ -67,11 +67,10 @@ inline double kernel(input_iterator itr, input_iterator end, adjacency_list_type
     for (std::size_t i = 0; i < key_value_list.size(); ++i) {
       adj_list->add(key_value_list[i].first, key_value_list[i].second);
     }
-    adj_list->sync();
     const auto elapsed_time = util::elapsed_time_sec(start);
 
     std::cout << "#of inserted elements\t" << key_value_list.size() << std::endl;
-    std::cout << "Elapsed time including sync (s)" << "\t" << elapsed_time << std::endl;
+    std::cout << "Elapsed time (s)" << "\t" << elapsed_time << std::endl;
     std::cout << "DRAM usage (GB)" << "\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
     std::cout << "DRAM cache usage (GB)" << "\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
     print_current_num_page_faults();
