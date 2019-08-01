@@ -35,7 +35,7 @@ struct bench_options {
 
   uint64_t seed{123};
   uint64_t vertex_scale{17};
-  uint64_t edge_count{17 * 16};
+  uint64_t edge_count{(1ULL << 17ULL) * 16};
   double a{0.57};
   double b{0.19};
   double c{0.19};

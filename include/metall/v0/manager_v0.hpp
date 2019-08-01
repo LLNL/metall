@@ -183,9 +183,10 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   }
 
   /// \brief
-  /// \param log_file_name
-  void profile(const std::string &log_file_name) const {
-    m_kernel.profile(log_file_name);
+  /// \param log_out
+  template <typename out_stream_type>
+  void profile(out_stream_type *log_out) const {
+    m_kernel.profile(log_out);
   }
 
  private:

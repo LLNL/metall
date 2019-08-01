@@ -437,7 +437,8 @@ class manager_kernel {
   }
 
   // Implemented in another file.
-  void profile(const std::string &log_file_name) const;
+  template <typename out_stream_type>
+  void profile(out_stream_type *log_out) const;
 
  private:
   // -------------------------------------------------------------------------------- //

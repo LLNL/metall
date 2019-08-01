@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Writing profile" << std::endl;
-    manager.profile("/tmp/metall_profile.log");
+    manager.profile(&(std::cout));
   }
 
   return 0;
