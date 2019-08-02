@@ -1,6 +1,7 @@
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
+// See the top-level COPYRIGHT file for details.
 //
-// Created by Iwabuchi, Keita on 2019-03-21.
-//
+// SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #ifndef METALL_DETAIL_V0_KERNEL_MANAGER_KERNEL_PROFILE_IMPL_IPP
 #define METALL_DETAIL_V0_KERNEL_MANAGER_KERNEL_PROFILE_IMPL_IPP
@@ -12,15 +13,15 @@
 #include <vector>
 #include <iterator>
 
-#include <metall/v0/kernel/manager_kernel.hpp>
+#include <metall/v0/kernel/manager_kernel_fwd.hpp>
 
 namespace metall {
 namespace v0 {
 namespace kernel {
 
-template <typename chunk_no_type, std::size_t k_chunk_size, typename internal_allocator>
+template <typename chunk_no_type, std::size_t k_chunk_size, typename allocator_type>
 template <typename out_stream_type>
-void manager_kernel<chunk_no_type, k_chunk_size, internal_allocator>::profile(out_stream_type *log_out) const {
+void manager_kernel<chunk_no_type, k_chunk_size, allocator_type>::profile(out_stream_type *log_out) const {
   std::vector<std::size_t> num_used_chunks_per_bin(bin_no_mngr::num_bins(), 0);
 
   (*log_out) << std::fixed;
