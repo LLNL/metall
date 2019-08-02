@@ -64,6 +64,7 @@ TEST(MultilayerBitsetTest, FindAndSet) {
     bitset.allocate(num_bits, allocator);
     for (uint64_t i = 0; i < num_bits; ++i) {
       ASSERT_EQ(bitset.find_and_set(num_bits), i);
+      ASSERT_TRUE(bitset.get(num_bits, i));
     }
     bitset.free(num_bits, allocator);
   }
@@ -80,6 +81,7 @@ TEST(MultilayerBitsetTest, Reset) {
 
     for (uint64_t i = 0; i < num_bits; ++i) {
       bitset.reset(num_bits, i);
+      ASSERT_FALSE(bitset.get(num_bits, i));
       ASSERT_EQ(bitset.find_and_set(num_bits), i);
     }
 
@@ -87,7 +89,7 @@ TEST(MultilayerBitsetTest, Reset) {
   }
 }
 
-void RandomAccessHelper(const std::size_t num_bits) {
+void RandomSetHelper(const std::size_t num_bits) {
   SCOPED_TRACE("num_bits = " + std::to_string(num_bits));
 
   metall::v0::kernel::multilayer_bitset<std::allocator<void>> bitset;
@@ -97,26 +99,26 @@ void RandomAccessHelper(const std::size_t num_bits) {
   std::vector<bool> reference(num_bits, false);
 
   std::mt19937_64 mt;
-  std::uniform_int_distribution<uint64_t> rand_dist(0, num_bits * 2);
+  std::uniform_int_distribution<uint64_t> rand_dist(0, num_bits * 2 - 2);
 
-  uint64_t min_free_pos = 0;
-  for (uint64_t i = 0; i < num_bits * 8ULL; ++i) { // 8 is just a random number
+  uint64_t smallest_free_pos = 0;
+  for (uint64_t i = 0; i < num_bits * 2ULL; ++i) { // Just repeat many times
     const auto random_value = rand_dist(mt);
     const bool do_set = random_value / num_bits;
 
-    if (do_set && !reference[min_free_pos]) { // Set
-      ASSERT_EQ(bitset.find_and_set(num_bits), min_free_pos);
-      reference[min_free_pos] = true;
+    if (do_set && !reference[smallest_free_pos]) { // Set
+      ASSERT_EQ(bitset.find_and_set(num_bits), smallest_free_pos);
+      reference[smallest_free_pos] = true;
 
-      // Make sure that is the minimum available spot
-      for (uint64_t p = 0; p <= min_free_pos; ++p) {
+      // Make sure that min_free_pos is the smallest available spot
+      for (uint64_t p = 0; p <= smallest_free_pos; ++p) {
         ASSERT_TRUE(reference[p]);
       }
 
       // Find the next available spot
-      for (uint64_t p = min_free_pos + 1; p < reference.size(); ++p) {
+      for (uint64_t p = smallest_free_pos + 1; p < reference.size(); ++p) {
         if (!reference[p]) {
-          min_free_pos = p;
+          smallest_free_pos = p;
           break;
         }
       }
@@ -126,37 +128,102 @@ void RandomAccessHelper(const std::size_t num_bits) {
       if (!reference[pos]) continue;
       bitset.reset(num_bits, pos);
       reference[pos] = false;
-      min_free_pos = std::min(min_free_pos, pos);
+      smallest_free_pos = std::min(smallest_free_pos, pos);
     }
   }
 
   bitset.free(num_bits, allocator);
 }
 
-TEST(MultilayerBitsetTest, RandomOperation) {
+TEST(MultilayerBitsetTest, RandomSet) {
 
   // 1 layer
-  RandomAccessHelper(1ULL << 0);
-  RandomAccessHelper(1ULL << 1);
-  RandomAccessHelper(1ULL << 2);
-  RandomAccessHelper(1ULL << 3);
-  RandomAccessHelper(1ULL << 4);
-  RandomAccessHelper(1ULL << 5);
-  RandomAccessHelper(1ULL << 6);
+  RandomSetHelper(1ULL << 0);
+  RandomSetHelper(1ULL << 1);
+  RandomSetHelper(1ULL << 2);
+  RandomSetHelper(1ULL << 3);
+  RandomSetHelper(1ULL << 4);
+  RandomSetHelper(1ULL << 5);
+  RandomSetHelper(1ULL << 6);
 
-  // 2 layer
-  RandomAccessHelper(1ULL << 7);
-  RandomAccessHelper(1ULL << 10);
-  RandomAccessHelper(1ULL << 12);
+  // 2 layers
+  RandomSetHelper(1ULL << 7);
+  RandomSetHelper(1ULL << 10);
+  RandomSetHelper(1ULL << 12);
 
-  // 3 layer
-//  RandomAccessHelper(1ULL << 13);
-//  RandomAccessHelper(1ULL << 16);
-//  RandomAccessHelper(1ULL << 18);
+// --- perform tests more than 2 layers only when it is needed -- //
 
-  // 4 layer
-//  RandomAccessHelper(1ULL << 19);
-//  RandomAccessHelper(1ULL << 22);
-//  RandomAccessHelper(1ULL << 24);
+  // 3 layers
+  //RandomSetHelper(1ULL << 13);
+  //RandomSetHelper(1ULL << 16);
+  //RandomSetHelper(1ULL << 18); // 2^21 / 2^3 = 2^18
+
+  // 4 layers
+  //RandomSetHelper(1ULL << 19);
+  //RandomSetHelper(1ULL << 22);
+  //RandomSetHelper(1ULL << 24);
+}
+
+void RandomSetAndResetHelper(const std::size_t num_bits) {
+  SCOPED_TRACE("num_bits = " + std::to_string(num_bits));
+
+  metall::v0::kernel::multilayer_bitset<std::allocator<void>> bitset;
+  auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<void>>::rebind_allocator_type();
+  bitset.allocate(num_bits, allocator);
+
+  std::vector<bool> reference(num_bits, false);
+
+  std::mt19937_64 mt;
+  std::uniform_int_distribution<uint64_t> rand_dist(0, num_bits - 1);
+
+  for (uint64_t i = 0; i < num_bits * 2ULL; ++i) { // Just repeat many times
+    const auto position = rand_dist(mt);
+
+    ASSERT_EQ(bitset.get(num_bits, position), reference[position]);
+
+    if (bitset.get(num_bits, position)) { // If the current value is true, then reset the value
+      bitset.reset(num_bits, position);
+      reference[position] = false;
+    } else {
+      const auto set_position = bitset.find_and_set(num_bits);
+      reference[set_position] = true;
+    }
+
+    // Make sure all bits match to the reference
+    for (uint64_t pos = 0; pos < num_bits; ++pos) {
+      ASSERT_EQ(bitset.get(num_bits, pos), reference[pos]);
+    }
+  }
+
+  bitset.free(num_bits, allocator);
+}
+
+TEST(MultilayerBitsetTest, RandomSetAndReset) {
+
+  // 1 layer
+  RandomSetAndResetHelper(1ULL << 0);
+  RandomSetAndResetHelper(1ULL << 1);
+  RandomSetAndResetHelper(1ULL << 2);
+  RandomSetAndResetHelper(1ULL << 3);
+  RandomSetAndResetHelper(1ULL << 4);
+  RandomSetAndResetHelper(1ULL << 5);
+  RandomSetAndResetHelper(1ULL << 6);
+
+  // 2 layers
+  RandomSetAndResetHelper(1ULL << 7);
+  RandomSetAndResetHelper(1ULL << 10);
+  RandomSetAndResetHelper(1ULL << 12);
+
+  // --- perform tests more than 2 layers only when it is needed -- //
+
+  // 3 layers
+  //RandomSetAndResetHelper(1ULL << 13);
+  //RandomSetAndResetHelper(1ULL << 16);
+  //RandomSetAndResetHelper(1ULL << 18); // 2^21 / 2^3 = 2^18
+
+  // 4 layers
+  //RandomSetAndResetHelper(1ULL << 19);
+  //RandomSetAndResetHelper(1ULL << 22);
+  //RandomSetAndResetHelper(1ULL << 24);
 }
 }

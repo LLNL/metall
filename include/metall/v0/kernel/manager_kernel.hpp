@@ -195,13 +195,7 @@ class manager_kernel {
     assert(priv_initialized());
 
     m_segment_storage.sync(sync);
-
-    if (!m_bin_directory.serialize(priv_make_file_name(k_bin_directory_file_name).c_str()) ||
-        !m_chunk_directory.serialize(priv_make_file_name(k_chunk_directory_file_name).c_str()) ||
-        !m_named_object_directory.serialize(priv_make_file_name(k_named_object_directory_file_name).c_str())) {
-      std::cerr << "Failed to serialize internal data" << std::endl;
-      std::abort();
-    }
+    priv_serialize_management_data();
   }
 
   void *allocate(const size_type nbytes) {
@@ -210,44 +204,10 @@ class manager_kernel {
     const bin_no_type bin_no = bin_no_mngr::to_bin_no(nbytes);
 
     if (bin_no < k_num_small_bins) {
-      const size_type object_size = bin_no_mngr::to_object_size(bin_no);
-
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-      lock_guard_type bin_guard(m_bin_mutex[bin_no]);
-#endif
-
-      if (m_bin_directory.empty(bin_no)) {
-        chunk_no_type new_chunk_no;
-        {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-          lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-          new_chunk_no = m_chunk_directory.insert(bin_no);
-        }
-        m_bin_directory.insert(bin_no, new_chunk_no);
-      }
-
-      assert(!m_bin_directory.empty(bin_no));
-      const chunk_no_type chunk_no = m_bin_directory.front(bin_no);
-
-      assert(!m_chunk_directory.full_slot(chunk_no));
-      const chunk_slot_no_type chunk_slot_no = m_chunk_directory.find_and_mark_slot(chunk_no);
-
-      if (m_chunk_directory.full_slot(chunk_no)) {
-        m_bin_directory.pop(bin_no);
-      }
-
-      return static_cast<char *>(m_segment_storage.get_segment()) + k_chunk_size * chunk_no + object_size * chunk_slot_no;
-
-    } else {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-      lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-      const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
-      return static_cast<char *>(m_segment_storage.get_segment()) + k_chunk_size * new_chunk_no;
+      return priv_allocate_small_object(bin_no);
     }
 
-    return nullptr;
+    return priv_allocate_large_object(bin_no);
   }
 
   // \TODO: implement
@@ -266,34 +226,9 @@ class manager_kernel {
     const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
 
     if (bin_no < k_num_small_bins) {
-      const size_type object_size = bin_no_mngr::to_object_size(bin_no);
-      const auto slot_no = static_cast<chunk_slot_no_type>((offset % k_chunk_size) / object_size);
-
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-      lock_guard_type bin_guard(m_bin_mutex[bin_no]);
-#endif
-
-      const bool was_full = m_chunk_directory.full_slot(chunk_no);
-      m_chunk_directory.unmark_slot(chunk_no, slot_no);
-      if (was_full) {
-        m_bin_directory.insert(bin_no, chunk_no);
-      } else if (m_chunk_directory.empty_slot(chunk_no)) {
-        {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-          lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-          m_chunk_directory.erase(chunk_no);
-          priv_free_chunk(chunk_no, 1);
-        }
-        m_bin_directory.erase(bin_no, chunk_no);
-      }
+      priv_deallocate_small_object(offset, chunk_no, bin_no);
     } else {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-      lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-      m_chunk_directory.erase(chunk_no);
-      const std::size_t num_chunks = bin_no_mngr::to_object_size(bin_no) / k_chunk_size;
-      priv_free_chunk(chunk_no, num_chunks);
+      priv_deallocate_large_object(chunk_no, bin_no);
     }
   }
 
@@ -383,7 +318,7 @@ class manager_kernel {
     }
   }
 
-  segment_header_type* get_segment_header() const {
+  segment_header_type *get_segment_header() const {
     return reinterpret_cast<segment_header_type *>(m_segment_storage.get_header());
   }
 
@@ -453,20 +388,15 @@ class manager_kernel {
   }
 
   bool priv_initialized() const {
-    return (m_segment_storage.get_header() && m_segment_storage.get_segment() && m_segment_storage.size() && !m_file_base_path.empty());
+    return (m_segment_storage.get_header() && m_segment_storage.get_segment() && m_segment_storage.size()
+        && !m_file_base_path.empty());
   }
 
   std::string priv_make_file_name(const std::string &item_name) const {
     return priv_make_file_name(m_file_base_path, item_name);
   }
 
-  void priv_free_chunk(const chunk_no_type head_chunk_no, const std::size_t num_chunks) {
-    const off_t offset = head_chunk_no * k_chunk_size;
-    const size_t length = num_chunks * k_chunk_size;
-    m_segment_storage.free_region(offset, length);
-  }
-
-  std::size_t priv_num_chunks() const {
+  size_type priv_num_chunks() const {
     return m_segment_storage.size() / k_chunk_size;
   }
 
@@ -513,6 +443,102 @@ class manager_kernel {
     util::array_construct(ptr, num, table);
 
     return static_cast<T *>(ptr);
+  }
+
+  void priv_free_chunk(const chunk_no_type head_chunk_no, const size_type num_chunks) {
+    const off_t offset = head_chunk_no * k_chunk_size;
+    const size_type length = num_chunks * k_chunk_size;
+    m_segment_storage.free_region(offset, length);
+  }
+
+  // ---------------------------------------- For allocation ---------------------------------------- //
+  void *priv_allocate_small_object(const bin_no_type bin_no) {
+    const size_type object_size = bin_no_mngr::to_object_size(bin_no);
+
+#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+    lock_guard_type bin_guard(m_bin_mutex[bin_no]);
+#endif
+
+    if (m_bin_directory.empty(bin_no)) {
+      chunk_no_type new_chunk_no;
+      {
+#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+        lock_guard_type chunk_guard(m_chunk_mutex);
+#endif
+        new_chunk_no = m_chunk_directory.insert(bin_no);
+      }
+      m_bin_directory.insert(bin_no, new_chunk_no);
+    }
+
+    assert(!m_bin_directory.empty(bin_no));
+    const chunk_no_type chunk_no = m_bin_directory.front(bin_no);
+
+    assert(!m_chunk_directory.all_slots_marked(chunk_no));
+    const chunk_slot_no_type chunk_slot_no = m_chunk_directory.find_and_mark_slot(chunk_no);
+
+    if (m_chunk_directory.all_slots_marked(chunk_no)) {
+      m_bin_directory.pop(bin_no);
+    }
+
+    const difference_type offset = k_chunk_size * chunk_no + object_size * chunk_slot_no;
+    return static_cast<char *>(m_segment_storage.get_segment()) + offset;
+  }
+
+  void *priv_allocate_large_object(const bin_no_type bin_no) {
+#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+    lock_guard_type chunk_guard(m_chunk_mutex);
+#endif
+    const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
+    const difference_type offset = k_chunk_size * new_chunk_no;
+    return static_cast<char *>(m_segment_storage.get_segment()) + offset;
+  }
+
+  // ---------------------------------------- For deallocation ---------------------------------------- //
+  void priv_deallocate_small_object(const difference_type offset,
+                                    const chunk_no_type chunk_no,
+                                    const bin_no_type bin_no) {
+
+    const size_type object_size = bin_no_mngr::to_object_size(bin_no);
+    const auto slot_no = static_cast<chunk_slot_no_type>((offset % k_chunk_size) / object_size);
+
+#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+    lock_guard_type bin_guard(m_bin_mutex[bin_no]);
+#endif
+
+    const bool was_full = m_chunk_directory.all_slots_marked(chunk_no);
+    m_chunk_directory.unmark_slot(chunk_no, slot_no);
+    if (was_full) {
+      m_bin_directory.insert(bin_no, chunk_no);
+    } else if (m_chunk_directory.all_slots_unmarked(chunk_no)) {
+      {
+#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+        lock_guard_type chunk_guard(m_chunk_mutex);
+#endif
+        m_chunk_directory.erase(chunk_no);
+        priv_free_chunk(chunk_no, 1);
+      }
+      m_bin_directory.erase(bin_no, chunk_no);
+    }
+  }
+
+  void priv_deallocate_large_object(const chunk_no_type chunk_no, const bin_no_type bin_no) {
+#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+    lock_guard_type chunk_guard(m_chunk_mutex);
+#endif
+    m_chunk_directory.erase(chunk_no);
+    const size_type num_chunks = bin_no_mngr::to_object_size(bin_no) / k_chunk_size;
+    priv_free_chunk(chunk_no, num_chunks);
+  }
+
+  // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
+  bool priv_serialize_management_data() {
+    if (!m_bin_directory.serialize(priv_make_file_name(k_bin_directory_file_name).c_str()) ||
+        !m_chunk_directory.serialize(priv_make_file_name(k_chunk_directory_file_name).c_str()) ||
+        !m_named_object_directory.serialize(priv_make_file_name(k_named_object_directory_file_name).c_str())) {
+      std::cerr << "Failed to serialize internal data" << std::endl;
+      return false;
+    }
+    return true;
   }
 
   bool priv_deserialize_management_data(const char *const base_path) {
@@ -789,17 +815,18 @@ class manager_kernel {
 
     char *const segment = static_cast<char *>(m_segment_storage.get_segment());
     for (const auto &item : segment_diff_list) {
-      const size_t page_no = item.first;
-      assert(page_no * static_cast<std::size_t>(page_size) < m_segment_storage.size());
+      const size_type page_no = item.first;
+      assert(page_no * static_cast<size_type>(page_size) < m_segment_storage.size());
 
-      const size_t snapshot_no = item.second.first;
+      const size_type snapshot_no = item.second.first;
       assert(snapshot_no < diff_file_list.size());
 
-      const size_t diff_page_index = item.second.second;
+      const size_type diff_page_index = item.second.second;
       assert(diff_page_index < num_diff_list[snapshot_no]);
 
-      const size_t offset = (num_diff_list[snapshot_no] + 1) * sizeof(size_type) // Skip the list of diff page numbers
-                            + diff_page_index * static_cast<std::size_t>(page_size); // Offset to the target page data
+      const size_type
+          offset = (num_diff_list[snapshot_no] + 1) * sizeof(size_type) // Skip the list of diff page numbers
+          + diff_page_index * static_cast<size_type>(page_size); // Offset to the target page data
 
       assert(diff_file_list[snapshot_no]->good());
       if (!diff_file_list[snapshot_no]->seekg(offset)) {
@@ -808,7 +835,7 @@ class manager_kernel {
       }
 
       assert(diff_file_list[snapshot_no]->good());
-      if (!diff_file_list[snapshot_no]->read(&segment[page_no * static_cast<std::size_t>(page_size)], page_size)) {
+      if (!diff_file_list[snapshot_no]->read(&segment[page_no * static_cast<size_type>(page_size)], page_size)) {
         std::cerr << "Cannot read diff page value at " << offset << " of " << snapshot_no << std::endl;
         return false;
       }

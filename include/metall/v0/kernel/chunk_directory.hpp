@@ -208,7 +208,7 @@ class chunk_directory {
   /// \brief
   /// \param chunk_no
   /// \return
-  bool full_slot(const chunk_no_type chunk_no) const {
+    bool all_slots_marked(const chunk_no_type chunk_no) const {
     assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
@@ -216,6 +216,27 @@ class chunk_directory {
     assert(num_slots >= 1);
 
     return (m_table[chunk_no].num_occupied_slots == num_slots);
+  }
+
+  /// \brief
+  /// \param chunk_no
+  /// \return
+  bool all_slots_unmarked(const chunk_no_type chunk_no) const {
+    assert(chunk_no < size());
+    assert(m_table[chunk_no].type == chunk_type::small_chunk);
+    return (m_table[chunk_no].num_occupied_slots == 0);
+  }
+
+  /// \brief
+  /// \param chunk_no
+  /// \param slot_no
+  /// \return
+  bool unmarked_slot(const chunk_no_type chunk_no, const slot_no_type slot_no) const {
+    assert(chunk_no < size());
+    assert(m_table[chunk_no].type == chunk_type::small_chunk);
+
+    const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no(chunk_no)));
+    return slot_no < num_slots && m_table[chunk_no].slot_occupancy.get(num_slots, slot_no);
   }
 
   /// \brief
@@ -230,15 +251,6 @@ class chunk_directory {
   /// \return
   bool empty_chunk(const chunk_no_type chunk_no) const {
     return (m_table[chunk_no].type == chunk_type::empty);
-  }
-
-  /// \brief
-  /// \param chunk_no
-  /// \return
-  bool empty_slot(const chunk_no_type chunk_no) const {
-    assert(chunk_no < size());
-    assert(m_table[chunk_no].type == chunk_type::small_chunk);
-    return (m_table[chunk_no].num_occupied_slots == 0);
   }
 
   /// \brief
