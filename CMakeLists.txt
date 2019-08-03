@@ -10,12 +10,13 @@ option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
-option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 
 # ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
 option(USE_ANONYMOUS_MAP "Use anonymous mapping instead of file-backed mapping for application's segment data" OFF)
+option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
+option(FREE_SPACE_FOR_SMALL_OBJECT "Free space when small objects (but not too small, probably larger than the sytem page size) are deallocated" OFF)
 # -------------------------------------------------------------------------------- #
 
 set(CMAKE_CXX_STANDARD 17)
@@ -75,15 +76,19 @@ endif ()
 
 # ---------- Configure Metall ---------- #
 if (USE_SPACE_AWARE_BIN)
-    add_definitions(-DUSE_SPACE_AWARE_BIN)
+    add_definitions(-DMETALL_USE_SPACE_AWARE_BIN)
     message(STATUS "Try to fill from lower address.")
 endif ()
 
 if (USE_ANONYMOUS_MAP)
-    add_definitions(-DUSE_ANONYMOUS_MAP)
+    add_definitions(-DMETALL_USE_ANONYMOUS_MAP)
     message(STATUS "Use anonymous mapping.")
 endif ()
 
+if (FREE_SPACE_FOR_SMALL_OBJECT)
+    add_definitions(-DMETALL_FREE_SPACE_FOR_SMALL_OBJECT)
+    message(STATUS "Free space when small objects are deallocated")
+endif()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
@@ -123,7 +128,7 @@ endif ()
 include(CheckIncludeFileCXX)
 CHECK_INCLUDE_FILE_CXX(filesystem FILESYSTEM_INCLUDE_FILE)
 if (FILESYSTEM_INCLUDE_FILE)
-    add_definitions(-DFOUND_CPP17_FILESYSTEM_LIB)
+    add_definitions(-DMETALL_FOUND_CPP17_FILESYSTEM_LIB)
 
     # GCC
     if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
@@ -133,7 +138,7 @@ if (FILESYSTEM_INCLUDE_FILE)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         link_libraries(c++fs)
     endif ()
-else()
+else ()
     message(STATUS "Cannot find the filesystem library (C++17)")
 endif ()
 
@@ -161,8 +166,8 @@ if (Boost_FOUND)
 
     if (BUILD_TEST)
         if (RUN_LARGE_SCALE_TEST)
-            add_definitions(-DRUN_LARGE_SCALE_TEST)
-            message(STATUS "RUN_LARGE_SCALE_TEST is ON")
+            add_definitions(-DMETALL_RUN_LARGE_SCALE_TEST)
+            message(STATUS "Run lage-scale tests")
         endif ()
         enable_testing()
         add_subdirectory(test)

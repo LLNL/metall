@@ -7,7 +7,7 @@
 #ifndef METALL_DETAIL_V0_KERNEL_SEGMENT_STORAGE_HPP
 #define METALL_DETAIL_V0_KERNEL_SEGMENT_STORAGE_HPP
 
-#ifdef USE_ANONYMOUS_MAP
+#ifdef METALL_USE_ANONYMOUS_MAP
 #include <metall/v0/kernel/anonymous_mapped_segment_storage.hpp>
 #else
 #include <metall/v0/kernel/file_mapped_segment_storage.hpp>
@@ -20,7 +20,7 @@ namespace kernel {
 template <typename offset_type, typename size_type, std::size_t header_size>
 using segment_storage =
 
-#ifdef USE_ANONYMOUS_MAP
+#ifdef METALL_USE_ANONYMOUS_MAP
     anonymous_mapped_segment_storage<offset_type, size_type, header_size>;
 #else
     file_mapped_segment_storage<offset_type, size_type, header_size>;

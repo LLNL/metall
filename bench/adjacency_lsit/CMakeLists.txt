@@ -9,7 +9,7 @@ endif ()
 if (USE_NUMA_LIB)
     if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
         link_libraries(numa)
-        add_definitions(-DUSE_NUMA_LIB)
+        add_definitions(-DMETALL_USE_NUMA_LIB)
     endif()
 endif()
 

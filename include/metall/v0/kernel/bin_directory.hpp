@@ -17,7 +17,7 @@
 #include <boost/container/vector.hpp>
 #include <boost/container/scoped_allocator.hpp>
 
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
 #include <boost/container/flat_set.hpp>
 #else
 #include <boost/container/deque.hpp>
@@ -53,7 +53,7 @@ class bin_directory {
   // -------------------------------------------------------------------------------- //
   template <typename T>
   using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
   using bin_allocator_type = other_allocator_type<chunk_no_type>;
   using bin_type = boost::container::flat_set<chunk_no_type, std::greater<chunk_no_type>, bin_allocator_type>;
 #else
@@ -98,7 +98,7 @@ class bin_directory {
   chunk_no_type front(const bin_no_type bin_no) const {
     assert(bin_no < k_num_bins);
     assert(!empty(bin_no));
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
     return *(m_table[bin_no].end() - 1);
 #else
     return m_table[bin_no].front();
@@ -110,7 +110,7 @@ class bin_directory {
   /// \param chunk_no
   void insert(const bin_no_type bin_no, const chunk_no_type chunk_no) {
     assert(bin_no < k_num_bins);
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
     m_table[bin_no].insert(chunk_no);
 #else
     m_table[bin_no].emplace_front(chunk_no);
@@ -121,7 +121,7 @@ class bin_directory {
   /// \param bin_no
   void pop(const bin_no_type bin_no) {
     assert(bin_no < k_num_bins);
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
     m_table[bin_no].erase(m_table[bin_no].end() - 1);
 #else
     m_table[bin_no].pop_front();
@@ -134,7 +134,7 @@ class bin_directory {
   /// \return
   bool erase(const bin_no_type bin_no, const chunk_no_type chunk_no) {
     assert(bin_no < k_num_bins);
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
     const auto itr = m_table[bin_no].find(chunk_no);
     if (itr != m_table[bin_no].end()) {
       m_table[bin_no].erase(itr);
@@ -203,7 +203,7 @@ class bin_directory {
         std::cerr << "Too large bin number is found: " << bin_no << std::endl;
         return false;
       }
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
       m_table[bin_no].insert(chunk_no);
 #else
       m_table[bin_no].emplace_back(chunk_no);

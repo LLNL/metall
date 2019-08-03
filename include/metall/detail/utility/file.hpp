@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <fstream>
-#ifdef FOUND_CPP17_FILESYSTEM_LIB
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 #include <filesystem>
 #endif
 
@@ -27,7 +27,7 @@ namespace metall {
 namespace detail {
 namespace utility {
 
-#ifdef FOUND_CPP17_FILESYSTEM_LIB
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 namespace {
 namespace fs = std::filesystem;
 }
@@ -143,7 +143,7 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 }
 
 
-#ifdef FOUND_CPP17_FILESYSTEM_LIB
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
   bool success = true;
   try {

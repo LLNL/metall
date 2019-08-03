@@ -400,11 +400,9 @@ priv_allocate_large_object(const bin_no_type bin_no) {
 
 // ---------------------------------------- For deallocation ---------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void
-manager_kernel<chnk_no, chnk_sz, alloc_t>::
-priv_deallocate_small_object(const difference_type offset,
-                             const chunk_no_type chunk_no,
-                             const bin_no_type bin_no) {
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_small_object(const difference_type offset,
+                                                                             const chunk_no_type chunk_no,
+                                                                             const bin_no_type bin_no) {
 
   const size_type object_size = bin_no_mngr::to_object_size(bin_no);
   const auto slot_no = static_cast<chunk_slot_no_type>((offset % k_chunk_size) / object_size);
@@ -415,9 +413,11 @@ priv_deallocate_small_object(const difference_type offset,
 
   const bool was_full = m_chunk_directory.all_slots_marked(chunk_no);
   m_chunk_directory.unmark_slot(chunk_no, slot_no);
+
   if (was_full) {
     m_bin_directory.insert(bin_no, chunk_no);
   } else if (m_chunk_directory.all_slots_unmarked(chunk_no)) {
+    // All slots in the chunk are not used, deallocate it
     {
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
       lock_guard_type chunk_guard(m_chunk_mutex);
@@ -426,7 +426,61 @@ priv_deallocate_small_object(const difference_type offset,
       priv_free_chunk(chunk_no, 1);
     }
     m_bin_directory.erase(bin_no, chunk_no);
+
+    return;
   }
+
+#ifdef METALL_FREE_SPACE_FOR_SMALL_OBJECT
+  try_free_slot(object_size, chunk_no, slot_no);
+#endif
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::try_free_slot(const size_type object_size,
+                                                              const chunk_no_type chunk_no,
+                                                              const chunk_slot_no_type slot_no) {
+
+  // To simplify the implementation, free slots only when object_size is at least double of the page size
+  if (object_size < m_segment_storage.page_size() * 2) return;
+
+  difference_type range_begin = chunk_no * k_chunk_size + slot_no * object_size;
+
+  // Adjust the beginning of the range to free if it is not page aligned
+  if (range_begin % m_segment_storage.page_size() != 0) {
+    assert(slot_no > 0); // Assume that chunk is page aligned
+
+    if (m_chunk_directory.unmarked_slot(chunk_no - 1, slot_no)) {
+      // The previous slot is not used, so round down the range_begin to align it with the page size
+      range_begin -= range_begin % m_segment_storage.page_size();
+    } else {
+      // Round up to the next multiple of page size
+      // The cut region will be freed when the previous slot is freed
+      range_begin = util::round_up(range_begin, m_segment_storage.page_size());
+    }
+  }
+
+  difference_type range_end = chunk_no * k_chunk_size + slot_no * object_size + object_size;
+  // Adjust the end of the range to free if it is not page aligned
+  // Use the same logic as range_begin
+  if (range_end % m_segment_storage.page_size() != 0) {
+
+    // If this is the last slot of the chunk, the end position must be page aligned
+    assert(object_size * (slot_no + 1) < k_chunk_size);
+
+    if (m_chunk_directory.unmarked_slot(chunk_no + 1, slot_no)) {
+      range_end = util::round_up(range_end, m_segment_storage.page_size());
+    } else {
+      range_end -= range_end % m_segment_storage.page_size();
+    }
+  }
+
+  assert(range_begin % m_segment_storage.page_size() == 0);
+  assert(range_end % m_segment_storage.page_size() == 0);
+  assert(range_begin < range_end);
+  const size_type free_size = range_end - range_begin;
+  assert(free_size % m_segment_storage.page_size() == 0);
+
+  m_segment_storage.free_region(range_begin, free_size);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>

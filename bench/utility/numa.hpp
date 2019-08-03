@@ -6,7 +6,7 @@
 #ifndef METALL_BENCH_UTILITY_NUMA_HPP
 #define METALL_BENCH_UTILITY_NUMA_HPP
 
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
 #include <numa.h>
 #else
 #warning "Does not use NUMA"
@@ -16,7 +16,7 @@
 
 namespace numa {
 bool available() noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   return ::numa_available();
 #else
   return false;
@@ -24,7 +24,7 @@ bool available() noexcept {
 }
 
 int get_avail_nodes() noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   return ::numa_num_task_nodes();
 #else
   return 1;
@@ -32,7 +32,7 @@ int get_avail_nodes() noexcept {
 }
 
 int get_node([[maybe_unused]] const int thread_id) noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   return thread_id % get_avail_nodes();
 #else
   return 0;
@@ -40,7 +40,7 @@ int get_node([[maybe_unused]] const int thread_id) noexcept {
 }
 
 int set_node([[maybe_unused]] const int thread_id) noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   struct bitmask * mask = numa_bitmask_alloc(numa_num_possible_nodes());
   assert(mask);
   const int node = get_node(thread_id);
@@ -54,7 +54,7 @@ int set_node([[maybe_unused]] const int thread_id) noexcept {
 }
 
 int get_local_num_threads([[maybe_unused]] const int thread_id, const int num_threads) noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   const auto range = metall::detail::utility::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
   return range.second - range.first;
 #else
@@ -63,7 +63,7 @@ int get_local_num_threads([[maybe_unused]] const int thread_id, const int num_th
 }
 
 int get_local_thread_num(const int thread_id) noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   return thread_id / get_avail_nodes();
 #else
   return thread_id;
@@ -71,7 +71,7 @@ int get_local_thread_num(const int thread_id) noexcept {
 }
 
 void *alloc_local(const std::size_t size) noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   return ::numa_alloc_local(size);
 #else
   return ::malloc(size);
@@ -79,7 +79,7 @@ void *alloc_local(const std::size_t size) noexcept {
 }
 
 void free(void *start, [[maybe_unused]] const std::size_t size) noexcept {
-#ifdef USE_NUMA_LIB
+#ifdef METALL_USE_NUMA_LIB
   ::numa_free(start, size);
 #else
   ::free(start);

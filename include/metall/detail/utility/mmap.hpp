@@ -198,7 +198,7 @@ inline bool uncommit_shared_pages(void *const addr, const size_t length) {
 
 inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
                                        [[maybe_unused]] const size_t length) {
-#ifdef MADV_REMOVE
+#if defined(__linux__) and defined(MADV_REMOVE)
   if (::madvise(addr, length, MADV_REMOVE) != 0) {
     // ::perror("madvise MADV_REMOVE");
     // std::cerr << "errno: " << errno << std::endl;

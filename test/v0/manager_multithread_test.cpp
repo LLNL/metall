@@ -241,7 +241,7 @@ TEST(ManagerMultithreadsTest, SmallAllocDeallocSeparated) {
   run_alloc_dealloc_separated_test(allocation_size_list);
 }
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 
   const std::size_t num_allocations_per_size = 1024;
@@ -258,7 +258,7 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 }
 #endif
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocSeparated) {
 
   const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;
@@ -295,7 +295,7 @@ TEST(ManagerMultithreadsTest, SmallAllocDeallocMixed) {
   run_alloc_dealloc_mixed_and_write_value_test(allocation_size_list);
 }
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
 
   const std::size_t num_allocations_per_size = 1024;
@@ -312,7 +312,7 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
 }
 #endif
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
 
   const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;

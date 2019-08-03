@@ -257,10 +257,8 @@ class manager_kernel {
   void *priv_allocate_large_object(bin_no_type bin_no);
 
   // ---------------------------------------- For deallocation ---------------------------------------- //
-  void priv_deallocate_small_object(difference_type offset,
-                                    chunk_no_type chunk_no,
-                                    bin_no_type bin_no);
-
+  void priv_deallocate_small_object(difference_type offset, chunk_no_type chunk_no, bin_no_type bin_no);
+  void try_free_slot(size_type object_size, chunk_no_type chunk_no, chunk_slot_no_type slot_no);
   void priv_deallocate_large_object(chunk_no_type chunk_no, bin_no_type bin_no);
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
