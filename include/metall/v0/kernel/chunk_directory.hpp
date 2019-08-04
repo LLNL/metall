@@ -231,12 +231,13 @@ class chunk_directory {
   /// \param chunk_no
   /// \param slot_no
   /// \return
-  bool unmarked_slot(const chunk_no_type chunk_no, const slot_no_type slot_no) const {
+  bool slot_marked(const chunk_no_type chunk_no, const slot_no_type slot_no) const {
     assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no(chunk_no)));
-    return slot_no < num_slots && m_table[chunk_no].slot_occupancy.get(num_slots, slot_no);
+    assert(slot_no < num_slots);
+    return m_table[chunk_no].slot_occupancy.get(num_slots, slot_no);
   }
 
   /// \brief

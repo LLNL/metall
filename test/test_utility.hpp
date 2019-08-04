@@ -22,7 +22,7 @@ inline std::string get_test_dir() {
 }
 
 inline std::string test_file_path(const std::string &file_name) {
-  return get_test_dir() + "/" + file_name;
+  return get_test_dir() + "/metall_test_" + file_name;
 }
 
 }

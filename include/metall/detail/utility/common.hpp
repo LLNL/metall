@@ -43,6 +43,15 @@ inline constexpr int64_t round_up(const int64_t to_round, const int64_t base) no
   return ((to_round + static_cast<int64_t>(to_round >= 0) * (base - 1)) / base) * base;
 }
 
+/// \brief Rounds down to the nearest multiple of 'base'.
+/// base must not be 0.
+/// \param to_round
+/// \param base
+/// \return
+inline constexpr int64_t round_down(const int64_t to_round, const int64_t base) noexcept {
+  return ((to_round - static_cast<int64_t>(to_round < 0) * (base - 1)) / base) * base;
+}
+
 /// \brief Computes the base 'base' logarithm of 'n' at compile time.
 /// NOTE that this method causes a recursive function call if non-constexpr value is given
 /// \param n Input value

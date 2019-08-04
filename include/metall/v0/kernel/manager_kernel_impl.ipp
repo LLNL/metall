@@ -431,14 +431,17 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_small_object(con
   }
 
 #ifdef METALL_FREE_SPACE_FOR_SMALL_OBJECT
-  try_free_slot(object_size, chunk_no, slot_no);
+  priv_free_slot(object_size, chunk_no, slot_no);
 #endif
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::try_free_slot(const size_type object_size,
-                                                              const chunk_no_type chunk_no,
-                                                              const chunk_slot_no_type slot_no) {
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_free_slot(const size_type object_size,
+                                                               const chunk_no_type chunk_no,
+                                                               const chunk_slot_no_type slot_no) {
+
+  // This function assumes that small objects are equal to or smaller than the half chunk size
+  assert(object_size <= k_chunk_size / 2);
 
   // To simplify the implementation, free slots only when object_size is at least double of the page size
   if (object_size < m_segment_storage.page_size() * 2) return;
@@ -449,15 +452,17 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::try_free_slot(const size_type ob
   if (range_begin % m_segment_storage.page_size() != 0) {
     assert(slot_no > 0); // Assume that chunk is page aligned
 
-    if (m_chunk_directory.unmarked_slot(chunk_no - 1, slot_no)) {
-      // The previous slot is not used, so round down the range_begin to align it with the page size
-      range_begin -= range_begin % m_segment_storage.page_size();
-    } else {
+    if (m_chunk_directory.slot_marked(chunk_no, slot_no - 1)) {
       // Round up to the next multiple of page size
-      // The cut region will be freed when the previous slot is freed
+      // The left region will be freed when the previous slot is freed
       range_begin = util::round_up(range_begin, m_segment_storage.page_size());
+    } else {
+      // The previous slot is not used, so round down the range_begin to align it with the page size
+      range_begin = util::round_down(range_begin, m_segment_storage.page_size());
     }
   }
+  assert(range_begin % m_segment_storage.page_size() == 0);
+  assert(range_begin / k_chunk_size == chunk_no);
 
   difference_type range_end = chunk_no * k_chunk_size + slot_no * object_size + object_size;
   // Adjust the end of the range to free if it is not page aligned
@@ -467,15 +472,15 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::try_free_slot(const size_type ob
     // If this is the last slot of the chunk, the end position must be page aligned
     assert(object_size * (slot_no + 1) < k_chunk_size);
 
-    if (m_chunk_directory.unmarked_slot(chunk_no + 1, slot_no)) {
-      range_end = util::round_up(range_end, m_segment_storage.page_size());
+    if (m_chunk_directory.slot_marked(chunk_no, slot_no + 1)) {
+      range_end = util::round_down(range_end, m_segment_storage.page_size());
     } else {
-      range_end -= range_end % m_segment_storage.page_size();
+      range_end = util::round_up(range_end, m_segment_storage.page_size());
     }
   }
-
-  assert(range_begin % m_segment_storage.page_size() == 0);
   assert(range_end % m_segment_storage.page_size() == 0);
+  assert((range_end - 1) / k_chunk_size == chunk_no);
+
   assert(range_begin < range_end);
   const size_type free_size = range_end - range_begin;
   assert(free_size % m_segment_storage.page_size() == 0);
