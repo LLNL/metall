@@ -430,15 +430,20 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_small_object(con
     return;
   }
 
-#ifdef METALL_FREE_SPACE_FOR_SMALL_OBJECT
-  priv_free_slot(object_size, chunk_no, slot_no);
+#ifdef METALL_FREE_SMALL_OBJECT_SIZE_HINT
+  priv_free_slot(object_size, chunk_no, slot_no, METALL_FREE_SMALL_OBJECT_SIZE_HINT);
 #endif
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_free_slot(const size_type object_size,
                                                                const chunk_no_type chunk_no,
-                                                               const chunk_slot_no_type slot_no) {
+                                                               const chunk_slot_no_type slot_no,
+                                                               const size_type min_free_size_hint) {
+
+  // To simplify the implementation, free slots only when object_size is at least double of the page size
+  const size_type min_free_size = std::max((size_type)m_segment_storage.page_size() * 2, (size_type)min_free_size_hint);
+  if (object_size < min_free_size) return;
 
   // This function assumes that small objects are equal to or smaller than the half chunk size
   assert(object_size <= k_chunk_size / 2);

@@ -256,7 +256,10 @@ class manager_kernel {
 
   // ---------------------------------------- For deallocation ---------------------------------------- //
   void priv_deallocate_small_object(difference_type offset, chunk_no_type chunk_no, bin_no_type bin_no);
-  void priv_free_slot(size_type object_size, chunk_no_type chunk_no, chunk_slot_no_type slot_no);
+  void priv_free_slot(size_type object_size,
+                      chunk_no_type chunk_no,
+                      chunk_slot_no_type slot_no,
+                      const size_type min_free_size_hint);
   void priv_deallocate_large_object(chunk_no_type chunk_no, bin_no_type bin_no);
   void priv_free_chunk(chunk_no_type head_chunk_no, size_type num_chunks);
 
