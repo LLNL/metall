@@ -1,1 +1,3 @@
-add_executable(verify_file_clone verify_file_clone.cpp)
+add_subdirectory(file_clone)
+add_subdirectory(free_file_space)
+add_subdirectory(mmap)
