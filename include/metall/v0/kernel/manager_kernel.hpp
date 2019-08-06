@@ -31,6 +31,7 @@
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
+#include <metall/v0/kernel/allocator_kernel.hpp>
 
 #define ENABLE_MUTEX_IN_V0_MANAGER_KERNEL 1
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
@@ -45,7 +46,7 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <typename _chunk_no_type, std::size_t _chunk_size, typename _allocator_type>
+template <typename _chunk_no_type, std::size_t _chunk_size, typename _internal_data_allocator_type>
 class manager_kernel {
 
  public:
@@ -61,38 +62,30 @@ class manager_kernel {
 
   using chunk_no_type = _chunk_no_type;
   static constexpr std::size_t k_chunk_size = _chunk_size;
-  using allocator_type = _allocator_type;
+  using internal_data_allocator_type = _internal_data_allocator_type;
 
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  using self_type = manager_kernel<chunk_no_type, k_chunk_size, allocator_type>;
+  using self_type = manager_kernel<_chunk_no_type, _chunk_size, _internal_data_allocator_type>;
 
   static constexpr size_type k_max_size = 1ULL << 48ULL; // TODO: get from somewhere else
 
-  // For bin
-  using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
-  using bin_no_type = typename bin_no_mngr::bin_no_type;
-  static constexpr size_type k_num_small_bins = bin_no_mngr::num_small_bins();
   static constexpr const char *k_segment_file_name = "segment";
 
-  // For bin directory (NOTE: we only manage small bins)
-  using bin_directory_type = bin_directory<k_num_small_bins, chunk_no_type, allocator_type>;
-  static constexpr const char *k_bin_directory_file_name = "bin_directory";
-
-  // For chunk directory
-  using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size, allocator_type>;
-  using chunk_slot_no_type = typename chunk_directory_type::slot_no_type;
-  static constexpr const char *k_chunk_directory_file_name = "chunk_directory";
-
   // For named object directory
-  using named_object_directory_type = named_object_directory<difference_type, size_type, allocator_type>;
+  using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
   static constexpr const char *k_named_object_directory_file_name = "named_object_directory";
 
   // For data segment manager
   using segment_header_type = segment_header<k_chunk_size>;
   using segment_storage_type = segment_storage<difference_type, size_type, sizeof(segment_header_type)>;
+
+  // For actual memory allocatation
+  using segment_memory_allocator = allocator_kernel<chunk_no_type, size_type, difference_type,
+                                                    k_chunk_size, k_max_size,
+                                                    internal_data_allocator_type>;
 
   // For snapshot
   static constexpr size_type k_snapshot_no_safeguard = 1ULL << 20ULL; // Safeguard, you could increase this number
@@ -108,7 +101,7 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit manager_kernel(const allocator_type &allocator);
+  explicit manager_kernel(const internal_data_allocator_type &allocator);
   ~manager_kernel();
 
   manager_kernel(const manager_kernel &) = delete;
@@ -249,20 +242,6 @@ class manager_kernel {
                                   bool, // TODO implement 'dothrow'
                                   util::in_place_interface &table);
 
-  // ---------------------------------------- For allocation ---------------------------------------- //
-  void *priv_allocate_small_object(bin_no_type bin_no);
-
-  void *priv_allocate_large_object(bin_no_type bin_no);
-
-  // ---------------------------------------- For deallocation ---------------------------------------- //
-  void priv_deallocate_small_object(difference_type offset, chunk_no_type chunk_no, bin_no_type bin_no);
-  void priv_free_slot(size_type object_size,
-                      chunk_no_type chunk_no,
-                      chunk_slot_no_type slot_no,
-                      const size_type min_free_size_hint);
-  void priv_deallocate_large_object(chunk_no_type chunk_no, bin_no_type bin_no);
-  void priv_free_chunk(chunk_no_type head_chunk_no, size_type num_chunks);
-
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();
 
@@ -328,15 +307,13 @@ class manager_kernel {
   // Private fields
   // -------------------------------------------------------------------------------- //
   std::string m_file_base_path;
-  bin_directory_type m_bin_directory;
-  chunk_directory_type m_chunk_directory;
   named_object_directory_type m_named_object_directory;
   segment_storage_type m_segment_storage;
+  segment_memory_allocator m_segment_memory_allocator;
 
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
   mutex_type m_chunk_mutex;
   mutex_type m_named_object_directory_mutex;
-  std::array<mutex_type, k_num_small_bins> m_bin_mutex;
 #endif
 };
 

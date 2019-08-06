@@ -17,12 +17,11 @@ namespace kernel {
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 manager_kernel<chnk_no, chnk_sz, alloc_t>::
-manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::allocator_type &allocator)
+manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_allocator_type &allocator)
     : m_file_base_path(),
-      m_bin_directory(allocator),
-      m_chunk_directory(allocator),
       m_named_object_directory(allocator),
-      m_segment_storage() {}
+      m_segment_storage(),
+      m_segment_memory_allocator(allocator) {}
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
@@ -48,7 +47,6 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *path, const s
   }
 
   priv_init_segment_header();
-  m_chunk_directory.allocate(priv_num_chunks());
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -59,8 +57,6 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *path) {
     return false; // Note: this is not an fatal error due to open_or_create mode
   }
   priv_init_segment_header();
-
-  m_chunk_directory.allocate(priv_num_chunks());
 
   const auto snapshot_no = priv_find_next_snapshot_no(path);
   if (snapshot_no == 0) {
@@ -101,41 +97,25 @@ void *
 manager_kernel<chnk_no, chnk_sz, alloc_t>::
 allocate(const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type nbytes) {
   assert(priv_initialized());
-
-  const bin_no_type bin_no = bin_no_mngr::to_bin_no(nbytes);
-
-  if (bin_no < k_num_small_bins) {
-    return priv_allocate_small_object(bin_no);
-  }
-
-  return priv_allocate_large_object(bin_no);
+  const auto offset = m_segment_memory_allocator.allocate(nbytes, &m_segment_storage);
+  return static_cast<char *>(m_segment_storage.get_segment()) + offset;
 }
 
-// \TODO: implement
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void *
 manager_kernel<chnk_no, chnk_sz, alloc_t>::
-allocate_aligned(const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type,
-                 const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type) {
-  assert(false);
-  return nullptr;
+allocate_aligned(const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type nbytes,
+                 const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type alignment) {
+  const auto offset = m_segment_memory_allocator.allocate_aligned(nbytes, &m_segment_storage);
+  return static_cast<char *>(m_segment_storage.get_segment()) + offset;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void manager_kernel<chnk_no, chnk_sz, alloc_t>::deallocate(void *addr) {
   assert(priv_initialized());
-
   if (!addr) return;
-
   const difference_type offset = static_cast<char *>(addr) - static_cast<char *>(m_segment_storage.get_segment());
-  const chunk_no_type chunk_no = offset / k_chunk_size;
-  const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
-
-  if (bin_no < k_num_small_bins) {
-    priv_deallocate_small_object(offset, chunk_no, bin_no);
-  } else {
-    priv_deallocate_large_object(chunk_no, bin_no);
-  }
+  m_segment_memory_allocator.deallocate(offset, &m_segment_storage);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -285,12 +265,6 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_file_name(const std::string
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-typename manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_num_chunks() const {
-  return m_segment_storage.size() / k_chunk_size;
-}
-
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void
 manager_kernel<chnk_no, chnk_sz, alloc_t>::
 priv_init_segment_header() {
@@ -341,191 +315,29 @@ priv_generic_named_construct(const char_type *const name,
   return static_cast<T *>(ptr);
 }
 
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void
-manager_kernel<chnk_no, chnk_sz, alloc_t>::
-priv_free_chunk(const chunk_no_type head_chunk_no, const size_type num_chunks) {
-  const off_t offset = head_chunk_no * k_chunk_size;
-  const size_type length = num_chunks * k_chunk_size;
-  m_segment_storage.free_region(offset, length);
-}
-
-// ---------------------------------------- For allocation ---------------------------------------- //
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void *
-manager_kernel<chnk_no, chnk_sz, alloc_t>::
-priv_allocate_small_object(const bin_no_type bin_no) {
-  const size_type object_size = bin_no_mngr::to_object_size(bin_no);
-
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-  lock_guard_type bin_guard(m_bin_mutex[bin_no]);
-#endif
-
-  if (m_bin_directory.empty(bin_no)) {
-    chunk_no_type new_chunk_no;
-    {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-      lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-      new_chunk_no = m_chunk_directory.insert(bin_no);
-    }
-    m_bin_directory.insert(bin_no, new_chunk_no);
-  }
-
-  assert(!m_bin_directory.empty(bin_no));
-  const chunk_no_type chunk_no = m_bin_directory.front(bin_no);
-
-  assert(!m_chunk_directory.all_slots_marked(chunk_no));
-  const chunk_slot_no_type chunk_slot_no = m_chunk_directory.find_and_mark_slot(chunk_no);
-
-  if (m_chunk_directory.all_slots_marked(chunk_no)) {
-    m_bin_directory.pop(bin_no);
-  }
-
-  const difference_type offset = k_chunk_size * chunk_no + object_size * chunk_slot_no;
-  return static_cast<char *>(m_segment_storage.get_segment()) + offset;
-}
-
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void *
-manager_kernel<chnk_no, chnk_sz, alloc_t>::
-priv_allocate_large_object(const bin_no_type bin_no) {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-  lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-  const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
-  const difference_type offset = k_chunk_size * new_chunk_no;
-  return static_cast<char *>(m_segment_storage.get_segment()) + offset;
-}
-
-// ---------------------------------------- For deallocation ---------------------------------------- //
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_small_object(const difference_type offset,
-                                                                             const chunk_no_type chunk_no,
-                                                                             const bin_no_type bin_no) {
-
-  const size_type object_size = bin_no_mngr::to_object_size(bin_no);
-  const auto slot_no = static_cast<chunk_slot_no_type>((offset % k_chunk_size) / object_size);
-
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-  lock_guard_type bin_guard(m_bin_mutex[bin_no]);
-#endif
-
-  const bool was_full = m_chunk_directory.all_slots_marked(chunk_no);
-  m_chunk_directory.unmark_slot(chunk_no, slot_no);
-
-  if (was_full) {
-    m_bin_directory.insert(bin_no, chunk_no);
-  } else if (m_chunk_directory.all_slots_unmarked(chunk_no)) {
-    // All slots in the chunk are not used, deallocate it
-    {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-      lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-      m_chunk_directory.erase(chunk_no);
-      priv_free_chunk(chunk_no, 1);
-    }
-    m_bin_directory.erase(bin_no, chunk_no);
-
-    return;
-  }
-
-#ifdef METALL_FREE_SMALL_OBJECT_SIZE_HINT
-  priv_free_slot(object_size, chunk_no, slot_no, METALL_FREE_SMALL_OBJECT_SIZE_HINT);
-#endif
-}
-
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_free_slot(const size_type object_size,
-                                                               const chunk_no_type chunk_no,
-                                                               const chunk_slot_no_type slot_no,
-                                                               const size_type min_free_size_hint) {
-
-  // To simplify the implementation, free slots only when object_size is at least double of the page size
-  const size_type min_free_size = std::max((size_type)m_segment_storage.page_size() * 2, (size_type)min_free_size_hint);
-  if (object_size < min_free_size) return;
-
-  // This function assumes that small objects are equal to or smaller than the half chunk size
-  assert(object_size <= k_chunk_size / 2);
-
-  // To simplify the implementation, free slots only when object_size is at least double of the page size
-  if (object_size < m_segment_storage.page_size() * 2) return;
-
-  difference_type range_begin = chunk_no * k_chunk_size + slot_no * object_size;
-
-  // Adjust the beginning of the range to free if it is not page aligned
-  if (range_begin % m_segment_storage.page_size() != 0) {
-    assert(slot_no > 0); // Assume that chunk is page aligned
-
-    if (m_chunk_directory.slot_marked(chunk_no, slot_no - 1)) {
-      // Round up to the next multiple of page size
-      // The left region will be freed when the previous slot is freed
-      range_begin = util::round_up(range_begin, m_segment_storage.page_size());
-    } else {
-      // The previous slot is not used, so round down the range_begin to align it with the page size
-      range_begin = util::round_down(range_begin, m_segment_storage.page_size());
-    }
-  }
-  assert(range_begin % m_segment_storage.page_size() == 0);
-  assert(range_begin / k_chunk_size == chunk_no);
-
-  difference_type range_end = chunk_no * k_chunk_size + slot_no * object_size + object_size;
-  // Adjust the end of the range to free if it is not page aligned
-  // Use the same logic as range_begin
-  if (range_end % m_segment_storage.page_size() != 0) {
-
-    // If this is the last slot of the chunk, the end position must be page aligned
-    assert(object_size * (slot_no + 1) < k_chunk_size);
-
-    if (m_chunk_directory.slot_marked(chunk_no, slot_no + 1)) {
-      range_end = util::round_down(range_end, m_segment_storage.page_size());
-    } else {
-      range_end = util::round_up(range_end, m_segment_storage.page_size());
-    }
-  }
-  assert(range_end % m_segment_storage.page_size() == 0);
-  assert((range_end - 1) / k_chunk_size == chunk_no);
-
-  assert(range_begin < range_end);
-  const size_type free_size = range_end - range_begin;
-  assert(free_size % m_segment_storage.page_size() == 0);
-
-  m_segment_storage.free_region(range_begin, free_size);
-}
-
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void
-manager_kernel<chnk_no, chnk_sz, alloc_t>::
-priv_deallocate_large_object(const chunk_no_type chunk_no, const bin_no_type bin_no) {
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-  lock_guard_type chunk_guard(m_chunk_mutex);
-#endif
-  m_chunk_directory.erase(chunk_no);
-  const size_type num_chunks = bin_no_mngr::to_object_size(bin_no) / k_chunk_size;
-  priv_free_chunk(chunk_no, num_chunks);
-}
-
 // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
-  if (!m_bin_directory.serialize(priv_make_file_name(k_bin_directory_file_name).c_str()) ||
-      !m_chunk_directory.serialize(priv_make_file_name(k_chunk_directory_file_name).c_str()) ||
-      !m_named_object_directory.serialize(priv_make_file_name(k_named_object_directory_file_name).c_str())) {
-    std::cerr << "Failed to serialize internal data" << std::endl;
+  if (!m_named_object_directory.serialize(priv_make_file_name(k_named_object_directory_file_name).c_str())) {
+    std::cerr << "Failed to serialize named object directory" << std::endl;
     return false;
   }
+  if (!m_segment_memory_allocator.serialize(priv_make_file_name("segment_memory_allocator"))) {
+    return false;
+  }
+
   return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deserialize_management_data(const char *const base_path) {
-  if (!m_bin_directory.deserialize(priv_make_file_name(base_path, k_bin_directory_file_name).c_str()) ||
-      !m_chunk_directory.deserialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str()) ||
-      !m_named_object_directory.deserialize(priv_make_file_name(base_path,
-                                                                k_named_object_directory_file_name).c_str())) {
-    std::cerr << "Cannot deserialize internal data" << std::endl;
+  if (!m_named_object_directory.deserialize(priv_make_file_name(base_path, k_named_object_directory_file_name).c_str())) {
+    std::cerr << "Failed to deserialize named object directory" << std::endl;
+    return false;
+  }
+  if (!m_segment_memory_allocator.deserialize(priv_make_file_name(base_path, "segment_memory_allocator"))) {
     return false;
   }
   return true;
@@ -549,10 +361,11 @@ bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_all_backing_files(const char *const src_base_name,
                                                                        const char *const dst_base_name) {
   bool ret = true;
-  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_segment_file_name);
-  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_bin_directory_file_name);
-  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_chunk_directory_file_name);
-  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_named_object_directory_file_name);
+  assert(false); // TODO IMPLEMENT!!!
+//  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_segment_file_name);
+//  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_bin_directory_file_name);
+//  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_chunk_directory_file_name);
+//  ret &= priv_copy_backing_file(src_base_name, dst_base_name, k_named_object_directory_file_name);
 
   return ret;
 }
@@ -591,8 +404,9 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_all_backing_files(const c
   bool ret = true;
 
   ret &= priv_remove_backing_file(base_name, k_segment_file_name);
-  ret &= priv_remove_backing_file(base_name, k_chunk_directory_file_name);
-  ret &= priv_remove_backing_file(base_name, k_bin_directory_file_name);
+  assert(false); // TODO IMPLEMENT!!!
+//  ret &= priv_remove_backing_file(base_name, k_chunk_directory_file_name);
+//  ret &= priv_remove_backing_file(base_name, k_bin_directory_file_name);
   ret &= priv_remove_backing_file(base_name, k_named_object_directory_file_name);
 
   return ret;
@@ -634,13 +448,14 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_snapshot_diff_data(const char *s
 
   const std::string base_file_name = priv_make_snapshot_base_file_name(snapshot_base_path, snapshot_no);
 
+  assert(false); // TODO IMPLEMENT!!!
   // We take diff only for the segment data
-  if (!priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_chunk_directory_file_name) ||
-      !priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_bin_directory_file_name) ||
-      !priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_named_object_directory_file_name)) {
-    std::cerr << "Cannot snapshot backing file" << std::endl;
-    return false;
-  }
+//  if (!priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_chunk_directory_file_name) ||
+//      !priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_bin_directory_file_name) ||
+//      !priv_copy_backing_file(m_file_base_path.c_str(), base_file_name.c_str(), k_named_object_directory_file_name)) {
+//    std::cerr << "Cannot snapshot backing file" << std::endl;
+//    return false;
+//  }
 
   return priv_snapshot_segment_diff(base_file_name.c_str()) && reset_soft_dirty_bit();
 }
@@ -740,20 +555,21 @@ auto manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_get_soft_dirty_page_no_list
   const ssize_t page_size = util::get_page_size();
   assert(page_size > 0);
 
-  const size_type num_used_pages = m_chunk_directory.size() * k_chunk_size / page_size;
-  const size_type page_no_offset = reinterpret_cast<uint64_t>(m_segment_storage.get_segment()) / page_size;
-  for (size_type page_no = 0; page_no < num_used_pages; ++page_no) {
-    util::pagemap_reader pr;
-    const auto pagemap_value = pr.at(page_no_offset + page_no);
-    if (pagemap_value == util::pagemap_reader::error_value) {
-      std::cerr << "Cannot read pagemap at " << page_no
-                << " (" << (page_no_offset + page_no) * page_size << ")" << std::endl;
-      return list;
-    }
-    if (util::check_soft_dirty_page(pagemap_value)) {
-      list.emplace_back(page_no);
-    }
-  }
+  assert(false); // TODO IMPLEMENT!!!
+//  const size_type num_used_pages = m_chunk_directory.size() * k_chunk_size / page_size;
+//  const size_type page_no_offset = reinterpret_cast<uint64_t>(m_segment_storage.get_segment()) / page_size;
+//  for (size_type page_no = 0; page_no < num_used_pages; ++page_no) {
+//    util::pagemap_reader pr;
+//    const auto pagemap_value = pr.at(page_no_offset + page_no);
+//    if (pagemap_value == util::pagemap_reader::error_value) {
+//      std::cerr << "Cannot read pagemap at " << page_no
+//                << " (" << (page_no_offset + page_no) * page_size << ")" << std::endl;
+//      return list;
+//    }
+//    if (util::check_soft_dirty_page(pagemap_value)) {
+//      list.emplace_back(page_no);
+//    }
+//  }
 
   return list;
 }
