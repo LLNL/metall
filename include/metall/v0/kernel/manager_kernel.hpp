@@ -17,21 +17,16 @@
 
 #include <metall/offset_ptr.hpp>
 #include <metall/v0/kernel/manager_kernel_fwd.hpp>
-#include <metall/v0/kernel/bin_number_manager.hpp>
-#include <metall/v0/kernel/bin_directory.hpp>
-#include <metall/v0/kernel/chunk_directory.hpp>
-#include <metall/v0/kernel/named_object_directory.hpp>
-#include <metall/v0/kernel/segment_storage.hpp>
 #include <metall/v0/kernel/segment_header.hpp>
-#include <metall/v0/kernel/object_size_manager.hpp>
+#include <metall/v0/kernel/segment_storage/multifile_backed_segment_storage.hpp>
+#include <metall/v0/kernel/segment_allocator.hpp>
+#include <metall/v0/kernel/named_object_directory.hpp>
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/in_place_interface.hpp>
 #include <metall/detail/utility/array_construct.hpp>
-#include <metall/detail/utility/mmap.hpp>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
-#include <metall/v0/kernel/allocator_kernel.hpp>
 
 #define ENABLE_MUTEX_IN_V0_MANAGER_KERNEL 1
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
@@ -61,7 +56,7 @@ class manager_kernel {
   using id_type = uint16_t;
 
   using chunk_no_type = _chunk_no_type;
-  static constexpr std::size_t k_chunk_size = _chunk_size;
+  static constexpr size_type k_chunk_size = _chunk_size;
   using internal_data_allocator_type = _internal_data_allocator_type;
 
  private:
@@ -70,22 +65,25 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   using self_type = manager_kernel<_chunk_no_type, _chunk_size, _internal_data_allocator_type>;
 
-  static constexpr size_type k_max_size = 1ULL << 48ULL; // TODO: get from somewhere else
-
-  static constexpr const char *k_segment_file_name = "segment";
+  static constexpr size_type k_max_segment_size = 1ULL << 48ULL; // TODO: get from somewhere else
+  static constexpr size_type k_default_vm_reserve_size = 1ULL << 43ULL; // TODO: get from somewhere else
+  using segment_header_type = segment_header<k_chunk_size>;
 
   // For named object directory
   using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
-  static constexpr const char *k_named_object_directory_file_name = "named_object_directory";
+  static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
 
-  // For data segment manager
-  using segment_header_type = segment_header<k_chunk_size>;
-  using segment_storage_type = segment_storage<difference_type, size_type, sizeof(segment_header_type)>;
+  // For segment storage
+  static constexpr size_type k_initial_segment_size = 1ULL << 28ULL; // TODO: get from somewhere else
+  static constexpr const char *k_segment_prefix = "segment";
+  using segment_storage_type = multifile_backed_segment_storage<difference_type, size_type>;
 
-  // For actual memory allocatation
-  using segment_memory_allocator = allocator_kernel<chunk_no_type, size_type, difference_type,
-                                                    k_chunk_size, k_max_size,
-                                                    internal_data_allocator_type>;
+  // Actual memory allocation layer
+  static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";
+  using segment_memory_allocator = segment_allocator<chunk_no_type, size_type, difference_type,
+                                                     k_chunk_size, k_max_segment_size,
+                                                     segment_storage_type,
+                                                     internal_data_allocator_type>;
 
   // For snapshot
   static constexpr size_type k_snapshot_no_safeguard = 1ULL << 20ULL; // Safeguard, you could increase this number
@@ -116,13 +114,13 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   /// \brief Expect to be called by a single thread
   /// \param path
-  /// \param nbytes
-  void create(const char *path, size_type nbytes);
+  /// \param vm_reserve_size
+  void create(const char *path, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Expect to be called by a single thread
   /// \param path
   /// \return
-  bool open(const char *path);
+  bool open(const char *path, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Expect to be called by a single thread
   void close();
@@ -219,21 +217,16 @@ class manager_kernel {
 
  private:
   // -------------------------------------------------------------------------------- //
-  // Private types and static values
-  // -------------------------------------------------------------------------------- //
-
-  // -------------------------------------------------------------------------------- //
   // Private methods (not designed to be used by the base class)
   // -------------------------------------------------------------------------------- //
   static std::string priv_make_file_name(const std::string &base_name, const std::string &item_name);
 
   bool priv_initialized() const;
 
-  std::string priv_make_file_name(const std::string &item_name) const;
-
-  size_type priv_num_chunks() const;
-
-  void priv_init_segment_header();
+  bool priv_reserve_vm_region(size_type nbytes);
+  bool priv_release_vm_region();
+  bool priv_allocate_segment_header(void *addr);
+  bool priv_deallocate_segment_header();
 
   template <typename T>
   T *priv_generic_named_construct(const char_type *name,
@@ -307,12 +300,15 @@ class manager_kernel {
   // Private fields
   // -------------------------------------------------------------------------------- //
   std::string m_file_base_path;
+  size_type m_vm_region_size;
+  void *m_vm_region;
+  size_type m_segment_header_size;
+  segment_header_type *m_segment_header;
   named_object_directory_type m_named_object_directory;
   segment_storage_type m_segment_storage;
   segment_memory_allocator m_segment_memory_allocator;
 
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
-  mutex_type m_chunk_mutex;
   mutex_type m_named_object_directory_mutex;
 #endif
 };

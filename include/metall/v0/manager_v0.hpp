@@ -105,6 +105,12 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
     }
   }
 
+  manager_v0(create_only_t, const char *base_path,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
+    m_kernel.create(base_path);
+  }
+
   manager_v0(create_only_t, const char *base_path, const size_type capacity,
              const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
@@ -116,6 +122,14 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
       : m_kernel(allocator) {
     if (!m_kernel.open(base_path)) {
       m_kernel.create(base_path, capacity);
+    }
+  }
+
+  manager_v0(open_or_create_t, const char *base_path,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
+    if (!m_kernel.open(base_path)) {
+      m_kernel.create(base_path);
     }
   }
 

@@ -32,7 +32,7 @@ const std::string& file_path() {
 }
 
 TEST(ManagerTest, TinyAllocation) {
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size);
+  manager_type manager(metall::create_only, file_path().c_str());
 
   const std::size_t alloc_size = k_min_object_size / 2;
   char *base_addr = nullptr;
@@ -56,7 +56,7 @@ TEST(ManagerTest, TinyAllocation) {
 }
 
 TEST(ManagerTest, SmallAllocation) {
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size);
+  manager_type manager(metall::create_only, file_path().c_str());
 
   const std::size_t alloc_size = k_min_object_size;
   char *base_addr = nullptr;
@@ -80,7 +80,7 @@ TEST(ManagerTest, SmallAllocation) {
 }
 
 TEST(ManagerTest, MaxSmallAllocation) {
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size);
+  manager_type manager(metall::create_only, file_path().c_str());
 
   const std::size_t alloc_size = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1); // Max small object num_blocks
 
@@ -105,7 +105,7 @@ TEST(ManagerTest, MaxSmallAllocation) {
 }
 
 TEST(ManagerTest, MixedSmallAllocation) {
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size * 3);
+  manager_type manager(metall::create_only, file_path().c_str());
 
   const std::size_t alloc_size1 = k_min_object_size;
   const std::size_t alloc_size2 = k_min_object_size * 2;
@@ -155,7 +155,7 @@ TEST(ManagerTest, MixedSmallAllocation) {
 }
 
 TEST(ManagerTest, LargeAllocation) {
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size * 4);
+  manager_type manager(metall::create_only, file_path().c_str());
 
   char *base_addr = nullptr;
   {
@@ -186,7 +186,7 @@ TEST(ManagerTest, LargeAllocation) {
 }
 
 TEST(ManagerTest, StlAllocator) {
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size);
+  manager_type manager(metall::create_only, file_path().c_str());
 
   allocator_type<uint64_t> stl_allocator_instance(manager.get_allocator<uint64_t>());
   uint64_t *base_addr = nullptr;
@@ -211,7 +211,7 @@ TEST(ManagerTest, StlAllocator) {
 }
 
 TEST(ManagerTest, Container) {
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size * 8);
+  manager_type manager(metall::create_only, file_path().c_str());
   using element_type = std::pair<uint64_t, uint64_t>;
 
   boost::interprocess::vector<element_type, allocator_type<element_type>> vector(manager.get_allocator<>());
@@ -232,7 +232,7 @@ TEST(ManagerTest, NestedContainer) {
                                         std::equal_to<element_type>, // Equal function
                                         boost::container::scoped_allocator_adaptor<allocator_type<std::pair<const element_type, vector_type>>>>;
 
-  manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size * 8);
+  manager_type manager(metall::create_only, file_path().c_str());
 
   map_type map(manager.get_allocator<>());
   for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
@@ -249,7 +249,7 @@ TEST(ManagerTest, PersistentConstructFind) {
   using vector_type = boost::interprocess::vector<element_type, typename manager_type::allocator_type<element_type>>;
 
   {
-    manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size * 4);
+    manager_type manager(metall::create_only, file_path().c_str());
 
     int *a = manager.construct<int>("int")(10);
     ASSERT_EQ(*a, 10);
@@ -291,7 +291,7 @@ TEST(ManagerTest, PersistentConstructOrFind) {
   using vector_type = boost::interprocess::vector<element_type, typename manager_type::allocator_type<element_type>>;
 
   {
-    manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size * 4);
+    manager_type manager(metall::create_only, file_path().c_str());
     int *a = manager.find_or_construct<int>("int")(10);
     ASSERT_EQ(*a, 10);
 
@@ -331,7 +331,7 @@ TEST(ManagerTest, PersistentNestedContainer) {
                                         boost::container::scoped_allocator_adaptor<allocator_type<std::pair<const element_type, vector_type>>>>;
 
   {
-    manager_type manager(metall::create_only, file_path().c_str(), k_chunk_size * 8);
+    manager_type manager(metall::create_only, file_path().c_str());
     map_type *map = manager.construct<map_type>("map")(manager.get_allocator<>());
     (*map)[0].emplace_back(1);
     (*map)[0].emplace_back(2);
@@ -366,7 +366,7 @@ TEST(ManagerTest, Sync) {
 
   manager_type *manager;
   {
-    manager = new manager_type(metall::create_only, file_path().c_str(), k_chunk_size * 4);
+    manager = new manager_type(metall::create_only, file_path().c_str());
 
     int *a = manager->construct<int>("int")(10);
     ASSERT_EQ(*a, 10);
@@ -403,7 +403,7 @@ TEST(ManagerTest, Sync) {
 
 TEST(ManagerTest, AnonymousConstruct) {
   manager_type *manager;
-  manager = new manager_type(metall::create_only, file_path().c_str(), k_chunk_size);
+  manager = new manager_type(metall::create_only, file_path().c_str());
 
   int *const a = manager->construct<int>(metall::anonymous_instance)();
   ASSERT_NE(a, nullptr);
@@ -422,7 +422,7 @@ TEST(ManagerTest, AnonymousConstruct) {
 
 TEST(ManagerTest, UniqueConstruct) {
   manager_type *manager;
-  manager = new manager_type(metall::create_only, file_path().c_str(), k_chunk_size);
+  manager = new manager_type(metall::create_only, file_path().c_str());
 
   int *const a = manager->construct<int>(metall::unique_instance)();
   ASSERT_NE(a, nullptr);
