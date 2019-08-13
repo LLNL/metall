@@ -64,16 +64,12 @@ class manager_kernel {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
   using self_type = manager_kernel<_chunk_no_type, _chunk_size, _internal_data_allocator_type>;
+  static constexpr const char *k_datastore_dir_name = "metall_datastore";
 
-  static constexpr size_type k_max_segment_size = 1ULL << 48ULL; // TODO: get from somewhere else
+  // For segment
   static constexpr size_type k_default_vm_reserve_size = 1ULL << 43ULL; // TODO: get from somewhere else
+  static constexpr size_type k_max_segment_size = 1ULL << 48ULL; // TODO: get from somewhere else
   using segment_header_type = segment_header<k_chunk_size>;
-
-  // For named object directory
-  using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
-  static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
-
-  // For segment storage
   static constexpr size_type k_initial_segment_size = 1ULL << 28ULL; // TODO: get from somewhere else
   static constexpr const char *k_segment_prefix = "segment";
   using segment_storage_type = multifile_backed_segment_storage<difference_type, size_type>;
@@ -84,6 +80,10 @@ class manager_kernel {
                                                      k_chunk_size, k_max_segment_size,
                                                      segment_storage_type,
                                                      internal_data_allocator_type>;
+
+  // For named object directory
+  using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
+  static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
 
   // For snapshot
   static constexpr size_type k_snapshot_no_safeguard = 1ULL << 20ULL; // Safeguard, you could increase this number
@@ -221,12 +221,9 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   static std::string priv_make_file_name(const std::string &base_name, const std::string &item_name);
 
-  bool priv_initialized() const;
+  bool priv_set_up_datastore_directory(const std::string &dir_path);
 
-  bool priv_reserve_vm_region(size_type nbytes);
-  bool priv_release_vm_region();
-  bool priv_allocate_segment_header(void *addr);
-  bool priv_deallocate_segment_header();
+  bool priv_initialized() const;
 
   template <typename T>
   T *priv_generic_named_construct(const char_type *name,
@@ -234,6 +231,12 @@ class manager_kernel {
                                   bool try2find,
                                   bool, // TODO implement 'dothrow'
                                   util::in_place_interface &table);
+
+  // ---------------------------------------- For segment ---------------------------------------- //
+  bool priv_reserve_vm_region(size_type nbytes);
+  bool priv_release_vm_region();
+  bool priv_allocate_segment_header(void *addr);
+  bool priv_deallocate_segment_header();
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();
@@ -299,7 +302,7 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  std::string m_file_base_path;
+  std::string m_dir_path;
   size_type m_vm_region_size;
   void *m_vm_region;
   size_type m_segment_header_size;

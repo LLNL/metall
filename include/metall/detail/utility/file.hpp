@@ -91,6 +91,28 @@ inline bool create_file(const std::string &file_name) {
   return true;
 }
 
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
+inline bool create_dir(const std::string &dir_path) {
+  bool success = true;
+  try {
+    if (!fs::create_directories(dir_path)) {
+      success = false;
+    }
+  } catch (fs::filesystem_error &e) {
+    // std::cerr << e.what() << std::endl;
+    success = false;
+  }
+  return success;
+}
+#else
+inline bool create_dir(const std::string &dir_path) {
+  if (::mkdir(dir_path.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
+    return false;
+  }
+  return true;
+}
+#endif
+
 inline ssize_t get_file_size(const std::string &file_name) {
   std::ifstream ifs(file_name, std::ifstream::binary | std::ifstream::ate);
   ssize_t size = ifs.tellg();
@@ -118,11 +140,11 @@ inline bool remove_file(const std::string &file_name) {
   return (std::remove(file_name.c_str()) == 0);
 }
 
+/// \brief Check if a file or directory exist
 inline bool file_exist(const std::string &file_name) {
   struct stat statbuf;
   return (::stat(file_name.c_str(), &statbuf) == 0);
 }
-
 
 inline bool free_file_space([[maybe_unused]] const int fd,
                             [[maybe_unused]] const off_t off,
