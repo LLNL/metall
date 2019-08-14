@@ -11,7 +11,7 @@ option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
-option(BUILD_VERFICATION "Build verification directory" OFF)
+option(BUILD_VERIFICATION "Build verification directory" OFF)
 
 # ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
@@ -176,7 +176,7 @@ if (Boost_FOUND)
         add_subdirectory(test)
     endif ()
 
-    if (BUILD_VERFICATION)
+    if (BUILD_VERIFICATION)
         add_subdirectory(verification)
     endif ()
 

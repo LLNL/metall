@@ -60,7 +60,7 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *dir_path, con
 
   const size_type size_for_header = m_segment_header_size
       + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
-  if (!m_segment_storage.create(priv_make_file_name(m_dir_path, k_segment_prefix),
+  if (!m_segment_storage.create(priv_make_file_name(k_segment_prefix),
                                 m_vm_region_size - size_for_header,
                                 static_cast<char *>(m_vm_region) + size_for_header,
                                 k_initial_segment_size)) {
@@ -85,14 +85,14 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *dir_path,
 
   const size_type offset = m_segment_header_size
       + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
-  if (!m_segment_storage.open(priv_make_file_name(m_dir_path, k_segment_prefix),
+  if (!m_segment_storage.open(priv_make_file_name(k_segment_prefix),
                               m_vm_region_size - offset,
                               static_cast<char *>(m_vm_region) + offset,
                               read_only)) {
     return false; // Note: this is not an fatal error due to open_or_create mode
   }
 
-  return priv_deserialize_management_data(m_dir_path.c_str());
+  return priv_deserialize_management_data();
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -271,15 +271,14 @@ std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const 
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_file_name(const std::string &base_name,
-                                                               const std::string &item_name) {
-  return base_name + "_" + item_name;
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_file_name(const std::string &item_name) {
+  return m_dir_path + "/" + item_name;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_set_datastore_directory(const std::string &dir_path) {
-  m_dir_path = dir_path + "/" + k_datastore_dir_name + "/";
+  m_dir_path = dir_path + "/" + k_datastore_dir_name;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -423,12 +422,11 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
 
   if (m_segment_storage.read_only()) return false;
 
-  if (!m_named_object_directory.serialize(priv_make_file_name(m_dir_path,
-                                                              k_named_object_directory_prefix).c_str())) {
+  if (!m_named_object_directory.serialize(priv_make_file_name(k_named_object_directory_prefix).c_str())) {
     std::cerr << "Failed to serialize named object directory" << std::endl;
     return false;
   }
-  if (!m_segment_memory_allocator.serialize(priv_make_file_name(m_dir_path, k_segment_memory_allocator_prefix))) {
+  if (!m_segment_memory_allocator.serialize(priv_make_file_name(k_segment_memory_allocator_prefix))) {
     return false;
   }
 
@@ -437,12 +435,12 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deserialize_management_data(const std::string &base_path) {
-  if (!m_named_object_directory.deserialize(priv_make_file_name(base_path, k_named_object_directory_prefix).c_str())) {
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deserialize_management_data() {
+  if (!m_named_object_directory.deserialize(priv_make_file_name(k_named_object_directory_prefix).c_str())) {
     std::cerr << "Failed to deserialize named object directory" << std::endl;
     return false;
   }
-  if (!m_segment_memory_allocator.deserialize(priv_make_file_name(base_path, k_segment_memory_allocator_prefix))) {
+  if (!m_segment_memory_allocator.deserialize(priv_make_file_name(k_segment_memory_allocator_prefix))) {
     return false;
   }
   return true;
@@ -488,4 +486,3 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::str
 } // namespace metall
 
 #endif //METALL_DETAIL_V0_KERNEL_MANAGER_KERNEL_IMPL_IPP
-

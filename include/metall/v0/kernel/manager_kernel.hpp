@@ -215,7 +215,7 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private methods (not designed to be used by the base class)
   // -------------------------------------------------------------------------------- //
-  static std::string priv_make_file_name(const std::string &base_name, const std::string &item_name);
+  std::string priv_make_file_name(const std::string &item_name);
   void priv_set_datastore_directory(const std::string &dir_path);
   bool priv_init_datastore_directory(const std::string &dir_path);
 
@@ -236,8 +236,7 @@ class manager_kernel {
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();
-
-  bool priv_deserialize_management_data(const std::string &base_path);
+  bool priv_deserialize_management_data();
 
   // ---------------------------------------- File operations ---------------------------------------- //
   /// \brief Copies all backing files using reflink if possible
