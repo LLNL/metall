@@ -38,7 +38,8 @@ class multifile_backed_segment_storage {
         m_vm_region_size(0),
         m_current_segment_size(0),
         m_segment(nullptr),
-        m_base_path() {
+        m_base_path(),
+        m_read_only() {
     if (!load_system_page_size()) {
       std::abort();
     }
@@ -58,7 +59,8 @@ class multifile_backed_segment_storage {
       m_vm_region_size(other.m_vm_region_size),
       m_current_segment_size(other.m_current_segment_size),
       m_segment(other.m_segment),
-      m_base_path(other.m_base_path) {
+      m_base_path(other.m_base_path),
+      m_read_only(other.m_read_only){
     other.priv_reset();
   }
 
@@ -69,6 +71,7 @@ class multifile_backed_segment_storage {
     m_current_segment_size = other.m_current_segment_size;
     m_segment = other.m_segment;
     m_base_path = other.m_base_path;
+    m_read_only = other.m_read_only;
 
     other.priv_reset();
 
@@ -84,6 +87,7 @@ class multifile_backed_segment_storage {
               const size_type initial_segment_size) {
     assert(!priv_inited());
 
+
     // TODO: align those values to pge size
     if (initial_segment_size % page_size() != 0 || vm_region_size % page_size() != 0
         || (uint64_t)vm_region % page_size() != 0) {
@@ -94,6 +98,8 @@ class multifile_backed_segment_storage {
     m_base_path = base_path;
     m_vm_region_size = vm_region_size;
     m_segment = vm_region;
+    m_read_only = false;
+
     const auto segment_size = std::min(vm_region_size, initial_segment_size);
     if (!priv_create_and_map_file(m_base_path, 0, segment_size, m_segment)) {
       priv_reset();
@@ -105,7 +111,7 @@ class multifile_backed_segment_storage {
     return true;
   }
 
-  bool open(const std::string &base_path, const size_type vm_region_size, void *const vm_region) {
+  bool open(const std::string &base_path, const size_type vm_region_size, void *const vm_region, const bool read_only) {
     assert(!priv_inited());
 
     // TODO: align those values to pge size
@@ -117,6 +123,7 @@ class multifile_backed_segment_storage {
     m_base_path = base_path;
     m_vm_region_size = vm_region_size;
     m_segment = vm_region;
+    m_read_only = read_only;
 
     m_num_blocks = 0;
     while (true) {
@@ -127,7 +134,7 @@ class multifile_backed_segment_storage {
 
       const auto file_size = util::get_file_size(file_name);
       assert(file_size % page_size() == 0);
-      if (!priv_map_file(file_name, file_size, static_cast<char *>(m_segment) + m_current_segment_size)) {
+      if (!priv_map_file(file_name, file_size, static_cast<char *>(m_segment) + m_current_segment_size, read_only)) {
         std::abort(); // Fatal error
       }
       m_current_segment_size += file_size;
@@ -139,6 +146,10 @@ class multifile_backed_segment_storage {
 
   bool extend(const size_type new_segment_size) {
     assert(priv_inited());
+
+    if (m_read_only) {
+      return false;
+    }
 
     if (new_segment_size > m_vm_region_size) {
       std::cerr << "Requested segment size is too big" << std::endl;
@@ -186,6 +197,10 @@ class multifile_backed_segment_storage {
     return m_system_page_size;
   }
 
+  bool read_only() const {
+    return m_read_only;
+  }
+
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
@@ -204,6 +219,7 @@ class multifile_backed_segment_storage {
     m_vm_region_size = 0;
     m_current_segment_size = 0;
     m_segment = nullptr;
+    // m_read_only = false;
   }
 
   bool priv_inited() const {
@@ -222,13 +238,13 @@ class multifile_backed_segment_storage {
     if (!util::extend_file_size(file_name, file_size)) return false;
     assert(static_cast<size_type>(util::get_file_size(file_name)) >= file_size);
 
-    if (!priv_map_file(file_name, file_size, addr)) {
+    if (!priv_map_file(file_name, file_size, addr, false)) {
       return false;
     }
     return true;
   }
 
-  bool priv_map_file(const std::string &path, const size_type file_size, void *const addr) const {
+  bool priv_map_file(const std::string &path, const size_type file_size, void *const addr, const bool read_only) const {
     assert(!path.empty());
     assert(file_size > 0);
     assert(addr);
@@ -239,7 +255,10 @@ class multifile_backed_segment_storage {
 #else
         0;
 #endif
-    const auto ret = util::map_file_write_mode(path, addr, file_size, 0, MAP_FIXED | map_nosync);
+
+    const auto ret = (read_only) ?
+                     util::map_file_read_mode(path, addr, file_size, 0, MAP_FIXED) :
+                     util::map_file_write_mode(path, addr, file_size, 0, MAP_FIXED | map_nosync);
     if (ret.first == -1 || !ret.second) {
       std::cerr << "Failed to map a file: " << path << std::endl;
       if (ret.first == -1) ::close(ret.first);
@@ -261,14 +280,14 @@ class multifile_backed_segment_storage {
   }
 
   void priv_sync_segment(const bool sync) {
-    if (!priv_inited()) return;
+    if (!priv_inited() || m_read_only) return;
 
     util::os_msync(m_segment, m_current_segment_size, sync);
     // util::os_fsync(m_fd);
   }
 
   void priv_free_region(const different_type offset, const size_type nbytes) {
-    if (!priv_inited()) return;
+    if (!priv_inited() || m_read_only) return;
 
     if (offset + nbytes > m_current_segment_size) return;
 
@@ -293,6 +312,7 @@ class multifile_backed_segment_storage {
   size_type m_current_segment_size{0};
   void *m_segment{nullptr};
   std::string m_base_path;
+  bool m_read_only;
 };
 
 } // namespace kernel

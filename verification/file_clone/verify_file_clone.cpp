@@ -72,6 +72,7 @@ void validate_file(const std::string &file_path,
   util::munmap(ret.first, ret.second, size, false);
 }
 
+// FIXME: check sparse copy
 int main(int argc, char *argv[]) {
 
   const std::string source_file_path(argv[1]);

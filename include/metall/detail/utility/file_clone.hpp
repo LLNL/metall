@@ -26,7 +26,8 @@ namespace utility {
 namespace detail {
 #ifdef __linux__
 inline bool clone_file_linux(const std::string& source_path, const std::string& destination_path) {
-#ifdef FICLONE
+#if 0
+ #ifdef FICLONE
   const int source_fd = ::open(source_path.c_str(), O_RDONLY);
   if (source_fd == -1) {
     const std::string err_msg("open " + source_path);
@@ -57,17 +58,28 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
 #warning "ioctl_ficlone is not supported"
   return copy_file(source_path, destination_path); // Copy normally
 #endif
+#else
+  std::string rm_command("cp --reflink=auto -R " + source_path + " " + destination_path);
+  std::system(rm_command.c_str());
+#endif
+  return true;
 }
 #endif
 
 #ifdef __APPLE__
 inline bool clone_file_macos(const std::string& source_path, const std::string& destination_path) {
+#if 0
   if (::clonefile(source_path.c_str(), destination_path.c_str(), 0) == -1) {
     ::perror("clonefile");
     std::cerr << "errno: " << errno << std::endl;
     return false;
   }
   return true;
+#else
+  std::string rm_command("cp -cR " + source_path + " " + destination_path);
+  std::system(rm_command.c_str());
+  return true;
+#endif
 }
 #endif
 }// namespace detail
@@ -88,7 +100,7 @@ inline bool clone_file(const std::string& source_path, const std::string& destin
 #endif
 
   if(ret && sync) {
-    ret &= fsync(destination_path);
+    ret &= metall::detail::utility::fsync(destination_path);
   }
 
   return ret;

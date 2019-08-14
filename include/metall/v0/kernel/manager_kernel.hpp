@@ -25,6 +25,7 @@
 #include <metall/detail/utility/in_place_interface.hpp>
 #include <metall/detail/utility/array_construct.hpp>
 #include <metall/detail/utility/file.hpp>
+#include <metall/detail/utility/file_clone.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
 
@@ -120,7 +121,7 @@ class manager_kernel {
   /// \brief Expect to be called by a single thread
   /// \param path
   /// \return
-  bool open(const char *path, size_type vm_reserve_size = k_default_vm_reserve_size);
+  bool open(const char *path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Expect to be called by a single thread
   void close();
@@ -176,38 +177,33 @@ class manager_kernel {
   segment_header_type *get_segment_header() const;
 
   /// \brief
-  /// \param base_path
+  /// \param destination_dir_path
   /// \return
-  bool snapshot(const char *destination_base_path);
-
-  /// \brief
-  /// \param destination_base_path
-  /// \return
-  bool snapshot_diff(const char *destination_base_path);
+  bool snapshot(const char *destination_dir_path);
 
   /// \brief Copies backing files synchronously
-  /// \param source_base_path
-  /// \param destination_base_path
+  /// \param source_dir_path
+  /// \param destination_dir_path
   /// \return If succeeded, returns True; other false
-  static bool copy_file(const char *source_base_path, const char *destination_base_path);
+  static bool copy(const char *source_dir_path, const char *destination_dir_path);
 
   /// \brief Copies backing files asynchronously
-  /// \param source_base_path
-  /// \param destination_base_path
+  /// \param source_dir_path
+  /// \param destination_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
-  static std::future<bool> copy_file_async(const char *source_base_path, const char *destination_base_path);
+  static std::future<bool> copy_async(const char *source_dir_path, const char *destination_dir_path);
 
   /// \brief Remove backing files synchronously
-  /// \param base_path
+  /// \param dir_path
   /// \return If succeeded, returns True; other false
-  static bool remove_file(const char *base_path);
+  static bool remove(const char *dir_path);
 
   /// \brief Remove backing files asynchronously
-  /// \param base_path
+  /// \param dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
-  static std::future<bool> remove_file_async(const char *base_path);
+  static std::future<bool> remove_async(const char *dir_path);
 
   /// \brief Show some profile infromation
   /// \tparam out_stream_type
@@ -219,9 +215,9 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private methods (not designed to be used by the base class)
   // -------------------------------------------------------------------------------- //
-  static std::string priv_make_file_name(const std::string &base_name, const std::string &item_name);
-
-  bool priv_set_up_datastore_directory(const std::string &dir_path);
+  static std::string priv_make_datastore_dir_path(const std::string &base_dir_path);
+  static std::string priv_make_file_name(const std::string &base_dir_path, const std::string &item_name);
+  static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   bool priv_initialized() const;
 
@@ -240,69 +236,19 @@ class manager_kernel {
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();
-
-  bool priv_deserialize_management_data(const char *base_path);
+  bool priv_deserialize_management_data();
 
   // ---------------------------------------- File operations ---------------------------------------- //
-  static bool priv_copy_backing_file(const char *src_base_name,
-                                     const char *dst_base_name,
-                                     const char *item_name);
-
-  /// \brief Copies all backing files
-  static bool priv_copy_all_backing_files(const char *src_base_name,
-                                          const char *dst_base_name);
-
-  /// \brief Copies all backing files including snapshots
-  static bool priv_copy_all_backing_files(const char *src_base_name,
-                                          const char *dst_base_name,
-                                          size_type max_snapshot_no);
-
-  static bool priv_remove_backing_file(const char *base_name, const char *item_name);
+  /// \brief Copies all backing files using reflink if possible
+  static bool priv_copy_data_store(const std::string &src_dir_path, const std::string &dst_dir_path, bool overwrite);
 
   /// \brief Removes all backing files
-  static bool priv_remove_all_backing_files(const char *base_name);
-
-  /// \brief Removes all backing files including snapshots
-  static bool priv_remove_all_backing_files(const char *base_name,
-                                            size_type max_snapshot_no);
-
-  // ---------------------------------------- Snapshot ---------------------------------------- //
-  bool priv_snapshot_entire_data(const char *snapshot_base_path) const;
-
-  bool priv_snapshot_diff_data(const char *snapshot_base_path) const;
-
-  static std::string priv_make_snapshot_base_file_name(const std::string &base_name,
-                                                       size_type snapshot_no);
-
-  static std::vector<std::string> priv_make_all_snapshot_base_file_names(const std::string &base_name,
-                                                                         size_type max_snapshot_no);
-
-  static bool reset_soft_dirty_bit();
-
-  /// \brief Assume the minimum snapshot number is 1
-  /// \param snapshot_base_path
-  /// \return Returns 0 on error
-  static size_type priv_find_next_snapshot_no(const char *snapshot_base_path);
-
-  /// \brief Format of a diff file:
-  /// Line 1: #of diff pages (N) in the file
-  /// Line [2 ~ N+1): list of diff page numbers
-  /// Line [N+1 + 2N +1): list of diffs by page
-  bool priv_snapshot_segment_diff(const char *snapshot_base_file_name) const;
-
-  auto priv_get_soft_dirty_page_no_list() const;
-
-  auto priv_merge_segment_diff_list(const char *snapshot_base_path,
-                                    size_type max_snapshot_no) const;
-
-  bool priv_apply_segment_diff(const char *snapshot_base_path,
-                               size_type max_snapshot_no,
-                               const std::map<size_type, std::pair<size_type, size_type>> &segment_diff_list);
+  static bool priv_remove_data_store(const std::string &dir_path);
 
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  std::string m_dir_path;
+  std::string m_base_dir_path;
   size_type m_vm_region_size;
   void *m_vm_region;
   size_type m_segment_header_size;
