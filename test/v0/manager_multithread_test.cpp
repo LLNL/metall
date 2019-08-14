@@ -115,8 +115,6 @@ template <typename list_type>
 void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
 
   // Allocate manager
-  const std::size_t file_size = std::accumulate(allocation_size_list.begin(), allocation_size_list.end(),
-                                                static_cast<std::size_t>(0));
   const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   manager_type manager(metall::create_only, file.c_str());
 

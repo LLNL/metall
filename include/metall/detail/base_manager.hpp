@@ -117,7 +117,7 @@ class base_manager {
   /// \tparam T  The type of the object.
   /// \param name The name of the object.
   /// \return Returns a pointer to the object and the count (if it is not an array, returns 1).
-  /// If not present, the returned pointer is 0.
+  /// If not present, the returned pointer is nullptr.
   // Example:
   // std::pair<MyType *,std::size_t> ret = managed_memory_segment.find<MyType>("Name");
   template <typename T>

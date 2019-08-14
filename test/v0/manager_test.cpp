@@ -31,6 +31,69 @@ const std::string& file_path() {
   return path;
 }
 
+TEST(ManagerTest, CreateAndOpenModes) {
+  {
+    manager_type::remove(file_path().c_str());
+    {
+      manager_type manager(metall::create_only, file_path().c_str());
+      [[maybe_unused]] int *a = manager.construct<int>("int")(10);
+    }
+    {
+      manager_type manager(metall::create_only, file_path().c_str());
+      auto ret = manager.find<int>("int");
+      ASSERT_EQ(ret.first, nullptr);
+    }
+  }
+
+  {
+    manager_type::remove(file_path().c_str());
+    {
+      manager_type manager(metall::create_only, file_path().c_str());
+      [[maybe_unused]] int *a = manager.construct<int>("int")(10);
+    }
+    {
+      manager_type manager(metall::open_only, file_path().c_str());
+      auto ret = manager.find<int>("int");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(*(static_cast<int*>(ret.first)), 10);
+    }
+  }
+
+  {
+    manager_type::remove(file_path().c_str());
+    {
+      manager_type manager(metall::open_or_create, file_path().c_str());
+      [[maybe_unused]] int *a = manager.construct<int>("int")(10);
+    }
+    {
+      manager_type manager(metall::open_or_create, file_path().c_str());
+      auto ret = manager.find<int>("int");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(*(static_cast<int*>(ret.first)), 10);
+    }
+  }
+
+  {
+    manager_type::remove(file_path().c_str());
+    {
+      manager_type manager(metall::create_only, file_path().c_str());
+      [[maybe_unused]] int *a = manager.construct<int>("int")(10);
+    }
+    {
+      manager_type manager(metall::open_read_only, file_path().c_str());
+      auto ret = manager.find<int>("int");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(*(static_cast<int*>(ret.first)), 10);
+    }
+    {
+      manager_type manager(metall::open_only, file_path().c_str());
+      auto ret = manager.find<int>("int");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(*(static_cast<int*>(ret.first)), 10);
+    }
+  }
+}
+
 TEST(ManagerTest, TinyAllocation) {
   manager_type manager(metall::create_only, file_path().c_str());
 

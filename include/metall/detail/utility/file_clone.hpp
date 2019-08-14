@@ -88,7 +88,7 @@ inline bool clone_file(const std::string& source_path, const std::string& destin
 #endif
 
   if(ret && sync) {
-    ret &= fsync(destination_path);
+    ret &= metall::detail::utility::fsync(destination_path);
   }
 
   return ret;

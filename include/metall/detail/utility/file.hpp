@@ -8,7 +8,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -17,8 +16,11 @@
 #include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
 #endif
 
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <fstream>
+
 #ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 #include <filesystem>
 #endif
@@ -92,7 +94,7 @@ inline bool create_file(const std::string &file_name) {
 }
 
 #ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
-inline bool create_dir(const std::string &dir_path) {
+inline bool create_directory(const std::string &dir_path) {
   bool success = true;
   try {
     if (!fs::create_directories(dir_path)) {
@@ -105,7 +107,7 @@ inline bool create_dir(const std::string &dir_path) {
   return success;
 }
 #else
-inline bool create_dir(const std::string &dir_path) {
+inline bool create_directory(const std::string &dir_path) {
   if (::mkdir(dir_path.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
     return false;
   }
@@ -136,14 +138,27 @@ inline ssize_t get_actual_file_size(const std::string &file_name) {
   return statbuf.st_blocks * 512LL;
 }
 
-inline bool remove_file(const std::string &file_name) {
-  return (std::remove(file_name.c_str()) == 0);
-}
-
-/// \brief Check if a file or directory exist
+/// \brief Check if a file, any kinds of file including directory, exists
 inline bool file_exist(const std::string &file_name) {
   struct stat statbuf;
   return (::stat(file_name.c_str(), &statbuf) == 0);
+}
+
+/// \brief Check if a directory exists
+inline bool directory_exist(const std::string &dir_path) {
+  struct stat statbuf;
+  if (::stat(dir_path.c_str(), &statbuf) == -1) {
+    return false;
+  }
+  return (uint64_t)S_IFDIR & (uint64_t)(statbuf.st_mode);
+}
+
+/// FIXME: change to a better way
+/// \brief Remove a fil or directoy
+inline bool remove_file(const std::string &file_name) {
+  std::string rm_command("rm -rf " + file_name);
+  std::system(rm_command.c_str());
+  return true;
 }
 
 inline bool free_file_space([[maybe_unused]] const int fd,
@@ -242,8 +257,9 @@ inline bool os_fsync(const int fd) {
   return true;
 }
 
+// FIXME: Add a mode that calls fsync recursively
 inline bool fsync(const std::string &path) {
-  const int fd = ::open(path.c_str(), O_RDWR);
+  const int fd = ::open(path.c_str(), O_RDONLY);
   if (fd == -1) {
     ::perror("open");
     std::cerr << "errno: " << errno << std::endl;
