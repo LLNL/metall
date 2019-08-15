@@ -13,8 +13,15 @@
 
 namespace {
 
-void open(const std::string& file_name) {
-  metall::manager manager(metall::open_only, file_name.c_str());
+void create(const std::string &dir_path) {
+  metall::manager manager(metall::create_only, dir_path.c_str());
+
+  manager.construct<uint32_t>("a")(1);
+  manager.construct<uint64_t>("b")(2);
+}
+
+void open(const std::string &dir_path) {
+  metall::manager manager(metall::open_read_only, dir_path.c_str());
 
   auto a = manager.find<uint32_t>("a").first;
   ASSERT_EQ(*a, 1);
@@ -23,12 +30,12 @@ void open(const std::string& file_name) {
   ASSERT_EQ(*b, 2);
 }
 
-const std::string& original_dir_path() {
+const std::string &original_dir_path() {
   const static std::string file_path(test_utility::test_file_path("CopyFileTest"));
   return file_path;
 }
 
-const std::string& copy_dir_path() {
+const std::string &copy_dir_path() {
   const static std::string file_path(test_utility::test_file_path("CopyFileTest_copy"));
   return file_path;
 }
@@ -37,24 +44,10 @@ TEST(CopyFileTest, SyncCopy) {
   metall::manager::remove(original_dir_path().c_str());
   metall::manager::remove(copy_dir_path().c_str());
 
-  {
-    metall::manager manager(metall::create_only, original_dir_path().c_str());
+  create(original_dir_path());
 
-    manager.construct<uint32_t>("a")(1);
+  ASSERT_TRUE(metall::manager::copy(original_dir_path().c_str(), copy_dir_path().c_str()));
 
-    manager.construct<uint64_t>("b")(2);
-
-    manager.sync();
-
-    ASSERT_TRUE(metall::manager::copy(original_dir_path().c_str(), copy_dir_path().c_str()));
-
-    // Check sparse file copy
-    EXPECT_EQ(metall::detail::utility::get_file_size(original_dir_path() + "_segment"),
-              metall::detail::utility::get_file_size(copy_dir_path() + "_segment"));
-
-    EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_dir_path() + "_segment"),
-              metall::detail::utility::get_actual_file_size(copy_dir_path() + "_segment"));
-  }
   open(copy_dir_path());
 }
 
@@ -62,25 +55,11 @@ TEST(CopyFileTest, AsyncCopy) {
   metall::manager::remove(original_dir_path().c_str());
   metall::manager::remove(copy_dir_path().c_str());
 
-  {
-    metall::manager manager(metall::create_only, original_dir_path().c_str());
+  create(original_dir_path());
 
-    manager.construct<uint32_t>("a")(1);
+  auto handler = metall::manager::copy_async(original_dir_path().c_str(), copy_dir_path().c_str());
+  ASSERT_TRUE(handler.get());
 
-    manager.construct<uint64_t>("b")(2);
-
-    manager.sync();
-
-    auto handler = metall::manager::copy_async(original_dir_path().c_str(), copy_dir_path().c_str());
-    ASSERT_TRUE(handler.get());
-
-    // Check sparse file copy
-    EXPECT_EQ(metall::detail::utility::get_file_size(original_dir_path() + "_segment"),
-              metall::detail::utility::get_file_size(copy_dir_path() + "_segment"));
-
-    EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_dir_path() + "_segment"),
-              metall::detail::utility::get_actual_file_size(copy_dir_path() + "_segment"));
-  }
   open(copy_dir_path());
 }
 }

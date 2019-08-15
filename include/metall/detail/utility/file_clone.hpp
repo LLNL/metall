@@ -24,6 +24,7 @@ namespace detail {
 namespace utility {
 
 namespace detail {
+#if 0
 #ifdef __linux__
 inline bool clone_file_linux(const std::string& source_path, const std::string& destination_path) {
 #ifdef FICLONE
@@ -57,17 +58,26 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
 #warning "ioctl_ficlone is not supported"
   return copy_file(source_path, destination_path); // Copy normally
 #endif
+#else
+  std::string rm_command("cp --reflink=auto -R " + source_path + " " + destination_path);
+  std::system(rm_command.c_str());
+#endif
 }
 #endif
 
 #ifdef __APPLE__
 inline bool clone_file_macos(const std::string& source_path, const std::string& destination_path) {
+#if 0
   if (::clonefile(source_path.c_str(), destination_path.c_str(), 0) == -1) {
     ::perror("clonefile");
     std::cerr << "errno: " << errno << std::endl;
     return false;
   }
   return true;
+#else
+  std::string rm_command("cp -cR " + source_path + " " + destination_path);
+  std::system(rm_command.c_str());
+#endif
 }
 #endif
 }// namespace detail

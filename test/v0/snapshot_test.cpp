@@ -19,38 +19,30 @@
 
 namespace {
 
-std::string original_file_path() {
+std::string original_dir_path() {
   const std::string path(test_utility::test_file_path("SnapshotTest"));
   return path;
 }
 
-std::string snapshot_file_path() {
+std::string snapshot_dir_path() {
   const std::string path(test_utility::test_file_path("SnapshotTest_snapshot"));
   return path;
 }
 
 TEST(SnapshotTest, Snapshot) {
-  metall::manager::remove(original_file_path().c_str());
-  metall::manager::remove(snapshot_file_path().c_str());
+  metall::manager::remove(original_dir_path().c_str());
+  metall::manager::remove(snapshot_dir_path().c_str());
 
-  metall::manager manager(metall::create_only, original_file_path().c_str());
+  metall::manager manager(metall::create_only, original_dir_path().c_str());
 
   [[maybe_unused]] auto a = manager.construct<uint32_t>("a")(1);
   [[maybe_unused]] auto b = manager.construct<uint64_t>("b")(2);
 
-  ASSERT_TRUE(manager.snapshot(snapshot_file_path().c_str()));
-
-  // Check sparse file copy
-  // Could fail if the underling file system does not support sparse copy
-  EXPECT_EQ(metall::detail::utility::get_file_size(original_file_path() + "_segment"),
-            metall::detail::utility::get_file_size(snapshot_file_path() + "_segment"));
-
-  EXPECT_EQ(metall::detail::utility::get_actual_file_size(original_file_path() + "_segment"),
-            metall::detail::utility::get_actual_file_size(snapshot_file_path() + "_segment"));
+  ASSERT_TRUE(manager.snapshot(snapshot_dir_path().c_str()));
 }
 
 TEST(SnapshotTest, Open) {
-  metall::manager manager(metall::open_only, snapshot_file_path().c_str());
+  metall::manager manager(metall::open_only, snapshot_dir_path().c_str());
 
   auto a = manager.find<uint32_t>("a").first;
   ASSERT_EQ(*a, 1);

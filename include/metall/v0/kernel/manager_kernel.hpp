@@ -215,9 +215,9 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private methods (not designed to be used by the base class)
   // -------------------------------------------------------------------------------- //
-  std::string priv_make_file_name(const std::string &item_name);
-  void priv_set_datastore_directory(const std::string &dir_path);
-  bool priv_init_datastore_directory(const std::string &dir_path);
+  static std::string priv_make_datastore_dir_path(const std::string &base_dir_path);
+  static std::string priv_make_file_name(const std::string &base_dir_path, const std::string &item_name);
+  static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   bool priv_initialized() const;
 
@@ -248,7 +248,7 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  std::string m_dir_path;
+  std::string m_base_dir_path;
   size_type m_vm_region_size;
   void *m_vm_region;
   size_type m_segment_header_size;

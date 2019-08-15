@@ -18,7 +18,7 @@ namespace kernel {
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 manager_kernel<chnk_no, chnk_sz, alloc_t>::
 manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_allocator_type &allocator)
-    : m_dir_path(),
+    : m_base_dir_path(),
       m_vm_region_size(0),
       m_vm_region(nullptr),
       m_segment_header_size(0),
@@ -40,13 +40,15 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
 // Public methods
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *dir_path, const size_type vm_reserve_size) {
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path, const size_type vm_reserve_size) {
   if (vm_reserve_size > k_max_segment_size) {
     std::cerr << "Too large VM region size is requested " << vm_reserve_size << " byte." << std::endl;
     std::abort();
   }
 
-  if (!priv_init_datastore_directory(dir_path)) {
+  m_base_dir_path = base_dir_path;
+
+  if (!priv_init_datastore_directory(base_dir_path)) {
     std::abort();
   }
 
@@ -60,7 +62,7 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *dir_path, con
 
   const size_type size_for_header = m_segment_header_size
       + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
-  if (!m_segment_storage.create(priv_make_file_name(k_segment_prefix),
+  if (!m_segment_storage.create(priv_make_file_name(m_base_dir_path, k_segment_prefix),
                                 m_vm_region_size - size_for_header,
                                 static_cast<char *>(m_vm_region) + size_for_header,
                                 k_initial_segment_size)) {
@@ -70,10 +72,10 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *dir_path, con
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *dir_path,
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                                                      const bool read_only,
                                                      const size_type vm_reserve_size) {
-  priv_set_datastore_directory(dir_path);
+  m_base_dir_path = base_dir_path;
 
   if (!priv_reserve_vm_region(vm_reserve_size)) {
     std::abort();
@@ -85,7 +87,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *dir_path,
 
   const size_type offset = m_segment_header_size
       + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
-  if (!m_segment_storage.open(priv_make_file_name(k_segment_prefix),
+  if (!m_segment_storage.open(priv_make_file_name(m_base_dir_path, k_segment_prefix),
                               m_vm_region_size - offset,
                               static_cast<char *>(m_vm_region) + offset,
                               read_only)) {
@@ -133,7 +135,7 @@ allocate_aligned(const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type nbyt
                  const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type alignment) {
   assert(priv_initialized());
   if (m_segment_storage.read_only()) return nullptr;
-  const auto offset = m_segment_memory_allocator.allocate_aligned(nbytes);
+  const auto offset = m_segment_memory_allocator.allocate_aligned(nbytes, alignment);
   assert(offset + nbytes <= m_segment_storage.size());
   return static_cast<char *>(m_segment_storage.get_segment()) + offset;
 }
@@ -238,15 +240,16 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::get_segment_header() const {
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination_dir_path) {
-  assert(!priv_initialized());
-  return priv_copy_data_store(m_dir_path, destination_dir_path, true);
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination_base_dir_path) {
+  assert(priv_initialized());
+  sync(true);
+  return priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::copy(const char *source_dir_path,
-                                                     const char *destination_dir_path) {
-  return priv_copy_data_store(source_dir_path, destination_dir_path, true);
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::copy(const char *source_base_dir_path,
+                                                     const char *destination_base_dir_path) {
+  return priv_copy_data_store(source_base_dir_path, destination_base_dir_path, true);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -271,31 +274,32 @@ std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const 
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_file_name(const std::string &item_name) {
-  return m_dir_path + "/" + item_name;
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_datastore_dir_path(const std::string &base_dir_path) {
+  return base_dir_path + "/" + k_datastore_dir_name;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_set_datastore_directory(const std::string &dir_path) {
-  m_dir_path = dir_path + "/" + k_datastore_dir_name;
+std::string
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_file_name(const std::string &base_dir_path,
+                                                               const std::string &item_name) {
+  return priv_make_datastore_dir_path(base_dir_path) + "/" + item_name;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const std::string &dir_path) {
-  if (!util::file_exist(dir_path)) {
-    if (!util::create_directory(dir_path)) {
-      std::cerr << "Failed to create directory: " << dir_path << std::endl;
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const std::string &base_dir_path) {
+  // Create the base directory if needed
+  if (!util::file_exist(base_dir_path)) {
+    if (!util::create_directory(base_dir_path)) {
+      std::cerr << "Failed to create directory: " << base_dir_path << std::endl;
       return false;
     }
   }
 
-  priv_set_datastore_directory(dir_path);
-
-  if (!util::file_exist(m_dir_path)) {
-    if (!util::create_directory(m_dir_path)) {
-      std::cerr << "Failed to create directory: " << m_dir_path << std::endl;
+  // Create the datastore directory if needed
+  if (!util::file_exist(priv_make_datastore_dir_path(base_dir_path))) {
+    if (!util::create_directory(priv_make_datastore_dir_path(base_dir_path))) {
+      std::cerr << "Failed to create directory: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
       return false;
     }
   }
@@ -305,7 +309,7 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const s
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_initialized() const {
-  assert(!m_dir_path.empty());
+  assert(!m_base_dir_path.empty());
   assert(m_segment_storage.get_segment());
   return (m_vm_region && m_vm_region_size > 0 && m_segment_header && m_segment_storage.size() > 0);
 }
@@ -422,11 +426,12 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
 
   if (m_segment_storage.read_only()) return false;
 
-  if (!m_named_object_directory.serialize(priv_make_file_name(k_named_object_directory_prefix).c_str())) {
+  if (!m_named_object_directory.serialize(priv_make_file_name(m_base_dir_path,
+                                                              k_named_object_directory_prefix).c_str())) {
     std::cerr << "Failed to serialize named object directory" << std::endl;
     return false;
   }
-  if (!m_segment_memory_allocator.serialize(priv_make_file_name(k_segment_memory_allocator_prefix))) {
+  if (!m_segment_memory_allocator.serialize(priv_make_file_name(m_base_dir_path, k_segment_memory_allocator_prefix))) {
     return false;
   }
 
@@ -436,11 +441,13 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deserialize_management_data() {
-  if (!m_named_object_directory.deserialize(priv_make_file_name(k_named_object_directory_prefix).c_str())) {
+  if (!m_named_object_directory.deserialize(priv_make_file_name(m_base_dir_path,
+                                                                k_named_object_directory_prefix).c_str())) {
     std::cerr << "Failed to deserialize named object directory" << std::endl;
     return false;
   }
-  if (!m_segment_memory_allocator.deserialize(priv_make_file_name(k_segment_memory_allocator_prefix))) {
+  if (!m_segment_memory_allocator.deserialize(priv_make_file_name(m_base_dir_path,
+                                                                  k_segment_memory_allocator_prefix))) {
     return false;
   }
   return true;
@@ -449,27 +456,26 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deserialize_management_data() {
 // ---------------------------------------- File operations ---------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::string &src_dir_path,
-                                                                const std::string &dst_dir_path,
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::string &src_base_dir_path,
+                                                                const std::string &dst_base_dir_path,
                                                                 const bool overwrite) {
-  if (!util::directory_exist(src_dir_path)) {
-    std::cerr << "Source directory does not exist: " << src_dir_path << std::endl;
+  const std::string src_datastore_dir_path = priv_make_datastore_dir_path(src_base_dir_path);
+  if (!util::directory_exist(src_datastore_dir_path)) {
+    std::cerr << "Source directory does not exist: " << src_datastore_dir_path << std::endl;
     return false;
   }
 
-  if (util::file_exist(dst_dir_path)) {
-    if (overwrite && util::directory_exist(dst_dir_path)) {
-      if (!util::remove_file(dst_dir_path)) {
-        std::cerr << "Failed to remove destination directory: " << dst_dir_path << std::endl;
-        return false;
-      }
-    } else {
-      std::cerr << "File/directory is already exist: " << dst_dir_path << std::endl;
+  if (!util::file_exist(dst_base_dir_path)) {
+    if (!util::create_directory(dst_base_dir_path)) {
+      std::cerr << "Failed to create directory: " << dst_base_dir_path << std::endl;
       return false;
     }
   }
 
-  return util::clone_file(src_dir_path, dst_dir_path, true);
+  const std::string dst_datastore_dir_path = priv_make_datastore_dir_path(dst_base_dir_path);
+
+  assert(*(src_datastore_dir_path.end()) != '/');
+  return util::clone_file(src_datastore_dir_path, dst_datastore_dir_path, true);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>

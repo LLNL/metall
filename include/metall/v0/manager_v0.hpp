@@ -59,7 +59,7 @@ struct manager_type_holder {
 /// \tparam kernel_allocator_type
 /// The type of the internal allocator
 template <typename chunk_no_type = uint32_t,
-          std::size_t k_chunk_size = 1 << 21,
+    std::size_t k_chunk_size = 1 << 21,
           typename kernel_allocator_type = std::allocator<char>>
 class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type, k_chunk_size, kernel_allocator_type>,
                                                        detail::manager_type_holder<chunk_no_type,
@@ -155,11 +155,11 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
 
   // ---------------------------------------- v0's unique functions ---------------------------------------- //
 
-  /// \brief Snapshot the entier data
-  /// \param base_path The prefix of the snapshot files
+  /// \brief Snapshot the entire data
+  /// \param destination_dir_path The prefix of the snapshot files
   /// \return Returns true on success; other false
-  bool snapshot(char_ptr_holder_type base_path) {
-    return m_kernel.snapshot(base_path);
+  bool snapshot(const char *destination_dir_path) {
+    return m_kernel.snapshot(destination_dir_path);
   }
 
   /// \brief Copies backing files synchronously
