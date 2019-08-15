@@ -62,6 +62,7 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
   std::string rm_command("cp --reflink=auto -R " + source_path + " " + destination_path);
   std::system(rm_command.c_str());
 #endif
+  return true;
 }
 #endif
 
@@ -77,6 +78,7 @@ inline bool clone_file_macos(const std::string& source_path, const std::string& 
 #else
   std::string rm_command("cp -cR " + source_path + " " + destination_path);
   std::system(rm_command.c_str());
+  return true;
 #endif
 }
 #endif
