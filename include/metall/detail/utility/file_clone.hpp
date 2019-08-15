@@ -24,10 +24,10 @@ namespace detail {
 namespace utility {
 
 namespace detail {
-#if 0
 #ifdef __linux__
 inline bool clone_file_linux(const std::string& source_path, const std::string& destination_path) {
-#ifdef FICLONE
+#if 0
+ #ifdef FICLONE
   const int source_fd = ::open(source_path.c_str(), O_RDONLY);
   if (source_fd == -1) {
     const std::string err_msg("open " + source_path);
