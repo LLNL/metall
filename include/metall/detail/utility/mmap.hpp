@@ -177,7 +177,9 @@ inline bool uncommit_private_pages(void *const addr, const size_t length) {
     return false;
   }
 #else
-  #warning "MADV_FREE is not defined. Metall uses MADV_DONTNEED instead."
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#warning "MADV_FREE is not defined. Metall uses MADV_DONTNEED instead."
+#endif
   if (::madvise(addr, length, MADV_DONTNEED) != 0) {
     // ::perror("madvise MADV_DONTNEED");
     // std::cerr << "errno: " << errno << std::endl;
@@ -206,7 +208,9 @@ inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
   }
   return true;
 #else
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "MADV_REMOVE is not supported. Metall cannot free file space."
+#endif
   return uncommit_shared_pages(addr, length);
 #endif
 }
