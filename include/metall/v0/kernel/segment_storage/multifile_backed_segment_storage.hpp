@@ -286,12 +286,16 @@ class multifile_backed_segment_storage {
     // util::os_fsync(m_fd);
   }
 
-  void priv_free_region(const different_type offset, const size_type nbytes) {
-    if (!priv_inited() || m_read_only) return;
+  bool priv_free_region(const different_type offset, const size_type nbytes) {
+    if (!priv_inited() || m_read_only) return false;
 
-    if (offset + nbytes > m_current_segment_size) return;
+    if (offset + nbytes > m_current_segment_size) return false;
 
-    util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
+#ifdef METALL_DONT_FREE_FILE_SPACE
+    return util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
+#else
+    return util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
+#endif
   }
 
   bool load_system_page_size() {
