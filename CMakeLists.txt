@@ -12,7 +12,6 @@ option(BUILD_DOC "Build documentation" OFF)
 option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
-option(DONT_FREE_FILE_SPACE "Do not free backing file space" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 
 # ---------- Experimental options ---------- #
@@ -89,11 +88,6 @@ if (USE_ANONYMOUS_MAP)
     add_compile_definitions(METALL_USE_ANONYMOUS_MAP)
     message(STATUS "Use anonymous mapping.")
 endif ()
-
-if (DONT_FREE_FILE_SPACE)
-    add_compile_definitions(METALL_DONT_FREE_FILE_SPACE)
-    message(STATUS "Do not free backing file space")
-endif()
 
 if (FREE_SMALL_OBJECT_SIZE_HINT)
     add_compile_definitions(METALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
