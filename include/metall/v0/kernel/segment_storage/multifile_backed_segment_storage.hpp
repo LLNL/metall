@@ -25,11 +25,6 @@ class multifile_backed_segment_storage {
 
  public:
   // -------------------------------------------------------------------------------- //
-  // Public types and static values
-  // -------------------------------------------------------------------------------- //
-
- public:
-  // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
   multifile_backed_segment_storage()
@@ -39,7 +34,8 @@ class multifile_backed_segment_storage {
         m_current_segment_size(0),
         m_segment(nullptr),
         m_base_path(),
-        m_read_only() {
+        m_read_only(),
+        m_free_file_space(true) {
     if (!load_system_page_size()) {
       std::abort();
     }
@@ -60,7 +56,8 @@ class multifile_backed_segment_storage {
       m_current_segment_size(other.m_current_segment_size),
       m_segment(other.m_segment),
       m_base_path(other.m_base_path),
-      m_read_only(other.m_read_only){
+      m_read_only(other.m_read_only),
+      m_free_file_space(other.m_free_file_space) {
     other.priv_reset();
   }
 
@@ -72,6 +69,7 @@ class multifile_backed_segment_storage {
     m_segment = other.m_segment;
     m_base_path = other.m_base_path;
     m_read_only = other.m_read_only;
+    m_free_file_space = other.m_free_file_space;
 
     other.priv_reset();
 
@@ -108,6 +106,8 @@ class multifile_backed_segment_storage {
     m_current_segment_size += segment_size;
     m_num_blocks = 1;
 
+    priv_test_file_space_free(base_path);
+
     return true;
   }
 
@@ -139,6 +139,10 @@ class multifile_backed_segment_storage {
       }
       m_current_segment_size += file_size;
       ++m_num_blocks;
+    }
+
+    if (!read_only) {
+      priv_test_file_space_free(base_path);
     }
 
     assert(false);
@@ -291,11 +295,10 @@ class multifile_backed_segment_storage {
 
     if (offset + nbytes > m_current_segment_size) return false;
 
-#ifdef METALL_DONT_FREE_FILE_SPACE
-    return util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
-#else
-    return util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
-#endif
+    if (m_free_file_space)
+      return util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    else
+      return util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
   }
 
   bool load_system_page_size() {
@@ -305,6 +308,40 @@ class multifile_backed_segment_storage {
       return false;
     }
     return true;
+  }
+
+  void priv_test_file_space_free(const std::string &base_path) {
+    assert(m_system_page_size > 0);
+    const std::string file_path(base_path + "_test");
+    const size_type file_size = m_system_page_size * 2;
+
+    if (!util::create_file(file_path)) return;
+    if (!util::extend_file_size(file_path, file_size)) return;
+    assert(static_cast<size_type>(util::get_file_size(file_path)) >= file_size);
+
+    const auto ret = util::map_file_write_mode(file_path, nullptr, file_size, 0);
+    if (ret.first == -1 || !ret.second) {
+      std::cerr << "Failed to map a file: " << file_path << std::endl;
+      if (ret.first == -1) ::close(ret.first);
+      return;
+    }
+    ::close(ret.first);
+
+    // Test freeing file space
+    char* buf = static_cast<char*>(ret.second);
+    buf[0] = 0;
+    if (util::uncommit_file_backed_pages(ret.second, file_size)) {
+      m_free_file_space = true;
+    } else {
+      m_free_file_space = false;
+    }
+
+    // Closing
+    util::munmap(ret.second, file_size, false);
+    if (!util::remove_file(file_path) ){
+      std::cerr << "Failed to remove a file: " << file_path << std::endl;
+      return;
+    }
   }
 
   /// -------------------------------------------------------------------------------- ///
@@ -317,6 +354,7 @@ class multifile_backed_segment_storage {
   void *m_segment{nullptr};
   std::string m_base_path;
   bool m_read_only;
+  bool m_free_file_space{true};
 };
 
 } // namespace kernel
