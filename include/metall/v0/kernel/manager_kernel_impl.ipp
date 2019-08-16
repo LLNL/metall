@@ -458,7 +458,7 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::string &src_base_dir_path,
                                                                 const std::string &dst_base_dir_path,
-                                                                const bool overwrite) {
+                                                                [[maybe_unused]] const bool overwrite) {
   const std::string src_datastore_dir_path = priv_make_datastore_dir_path(src_base_dir_path);
   if (!util::directory_exist(src_datastore_dir_path)) {
     std::cerr << "Source directory does not exist: " << src_datastore_dir_path << std::endl;

@@ -128,7 +128,9 @@ inline std::pair<std::size_t, std::size_t> get_num_page_faults()
   }
   fclose(f);
 #else
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "get_num_page_faults() is not supported in this environment"
+#endif
 #endif
   return std::make_pair(minflt, majflt);
 }

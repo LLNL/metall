@@ -174,7 +174,9 @@ inline bool free_file_space([[maybe_unused]] const int fd,
   return true;
 
 #else
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "FALLOC_FL_PUNCH_HOLE or FALLOC_FL_KEEP_SIZE is not supported"
+#endif
   return false;
 #endif
 }

@@ -13,6 +13,7 @@ option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(DONT_FREE_FILE_SPACE "Do not free backing file space" OFF)
+option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 
 # ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
@@ -97,6 +98,11 @@ endif()
 if (FREE_SMALL_OBJECT_SIZE_HINT)
     add_compile_definitions(METALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
     message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
+endif()
+
+if (VERBOSE_SYSTEM_SUPPORT_WARNING)
+    add_compile_definitions(METALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
+    message(STATUS "Show compile time warning regarding system support")
 endif()
 
 # -------------------------------------------------------------------------------- #

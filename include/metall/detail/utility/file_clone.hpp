@@ -55,8 +55,10 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
 
   return true;
 #else
-#warning "ioctl_ficlone is not supported"
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+  #warning "ioctl_ficlone is not supported"
   return copy_file(source_path, destination_path); // Copy normally
+#endif
 #endif
 #else
   std::string rm_command("cp --reflink=auto -R " + source_path + " " + destination_path);
@@ -95,7 +97,9 @@ inline bool clone_file(const std::string& source_path, const std::string& destin
 #elif defined(__APPLE__)
   ret = detail::clone_file_macos(source_path, destination_path);
 #else
-  #warning "Copy file normally instead of cloning"
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#warning "Copy file normally instead of cloning"
+#endif
   ret = copy_file(source_path, destination_path); // Copy normally
 #endif
 
