@@ -36,7 +36,7 @@ class multifile_backed_segment_storage {
         m_base_path(),
         m_read_only(),
         m_free_file_space(true) {
-    if (!load_system_page_size()) {
+    if (!priv_load_system_page_size()) {
       std::abort();
     }
   }
@@ -301,7 +301,7 @@ class multifile_backed_segment_storage {
       return util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
   }
 
-  bool load_system_page_size() {
+  bool priv_load_system_page_size() {
     m_system_page_size = util::get_page_size();
     if (m_system_page_size == -1) {
       std::cerr << "Failed to get system pagesize" << std::endl;
