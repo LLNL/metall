@@ -55,8 +55,7 @@ int main() {
     // Create a new metall object
     // Note that Metall creates sparse files so that it does not use physical memory space until required
     metall::manager manager(metall::create_only,
-                            "/tmp/metall_segment", // Prefix of the backing files
-                            1ULL << 30);
+                            "/tmp/metall_segment"); // Prefix of the backing files
 
     // Construct an object of map_type
     map_type *pmap = manager.construct<map_type>

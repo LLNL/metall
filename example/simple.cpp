@@ -19,10 +19,10 @@ int main() {
     // The current version assumes that there is only one manager object per process
     metall::manager manager(metall::create_only,  // Create a new one
                              "/tmp/file_path",    // The prefix of backing files
-                             1 << 25);            // The size of the maximum total allocation size.
+                             1 << 35);            // The size of the VM to reserve.
                                                   // Metall reserves a contiguous region in virtual memory space with this size;
                                                   // however, it does not consume actual memory spaces in DRAM and file until
-                                                  // the corresponding pages are touched.
+                                                  // required
 
     // Allocate and construct a vector object in the persistent memory with a name "vec"
     auto pvec = manager.construct<vector_t>        // Allocate and construct an object of vector_t

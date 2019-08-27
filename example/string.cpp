@@ -15,7 +15,7 @@ using persistent_string = boost::container::basic_string<char,
 
 int main() {
   {
-    metall::manager manager(metall::create_only, "/tmp/metall_segment", 1 << 25);
+    metall::manager manager(metall::create_only, "/tmp/metall_segment");
     auto pstr = manager.construct<persistent_string>("mystring")("Hello, World!", manager.get_allocator<>());
     std::cout << *pstr << std::endl;
   }
