@@ -35,6 +35,31 @@ namespace fs = std::filesystem;
 }
 #endif
 
+inline bool os_fsync(const int fd) {
+  if (::fsync(fd) != 0) {
+    ::perror("fsync");
+    std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+  return true;
+}
+
+// FIXME: Add a mode that calls fsync recursively
+inline bool fsync(const std::string &path) {
+  const int fd = ::open(path.c_str(), O_RDONLY);
+  if (fd == -1) {
+    ::perror("open");
+    std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+
+  const bool ret = os_fsync(fd);
+
+  ::close(fd);
+
+  return ret;
+}
+
 inline void extend_file_size_manually(const int fd, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
   for (off_t i = 0; i < file_size / 4096; ++i) {
@@ -74,7 +99,9 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
     return false;
   }
 
-  const bool ret = extend_file_size(fd, file_size);
+  bool ret = extend_file_size(fd, file_size);
+
+  ret &= os_fsync(fd);
 
   ::close(fd);
 
@@ -82,15 +109,19 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
 }
 
 inline bool create_file(const std::string &file_name) {
+
   const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     ::perror("open");
     std::cerr << "errno: " << errno << std::endl;
     return false;
   }
+
+  const bool ret = os_fsync(fd);
+
   ::close(fd);
 
-  return true;
+  return ret;
 }
 
 #ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
@@ -181,7 +212,6 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 #endif
 }
 
-
 #ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
   bool success = true;
@@ -249,31 +279,6 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 }
 
 #endif
-
-inline bool os_fsync(const int fd) {
-  if (::fsync(fd) != 0) {
-    ::perror("fsync");
-    std::cerr << "errno: " << errno << std::endl;
-    return false;
-  }
-  return true;
-}
-
-// FIXME: Add a mode that calls fsync recursively
-inline bool fsync(const std::string &path) {
-  const int fd = ::open(path.c_str(), O_RDONLY);
-  if (fd == -1) {
-    ::perror("open");
-    std::cerr << "errno: " << errno << std::endl;
-    return false;
-  }
-
-  const bool ret = os_fsync(fd);
-
-  ::close(fd);
-
-  return ret;
-}
 
 } // namespace utility
 } // namespace detail

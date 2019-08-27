@@ -27,7 +27,7 @@ int main() {
 
   {
     // Construct a manager object giving an object of the numa-aware allocator for Metall's kernel
-    manager_type manager(metall::create_only, manager_path.c_str(), 1UL << 25UL, kernel_allocator());
+    manager_type manager(metall::create_only, manager_path.c_str(),kernel_allocator());
 
     // Allocate and construct a vector object in the persistent memory with a name "vec"
     auto pvec = manager.construct<vector_t>("vec")(manager.get_allocator());

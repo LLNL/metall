@@ -18,28 +18,22 @@ int main() {
     // Construct a manager object
     // The current version assumes that there is only one manager object per process
     metall::manager manager(metall::create_only,  // Create a new one
-                             "/tmp/file_path",    // The prefix of backing files
-                             1 << 25);            // The size of the maximum total allocation size.
-                                                  // Metall reserves a contiguous region in virtual memory space with this size;
-                                                  // however, it does not consume actual memory spaces in DRAM and file until
-                                                  // the corresponding pages are touched.
+                  "/tmp/dir");          // The directory to store backing datastore
 
     // Allocate and construct a vector object in the persistent memory with a name "vec"
-    auto pvec = manager.construct<vector_t>        // Allocate and construct an object of vector_t
-                        ("vec")                    // Name of the allocated object
-                        (manager.get_allocator()); // Arguments passed to vector_t's constructor
+    auto pvec = manager.construct<vector_t>                 // Allocate and construct an object of vector_t
+                                    ("vec")              // Name of the allocated object
+                                    (manager.get_allocator()); // Arguments passed to vector_t's constructor
 
     pvec->push_back(5); // Can use containers normally
 
-    manager.sync(); // Explicitly sync with files
-
-  } // Implicitly sync with files, i.e., sync() is called in metall::manager's destructor
+  } // Implicitly sync with backing files, i.e., sync() is called in metall::manager's destructor
 
   // ---------- Assume exit and restart the program at this point ---------- //
 
   {
-    // Reload the manager object
-    metall::manager manager(metall::open_only, "/tmp/file_path");
+    // Reattach the manager object
+    metall::manager manager(metall::open_only, "/tmp/dir");
 
     // Find the previously constructed object
     // Please do not forget to use ".first" at the end

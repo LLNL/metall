@@ -24,7 +24,7 @@ void string_int_map() {
                                                metall::manager::allocator_type<value_type>>;
 
   {
-    metall::manager manager(metall::create_only, "/tmp/metall_segment", 1 << 25);
+    metall::manager manager(metall::create_only, "/tmp/datastore");
     auto pmap = manager.construct<string_int_map>("string-int-map")(manager.get_allocator<>());
 
     pmap->insert(value_type(persistent_string("zero", manager.get_allocator<>()), 0));
@@ -33,7 +33,7 @@ void string_int_map() {
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/metall_segment");
+    metall::manager manager(metall::open_only, "/tmp/datastore");
     auto pmap = manager.find<string_int_map>("string-int-map").first;
 
     std::cout << pmap->at(persistent_string("zero", manager.get_allocator<>())) << std::endl; // Will print "0"
@@ -55,7 +55,7 @@ void int_string_map() {
                                                map_allocator_type>;
 
   {
-    metall::manager manager(metall::create_only, "/tmp/metall_segment", 1 << 25);
+    metall::manager manager(metall::create_only, "/tmp/datastore");
     auto pmap = manager.construct<int_string_map>("int-string-map")(manager.get_allocator<>());
 
     pmap->insert(value_type(0, persistent_string("zero", manager.get_allocator<>())));
@@ -69,7 +69,7 @@ void int_string_map() {
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/metall_segment");
+    metall::manager manager(metall::open_only, "/tmp/datastore");
     auto pmap = manager.find<int_string_map>("int-string-map").first;
 
     std::cout << pmap->at(0) << std::endl; // Will print "zero"

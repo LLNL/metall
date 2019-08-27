@@ -36,7 +36,7 @@ class multifile_backed_segment_storage {
         m_base_path(),
         m_read_only(),
         m_free_file_space(true) {
-    if (!load_system_page_size()) {
+    if (!priv_load_system_page_size()) {
       std::abort();
     }
   }
@@ -129,7 +129,7 @@ class multifile_backed_segment_storage {
     while (true) {
       const auto file_name = priv_make_file_name(m_base_path, m_num_blocks);
       if (!util::file_exist(file_name)) {
-        return (m_num_blocks > 0);
+        break;
       }
 
       const auto file_size = util::get_file_size(file_name);
@@ -145,7 +145,7 @@ class multifile_backed_segment_storage {
       priv_test_file_space_free(base_path);
     }
 
-    assert(false);
+    return  true;
   }
 
   bool extend(const size_type new_segment_size) {
@@ -278,7 +278,7 @@ class multifile_backed_segment_storage {
     if (!priv_inited()) return;
 
     util::map_with_prot_none(m_segment, m_current_segment_size);
-    // util::munmap(m_segment, m_current_segment_size, false); // VM region will be unmapped by manager_kernel
+    // NOTE: the VM region will be unmapped by manager_kernel
 
     priv_reset();
   }
@@ -301,7 +301,7 @@ class multifile_backed_segment_storage {
       return util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
   }
 
-  bool load_system_page_size() {
+  bool priv_load_system_page_size() {
     m_system_page_size = util::get_page_size();
     if (m_system_page_size == -1) {
       std::cerr << "Failed to get system pagesize" << std::endl;

@@ -67,8 +67,7 @@ class stl_allocator_v0
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  // Note: same as manager.hpp in Boost.interprocess,
-  // 'explicit' keyword is not used on purpose to enable to call this constructor w/o arguments
+  // Note: following manager.hpp in Boost.interprocess, 'explicit' keyword is not used on purpose
   // although this allocator won't work correctly w/o a valid manager_kernel_address
   stl_allocator_v0(manager_kernel_type **const pointer_manager_kernel_address)
       : m_ptr_manager_kernel_address(pointer_manager_kernel_address) {
