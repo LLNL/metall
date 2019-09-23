@@ -129,7 +129,7 @@ class multifile_backed_segment_storage {
     while (true) {
       const auto file_name = priv_make_file_name(m_base_path, m_num_blocks);
       if (!util::file_exist(file_name)) {
-        return (m_num_blocks > 0);
+        break;
       }
 
       const auto file_size = util::get_file_size(file_name);
@@ -145,7 +145,7 @@ class multifile_backed_segment_storage {
       priv_test_file_space_free(base_path);
     }
 
-    assert(false);
+    return  true;
   }
 
   bool extend(const size_type new_segment_size) {
