@@ -278,7 +278,7 @@ class multifile_backed_segment_storage {
     if (!priv_inited()) return;
 
     util::map_with_prot_none(m_segment, m_current_segment_size);
-    // util::munmap(m_segment, m_current_segment_size, false); // VM region will be unmapped by manager_kernel
+    // NOTE: the VM region will be unmapped by manager_kernel
 
     priv_reset();
   }
