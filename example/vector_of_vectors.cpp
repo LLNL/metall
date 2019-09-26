@@ -26,7 +26,7 @@ using outer_vector_type = bc::vector<inner_vector_type, outer_vector_allocator_t
 int main() {
 
   {
-    metall::manager manager(metall::create_only, "/tmp/metall_segment");
+    metall::manager manager(metall::create_only, "/tmp/datastore");
     auto pvec = manager.construct<outer_vector_type>("vec-of-vecs")(manager.get_allocator<>());
 
     // In the following examples
@@ -46,7 +46,7 @@ int main() {
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/metall_segment");
+    metall::manager manager(metall::open_only, "/tmp/datastore");
     auto pvec = manager.find<outer_vector_type>("vec-of-vecs").first;
 
     // Check the result of pattern 1

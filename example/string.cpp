@@ -15,13 +15,13 @@ using persistent_string = boost::container::basic_string<char,
 
 int main() {
   {
-    metall::manager manager(metall::create_only, "/tmp/metall_segment");
+    metall::manager manager(metall::create_only, "/tmp/datastore");
     auto pstr = manager.construct<persistent_string>("mystring")("Hello, World!", manager.get_allocator<>());
     std::cout << *pstr << std::endl;
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/metall_segment");
+    metall::manager manager(metall::open_only, "/tmp/datastore");
     auto pstr = manager.find<persistent_string>("mystring").first;
     std::cout << *pstr << std::endl;
   }
