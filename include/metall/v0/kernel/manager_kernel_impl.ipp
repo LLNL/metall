@@ -94,7 +94,11 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
     return false; // Note: this is not an fatal error due to open_or_create mode
   }
 
-  return priv_deserialize_management_data();
+  if(!priv_deserialize_management_data()) {
+    std::abort();
+  }
+
+  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
