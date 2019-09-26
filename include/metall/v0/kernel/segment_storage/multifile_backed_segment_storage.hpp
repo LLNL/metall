@@ -145,7 +145,7 @@ class multifile_backed_segment_storage {
       priv_test_file_space_free(base_path);
     }
 
-    return  true;
+    return  m_num_blocks > 0;
   }
 
   bool extend(const size_type new_segment_size) {
