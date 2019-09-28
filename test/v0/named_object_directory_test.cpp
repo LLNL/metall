@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 #include <memory>
 #include <metall/v0/kernel/named_object_directory.hpp>
+#include <metall/detail/utility/file.hpp>
 #include "../test_utility.hpp"
 
 namespace {
@@ -82,25 +83,26 @@ TEST(NambedObjectDirectoryTest, Serialize) {
   obj.insert("item1", 1, 2);
   obj.insert("item2", 3, 4);
 
-  const auto file_path(test_utility::test_file_path("NambedObjectDirectoryTest"));
-  ASSERT_TRUE(obj.serialize(file_path.c_str()));
+  ASSERT_TRUE(test_utility::create_test_dir());
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  ASSERT_TRUE(obj.serialize(file.c_str()));
 }
 
 TEST(NambedObjectDirectoryTest, Deserialize) {
-  const auto file_path(test_utility::test_file_path("NambedObjectDirectoryTest"));
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
 
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
     obj.insert("item1", 1, 2);
     obj.insert("item2", 3, 4);
-    obj.serialize(file_path.c_str());
+    obj.serialize(file.c_str());
   }
 
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
-    ASSERT_TRUE(obj.deserialize(file_path.c_str()));
+    ASSERT_TRUE(obj.deserialize(file.c_str()));
     ASSERT_EQ(std::get<1>(obj.find("item1")->second), 1);
     ASSERT_EQ(std::get<2>(obj.find("item1")->second), 2);
     ASSERT_EQ(std::get<1>(obj.find("item2")->second), 3);

@@ -29,6 +29,7 @@ int main() {
     // You can use the arrays normally
     index_t *indices_array = csr_graph->indices();
     vid_t *edges_array = csr_graph->edges();
+    edges_array[indices_array[1]++] = 10;
   }
 
   {
@@ -40,6 +41,7 @@ int main() {
     // You can use the arrays normally
     index_t *indices_array = csr_graph->indices();
     vid_t *edges_array = csr_graph->edges();
+    std::cout << edges_array[indices_array[0]] << std::endl;
   }
 
   return 0;
