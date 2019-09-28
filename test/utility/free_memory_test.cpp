@@ -63,7 +63,7 @@ TEST(FreeMemoryTest, MadvRemoveSupport) {
 
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
 TEST(FreeFileSpaceTest, PunchHoleFile) {
-  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  ASSERT_TRUE(test_utility::create_test_dir());
   const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
 
   ASSERT_TRUE(util::create_file(file.c_str()));
@@ -202,7 +202,7 @@ class FilebackedMapUncommitTest : public ::testing::Test {
       page_cache_usage_after_commit(0) {}
 
   void SetUp() override {
-    ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+    ASSERT_TRUE(test_utility::create_test_dir());
     file_name = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
 
     ASSERT_TRUE(util::create_file(file_name.c_str()));

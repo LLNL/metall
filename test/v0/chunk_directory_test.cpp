@@ -110,13 +110,13 @@ TEST(ChunkDirectoryTest, Serialize) {
   directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
   directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  ASSERT_TRUE(test_utility::create_test_dir());
   const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   ASSERT_TRUE(directory.serialize(file.c_str()));
 }
 
 TEST(ChunkDirectoryTest, Deserialize) {
-  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  ASSERT_TRUE(test_utility::create_test_dir());
   const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
 
   {

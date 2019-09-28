@@ -83,7 +83,7 @@ TEST(NambedObjectDirectoryTest, Serialize) {
   obj.insert("item1", 1, 2);
   obj.insert("item2", 3, 4);
 
-  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  ASSERT_TRUE(test_utility::create_test_dir());
   const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   ASSERT_TRUE(obj.serialize(file.c_str()));
 }

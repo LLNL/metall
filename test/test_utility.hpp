@@ -8,6 +8,7 @@
 
 #include <string>
 #include <cstdlib>
+#include <metall/detail/utility/file.hpp>
 
 namespace test_utility {
 
@@ -19,6 +20,12 @@ inline std::string get_test_dir() {
     return std::string(env_p);
   }
   return std::string(k_default_test_dir);
+}
+
+inline bool create_test_dir() {
+  if (!metall::detail::utility::directory_exist(test_utility::get_test_dir()))
+    return metall::detail::utility::create_directory(test_utility::get_test_dir());
+  return true;
 }
 
 inline std::string make_test_file_path(const std::string &name) {
