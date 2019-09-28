@@ -78,7 +78,8 @@ TEST(SoftDirtyTest, MapFileBacked) {
   const ssize_t page_size = metall::detail::utility::get_page_size();
   ASSERT_GT(page_size, 0);
 
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   const std::size_t k_num_pages = 4;
 
   metall::detail::utility::create_file(file.c_str());
@@ -99,7 +100,8 @@ TEST(SoftDirtyTest, MapPrivateFileBacked) {
   const ssize_t page_size = metall::detail::utility::get_page_size();
   ASSERT_GT(page_size, 0);
 
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   const std::size_t k_num_pages = 4;
 
   metall::detail::utility::create_file(file.c_str());

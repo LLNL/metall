@@ -115,8 +115,8 @@ template <typename list_type>
 void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
 
   // Allocate manager
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
-  manager_type manager(metall::create_only, file.c_str());
+  const auto dir(test_utility::get_test_dir() + ::testing::UnitTest::GetInstance()->current_test_info()->name());
+  manager_type manager(metall::create_only, dir.c_str());
 
   // Main loop
   std::pair<void *, void *> previous_allocation_rage(nullptr, nullptr);
@@ -164,8 +164,8 @@ template <typename list_type>
 void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_size_list) {
 
   // Allocate manager
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
-  manager_type manager(metall::create_only, file.c_str());
+  const auto dir(test_utility::get_test_dir() + ::testing::UnitTest::GetInstance()->current_test_info()->name());
+  manager_type manager(metall::create_only, dir.c_str());
 
   // Main loop
   std::vector<std::pair<void *, std::size_t>> previous_addr_and_size_array(allocation_size_list.size(), {nullptr, 0});
@@ -334,8 +334,8 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   using allocation_element_type = std::array<char, 256>;
 
   const std::size_t file_size = k_chunk_size;
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
-  manager_type manager(metall::create_only, file.c_str());
+  const auto dir(test_utility::get_test_dir() + ::testing::UnitTest::GetInstance()->current_test_info()->name());
+  manager_type manager(metall::create_only, dir.c_str());
 
   for (uint64_t i = 0; i < file_size / sizeof(allocation_element_type); ++i) {
 

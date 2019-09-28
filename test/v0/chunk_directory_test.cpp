@@ -110,11 +110,15 @@ TEST(ChunkDirectoryTest, Serialize) {
   directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
   directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   ASSERT_TRUE(directory.serialize(file.c_str()));
 }
 
 TEST(ChunkDirectoryTest, Deserialize) {
+  ASSERT_TRUE(metall::detail::utility::create_directory(test_utility::get_test_dir()));
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+
   {
     std::allocator<char> allocator;
     chunk_directory_type directory(allocator);
@@ -130,7 +134,6 @@ TEST(ChunkDirectoryTest, Deserialize) {
     directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
     directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-    const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
     directory.serialize(file.c_str());
   }
 
@@ -139,7 +142,6 @@ TEST(ChunkDirectoryTest, Deserialize) {
     chunk_directory_type directory(allocator);
     directory.allocate(bin_no_mngr::num_small_bins() + 4);
 
-    const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
     ASSERT_TRUE(directory.deserialize(file.c_str()));
     for (uint64_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
       const auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);

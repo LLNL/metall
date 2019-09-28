@@ -20,12 +20,12 @@
 namespace {
 
 std::string original_dir_path() {
-  const std::string path(test_utility::test_file_path("SnapshotTest"));
+  const std::string path(test_utility::get_test_dir() + "SnapshotTest");
   return path;
 }
 
 std::string snapshot_dir_path() {
-  const std::string path(test_utility::test_file_path("SnapshotTest_snapshot"));
+  const std::string path(test_utility::get_test_dir() + "SnapshotTest_snapshot");
   return path;
 }
 

@@ -21,8 +21,8 @@ inline std::string get_test_dir() {
   return std::string(k_default_test_dir);
 }
 
-inline std::string test_file_path(const std::string &file_name) {
-  return get_test_dir() + "/metall_test_" + file_name;
+inline std::string make_test_file_path(const std::string &name) {
+  return get_test_dir() + "/metall_test_" + name;
 }
 
 }

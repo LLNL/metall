@@ -31,13 +31,13 @@ void open(const std::string &dir_path) {
 }
 
 const std::string &original_dir_path() {
-  const static std::string file_path(test_utility::test_file_path("CopyFileTest"));
-  return file_path;
+  const static std::string path(test_utility::get_test_dir() + "CopyFileTest");
+  return path;
 }
 
 const std::string &copy_dir_path() {
-  const static std::string file_path(test_utility::test_file_path("CopyFileTest_copy"));
-  return file_path;
+  const static std::string path(test_utility::get_test_dir() + "CopyFileTest_copy");
+  return path;
 }
 
 TEST(CopyFileTest, SyncCopy) {
