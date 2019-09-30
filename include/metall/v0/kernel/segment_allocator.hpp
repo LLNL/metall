@@ -110,7 +110,7 @@ class segment_allocator {
     const auto offset = (priv_small_object_bin(bin_no)) ?
                         priv_allocate_small_object(bin_no) : priv_allocate_large_object(bin_no);
     assert(offset >= 0);
-    assert(offset < size());
+    assert((difference_type)offset < (difference_type)size());
 
     return offset;
   }
@@ -124,8 +124,8 @@ class segment_allocator {
   /// \brief Deallocates
   /// \param offset
   void deallocate(const difference_type offset) {
-    assert(offset > 0);
-    assert(offset < size());
+    assert(offset >= 0);
+    assert((difference_type)offset < (difference_type)size());
 
     const chunk_no_type chunk_no = offset / k_chunk_size;
     const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
