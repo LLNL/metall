@@ -128,6 +128,7 @@ allocate(const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type nbytes) {
   if (m_segment_storage.read_only()) return nullptr;
 
   const auto offset = m_segment_memory_allocator.allocate(nbytes);
+  assert(offset >= 0);
   assert(offset + nbytes <= m_segment_storage.size());
   return static_cast<char *>(m_segment_storage.get_segment()) + offset;
 }
@@ -140,6 +141,7 @@ allocate_aligned(const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type nbyt
   assert(priv_initialized());
   if (m_segment_storage.read_only()) return nullptr;
   const auto offset = m_segment_memory_allocator.allocate_aligned(nbytes, alignment);
+  assert(offset >= 0);
   assert(offset + nbytes <= m_segment_storage.size());
   return static_cast<char *>(m_segment_storage.get_segment()) + offset;
 }

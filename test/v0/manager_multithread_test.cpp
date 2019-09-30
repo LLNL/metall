@@ -180,7 +180,7 @@ void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_si
       const std::size_t allocation_size = allocation_size_list[i];
       void *const addr = manager.allocate(allocation_size);
 
-      static_assert(k_min_object_size <= sizeof(std::size_t),
+      static_assert(sizeof(std::size_t) <= k_min_object_size,
                     "k_min_object_size must be equal to or large than sizeof(std::size_t)");
       static_cast<std::size_t *>(addr)[0] = allocation_size; // Write a value for validation
       current_addr_and_size_array[i] = std::make_pair(addr, allocation_size);
