@@ -10,11 +10,6 @@
 #include <vector>
 #include <random>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
-#include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/mmap.hpp>
 #include <metall/detail/utility/file.hpp>
 
