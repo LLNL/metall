@@ -19,7 +19,7 @@ option(USE_ANONYMOUS_MAP "Use anonymous mapping instead of file-backed mapping f
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(FREE_SMALL_OBJECT_SIZE_HINT
        "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
-       65536)
+       0)
 # -------------------------------------------------------------------------------- #
 
 set(CMAKE_CXX_STANDARD 17)
@@ -88,7 +88,7 @@ if (USE_ANONYMOUS_MAP)
     message(STATUS "Use anonymous mapping.")
 endif ()
 
-if (FREE_SMALL_OBJECT_SIZE_HINT)
+if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
     add_definitions(-DMETALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
     message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
 endif()
