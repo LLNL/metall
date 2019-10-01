@@ -63,7 +63,7 @@ check_program_exit_status() {
 }
 
 main() {
-  ./run_adj_list_bench_metall -o "${out_path}/segment" -f ${file_size} -d "${out_path}/${out_name}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
+  ./run_adj_list_bench_metall -o "${out_path}/metall_test_dir" -f ${file_size} -d "${out_path}/${out_name}" -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1
   check_program_exit_status
   echo ""
 
@@ -74,7 +74,7 @@ main() {
   compare ${out_name} ${out_ref}
 
   # ----- Reopen the file for persistence test----- #
-  ./test/open_metall -o "${out_path}/segment" -d "${out_path}/${out_name}"
+  ./test/open_metall -o "${out_path}/metall_test_dir" -d "${out_path}/${out_name}"
   check_program_exit_status
   echo ""
 
@@ -84,7 +84,7 @@ main() {
 
   compare ${out_name} ${out_ref}
 
-  /bin/rm ${out_path}/segment*
+  /bin/rm -rf ${out_path}/metall_test_dir
 }
 
 main "$@"

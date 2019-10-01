@@ -49,18 +49,18 @@ check_program_exit_status() {
 
 main() {
   echo "CreateTest"
-  ./run_adj_list_bench_metall -o /tmp/segment -f $((2**26)) -d /tmp/adj_out ${DATA}*
+  ./run_adj_list_bench_metall -o /tmp/metall_test_dir -f $((2**26)) -d /tmp/adj_out ${DATA}*
   check_program_exit_status
   cat ${DATA}* >> /tmp/adj_ref
   compare "/tmp/adj_out" "/tmp/adj_ref"
 
   echo ""
   echo "OpenTest"
-  ./test/open_metall -o /tmp/segment -d /tmp/adj_out_reopen
+  ./test/open_metall -o /tmp/metall_test_dir -d /tmp/adj_out_reopen
   check_program_exit_status
   cat ${DATA}* >> /tmp/adj_ref
   compare "/tmp/adj_out_reopen" "/tmp/adj_ref"
-  /bin/rm /tmp/segment*
+  /bin/rm -rf /tmp/metall_test_dir
 }
 
 main "$@"

@@ -9,48 +9,6 @@ env:
   - GTEST_COLOR=1
   - BUILD_DIR=travis-build
   matrix:
-  # - BOOST_VERSION=50 IMG=gcc-8
-  # - BOOST_VERSION=50 IMG=clang-5
-  # - BOOST_VERSION=50 IMG=clang-6
-  # - BOOST_VERSION=51 IMG=gcc-8
-  # - BOOST_VERSION=51 IMG=clang-5
-  # - BOOST_VERSION=51 IMG=clang-6
-  # - BOOST_VERSION=52 IMG=gcc-8
-  # - BOOST_VERSION=52 IMG=clang-5
-  # - BOOST_VERSION=52 IMG=clang-6
-  # - BOOST_VERSION=53 IMG=gcc-8
-  # - BOOST_VERSION=53 IMG=clang-5
-  # - BOOST_VERSION=53 IMG=clang-6
-  # - BOOST_VERSION=54 IMG=gcc-8
-  # - BOOST_VERSION=54 IMG=clang-5
-  # - BOOST_VERSION=54 IMG=clang-6
-  # - BOOST_VERSION=55 IMG=gcc-8
-  # - BOOST_VERSION=55 IMG=clang-5
-  # - BOOST_VERSION=55 IMG=clang-6
-  # - BOOST_VERSION=56 IMG=gcc-8
-  # - BOOST_VERSION=56 IMG=clang-5
-  # - BOOST_VERSION=56 IMG=clang-6
-  # - BOOST_VERSION=57 IMG=gcc-8
-  # - BOOST_VERSION=57 IMG=clang-5
-  # - BOOST_VERSION=57 IMG=clang-6
-  # - BOOST_VERSION=58 IMG=gcc-8
-  # - BOOST_VERSION=58 IMG=clang-5
-  # - BOOST_VERSION=58 IMG=clang-6
-  # - BOOST_VERSION=59 IMG=gcc-8
-  # - BOOST_VERSION=59 IMG=clang-5
-  # - BOOST_VERSION=59 IMG=clang-6
-  # - BOOST_VERSION=60 IMG=gcc-8
-  # - BOOST_VERSION=60 IMG=clang-5
-  # - BOOST_VERSION=60 IMG=clang-6
-  # - BOOST_VERSION=61 IMG=gcc-8
-  # - BOOST_VERSION=61 IMG=clang-5
-  # - BOOST_VERSION=61 IMG=clang-6
-  # - BOOST_VERSION=62 IMG=gcc-8
-  # - BOOST_VERSION=62 IMG=clang-5
-  # - BOOST_VERSION=62 IMG=clang-6
-  # - BOOST_VERSION=63 IMG=gcc-8
-  # - BOOST_VERSION=63 IMG=clang-5
-  # - BOOST_VERSION=63 IMG=clang-6
   - BOOST_VERSION=64 IMG=gcc-8
 #  - BOOST_VERSION=64 IMG=clang-5
 #  - BOOST_VERSION=64 IMG=clang-6
@@ -72,6 +30,7 @@ env:
   - BOOST_VERSION=70 IMG=gcc-8
 #  - BOOST_VERSION=70 IMG=clang-5
 #  - BOOST_VERSION=70 IMG=clang-6
+  - BOOST_VERSION=71 IMG=gcc-8
 
 script:
   - docker run --rm --user='root' -v ${TRAVIS_BUILD_DIR}:/home/axom axom/compilers:$IMG chown -R axom /home/axom
