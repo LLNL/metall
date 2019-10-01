@@ -15,21 +15,27 @@ namespace test_utility {
 const char *k_test_dir_env_name = "METALL_TEST_DIR";
 const char *k_default_test_dir = "/tmp";
 
+namespace detail {
 inline std::string get_test_dir() {
   if (const char *env_p = std::getenv(k_test_dir_env_name)) {
     return std::string(env_p);
   }
   return std::string(k_default_test_dir);
 }
+}
 
 inline bool create_test_dir() {
-  if (!metall::detail::utility::directory_exist(test_utility::get_test_dir()))
-    return metall::detail::utility::create_directory(test_utility::get_test_dir());
+  if (!metall::detail::utility::directory_exist(detail::get_test_dir()))
+    return metall::detail::utility::create_directory(detail::get_test_dir());
   return true;
 }
 
+inline std::string make_test_dir_path(const std::string &name) {
+  return detail::get_test_dir() + "/" + name;
+}
+
 inline std::string make_test_file_path(const std::string &name) {
-  return get_test_dir() + "/metall_test_" + name;
+  return detail::get_test_dir() + "/metall_test_" + name;
 }
 
 }
