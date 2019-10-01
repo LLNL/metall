@@ -7,13 +7,14 @@
 #include <algorithm>
 #include <string>
 #include <cassert>
-#include <iomanip>
 #include <type_traits>
 #include <thread>
+#include <random>
+#include <vector>
+#include <mutex>
 
 #include <metall/detail/utility/mmap.hpp>
 #include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/common.hpp>
 
 namespace util = metall::detail::utility;
 
@@ -45,7 +46,7 @@ void *map_file_write_mode(const std::string &file_name, const std::size_t size) 
     std::abort();
   }
 
-  const auto ret = util::map_file_write_mode(file_name, nullptr, size, 0, 0);
+  const auto ret = util::map_file_write_mode(file_name, nullptr, size, 0);
   if (ret.first == -1 || !ret.second) {
     std::cerr << __LINE__ << " Failed mapping" << std::endl;
     std::abort();
@@ -68,6 +69,23 @@ void unmap(void *const addr, const std::size_t size) {
   std::cout << __FUNCTION__ << " done" << std::endl;
 }
 
+auto gen_index(const std::size_t length) {
+
+  std::vector<std::size_t> index_list(length);
+
+  std::generate(index_list.begin(), index_list.end(), [n = (std::size_t)0]() mutable { return n++; });
+
+  std::random_device rd;
+  std::mt19937_64 g(rd());
+  std::shuffle(index_list.begin(), index_list.end(), g);
+
+  for (const auto idx : index_list) {
+    assert(idx < length);
+  }
+
+  return index_list;
+}
+
 // a.out file_name file_size
 int main(int argc, char *argv[]) {
 
@@ -77,7 +95,7 @@ int main(int argc, char *argv[]) {
   std::cout << "File: " << file_name << std::endl;
 
   {
-    std::cout << "Single thread verification" << std::endl;
+    std::cout << "Single thread mmap verification" << std::endl;
     remove_file(file_name);
 
     auto const buf = static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
@@ -98,7 +116,7 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    std::cout << "Multi-thread verification" << std::endl;
+    std::cout << "Multi-thread mmap verification" << std::endl;
     remove_file(file_name);
 
     auto const buf = static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
@@ -108,24 +126,21 @@ int main(int argc, char *argv[]) {
     std::cout << "#of threads: " << num_threads << std::endl;
     std::vector<std::thread *> threads(num_threads, nullptr);
 
+    const int num_mutex = 1024;
+    std::mutex mutex_list[num_mutex];
+
+    std::cout << "Generate index" << std::endl;
+    std::vector<std::vector<std::size_t>> index_list;
+    for (int t = 0; t < num_threads; ++t) {
+      index_list.emplace_back(gen_index(length));
+    }
+
     std::cout << "Write data" << std::endl;
-
     for (int t = 0; t < num_threads; ++t) {
-      threads[t] = new std::thread([length, num_threads, buf](const int thread_no) {
-                                     for (uint64_t i = thread_no; i < length; i += num_threads) {
-                                       buf[i] = i;
-                                     }
-                                   },
-                                   t);
-    }
-    for (auto &th : threads) {
-      th->join();
-    }
-
-    for (int t = 0; t < num_threads; ++t) {
-      threads[t] = new std::thread([length, num_threads, buf](const int thread_no) {
-                                     for (uint64_t i = thread_no; i < length; i += num_threads) {
-                                       buf[i] *= 2;
+      threads[t] = new std::thread([&index_list, &mutex_list, buf](const int thread_no) {
+                                     for (const auto idx : index_list[thread_no]) {
+                                       std::lock_guard<std::mutex> guard(mutex_list[idx % num_mutex]);
+                                       buf[idx] = idx;
                                      }
                                    },
                                    t);
