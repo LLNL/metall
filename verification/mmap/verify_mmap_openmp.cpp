@@ -3,61 +3,70 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// A program to verify mmap with multi-thread
+// This program is not included Metall's CMake build
+// Build
+//  g++ -fopenmp -o verify_mmap_openmp verify_mmap_openmp.cpp
+// Run
+//  ./verify_mmap_openmp file_name file_size
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include <iostream>
 #include <string>
 #include <cassert>
-#include <vector>
 #include <random>
 
-#include <metall/detail/utility/mmap.hpp>
-#include <metall/detail/utility/file.hpp>
-
-namespace util = metall::detail::utility;
-
-void remove_file(const std::string &file_name) {
-  if (!util::remove_file(file_name)) {
-    std::cerr << "Failed to remove file: " << file_name << std::endl;
-    std::abort();
-  }
-  std::cout << __FUNCTION__ << " done" << std::endl;
-}
-
 void *map_file_write_mode(const std::string &file_name, const std::size_t size) {
-  std::cout << "Map file: " << file_name << std::endl;
-  std::cout << "Map size: " << size << std::endl;
-
-  if (!util::create_file(file_name) || !util::extend_file_size(file_name, size)) {
-    std::cerr << __LINE__ << " Failed to initialize file: " << file_name << std::endl;
+  // Create a file
+  const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  if (fd == -1) {
+    ::perror("open");
+    std::cerr << "errno: " << errno << std::endl;
     std::abort();
   }
 
-  const auto ret = util::map_file_write_mode(file_name, nullptr, size, 0);
-  if (ret.first == -1 || !ret.second) {
-    std::cerr << __LINE__ << " Failed mapping" << std::endl;
+  // Extend the file size
+  if (::ftruncate(fd, size) == -1) {
+    ::perror("ftruncate");
+    std::cerr << "errno: " << errno << std::endl;
     std::abort();
   }
-  ::close(ret.first);
 
-  std::cout << "Mapped address: " << (uint64_t)ret.second << std::endl;
+  // Map the file
+  void *mapped_addr = ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  if (mapped_addr == MAP_FAILED) {
+    ::perror("mmap");
+    std::cerr << "errno: " << errno << std::endl;
+    std::abort();
+  }
+  ::close(fd);
 
-  std::cout << __FUNCTION__ << " done" << std::endl;
-
-  return ret.second;
+  return mapped_addr;
 }
 
 void unmap(void *const addr, const std::size_t size) {
-  std::cout << "Unmap address: " << (uint64_t)addr << std::endl;
-  std::cout << "Unmap size: " << size << std::endl;
-
-  if (!util::munmap(addr, size, false)) {
-    std::cerr << __LINE__ << " Failed to munmap" << std::endl;
+  if (::munmap(addr, size) != 0) {
+    ::perror("munmap");
+    std::cerr << "errno: " << errno << std::endl;
     std::abort();
   }
-  std::cout << __FUNCTION__ << " done" << std::endl;
 }
 
-// a.out file_name file_size
+int get_num_threads() noexcept {
+#ifdef _OPENMP
+  return ::omp_get_num_threads();
+#else
+  return 1;
+#endif
+}
+
 int main(int argc, char *argv[]) {
 
   if (argc != 3) {
@@ -67,16 +76,22 @@ int main(int argc, char *argv[]) {
   std::string file_name(argv[1]);
   const std::size_t file_size = std::stoll(argv[2]);
 
-  remove_file(file_name);
-
+  std::cout << "\nMap a file: " << file_name << ", " << file_size << " bytes" << std::endl;
   auto const buf = static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
   const std::size_t length = file_size / sizeof(uint64_t);
 
-  std::cout << "Write data" << std::endl;
+  std::cout << "\nWrite data" << std::endl;
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
   {
+#ifdef _OPENMP
+#pragma omp single
+#endif
+    {
+      std::cout << "#of threads: " << get_num_threads() << std::endl;
+    }
+
     std::random_device rd;
     std::mt19937_64 g(rd());
     for (std::size_t i = 0; i < length; ++i) {
@@ -88,9 +103,11 @@ int main(int argc, char *argv[]) {
       ++(buf[idx]);
     }
   }
-  std::cout << "Write data succeeded" << std::endl;
 
+  std::cout << "\nUnmap" << std::endl;
   unmap(buf, length);
+
+  std::cout << "Succeeded!!" << std::endl;
 
   return 0;
 }
