@@ -63,10 +63,12 @@ TEST(ChunkDirectoryTest, MarkSlot) {
     auto chunk_no = static_cast<chunk_no_type>(i);
     const std::size_t object_size = bin_no_mngr::to_object_size(bin_no);
     for (uint64_t k = 0; k < k_chunk_size / object_size; ++k) {
-      ASSERT_FALSE(directory.full_slot(chunk_no));
+      ASSERT_FALSE(directory.slot_marked(chunk_no, k));
+      ASSERT_FALSE(directory.all_slots_marked(chunk_no));
       ASSERT_EQ(directory.find_and_mark_slot(chunk_no), k);
+      ASSERT_TRUE(directory.slot_marked(chunk_no, k));
     }
-    ASSERT_TRUE(directory.full_slot(chunk_no));
+    ASSERT_TRUE(directory.all_slots_marked(chunk_no));
   }
 }
 
@@ -86,7 +88,11 @@ TEST(ChunkDirectoryTest, UnmarkSlot) {
     const std::size_t object_size = bin_no_mngr::to_object_size(bin_no);
     for (uint64_t k = 0; k < k_chunk_size / object_size; ++k) {
       directory.find_and_mark_slot(chunk_no);
+    }
+    for (uint64_t k = 0; k < k_chunk_size / object_size; ++k) {
+      ASSERT_TRUE(directory.slot_marked(chunk_no, k));
       directory.unmark_slot(chunk_no, k);
+      ASSERT_FALSE(directory.slot_marked(chunk_no, k));
       ASSERT_EQ(directory.find_and_mark_slot(chunk_no), k);
     }
   }
@@ -104,11 +110,15 @@ TEST(ChunkDirectoryTest, Serialize) {
   directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
   directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  ASSERT_TRUE(test_utility::create_test_dir());
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   ASSERT_TRUE(directory.serialize(file.c_str()));
 }
 
 TEST(ChunkDirectoryTest, Deserialize) {
+  ASSERT_TRUE(test_utility::create_test_dir());
+  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+
   {
     std::allocator<char> allocator;
     chunk_directory_type directory(allocator);
@@ -124,7 +134,6 @@ TEST(ChunkDirectoryTest, Deserialize) {
     directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
     directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-    const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
     directory.serialize(file.c_str());
   }
 
@@ -133,7 +142,6 @@ TEST(ChunkDirectoryTest, Deserialize) {
     chunk_directory_type directory(allocator);
     directory.allocate(bin_no_mngr::num_small_bins() + 4);
 
-    const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
     ASSERT_TRUE(directory.deserialize(file.c_str()));
     for (uint64_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
       const auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);

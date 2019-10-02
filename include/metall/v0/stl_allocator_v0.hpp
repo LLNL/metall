@@ -67,16 +67,21 @@ class stl_allocator_v0
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  // Note: same as manager.hpp in Boost.interprocess,
-  // 'explicit' keyword is not used on purpose to enable to call this constructor w/o arguments
+  // Note: following manager.hpp in Boost.interprocess, 'explicit' keyword is not used on purpose
   // although this allocator won't work correctly w/o a valid manager_kernel_address
   stl_allocator_v0(manager_kernel_type **const pointer_manager_kernel_address)
-      : m_ptr_manager_kernel_address(pointer_manager_kernel_address) {}
+      : m_ptr_manager_kernel_address(pointer_manager_kernel_address) {
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
+  }
 
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
   stl_allocator_v0(const stl_allocator_v0<T2, manager_kernel_type> &allocator_instance)
-      : m_ptr_manager_kernel_address(allocator_instance.get_pointer_to_manager_kernel()) {}
+      : m_ptr_manager_kernel_address(allocator_instance.get_pointer_to_manager_kernel()) {
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
+  }
 
   stl_allocator_v0(const stl_allocator_v0<T, manager_kernel_type> &other) = default;
   stl_allocator_v0(stl_allocator_v0<T, manager_kernel_type> &&other) = default;
@@ -88,6 +93,8 @@ class stl_allocator_v0
   template <typename T2>
   stl_allocator_v0 &operator=(const stl_allocator_v0<T2, manager_kernel_type> &other) {
     m_ptr_manager_kernel_address = other.m_ptr_manager_kernel_address;
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
     return *this;
   }
 
@@ -95,11 +102,15 @@ class stl_allocator_v0
   template <typename T2>
   stl_allocator_v0 &operator=(stl_allocator_v0<T2, manager_kernel_type> &&other) noexcept {
     m_ptr_manager_kernel_address = other.m_ptr_manager_kernel_address;
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
     return *this;
   }
 
   // ----------------------------------- This class's unique public functions ----------------------------------- //
   manager_kernel_type **get_pointer_to_manager_kernel() const {
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
     return metall::to_raw_pointer(m_ptr_manager_kernel_address);
   }
 
@@ -114,11 +125,13 @@ class stl_allocator_v0
 
   pointer allocate_impl(const size_type n) const {
     auto manager_kernel = *get_pointer_to_manager_kernel();
+    assert(manager_kernel);
     return pointer(static_cast<value_type *>(manager_kernel->allocate(n * sizeof(T))));
   }
 
   void deallocate_impl(pointer ptr, [[maybe_unused]] const size_type size) const noexcept {
     auto manager_kernel = *get_pointer_to_manager_kernel();
+    assert(manager_kernel);
     manager_kernel->deallocate(to_raw_pointer(ptr));
   }
 

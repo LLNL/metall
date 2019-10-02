@@ -55,8 +55,7 @@ int main() {
     // Create a new metall object
     // Note that Metall creates sparse files so that it does not use physical memory space until required
     metall::manager manager(metall::create_only,
-                            "/tmp/metall_segment", // Prefix of the backing files
-                            1ULL << 30); // Max total allocation size
+                            "/tmp/datastore"); // Prefix of the backing files
 
     // Construct an object of map_type
     map_type *pmap = manager.construct<map_type>
@@ -69,12 +68,12 @@ int main() {
     (*pmap)[30].emplace(20, vec1);
 
     // Take a snapshot
-    manager.snapshot("/tmp/metall_segment_snapshot");
+    manager.snapshot("/tmp/datastore_snapshot");
   }
 
   {
     // Open the snapshot
-    metall::manager manager(metall::open_only, "/tmp/metall_segment_snapshot");
+    metall::manager manager(metall::open_only, "/tmp/datastore_snapshot");
 
     // Find already allocated object with name 'map'
     map_type *pmap = manager.find<map_type>("map").first;

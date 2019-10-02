@@ -63,8 +63,8 @@ TEST(FreeMemoryTest, MadvRemoveSupport) {
 
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
 TEST(FreeFileSpaceTest, PunchHoleFile) {
-
-  const auto file = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());;
+  ASSERT_TRUE(test_utility::create_test_dir());
+  const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
 
   ASSERT_TRUE(util::create_file(file.c_str()));
 
@@ -150,7 +150,7 @@ class AnonymousMapUncommitTest : public ::testing::Test {
   ssize_t ram_usage_after_commit;
 };
 
-#if defined(RUN_LARGE_SCALE_TEST) && defined(MADV_FREE)
+#if defined(METALL_RUN_LARGE_SCALE_TEST) && defined(MADV_FREE)
 TEST_F(AnonymousMapUncommitTest, MadvFree) {
 
   // Uncommit pages
@@ -169,7 +169,7 @@ TEST_F(AnonymousMapUncommitTest, MadvFree) {
 }
 #endif
 
-#if defined(RUN_LARGE_SCALE_TEST)
+#if defined(METALL_RUN_LARGE_SCALE_TEST)
 TEST_F(AnonymousMapUncommitTest, MadvDontNeed) {
 
   // Uncommit pages
@@ -202,7 +202,8 @@ class FilebackedMapUncommitTest : public ::testing::Test {
       page_cache_usage_after_commit(0) {}
 
   void SetUp() override {
-    file_name = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());;
+    ASSERT_TRUE(test_utility::create_test_dir());
+    file_name = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
 
     ASSERT_TRUE(util::create_file(file_name.c_str()));
 
@@ -257,7 +258,7 @@ class FilebackedMapUncommitTest : public ::testing::Test {
   ssize_t page_cache_usage_after_commit;
 };
 
-#if defined(RUN_LARGE_SCALE_TEST) && defined(MADV_REMOVE)
+#if defined(METALL_RUN_LARGE_SCALE_TEST) && defined(MADV_REMOVE)
 TEST_F(FilebackedMapUncommitTest, MadvRemove) {
 
   // Uncommit pages
@@ -267,7 +268,7 @@ TEST_F(FilebackedMapUncommitTest, MadvRemove) {
         ASSERT_EQ(::madvise(&map[i], static_cast<std::size_t>(page_size), MADV_REMOVE), 0) << "errno: " << errno;
       }
     }
-    util::os_msync(map, file_size);
+    util::os_msync(map, file_size, true);
 
     ASSERT_EQ(util::get_file_size(file_name.c_str()), file_size);
     ASSERT_GE(util::get_actual_file_size(file_name.c_str()), 0);

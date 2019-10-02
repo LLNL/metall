@@ -90,7 +90,7 @@ class multithread_adjacency_list {
 
   bool add(key_type key, value_type value) {
     std::lock_guard<std::mutex> guard(m_mutex[bank_index(key)]);
-    key_table_of(key)[key].emplace_back(std::move(value));
+    m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
 
     return true;
   }
@@ -104,8 +104,8 @@ class multithread_adjacency_list {
   }
 
   std::size_t num_values(const key_type &key) const {
-    if (key_table_of(key).count(key) == 0) return 0;
-    return key_table_of(key).at(key).size();
+    if (m_bank_table[bank_index(key)].count(key) == 0) return 0;
+    return m_bank_table[bank_index(key)].at(key).size();
   }
 
   // Keys must be const
@@ -121,19 +121,19 @@ class multithread_adjacency_list {
   }
 
   value_iterator values_begin(const key_type &key) {
-    return key_table_of(key).at(key).begin();
+    return m_bank_table[bank_index(key)].at(key).begin();
   }
 
   value_iterator values_end(const key_type &key) {
-    return key_table_of(key).at(key).end();
+    return m_bank_table[bank_index(key)].at(key).end();
   }
 
   const_value_iterator values_begin(const key_type &key) const {
-    return key_table_of(key).at(key).begin();
+    return m_bank_table[bank_index(key)].at(key).begin();
   }
 
   const_value_iterator values_end(const key_type &key) const {
-    return key_table_of(key).at(key).end();
+    return m_bank_table[bank_index(key)].at(key).end();
   }
 
   const_local_key_iterator keys_begin(const std::size_t bank_index) const {
@@ -160,16 +160,6 @@ class multithread_adjacency_list {
  private:
   std::size_t bank_index(const std::size_t i) const {
     return i % m_bank_table.size();
-  }
-
-  key_table_type &key_table_of(const key_type &src) {
-    const auto index = bank_index(src);
-    return m_bank_table[index];
-  }
-
-  const key_table_type &key_table_of(const key_type &src) const {
-    const auto index = bank_index(src);
-    return m_bank_table[index];
   }
 
   bank_table_t m_bank_table;

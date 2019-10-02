@@ -8,7 +8,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -17,9 +16,12 @@
 #include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
 #endif
 
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <fstream>
-#ifdef FOUND_CPP17_FILESYSTEM_LIB
+
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 #include <filesystem>
 #endif
 
@@ -27,11 +29,36 @@ namespace metall {
 namespace detail {
 namespace utility {
 
-#ifdef FOUND_CPP17_FILESYSTEM_LIB
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 namespace {
 namespace fs = std::filesystem;
 }
 #endif
+
+inline bool os_fsync(const int fd) {
+  if (::fsync(fd) != 0) {
+    ::perror("fsync");
+    std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+  return true;
+}
+
+// FIXME: Add a mode that calls fsync recursively
+inline bool fsync(const std::string &path) {
+  const int fd = ::open(path.c_str(), O_RDONLY);
+  if (fd == -1) {
+    ::perror("open");
+    std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+
+  const bool ret = os_fsync(fd);
+
+  ::close(fd);
+
+  return ret;
+}
 
 inline void extend_file_size_manually(const int fd, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
@@ -72,7 +99,9 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
     return false;
   }
 
-  const bool ret = extend_file_size(fd, file_size);
+  bool ret = extend_file_size(fd, file_size);
+
+  ret &= os_fsync(fd);
 
   ::close(fd);
 
@@ -80,16 +109,42 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
 }
 
 inline bool create_file(const std::string &file_name) {
+
   const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     ::perror("open");
     std::cerr << "errno: " << errno << std::endl;
     return false;
   }
+
+  const bool ret = os_fsync(fd);
+
   ::close(fd);
 
+  return ret;
+}
+
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
+inline bool create_directory(const std::string &dir_path) {
+  bool success = true;
+  try {
+    if (!fs::create_directories(dir_path)) {
+      success = false;
+    }
+  } catch (fs::filesystem_error &e) {
+    // std::cerr << e.what() << std::endl;
+    success = false;
+  }
+  return success;
+}
+#else
+inline bool create_directory(const std::string &dir_path) {
+  if (::mkdir(dir_path.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
+    return false;
+  }
   return true;
 }
+#endif
 
 inline ssize_t get_file_size(const std::string &file_name) {
   std::ifstream ifs(file_name, std::ifstream::binary | std::ifstream::ate);
@@ -114,15 +169,28 @@ inline ssize_t get_actual_file_size(const std::string &file_name) {
   return statbuf.st_blocks * 512LL;
 }
 
-inline bool remove_file(const std::string &file_name) {
-  return (std::remove(file_name.c_str()) == 0);
-}
-
+/// \brief Check if a file, any kinds of file including directory, exists
 inline bool file_exist(const std::string &file_name) {
   struct stat statbuf;
   return (::stat(file_name.c_str(), &statbuf) == 0);
 }
 
+/// \brief Check if a directory exists
+inline bool directory_exist(const std::string &dir_path) {
+  struct stat statbuf;
+  if (::stat(dir_path.c_str(), &statbuf) == -1) {
+    return false;
+  }
+  return (uint64_t)S_IFDIR & (uint64_t)(statbuf.st_mode);
+}
+
+/// FIXME: change to a better way
+/// \brief Remove a fil or directoy
+inline bool remove_file(const std::string &file_name) {
+  std::string rm_command("rm -rf " + file_name);
+  std::system(rm_command.c_str());
+  return true;
+}
 
 inline bool free_file_space([[maybe_unused]] const int fd,
                             [[maybe_unused]] const off_t off,
@@ -137,13 +205,14 @@ inline bool free_file_space([[maybe_unused]] const int fd,
   return true;
 
 #else
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "FALLOC_FL_PUNCH_HOLE or FALLOC_FL_KEEP_SIZE is not supported"
+#endif
   return false;
 #endif
 }
 
-
-#ifdef FOUND_CPP17_FILESYSTEM_LIB
+#ifdef METALL_FOUND_CPP17_FILESYSTEM_LIB
 inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
   bool success = true;
   try {
@@ -210,15 +279,6 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 }
 
 #endif
-
-inline bool os_fsync(const int fd) {
-  if (::fsync(fd) != 0) {
-    ::perror("fsync");
-    std::cerr << "errno: " << errno << std::endl;
-    return false;
-  }
-  return true;
-}
 
 } // namespace utility
 } // namespace detail

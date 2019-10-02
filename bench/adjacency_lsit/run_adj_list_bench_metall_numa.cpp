@@ -65,7 +65,8 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Writing profile" << std::endl;
     for (int i = 0; i < (int)option.segment_file_name_list.size(); ++i) {
-      managers[i]->profile("/tmp/metall_profile-" + std::to_string(i) + ".log");
+      std::cout << "-------------------- [" << i << "] --------------------" << std::endl;
+      managers[i]->profile(&(std::cout));
     }
   }
 

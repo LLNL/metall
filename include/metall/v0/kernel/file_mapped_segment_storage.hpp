@@ -45,7 +45,8 @@ class file_mapped_segment_storage {
       m_fd(other.m_fd),
       m_header(other.m_header),
       m_segment(other.m_segment),
-      m_segment_size(other.m_segment_size) {
+      m_segment_size(other.m_segment_size),
+      m_system_page_size(other.m_system_page_size) {
     other.priv_reset();
   }
 
@@ -54,6 +55,7 @@ class file_mapped_segment_storage {
     m_header = other.m_header;
     m_segment = other.m_segment;
     m_segment_size = other.m_segment_size;
+    m_system_page_size = other.m_system_page_size;
 
     other.priv_reset();
 
@@ -68,6 +70,7 @@ class file_mapped_segment_storage {
 
     if (!util::create_file(path)) return false;
     if (!util::extend_file_size(path, segment_size)) return false;
+    if (!get_system_page_size()) return false;
 
     assert(static_cast<size_type>(util::get_file_size(path)) == segment_size);
 
@@ -78,6 +81,7 @@ class file_mapped_segment_storage {
     assert(!priv_mapped());
 
     if (!util::file_exist(path)) return false;
+    if (!get_system_page_size()) return false;
 
     return priv_allocate_header_and_map_segment(path);
   }
@@ -106,6 +110,10 @@ class file_mapped_segment_storage {
     return m_segment_size;
   }
 
+  size_type page_size() const {
+    return m_system_page_size;
+  }
+
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
@@ -119,6 +127,7 @@ class file_mapped_segment_storage {
     m_header = nullptr;
     m_segment = nullptr;
     m_segment_size = 0;
+    m_system_page_size = 0;
   }
 
   bool priv_mapped() const {
@@ -204,7 +213,16 @@ class file_mapped_segment_storage {
 
     if (offset + nbytes > m_segment_size) return;
 
-    util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    util::free_file_space(m_fd, offset, nbytes);
+  }
+
+  bool get_system_page_size() {
+      m_system_page_size = util::get_page_size();
+      if (m_system_page_size == -1) {
+        return false;
+      }
+    return true;
   }
 
   /// -------------------------------------------------------------------------------- ///
@@ -214,6 +232,7 @@ class file_mapped_segment_storage {
   void *m_header{nullptr};
   void *m_segment{nullptr};
   size_type m_segment_size{0};
+  ssize_t m_system_page_size{0};
 };
 
 } // namespace kernel

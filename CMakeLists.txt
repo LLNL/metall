@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(Metall)
 
-
 # -------------------------------------------------------------------------------- #
 # Options
 # -------------------------------------------------------------------------------- #
@@ -10,12 +9,17 @@ option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
-option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
+option(BUILD_VERIFICATION "Build verification directory" OFF)
+option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 
 # ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
 option(USE_ANONYMOUS_MAP "Use anonymous mapping instead of file-backed mapping for application's segment data" OFF)
+option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
+option(FREE_SMALL_OBJECT_SIZE_HINT
+       "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
+       0)
 # -------------------------------------------------------------------------------- #
 
 set(CMAKE_CXX_STANDARD 17)
@@ -75,15 +79,24 @@ endif ()
 
 # ---------- Configure Metall ---------- #
 if (USE_SPACE_AWARE_BIN)
-    add_definitions(-DUSE_SPACE_AWARE_BIN)
+    add_definitions(-DMETALL_USE_SPACE_AWARE_BIN)
     message(STATUS "Try to fill from lower address.")
 endif ()
 
 if (USE_ANONYMOUS_MAP)
-    add_definitions(-DUSE_ANONYMOUS_MAP)
+    add_definitions(-DMETALL_USE_ANONYMOUS_MAP)
     message(STATUS "Use anonymous mapping.")
 endif ()
 
+if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
+    add_definitions(-DMETALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
+    message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
+endif()
+
+if (VERBOSE_SYSTEM_SUPPORT_WARNING)
+    add_definitions(-DMETALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
+    message(STATUS "Show compile time warning regarding system support")
+endif()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
@@ -123,7 +136,7 @@ endif ()
 include(CheckIncludeFileCXX)
 CHECK_INCLUDE_FILE_CXX(filesystem FILESYSTEM_INCLUDE_FILE)
 if (FILESYSTEM_INCLUDE_FILE)
-    add_definitions(-DFOUND_CPP17_FILESYSTEM_LIB)
+    add_definitions(-DMETALL_FOUND_CPP17_FILESYSTEM_LIB)
 
     # GCC
     if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
@@ -133,7 +146,7 @@ if (FILESYSTEM_INCLUDE_FILE)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         link_libraries(c++fs)
     endif ()
-else()
+else ()
     message(STATUS "Cannot find the filesystem library (C++17)")
 endif ()
 
@@ -161,11 +174,15 @@ if (Boost_FOUND)
 
     if (BUILD_TEST)
         if (RUN_LARGE_SCALE_TEST)
-            add_definitions(-DRUN_LARGE_SCALE_TEST)
-            message(STATUS "RUN_LARGE_SCALE_TEST is ON")
+            add_definitions(-DMETALL_RUN_LARGE_SCALE_TEST)
+            message(STATUS "Run lage-scale tests")
         endif ()
         enable_testing()
         add_subdirectory(test)
+    endif ()
+
+    if (BUILD_VERIFICATION)
+        add_subdirectory(verification)
     endif ()
 
 else ()

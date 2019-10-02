@@ -138,6 +138,7 @@ class multilayer_bitset {
   /// -------------------------------------------------------------------------------- ///
   /// Public methods
   /// -------------------------------------------------------------------------------- ///
+  /// \brief Allocates internal space
   void allocate(const std::size_t num_bits, rebind_allocator_type& allocator) {
     const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
@@ -155,9 +156,8 @@ class multilayer_bitset {
     }
   }
 
-  /// \brief
-  /// \param num_bits
-  /// \return
+  /// \brief Finds an negative bit and sets it to positive
+  /// \return The position of the found bit
   ssize_t find_and_set(const std::size_t num_bits) {
     const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
@@ -167,12 +167,24 @@ class multilayer_bitset {
     }
   }
 
+  /// \brief Resets the given bit
   void reset(const std::size_t num_bits, const ssize_t bit_no) {
     const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       bs::reset(&m_data.block, bit_no);
     } else {
       reset_bit_in_multilayers(num_bits_power2, bit_no);
+    }
+  }
+
+  /// \brief Gets the value of a bit
+  /// \return Boolean value of the bit
+  bool get(const std::size_t num_bits, const ssize_t bit_no) const {
+    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    if (num_bits_power2 <= k_num_bits_in_block) {
+      return bs::get(&m_data.block, bit_no);
+    } else {
+      return get_in_multilayers(num_bits_power2, bit_no);
     }
   }
 
@@ -263,10 +275,6 @@ class multilayer_bitset {
     return bit_index_in_leaf_layer;
   }
 
-  /// \brief
-  /// \param num_layers
-  /// \param num_blocks
-  /// \return
   ssize_t find_in_multilayers(const std::size_t num_layers, const std::size_t *const num_blocks) const {
     if (full_block(m_data.array[0]))
       return -1; // Error
@@ -315,6 +323,12 @@ class multilayer_bitset {
       num_parent_index_block -= mlbs::k_num_blocks_table[idx][layer - 1];
       bit_index_in_current_layer = bit_index_in_current_layer / k_num_bits_in_block;
     }
+  }
+
+  bool get_in_multilayers(const std::size_t num_bits_power2, const ssize_t bit_index) const {
+    const std::size_t idx = util::log2_dynamic(num_bits_power2);
+    const std::size_t num_parent_index_block = mlbs::k_num_index_blocks_table[idx];
+    return bs::get(&m_data.array[num_parent_index_block], static_cast<std::size_t>(bit_index));
   }
 
   // -------------------- Utilities -------------------- //

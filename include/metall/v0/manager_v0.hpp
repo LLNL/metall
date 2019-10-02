@@ -59,7 +59,7 @@ struct manager_type_holder {
 /// \tparam kernel_allocator_type
 /// The type of the internal allocator
 template <typename chunk_no_type = uint32_t,
-          std::size_t k_chunk_size = 1 << 21,
+    std::size_t k_chunk_size = 1 << 21,
           typename kernel_allocator_type = std::allocator<char>>
 class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type, k_chunk_size, kernel_allocator_type>,
                                                        detail::manager_type_holder<chunk_no_type,
@@ -99,10 +99,27 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   manager_v0(open_only_t, const char *base_path,
              const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    if (!m_kernel.open(base_path)) {
+    const bool read_only = false;
+    if (!m_kernel.open(base_path, read_only)) {
       std::cerr << "Cannot open " << base_path << std::endl;
       std::abort();
     }
+  }
+
+  manager_v0(open_read_only_t, const char *base_path,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
+    const bool read_only = true;
+    if (!m_kernel.open(base_path, read_only)) {
+      std::cerr << "Cannot open " << base_path << std::endl;
+      std::abort();
+    }
+  }
+
+  manager_v0(create_only_t, const char *base_path,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
+    m_kernel.create(base_path);
   }
 
   manager_v0(create_only_t, const char *base_path, const size_type capacity,
@@ -114,8 +131,18 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   manager_v0(open_or_create_t, const char *base_path, const size_type capacity,
              const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    if (!m_kernel.open(base_path)) {
+    const bool read_only = false;
+    if (!m_kernel.open(base_path, read_only)) {
       m_kernel.create(base_path, capacity);
+    }
+  }
+
+  manager_v0(open_or_create_t, const char *base_path,
+             const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
+    const bool read_only = false;
+    if (!m_kernel.open(base_path, read_only)) {
+      m_kernel.create(base_path);
     }
   }
 
@@ -128,52 +155,43 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
 
   // ---------------------------------------- v0's unique functions ---------------------------------------- //
 
-  /// \brief Snapshot the entier data
-  /// \param base_path The prefix of the snapshot files
+  /// \brief Snapshot the entire data
+  /// \param destination_dir_path The prefix of the snapshot files
   /// \return Returns true on success; other false
-  bool snapshot(char_ptr_holder_type base_path) {
-    return m_kernel.snapshot(base_path);
-  }
-
-  /// \brief Snapshot diff if possible
-  /// This is an experimental API
-  /// Will be deleted in the future
-  /// \param base_path
-  /// \return Returns true on success; other false
-  bool snapshot_diff(char_ptr_holder_type base_path) {
-    return m_kernel.snapshot_diff(base_path);
+  bool snapshot(const char *destination_dir_path) {
+    return m_kernel.snapshot(destination_dir_path);
   }
 
   /// \brief Copies backing files synchronously
-  /// \param source_base_path
-  /// \param destination_base_path
+  /// \param source_dir_path
+  /// \param destination_dir_path
   /// \return If succeeded, returns True; other false
-  static bool copy_file(const char *source_base_path, const char *destination_base_path) {
-    return kernel_type::copy_file(source_base_path, destination_base_path);
+  static bool copy(const char *source_dir_path, const char *destination_dir_path) {
+    return kernel_type::copy(source_dir_path, destination_dir_path);
   }
 
   /// \brief Copies backing files asynchronously
-  /// \param source_base_path
-  /// \param destination_base_path
+  /// \param source_dir_path
+  /// \param destination_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
-  static auto copy_file_async(const char *source_base_path, const char *destination_base_path) {
-    return kernel_type::copy_file_async(source_base_path, destination_base_path);
+  static auto copy_async(const char *source_dir_path, const char *destination_dir_path) {
+    return kernel_type::copy_async(source_dir_path, destination_dir_path);
   }
 
   /// \brief Remove backing files synchronously
-  /// \param base_path
+  /// \param dir_path
   /// \return If succeeded, returns True; other false
-  static bool remove_file(const char *base_path) {
-    return kernel_type::remove_file(base_path);
+  static bool remove(const char *dir_path) {
+    return kernel_type::remove(dir_path);
   }
 
   /// \brief Remove backing files asynchronously
-  /// \param base_path
+  /// \param dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
-  static std::future<bool> remove_file_async(const char *base_path) {
-    return std::async(std::launch::async, remove_file, base_path);
+  static std::future<bool> remove_async(const char *dir_path) {
+    return std::async(std::launch::async, remove, dir_path);
   }
 
   /// \brief
@@ -183,9 +201,10 @@ class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type,
   }
 
   /// \brief
-  /// \param log_file_name
-  void profile(const std::string &log_file_name) const {
-    m_kernel.profile(log_file_name);
+  /// \param log_out
+  template <typename out_stream_type>
+  void profile(out_stream_type *log_out) const {
+    m_kernel.profile(log_out);
   }
 
  private:

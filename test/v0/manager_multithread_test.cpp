@@ -115,10 +115,8 @@ template <typename list_type>
 void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
 
   // Allocate manager
-  const std::size_t file_size = std::accumulate(allocation_size_list.begin(), allocation_size_list.end(),
-                                                static_cast<std::size_t>(0));
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
-  manager_type manager(metall::create_only, file.c_str(), file_size);
+  const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  manager_type manager(metall::create_only, dir.c_str());
 
   // Main loop
   std::pair<void *, void *> previous_allocation_rage(nullptr, nullptr);
@@ -166,10 +164,8 @@ template <typename list_type>
 void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_size_list) {
 
   // Allocate manager
-  const std::size_t file_size = std::accumulate(allocation_size_list.begin(), allocation_size_list.end(),
-                                                static_cast<std::size_t>(0)) * 2;
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
-  manager_type manager(metall::create_only, file.c_str(), file_size);
+  const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  manager_type manager(metall::create_only, dir.c_str());
 
   // Main loop
   std::vector<std::pair<void *, std::size_t>> previous_addr_and_size_array(allocation_size_list.size(), {nullptr, 0});
@@ -184,7 +180,7 @@ void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_si
       const std::size_t allocation_size = allocation_size_list[i];
       void *const addr = manager.allocate(allocation_size);
 
-      static_assert(k_min_object_size <= sizeof(std::size_t),
+      static_assert(sizeof(std::size_t) <= k_min_object_size,
                     "k_min_object_size must be equal to or large than sizeof(std::size_t)");
       static_cast<std::size_t *>(addr)[0] = allocation_size; // Write a value for validation
       current_addr_and_size_array[i] = std::make_pair(addr, allocation_size);
@@ -241,7 +237,7 @@ TEST(ManagerMultithreadsTest, SmallAllocDeallocSeparated) {
   run_alloc_dealloc_separated_test(allocation_size_list);
 }
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 
   const std::size_t num_allocations_per_size = 1024;
@@ -258,7 +254,7 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 }
 #endif
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocSeparated) {
 
   const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;
@@ -295,7 +291,7 @@ TEST(ManagerMultithreadsTest, SmallAllocDeallocMixed) {
   run_alloc_dealloc_mixed_and_write_value_test(allocation_size_list);
 }
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
 
   const std::size_t num_allocations_per_size = 1024;
@@ -312,7 +308,7 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
 }
 #endif
 
-#ifdef RUN_LARGE_SCALE_TEST
+#ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
 
   const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;
@@ -338,8 +334,8 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   using allocation_element_type = std::array<char, 256>;
 
   const std::size_t file_size = k_chunk_size;
-  const auto file(test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
-  manager_type manager(metall::create_only, file.c_str(), file_size);
+  const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  manager_type manager(metall::create_only, dir.c_str());
 
   for (uint64_t i = 0; i < file_size / sizeof(allocation_element_type); ++i) {
 

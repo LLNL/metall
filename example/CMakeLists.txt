@@ -12,10 +12,14 @@ add_executable(offset_pointer offset_pointer.cpp)
 
 add_executable(snapshot snapshot.cpp)
 
+add_executable(csr_graph csr_graph.cpp)
+
+add_executable(adjacency_list_graph adjacency_list_graph.cpp)
+
 if (USE_NUMA_LIB)
     if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
         link_libraries(numa)
-        add_definitions(-DUSE_NUMA_LIB)
+        add_definitions(-DMETALL_USE_NUMA_LIB)
     endif()
 endif()
 add_executable(custom_kernel_allocator custom_kernel_allocator.cpp)

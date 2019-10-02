@@ -25,7 +25,7 @@ TEST(BinDirectoryTest, Front) {
   ASSERT_EQ(obj.front(0), 1);
 
   obj.insert(0, 2);
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
   ASSERT_EQ(obj.front(0), 1);
 #else
   ASSERT_EQ(obj.front(0), 2);
@@ -35,7 +35,7 @@ TEST(BinDirectoryTest, Front) {
   ASSERT_EQ(obj.front(num_small_bins - 1), 3);
 
   obj.insert(num_small_bins - 1, 4);
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
   ASSERT_EQ(obj.front(num_small_bins - 1), 3);
 #else
   ASSERT_EQ(obj.front(num_small_bins - 1), 4);
@@ -95,7 +95,8 @@ TEST(BinDirectoryTest, Serialize) {
   obj.insert(num_small_bins - 1, 3);
   obj.insert(num_small_bins - 1, 4);
 
-  const auto file = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
+  ASSERT_TRUE(test_utility::create_test_dir());
+  const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
   ASSERT_TRUE(obj.serialize(file.c_str()));
 }
 
@@ -109,17 +110,17 @@ TEST(BinDirectoryTest, Deserialize) {
     obj.insert(num_small_bins - 1, 3);
     obj.insert(num_small_bins - 1, 4);
 
-    const auto file = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
+    const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
     obj.serialize(file.c_str());
   }
 
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
-    const auto file = test_utility::test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
+    const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
     ASSERT_TRUE(obj.deserialize(file.c_str()));
 
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
     ASSERT_EQ(obj.front(0), 1);
     obj.pop(0);
     ASSERT_EQ(obj.front(0), 2);
@@ -129,7 +130,7 @@ TEST(BinDirectoryTest, Deserialize) {
     ASSERT_EQ(obj.front(0), 1);
 #endif
 
-#ifdef USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SPACE_AWARE_BIN
     ASSERT_EQ(obj.front(num_small_bins - 1), 3);
     obj.pop(num_small_bins - 1);
     ASSERT_EQ(obj.front(num_small_bins - 1), 4);

@@ -78,7 +78,7 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   explicit chunk_directory(const allocator_type& allocator)
       : m_table(nullptr),
-        m_num_chunks(0),
+        m_max_num_chunks(0),
         m_end_chunk_no(0),
         m_multilayer_bitset_allocator(allocator) {}
 
@@ -98,11 +98,11 @@ class chunk_directory {
   /// \brief Reserves chunk directory.
   /// It allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
   /// \param num_chunks
-  void allocate(const std::size_t num_chunks) {
+  void allocate(const std::size_t max_num_chunks) {
     assert(!m_table);
-    m_num_chunks = num_chunks;
+    m_max_num_chunks = max_num_chunks;
     /// CAUTION: Assumes that mmap + MAP_ANONYMOUS returns zero-initialized region
-    m_table = static_cast<entry_type *>(util::os_mmap(nullptr, m_num_chunks * sizeof(entry_type),
+    m_table = static_cast<entry_type *>(util::os_mmap(nullptr, m_max_num_chunks * sizeof(entry_type),
                                                       PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
     if (!m_table) {
       std::cerr << "Cannot allocate chunk table" << std::endl;
@@ -116,9 +116,9 @@ class chunk_directory {
     for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
       erase(chunk_no);
     }
-    util::os_munmap(m_table, m_num_chunks * sizeof(entry_type));
+    util::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
     m_table = nullptr;
-    m_num_chunks = 0;
+    m_max_num_chunks = 0;
     m_end_chunk_no = 0;
   }
 
@@ -160,7 +160,7 @@ class chunk_directory {
     } else {
       m_table[chunk_no].type = chunk_type::empty;
       chunk_no_type offset = 1;
-      for (; chunk_no + offset < m_num_chunks && m_table[chunk_no + offset].type == chunk_type::large_chunk_tail;
+      for (; chunk_no + offset < m_max_num_chunks && m_table[chunk_no + offset].type == chunk_type::large_chunk_tail;
              ++offset) {
         m_table[chunk_no + offset].type = chunk_type::empty;
       }
@@ -208,7 +208,7 @@ class chunk_directory {
   /// \brief
   /// \param chunk_no
   /// \return
-  bool full_slot(const chunk_no_type chunk_no) const {
+    bool all_slots_marked(const chunk_no_type chunk_no) const {
     assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
@@ -219,9 +219,31 @@ class chunk_directory {
   }
 
   /// \brief
+  /// \param chunk_no
+  /// \return
+  bool all_slots_unmarked(const chunk_no_type chunk_no) const {
+    assert(chunk_no < size());
+    assert(m_table[chunk_no].type == chunk_type::small_chunk);
+    return (m_table[chunk_no].num_occupied_slots == 0);
+  }
+
+  /// \brief
+  /// \param chunk_no
+  /// \param slot_no
+  /// \return
+  bool slot_marked(const chunk_no_type chunk_no, const slot_no_type slot_no) const {
+    assert(chunk_no < size());
+    assert(m_table[chunk_no].type == chunk_type::small_chunk);
+
+    const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no(chunk_no)));
+    assert(slot_no < num_slots);
+    return m_table[chunk_no].slot_occupancy.get(num_slots, slot_no);
+  }
+
+  /// \brief
   /// \return
   std::size_t size() const {
-    assert(m_end_chunk_no <= m_num_chunks);
+    assert(m_end_chunk_no <= m_max_num_chunks);
     return m_end_chunk_no;
   }
 
@@ -230,15 +252,6 @@ class chunk_directory {
   /// \return
   bool empty_chunk(const chunk_no_type chunk_no) const {
     return (m_table[chunk_no].type == chunk_type::empty);
-  }
-
-  /// \brief
-  /// \param chunk_no
-  /// \return
-  bool empty_slot(const chunk_no_type chunk_no) const {
-    assert(chunk_no < size());
-    assert(m_table[chunk_no].type == chunk_type::small_chunk);
-    return (m_table[chunk_no].num_occupied_slots == 0);
   }
 
   /// \brief
@@ -380,9 +393,6 @@ class chunk_directory {
     return true;
   }
 
-  // -------------------- Profile -------------------- //
-
-
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
@@ -404,7 +414,7 @@ class chunk_directory {
     const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no));
     assert(num_slots > 1);
 
-    for (chunk_no_type chunk_no = 0; chunk_no < m_num_chunks; ++chunk_no) {
+    for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
       if (empty_chunk(chunk_no)) {
         m_table[chunk_no].bin_no = bin_no;
         m_table[chunk_no].type = chunk_type::small_chunk;
@@ -416,7 +426,7 @@ class chunk_directory {
         return chunk_no;
       }
     }
-    std::cerr << "No empty chunk (out of space)" << std::endl;
+    std::cerr << "No empty chunk for small allocation" << std::endl;
     std::abort();
   }
 
@@ -428,7 +438,7 @@ class chunk_directory {
     assert(num_chunks >= 1);
 
     chunk_no_type count_empty_chunks = 0;
-    for (chunk_no_type chunk_no = 0; chunk_no < m_num_chunks; ++chunk_no) {
+    for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
       if (!empty_chunk(chunk_no)) {
         count_empty_chunks = 0;
         continue;
@@ -450,7 +460,7 @@ class chunk_directory {
       }
     }
 
-    std::cerr << "No enough continuous space for multiple chunks (out of space)" << std::endl;
+    std::cerr << "No available space for large allocation, which requires multiple contiguous chunks" << std::endl;
     std::abort();
   }
 
@@ -458,6 +468,7 @@ class chunk_directory {
     chunk_no_type chunk_no = start_chunk_no;
     for (; chunk_no > 0; --chunk_no) {
       if (empty_chunk(chunk_no)) {
+        // TODO: uncommit associated pages
         break;
       }
     }
@@ -468,7 +479,7 @@ class chunk_directory {
   // Private fields
   // -------------------------------------------------------------------------------- //
   entry_type *m_table;
-  std::size_t m_num_chunks;
+  std::size_t m_max_num_chunks;
   std::size_t m_end_chunk_no;
   multilayer_bitset_allocator_type m_multilayer_bitset_allocator;
 };
