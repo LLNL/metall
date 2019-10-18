@@ -6,17 +6,24 @@
 #include <iostream>
 
 #include <metall/metall.hpp>
-#include "graph_data_structure/csr.hpp"
 
 using index_t = uint64_t;
 using vid_t = uint64_t;
-using csr_graph_t = csr<index_t, vid_t, metall::manager::allocator_type<char>>;
 
+// We have two CSR graph data structures that have the same interfaces
+#if 1
+#include "graph_data_structure/csr.hpp"
+using csr_graph_t = csr<index_t, vid_t, metall::manager::allocator_type<char>>;
+#else
+#include "graph_data_structure/csr_using_vector.hpp"
+using csr_graph_t = csr_using_vector<index_t, vid_t, metall::manager::allocator_type<char>>;
+#endif
 
 int main() {
 
   {
     // Create a new Metall datastore in "/tmp/dir"
+    // If 'dir' does not exist, Metall creates automatically
     metall::manager manager(metall::create_only, "/tmp/dir");
 
     std::size_t num_vertices = 16;
@@ -24,7 +31,7 @@ int main() {
 
     // Allocate and construct an object in the persistent memory with a name "csr_graph"
     csr_graph_t *csr_graph = manager.construct<csr_graph_t>("csr_graph")
-                                        (num_vertices, num_edges, manager.get_allocator()); // Arguments to the constructor
+        (num_vertices, num_edges, manager.get_allocator()); // Arguments to the constructor
 
     // You can use the arrays normally
     index_t *indices_array = csr_graph->indices();
