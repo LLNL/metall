@@ -10,7 +10,6 @@
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/container/vector.hpp>
 #include <boost/unordered_map.hpp>
-#include <metall/metall.hpp>
 
 using boost::container::vector;
 using boost::unordered_map;
@@ -23,12 +22,13 @@ template <typename vid_t = uint64_t, typename allocator_t = std::allocator<char>
 class adjacency_list {
  private:
   // Inner vector type
-  using vector_type = vector<vid_t, metall::manager::allocator_type<vid_t>>;
+  using index_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<vid_t>;
+  using vector_type = vector<vid_t, index_allocator_t>;
 
   // To use custom allocator in multi-level containers, you have to use scoped_allocator_adaptor in the most outer container
   // so that the inner containers obtain their allocator arguments from the outer containers's scoped_allocator_adaptor
   // See: https://en.cppreference.com/w/cpp/memory/scoped_allocator_adaptor
-  using map_allocator_type = scoped_allocator_adaptor<metall::manager::allocator_type<std::pair<vid_t, vector_type>>>;
+  using map_allocator_type = scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::template rebind_alloc<std::pair<vid_t, vector_type>>>;
   using map_type = unordered_map<vid_t,
                                  vector_type,
                                  std::hash<vid_t>,
