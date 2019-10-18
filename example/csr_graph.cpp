@@ -6,16 +6,16 @@
 #include <iostream>
 
 #include <metall/metall.hpp>
+#include "graph_data_structure/csr.hpp"
+#include "graph_data_structure/csr_using_vector.hpp"
 
 using index_t = uint64_t;
 using vid_t = uint64_t;
 
 // We have two CSR graph data structures that have the same interfaces
-#if 1
-#include "graph_data_structure/csr.hpp"
+#if 0
 using csr_graph_t = csr<index_t, vid_t, metall::manager::allocator_type<char>>;
 #else
-#include "graph_data_structure/csr_using_vector.hpp"
 using csr_graph_t = csr_using_vector<index_t, vid_t, metall::manager::allocator_type<char>>;
 #endif
 
@@ -44,6 +44,10 @@ int main() {
     metall::manager manager(metall::open_read_only, "/tmp/dir");
 
     csr_graph_t *csr_graph = manager.find<csr_graph_t>("csr_graph").first;
+    if (!csr_graph) {
+      std::cerr << "Object csr_graph does not exist" << std::endl;
+      std::abort();
+    }
 
     // You can use the arrays normally
     index_t *indices_array = csr_graph->indices();
