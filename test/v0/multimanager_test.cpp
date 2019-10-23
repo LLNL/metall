@@ -6,18 +6,17 @@
 
 #include "gtest/gtest.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <metall/metall.hpp>
+#include <metall/detail/utility/open_mp.hpp>
 #include "../test_utility.hpp"
 
 namespace {
+namespace omp = metall::detail::utility::omp;
+
 using chunk_no_type = uint32_t;
 constexpr std::size_t k_chunk_size = 1UL << 21UL;
 
@@ -99,24 +98,14 @@ TEST(MultiManagerTest, SingleThread) {
 }
 
 int get_num_threads() {
-  int num_threads = 1;
+  int num_threads = 0;
 
-#ifdef _OPENMP
-#pragma omp parallel
-  if (::omp_get_thread_num() == 0)
-    num_threads = ::omp_get_num_threads();
-#endif
+  OMP_DIRECTIVE(parallel)
+  {
+    num_threads = omp::get_num_threads();
+  }
 
   return num_threads;
-}
-
-int get_thread_num() {
-#ifdef _OPENMP
-  return ::omp_get_thread_num();
-#else
-  return 0;
-#endif
-
 }
 
 TEST(MultiManagerTest, MultiThread) {
@@ -129,18 +118,16 @@ TEST(MultiManagerTest, MultiThread) {
                                         boost::container::scoped_allocator_adaptor<metall_allocator<std::pair<const element_type,
                                                                                                               vector_type>>>>;
 
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
+  OMP_DIRECTIVE(parallel)
   {
     const auto dir_path(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
-                                                             + std::to_string(get_thread_num())));
+                                                             + std::to_string(omp::get_thread_num())));
 
     manager_type manager(metall::create_only, dir_path.c_str(), k_chunk_size * 16);
     map_type *map = manager.construct<map_type>("map")(manager.get_allocator<>());
 
     for (int i = 0; i < 64; ++i) {
-      (*map)[i % 8].emplace_back(i * get_thread_num());
+      (*map)[i % 8].emplace_back(i * omp::get_thread_num());
     }
   }
 

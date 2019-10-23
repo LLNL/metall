@@ -62,9 +62,7 @@ inline double numa_aware_kernel(input_iterator itr, input_iterator end, adjacenc
 
     print_current_num_page_faults();
     const auto start = util::elapsed_time_sec();
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
+    OMP_DIRECTIVE(parallel)
     {
       const auto thread_id = omp::get_thread_num();
       const auto num_threads = omp::get_num_threads();

@@ -12,9 +12,7 @@
 
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "../data_structure/partitioned_multithread_adjacency_list.hpp"
-#include "../utility/open_mp.hpp"
 #include "../utility/numa_allocator.hpp"
-#include "../utility/numa.hpp"
 #include "bench_driver.hpp"
 
 using namespace adjacency_list_bench;

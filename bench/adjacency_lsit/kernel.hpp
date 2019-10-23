@@ -10,12 +10,13 @@
 
 #include <metall/detail/utility/time.hpp>
 #include <metall/detail/utility/memory.hpp>
-#include "../utility/open_mp.hpp"
+#include <metall/detail/utility/open_mp.hpp>
 
 namespace adjacency_list_bench {
 
 namespace {
 namespace util = metall::detail::utility;
+namespace omp = metall::detail::utility::omp;
 }
 
 #ifdef SMALL_ALLOCATION_TEST
@@ -30,11 +31,10 @@ inline void print_current_num_page_faults() {
 }
 
 inline void print_omp_configuration() {
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
+  OMP_DIRECTIVE(parallel)
   {
-    if (omp::get_thread_num() == 0) {
+    OMP_DIRECTIVE(single)
+    {
       std::cout << "Run with " << omp::get_num_threads() << " threads" << std::endl;
       const auto ret = omp::get_schedule();
       std::cout << "kind " << omp::schedule_kind_name(ret.first)
@@ -61,9 +61,7 @@ inline double kernel(input_iterator itr, input_iterator end, adjacency_list_type
 
     print_current_num_page_faults();
     const auto start = util::elapsed_time_sec();
-#ifdef _OPENMP
-#pragma omp parallel for schedule (runtime)
-#endif
+    OMP_DIRECTIVE(parallel for schedule (runtime))
     for (std::size_t i = 0; i < key_value_list.size(); ++i) {
       adj_list->add(key_value_list[i].first, key_value_list[i].second);
     }
