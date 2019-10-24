@@ -37,7 +37,7 @@ if [[ "$DO_BUILD" == "yes" ]] ; then
                 or_die ctest -T test --output-on-failure -V
                 cd bench/adjacency_lsit
                 or_die bash ../../../bench/adjacency_lsit/test/test.sh
-                # or_die ../../../bench/adjacency_lsit/test/test_large.sh
+                # or_die ../../../bench/adjacency_list/test/test_large.sh
                 cd ../../
             fi
         done

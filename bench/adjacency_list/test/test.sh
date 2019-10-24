@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # USAGE
-# cd metall/build/bench/adjacency_lsit/
-# sh ../../../bench/adjacency_lsit/test/test.sh
+# cd metall/build/bench/adjacency_list/
+# sh ../../../bench/adjacency_list/test/test.sh
 
 DATA=../../../bench/adjacency_lsit/test/data/edge_list_rmat_s10_
 
