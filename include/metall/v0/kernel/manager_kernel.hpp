@@ -86,11 +86,6 @@ class manager_kernel {
   using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
   static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
 
-  // For snapshot
-  static constexpr size_type k_snapshot_no_safeguard = 1ULL << 20ULL; // Safeguard, you could increase this number
-  static constexpr const char *k_diff_snapshot_file_name_prefix = "ssdf";
-  static constexpr size_type k_min_snapshot_no = 1;
-
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
   using mutex_type = util::mutex;
   using lock_guard_type = util::mutex_lock_guard;
