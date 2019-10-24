@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # USAGE
-# cd metall/build/bench/adjacency_lsit/
-# sh ../../../bench/adjacency_lsit/test/test_large.sh
+# cd metall/build/bench/adjacency_list/
+# sh ../../../bench/adjacency_list/test/test_large.sh
 
 # ----- Configuration ----- #
 file_size=$((2**30))

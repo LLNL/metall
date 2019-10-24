@@ -1,3 +1,3 @@
 add_subdirectory(basic)
-add_subdirectory(adjacency_lsit)
+add_subdirectory(adjacency_list)
 add_subdirectory(bfs)

@@ -16,7 +16,6 @@ option(BUILD_C "Build C examples and libraries" ON)
 
 # ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
-option(USE_ANONYMOUS_MAP "Use anonymous mapping instead of file-backed mapping for application's segment data" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(FREE_SMALL_OBJECT_SIZE_HINT
        "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
@@ -82,11 +81,6 @@ endif ()
 if (USE_SPACE_AWARE_BIN)
     add_definitions(-DMETALL_USE_SPACE_AWARE_BIN)
     message(STATUS "Try to fill from lower address.")
-endif ()
-
-if (USE_ANONYMOUS_MAP)
-    add_definitions(-DMETALL_USE_ANONYMOUS_MAP)
-    message(STATUS "Use anonymous mapping.")
 endif ()
 
 if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
