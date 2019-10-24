@@ -15,12 +15,13 @@
 #include <metall/detail/utility/memory.hpp>
 
 #include "kernel.hpp"
-#include "../utility/open_mp.hpp"
+#include <metall/detail/utility/open_mp.hpp>
 
 namespace bfs_bench {
 
 namespace {
 namespace util = metall::detail::utility;
+namespace omp = metall::detail::utility::omp;
 }
 
 // ---------------------------------------- //
@@ -123,9 +124,7 @@ void print_current_num_page_faults() {
 
 /// \brief Print out Open MP's configuration
 void print_omp_configuration() {
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
+  OMP_DIRECTIVE(parallel)
   {
     if (omp::get_thread_num() == 0) {
       std::cout << "Run with " << omp::get_num_threads() << " threads" << std::endl;

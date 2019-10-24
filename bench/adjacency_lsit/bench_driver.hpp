@@ -13,10 +13,6 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "edge_generator/rmat_edge_generator.hpp"
 #include "../utility/pair_reader.hpp"
 #include "kernel.hpp"

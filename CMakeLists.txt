@@ -12,6 +12,7 @@ option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
+option(BUILD_C "Build C examples and libraries" ON)
 
 # ---------- Experimental options ---------- #
 option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)

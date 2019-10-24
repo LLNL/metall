@@ -17,14 +17,13 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include <metall/metall.hpp>
+#include <metall/detail/utility/open_mp.hpp>
 #include "../test_utility.hpp"
 
 namespace {
+
+namespace omp = metall::detail::utility::omp;
 
 /// -------------------------------------------------------------------------------- ///
 /// Manage Type
@@ -89,24 +88,14 @@ void shuffle_list(list_type *list) {
 }
 
 int get_num_threads() {
-  int num_threads = 1;
+  int num_threads = 0;
 
-#ifdef _OPENMP
-#pragma omp parallel
-  if (::omp_get_thread_num() == 0)
-    num_threads = ::omp_get_num_threads();
-#endif
+  OMP_DIRECTIVE(parallel)
+  {
+    num_threads = omp::get_num_threads();
+  }
 
   return num_threads;
-}
-
-int get_thread_num() {
-#ifdef _OPENMP
-  return ::omp_get_thread_num();
-#else
-  return 0;
-#endif
-
 }
 
 /// \brief
@@ -125,9 +114,7 @@ void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
                                                                     {nullptr, 0});
 
     // Allocation
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+    OMP_DIRECTIVE(parallel for)
     for (std::size_t i = 0; i < allocation_size_list.size(); ++i) {
       const std::size_t allocation_size = allocation_size_list[i];
       addr_and_size_array[i] = std::make_pair(manager.allocate(allocation_size), allocation_size);
@@ -138,9 +125,7 @@ void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
     validate_overlap(addr_and_size_array, true);
 
     // Deallocation
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+    OMP_DIRECTIVE(parallel for)
     for (std::size_t i = 0; i < addr_and_size_array.size(); ++i)
       manager.deallocate(addr_and_size_array[i].first);
 
@@ -172,9 +157,7 @@ void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_si
   for (int k = 0; k < 2; ++k) {
     std::vector<std::pair<void *, std::size_t>> current_addr_and_size_array(allocation_size_list.size(), {nullptr, 0});
 
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+    OMP_DIRECTIVE(parallel for)
     for (std::size_t i = 0; i < allocation_size_list.size(); ++i) {
 
       const std::size_t allocation_size = allocation_size_list[i];
@@ -199,9 +182,7 @@ void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_si
     shuffle_list(&previous_addr_and_size_array);
   }
 
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+  OMP_DIRECTIVE(parallel for)
   for (std::size_t i = 0; i < previous_addr_and_size_array.size(); ++i) {
     manager.deallocate(previous_addr_and_size_array[i].first);
   }
@@ -341,11 +322,9 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
 
     // Allocation (one of threads 'construct' the object and the rest 'find' the address)
     std::vector<allocation_element_type *> addr_list(get_num_threads(), nullptr);
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
+    OMP_DIRECTIVE(parallel)
     {
-      addr_list[get_thread_num()] = manager.find_or_construct<allocation_element_type>(std::to_string(i).c_str())();
+      addr_list[omp::get_thread_num()] = manager.find_or_construct<allocation_element_type>(std::to_string(i).c_str())();
     }
 
     // All threads must point to the same address
@@ -355,14 +334,10 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
 
     // Deallocation
     int num_succeeded = 0;
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
+    OMP_DIRECTIVE(parallel)
     {
       const bool ret = manager.destroy<allocation_element_type>(std::to_string(i).c_str());
-#ifdef _OPENMP
-#pragma omp critical
-#endif
+      OMP_DIRECTIVE(critical)
       {
         num_succeeded += ret;
       }
