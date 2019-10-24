@@ -129,7 +129,7 @@ run() {
         free -g  | tee -a ${LOG_FILE}
     fi
 
-    exec_file_name="../adjacency_lsit/run_adj_list_bench_${EXEC_NAME}"
+    exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
     execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o "${GRAPH_DIR}/${GRAPH_NAME}" -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# cd metall/build/bench/adjacency_lsit
-# sh ../../../bench/adjacency_lsit/run_bench.sh
+# cd metall/build/bench/adjacency_list
+# sh ../../../bench/adjacency_list/run_bench.sh
 
 v=17
 a=0.57
