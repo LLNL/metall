@@ -177,7 +177,7 @@ class base_manager {
   /// \brief Returns a STL compatible allocator object
   /// \tparam T Type of the object
   /// \return Returns a STL compatible allocator object
-  template <typename T = void>
+  template <typename T = std::byte>
   allocator_type<T> get_allocator() {
     return impl().get_allocator_impl();
   }

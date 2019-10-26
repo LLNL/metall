@@ -18,7 +18,7 @@ using vertex_id_type = uint64_t;
 
 using local_adjacency_list_type =  multithread_adjacency_list<vertex_id_type,
                                                               vertex_id_type,
-                                                              typename metall::manager::allocator_type<void>>;
+                                                              typename metall::manager::allocator_type<std::byte>>;
 using adjacency_list_type =  partitioned_multithread_adjacency_list<local_adjacency_list_type>;
 
 int main(int argc, char *argv[]) {

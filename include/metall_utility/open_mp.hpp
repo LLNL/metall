@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_UTILITY_UTILITY_OPEN_MP_HPP
-#define METALL_DETAIL_UTILITY_UTILITY_OPEN_MP_HPP
+#ifndef METALL_UTILITY_OPEN_MP_HPP
+#define METALL_UTILITY_OPEN_MP_HPP
 
 #include <string>
 
@@ -12,19 +12,22 @@
 #include <omp.h>
 #endif
 
+#ifdef OPEN_MP_PRAGMA_OPERATOR
+#error "OPEN_MP_PRAGMA_OPERATOR is already defined"
+#endif
+
 #ifdef OMP_DIRECTIVE
 #error "OMP_DIRECTIVE is already defined"
 #endif
-#define METALL_OPEN_MP_PRAGMA_OPERATOR(x) _Pragma(#x)
+
+#define OPEN_MP_PRAGMA_OPERATOR(x) _Pragma(#x)
 #ifdef _OPENMP
-#define OMP_DIRECTIVE(directive) METALL_OPEN_MP_PRAGMA_OPERATOR(omp directive)
+#define OMP_DIRECTIVE(directive) OPEN_MP_PRAGMA_OPERATOR(omp directive)
 #else
 #define OMP_DIRECTIVE(directive)
 #endif
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall_utility {
 namespace omp {
 
 using omp_sched_type =
@@ -103,7 +106,5 @@ inline int get_thread_num() noexcept {
 
 } // namespace omp
 } // namespace utility
-} // namespace detail
-} // namespace metall
 
-#endif //METALL_DETAIL_UTILITY_UTILITY_OPEN_MP_HPP
+#endif //METALL_UTILITY_OPEN_MP_HPP

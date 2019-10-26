@@ -15,7 +15,7 @@ using namespace bfs_bench;
 using vertex_id_type = uint64_t;
 
 using adjacency_list_type =  data_structure::multithread_adjacency_list<vertex_id_type, vertex_id_type,
-                                                                        typename metall::manager::allocator_type<void>>;
+                                                                        typename metall::manager::allocator_type<std::byte>>;
 
 int main(int argc, char *argv[]) {
 

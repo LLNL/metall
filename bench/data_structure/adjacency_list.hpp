@@ -22,7 +22,7 @@ namespace bip = boost::interprocess;
 namespace bct = boost::container;
 }
 
-template <typename _key_type, typename _value_type, typename _base_allocator_type = std::allocator<void>>
+template <typename _key_type, typename _value_type, typename _base_allocator_type = std::allocator<std::byte>>
 class adjacency_list {
  public:
   using key_type = _key_type;

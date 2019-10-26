@@ -29,7 +29,7 @@ namespace util = metall::detail::utility;
 
 constexpr std::size_t k_default_num_banks = 1024;
 
-template <typename _key_type, typename _value_type, typename _base_allocator_type = std::allocator<void>>
+template <typename _key_type, typename _value_type, typename _base_allocator_type = std::allocator<std::byte>>
 class multithread_adjacency_list {
  public:
   using key_type = _key_type;

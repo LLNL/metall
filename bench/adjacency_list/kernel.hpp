@@ -10,13 +10,13 @@
 
 #include <metall/detail/utility/time.hpp>
 #include <metall/detail/utility/memory.hpp>
-#include <metall/detail/utility/open_mp.hpp>
+#include <metall_utility/open_mp.hpp>
 
 namespace adjacency_list_bench {
 
 namespace {
 namespace util = metall::detail::utility;
-namespace omp = metall::detail::utility::omp;
+namespace omp = metall_utility::omp;
 }
 
 #ifdef SMALL_ALLOCATION_TEST

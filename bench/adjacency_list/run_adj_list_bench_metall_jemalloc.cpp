@@ -21,13 +21,13 @@
 
 using namespace adjacency_list_bench;
 
-using manager_type = metall::v0::manager_v0<uint32_t, 1 << 21, utility::jemalloc_allocator<void>>;
+using manager_type = metall::v0::manager_v0<uint32_t, 1 << 21, utility::jemalloc_allocator<std::byte>>;
 
 using key_type = uint64_t;
 using value_type = uint64_t;
 using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type,
                                                                         value_type,
-                                                                        typename manager_type::allocator_type<void>>;
+                                                                        typename manager_type::allocator_type<std::byte>>;
 
 int main(int argc, char *argv[]) {
 
