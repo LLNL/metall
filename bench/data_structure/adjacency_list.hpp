@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include <memory>
+#include <cstddef>
 
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>

@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
+#include <cctype>
 #include <memory>
+#include <cstddef>
 
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"

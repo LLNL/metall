@@ -12,6 +12,7 @@
 #include <mutex>
 #include <algorithm>
 #include <functional>
+#include <cstddef>
 
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>

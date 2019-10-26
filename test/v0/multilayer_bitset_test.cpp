@@ -8,6 +8,7 @@
 #include <vector>
 #include <random>
 #include <memory>
+#include <cstddef>
 
 #include <metall/detail/utility/bitset.hpp>
 #include <metall/v0/kernel/multilayer_bitset.hpp>

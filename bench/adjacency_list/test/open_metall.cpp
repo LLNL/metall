@@ -5,10 +5,9 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
+#include <cstddef>
 
 #include <metall/metall.hpp>
-#include "../../data_structure/adjacency_list.hpp"
 #include "../bench_driver.hpp"
 #include "../../data_structure/multithread_adjacency_list.hpp"
 

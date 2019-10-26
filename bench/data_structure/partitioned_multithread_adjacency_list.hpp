@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <cstddef>
 
 namespace data_structure {
 

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstddef>
 
 #include <metall/metall.hpp>
 #include <metall/detail/utility/time.hpp>

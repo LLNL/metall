@@ -7,6 +7,8 @@
 #define METALL_DETAIL_BASE_MANAGER_HPP
 
 #include <utility>
+#include <cstddef>
+
 #include <metall/tags.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 

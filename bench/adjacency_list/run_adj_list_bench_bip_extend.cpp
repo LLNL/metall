@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstddef>
 
 #include <boost/interprocess/managed_external_buffer.hpp>
 #include <boost/interprocess/segment_manager.hpp>
