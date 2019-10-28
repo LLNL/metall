@@ -8,11 +8,12 @@
 
 #include <vector>
 #include <memory>
+#include <cstddef>
 
 namespace data_structure {
 
 template <typename local_adj_list_type,
-          typename global_allocator_type = std::allocator<void>>
+          typename global_allocator_type = std::allocator<std::byte>>
 class partitioned_multithread_adjacency_list {
  public:
   using key_type = typename local_adj_list_type::key_type;

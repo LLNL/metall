@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstddef>
 
 #include <metall/metall.hpp>
 #include <metall/detail/utility/time.hpp>
@@ -21,12 +22,12 @@ using namespace data_structure;
 using key_type = uint64_t;
 using value_type = uint64_t;
 
-using numa_allocator_type = numa::numa_allocator<void>;
+using numa_allocator_type = numa::numa_allocator<std::byte>;
 using metall_manager_type = metall::basic_manager<uint32_t, 1 << 21, numa_allocator_type>;
 
 using local_adjacency_list_type =  multithread_adjacency_list<key_type,
                                                               value_type,
-                                                              typename metall_manager_type::allocator_type<void>>;
+                                                              typename metall_manager_type::allocator_type<std::byte>>;
 using adjacency_list_type =  partitioned_multithread_adjacency_list<local_adjacency_list_type>;
 
 int main(int argc, char *argv[]) {

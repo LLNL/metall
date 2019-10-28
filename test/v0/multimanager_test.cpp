@@ -11,11 +11,11 @@
 #include <boost/unordered_map.hpp>
 
 #include <metall/metall.hpp>
-#include <metall/detail/utility/open_mp.hpp>
+#include <metall_utility/open_mp.hpp>
 #include "../test_utility.hpp"
 
 namespace {
-namespace omp = metall::detail::utility::omp;
+namespace omp = metall_utility::omp;
 
 using chunk_no_type = uint32_t;
 constexpr std::size_t k_chunk_size = 1UL << 21UL;

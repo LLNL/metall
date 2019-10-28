@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstddef>
 
 #include <metall/metall.hpp>
 #include "kernel.hpp"
@@ -23,7 +24,7 @@ int main(int, char *argv[])
 
   for (std::size_t alloc_size = min_alloc_size; alloc_size <= max_alloc_size; alloc_size *= 2) {
     metall::manager manager(metall::create_only, segment_name.c_str(), max_alloc_size * num_alloc * 2);
-    bench_basic::kernel(alloc_size, num_alloc, manager.get_allocator<void>());
+    bench_basic::kernel(alloc_size, num_alloc, manager.get_allocator<std::byte>());
   }
 
   return 0;

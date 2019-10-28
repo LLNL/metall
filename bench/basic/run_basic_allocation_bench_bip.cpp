@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
+#include <cstddef>
 
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
@@ -22,7 +23,7 @@ int main(int, char *argv[]) {
   for (std::size_t alloc_size = min_alloc_size; alloc_size <= max_alloc_size; alloc_size *= 2) {
     bip::file_mapping::remove(segment_name.c_str());
     bip::managed_mapped_file mfile(bip::create_only, segment_name.c_str(), max_alloc_size * num_alloc * 2);
-    bench_basic::kernel(alloc_size, num_alloc, mfile.get_allocator<void>());
+    bench_basic::kernel(alloc_size, num_alloc, mfile.get_allocator<std::byte>());
   }
 
   return 0;

@@ -15,13 +15,13 @@
 #include <metall/detail/utility/memory.hpp>
 
 #include "kernel.hpp"
-#include <metall/detail/utility/open_mp.hpp>
+#include <metall_utility/open_mp.hpp>
 
 namespace bfs_bench {
 
 namespace {
 namespace util = metall::detail::utility;
-namespace omp = metall::detail::utility::omp;
+namespace omp = metall_utility::omp;
 }
 
 // ---------------------------------------- //

@@ -18,12 +18,12 @@
 #include <boost/unordered_map.hpp>
 
 #include <metall/metall.hpp>
-#include <metall/detail/utility/open_mp.hpp>
+#include <metall_utility/open_mp.hpp>
 #include "../test_utility.hpp"
 
 namespace {
 
-namespace omp = metall::detail::utility::omp;
+namespace omp = metall_utility::omp;
 
 /// -------------------------------------------------------------------------------- ///
 /// Manage Type

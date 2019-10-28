@@ -7,6 +7,8 @@
 #define METALL_DETAIL_BASE_MANAGER_HPP
 
 #include <utility>
+#include <cstddef>
+
 #include <metall/tags.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 
@@ -177,7 +179,7 @@ class base_manager {
   /// \brief Returns a STL compatible allocator object
   /// \tparam T Type of the object
   /// \return Returns a STL compatible allocator object
-  template <typename T = void>
+  template <typename T = std::byte>
   allocator_type<T> get_allocator() {
     return impl().get_allocator_impl();
   }

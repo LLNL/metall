@@ -10,7 +10,6 @@
 
 namespace metall {
 /// \brief Tag to create the segment always.
-///
 /// The existing segment with the same name is over written.
 struct create_only_t {};
 [[maybe_unused]] static const create_only_t create_only{};

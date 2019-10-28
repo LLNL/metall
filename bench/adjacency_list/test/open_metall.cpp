@@ -5,10 +5,9 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
+#include <cstddef>
 
 #include <metall/metall.hpp>
-#include "../../data_structure/adjacency_list.hpp"
 #include "../bench_driver.hpp"
 #include "../../data_structure/multithread_adjacency_list.hpp"
 
@@ -17,7 +16,7 @@ using namespace adjacency_list_bench;
 using key_type = uint64_t;
 using value_type = uint64_t;
 using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type,
-                                                                        typename metall::manager::allocator_type<void>>;
+                                                                        typename metall::manager::allocator_type<std::byte>>;
 
 int main(int argc, char *argv[]) {
 
