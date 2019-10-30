@@ -1,0 +1,79 @@
+variables:
+  CMAKE_BASIC_FLAGS: "-DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=ON"
+  BOOST_VERSION: "70"
+  BOOST_ROOT: "${PWD}/boost_1_${BOOST_VERSION}_0"
+
+before_script:
+  - echo "=== before_script section ==="
+  - wget -q --no-check-certificate https://gigenet.dl.sourceforge.net/project/boost/boost/1.${BOOST_VERSION}.0/boost_1_${BOOST_VERSION}_0.tar.bz2
+  - tar -xjf boost_1_${BOOST_VERSION}_0.tar.bz2
+  - spack install gcc9.2.0
+#  - spack install gcc9.1.0
+#  - spack install gcc8.3.0
+#  - spack install gcc8.2.0
+#  - spack install gcc8.1.0
+
+
+after_script:
+  - echo "=== after_script section ==="
+
+.build:
+  stage: build
+  tags:
+    - catalyst
+    - shell
+  script:
+    - echo "=== build section ==="
+    - mkdir build
+    - cd build
+    - cmake -DBOOST_ROOT=${BOOST_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DUSE_SPACE_AWARE_BIN=${USE_SPACE_AWARE_BIN} ${CMAKE_BASIC_FLAGS} ../
+
+.build_debug:
+  variables:
+    BUILD_TYPE: "Debug"
+  extends: .build
+
+.build_release:
+  variables:
+    BUILD_TYPE: "Release"
+  extends: .build
+
+.build_relwithdebinfo:
+  variables:
+    BUILD_TYPE: "RelWithDebInfo"
+  extends: .build
+
+build_gcc9.2_debug:
+  variables:
+    USE_SPACE_AWARE_BIN: "ON"
+  extends: .build_debug
+  script:
+    - spack load gcc9.2.0
+
+build_gcc9.2_release:
+  variables:
+    USE_SPACE_AWARE_BIN: "ON"
+  extends: .build_release
+  script:
+    - spack load gcc9.2.0
+
+test_gtest:
+  stage: test
+  tags:
+    - catalyst
+    - shell
+  script:
+    - echo "=== test section ==="
+    - salloc -N1 -t 30:00
+    - ctest -T test --output-on-failure -V
+
+test_adj:
+  stage: test
+  tags:
+    - catalyst
+    - shell
+  script:
+    - echo "=== test section ==="
+    - salloc -N1 -t 30:00
+    - cd bench/adjacency_list
+    - . ../../../bench/adjacency_list/test/test.sh
