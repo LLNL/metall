@@ -7,11 +7,11 @@ before_script:
   - echo "=== before_script section ==="
   - wget -q --no-check-certificate https://gigenet.dl.sourceforge.net/project/boost/boost/1.${BOOST_VERSION}.0/boost_1_${BOOST_VERSION}_0.tar.bz2
   - tar -xjf boost_1_${BOOST_VERSION}_0.tar.bz2
-  - spack install gcc9.2.0
-#  - spack install gcc9.1.0
-#  - spack install gcc8.3.0
-#  - spack install gcc8.2.0
-#  - spack install gcc8.1.0
+  - spack install gcc@9.2.0
+#  - spack install gcc@9.1.0
+#  - spack install gcc@8.3.0
+#  - spack install gcc@8.2.0
+#  - spack install gcc@8.1.0
 
 
 after_script:
@@ -48,14 +48,14 @@ build_gcc9.2_debug:
     USE_SPACE_AWARE_BIN: "ON"
   extends: .build_debug
   script:
-    - spack load gcc9.2.0
+    - spack load gcc@9.2.0
 
 build_gcc9.2_release:
   variables:
     USE_SPACE_AWARE_BIN: "ON"
   extends: .build_release
   script:
-    - spack load gcc9.2.0
+    - spack load gcc@9.2.0
 
 test_gtest:
   stage: test

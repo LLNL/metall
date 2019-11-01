@@ -6,6 +6,7 @@
 #ifndef METALL_UTILITY_OPEN_MP_HPP
 #define METALL_UTILITY_OPEN_MP_HPP
 
+#include <cstdint>
 #include <string>
 
 #ifdef _OPENMP
