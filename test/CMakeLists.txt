@@ -1,5 +1,5 @@
 # ------------------------------------------------------------ #
-# For Goggle Test
+# Download Goggle Test (see https://github.com/google/googletest/blob/master/googletest/README.md)
 # ------------------------------------------------------------ #
 if (NOT SKIP_GTEST_DOWNLOAD)
     # Download and unpack googletest at configure time
@@ -35,9 +35,9 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif ()
-
 # ------------------------------------------------------------ #
 
+include(GoogleTest)
 
 add_subdirectory(utility)
 add_subdirectory(v0)

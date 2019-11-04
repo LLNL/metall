@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
 project(Metall)
 
 # -------------------------------------------------------------------------------- #
