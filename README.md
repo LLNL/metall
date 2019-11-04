@@ -84,12 +84,12 @@ In addition to the standard cmake options, we have two additional options:
 * BUILD_TEST
     * Builds subdirectory test/
     * ON or OFF (default is OFF).
-    * Google Test is automatically downloaded and built if BUILD_TEST is ON and SKIP_GTEST_DOWNLOAD is OFF.
+    * Google Test is automatically downloaded and built if BUILD_TEST is ON and SKIP_DOWNLOAD_GTEST is OFF.
 * RUN_LARGE_SCALE_TEST
     * Runs large scale tests which could use ~ 100GB of storage space in /dev/shm or /tmp..
     * ON or OFF (default is OFF).
     * If BUILD_TEST is OFF, this option is ignored.
-* SKIP_GTEST_DOWNLOAD
+* SKIP_DOWNLOAD_GTEST
     * Experimental option
     * Skips downloading Google Test (see more details below).
     * ON or OFF (default is OFF).
@@ -99,14 +99,14 @@ In addition to the standard cmake options, we have two additional options:
 ### Build 'test' Directory without Internet Access (experimental mode)
 
     Step 1) Run cmake with BUILD_TEST=ON on a machine that has an internet access.
-    Step 2) Run cmake with BUILD_TEST=ON and SKIP_GTEST_DOWNLOAD=ON on a machine that does not have an internet access
+    Step 2) Run cmake with BUILD_TEST=ON and SKIP_DOWNLOAD_GTEST=ON on a machine that does not have an internet access
 
 For example,
 ```bash
 # On a machine with the internet
 cmake ../ -DBUILD_TEST=on # Use cmake to just download Google Test. You might also need specify BOOST_ROOT option
 # On a machine without the internet
-cmake ../ -DBUILD_TEST=on -DSKIP_GTEST_DOWNLOAD=on # also other options you want to use
+cmake ../ -DBUILD_TEST=on -DSKIP_DOWNLOAD_GTEST=on # also other options you want to use
 ```
 Google Test is downloaded in the first step and built in the second step.
 

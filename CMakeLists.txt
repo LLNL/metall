@@ -15,7 +15,8 @@ option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding syste
 option(BUILD_C "Build C examples and libraries" ON)
 
 # ---------- Experimental options ---------- #
-option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
+option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
+option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(FREE_SMALL_OBJECT_SIZE_HINT
        "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
@@ -127,6 +128,13 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
     endif ()
 endif ()
 
+
+# ---------- Only downloading Google Test ---------- #
+if (ONLY_DOWNLOAD_GTEST)
+    add_subdirectory(test)
+    return()
+endif()
+
 # ---------- filesytem ---------- #
 include(CheckIncludeFileCXX)
 CHECK_INCLUDE_FILE_CXX(filesystem FILESYSTEM_INCLUDE_FILE)
@@ -172,7 +180,6 @@ if (Boost_FOUND)
             add_definitions(-DMETALL_RUN_LARGE_SCALE_TEST)
             message(STATUS "Run lage-scale tests")
         endif ()
-        enable_testing()
         add_subdirectory(test)
     endif ()
 
