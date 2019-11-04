@@ -180,6 +180,7 @@ if (Boost_FOUND)
             add_definitions(-DMETALL_RUN_LARGE_SCALE_TEST)
             message(STATUS "Run lage-scale tests")
         endif ()
+        enable_testing()
         add_subdirectory(test)
     endif ()
 

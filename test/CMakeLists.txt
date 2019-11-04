@@ -1,5 +1,3 @@
-enable_testing()
-
 #
 # Setup googletest downloaded and built by download_and_build_gtest()
 #
