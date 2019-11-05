@@ -33,8 +33,8 @@ env:
 
 script:
   - docker run --rm --user='root' -v ${TRAVIS_BUILD_DIR}:/home/axom axom/compilers:$IMG chown -R axom /home/axom
-  - docker run --rm  -v ${TRAVIS_BUILD_DIR}:/home/axom -e BOOST_VERSION -e BUILD_DIR axom/compilers:$IMG bash ./scripts/travis/download_boost.sh
-  - docker run --rm  -v ${TRAVIS_BUILD_DIR}:/home/axom -e DO_BUILD -e DO_TEST -e BOOST_VERSION -e GTEST_COLOR -e IMG -e BUILD_DIR axom/compilers:$IMG bash ./scripts/travis/build_and_test.sh
+  - docker run --rm  -v ${TRAVIS_BUILD_DIR}:/home/axom -e BOOST_VERSION -e BUILD_DIR axom/compilers:$IMG bash ./scripts/CI/download_boost.sh
+  - docker run --rm  -v ${TRAVIS_BUILD_DIR}:/home/axom -e DO_BUILD -e DO_TEST -e BOOST_VERSION -e GTEST_COLOR -e IMG -e BUILD_DIR axom/compilers:$IMG bash ./scripts/CI/build_and_test.sh
 
 after_success:
   - if [[ "${CMAKE_EXTRA_FLAGS}" == *"ENABLE_COVERAGE"* ]] ; then bash <(curl -s https://codecov.io/bash) -a "-f" >& /dev/null; fi
