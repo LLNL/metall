@@ -10,6 +10,8 @@ variables:
     METALL_TEST_DIR: "/l/ssd/"
     IMG: ""
 
+timeout: 1440 # 24 hours
+
 default:
   before_script:
     - echo "=== before_script section ==="
