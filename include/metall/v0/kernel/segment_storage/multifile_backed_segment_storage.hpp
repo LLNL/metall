@@ -20,6 +20,8 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
+/// \brief Segment storage that uses mutiple backing files
+/// The current implementation does not delete files even though that are empty
 template <typename different_type, typename size_type>
 class multifile_backed_segment_storage {
 
@@ -79,6 +81,12 @@ class multifile_backed_segment_storage {
   /// -------------------------------------------------------------------------------- ///
   /// Public methods
   /// -------------------------------------------------------------------------------- ///
+  /// \brief Check if there is a file that can be opened
+  static bool openable(const std::string &base_path) {
+    const auto file_name = priv_make_file_name(base_path, 0);
+    return util::file_exist(file_name);
+  }
+
   bool create(const std::string &base_path,
               const size_type vm_region_size,
               void *const vm_region,
@@ -145,7 +153,7 @@ class multifile_backed_segment_storage {
       priv_test_file_space_free(base_path);
     }
 
-    return  m_num_blocks > 0;
+    return m_num_blocks > 0;
   }
 
   bool extend(const size_type new_segment_size) {
@@ -328,7 +336,7 @@ class multifile_backed_segment_storage {
     ::close(ret.first);
 
     // Test freeing file space
-    char* buf = static_cast<char*>(ret.second);
+    char *buf = static_cast<char *>(ret.second);
     buf[0] = 0;
     if (util::uncommit_file_backed_pages(ret.second, file_size)) {
       m_free_file_space = true;
@@ -338,7 +346,7 @@ class multifile_backed_segment_storage {
 
     // Closing
     util::munmap(ret.second, file_size, false);
-    if (!util::remove_file(file_path) ){
+    if (!util::remove_file(file_path)) {
       std::cerr << "Failed to remove a file: " << file_path << std::endl;
       return;
     }
