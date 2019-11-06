@@ -1,6 +1,14 @@
 #!/bin/bash
 
+# Used environmental variables
+# BUILD_DIR
+# GTEST_COLOR
+# DO_BUILD
+# DO_TEST
+# IMG
+
 env
+
 function or_die () {
     "$@"
     local status=$?

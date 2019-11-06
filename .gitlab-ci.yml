@@ -1,21 +1,26 @@
-variables:
-  CMAKE_BASIC_FLAGS: "-DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=ON"
-  BOOST_VERSION: "70"
-  BOOST_ROOT: "${PWD}/boost_1_${BOOST_VERSION}_0"
+stages:
+  - build
+  - test
 
-before_script:
-  - echo "=== before_script section ==="
-  - wget -q --no-check-certificate https://gigenet.dl.sourceforge.net/project/boost/boost/1.${BOOST_VERSION}.0/boost_1_${BOOST_VERSION}_0.tar.bz2
-  - tar -xjf boost_1_${BOOST_VERSION}_0.tar.bz2
-  - spack install gcc9.2.0
-#  - spack install gcc9.1.0
-#  - spack install gcc8.3.0
-#  - spack install gcc8.2.0
-#  - spack install gcc8.1.0
+default:
+  variables:
+    BUILD_DIR: "gitlab_build"
+    GTEST_COLOR: "1"
+    DO_BUILD: "yes"
+    DO_TEST: "yes"
+    METALL_TEST_DIR: "/l/ssd/"
+    IMG: ""
 
+  before_script:
+    - echo "=== before_script section ==="
+    - spack install gcc@9.2.0
+    - spack install gcc@9.1.0
+    - spack install gcc@8.3.0
+    - spack install gcc@8.2.0
+    - spack install gcc@8.1.0
 
-after_script:
-  - echo "=== after_script section ==="
+  after_script:
+    - echo "=== after_script section ==="
 
 .build:
   stage: build
@@ -24,56 +29,29 @@ after_script:
     - shell
   script:
     - echo "=== build section ==="
-    - mkdir build
-    - cd build
-    - cmake -DBOOST_ROOT=${BOOST_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DUSE_SPACE_AWARE_BIN=${USE_SPACE_AWARE_BIN} ${CMAKE_BASIC_FLAGS} ../
+    - for b in {64..70}; do export BOOST_VERSION=${b}; bash ./scripts/CI/download_boost.sh; salloc -N1 -t 2-00:00 --clear-ssd bash ./scripts/CI/build_and_test.sh; done
 
-.build_debug:
-  variables:
-    BUILD_TYPE: "Debug"
+build_gcc9.2:
   extends: .build
+  script:
+    - spack load gcc@9.2.0
 
-.build_release:
-  variables:
-    BUILD_TYPE: "Release"
+build_gcc9.1:
   extends: .build
+  script:
+    - spack load gcc@9.1.0
 
-.build_relwithdebinfo:
-  variables:
-    BUILD_TYPE: "RelWithDebInfo"
+build_gcc8.3:
   extends: .build
-
-build_gcc9.2_debug:
-  variables:
-    USE_SPACE_AWARE_BIN: "ON"
-  extends: .build_debug
   script:
-    - spack load gcc9.2.0
+    - spack load gcc@8.3.0
 
-build_gcc9.2_release:
-  variables:
-    USE_SPACE_AWARE_BIN: "ON"
-  extends: .build_release
+build_gcc8.2:
+  extends: .build
   script:
-    - spack load gcc9.2.0
+    - spack load gcc@8.2.0
 
-test_gtest:
-  stage: test
-  tags:
-    - catalyst
-    - shell
+build_gcc8.1:
+  extends: .build
   script:
-    - echo "=== test section ==="
-    - salloc -N1 -t 30:00
-    - ctest -T test --output-on-failure -V
-
-test_adj:
-  stage: test
-  tags:
-    - catalyst
-    - shell
-  script:
-    - echo "=== test section ==="
-    - salloc -N1 -t 30:00
-    - cd bench/adjacency_list
-    - . ../../../bench/adjacency_list/test/test.sh
+    - spack load gcc@8.1.0

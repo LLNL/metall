@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
 project(Metall)
 
 # -------------------------------------------------------------------------------- #
@@ -15,7 +15,8 @@ option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding syste
 option(BUILD_C "Build C examples and libraries" ON)
 
 # ---------- Experimental options ---------- #
-option(SKIP_GTEST_DOWNLOAD "Skip downloading Google Test" OFF)
+option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
+option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(FREE_SMALL_OBJECT_SIZE_HINT
        "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
@@ -126,6 +127,13 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
         endif ()
     endif ()
 endif ()
+
+
+# ---------- Only downloading Google Test ---------- #
+if (ONLY_DOWNLOAD_GTEST)
+    add_subdirectory(test)
+    return()
+endif()
 
 # ---------- filesytem ---------- #
 include(CheckIncludeFileCXX)
