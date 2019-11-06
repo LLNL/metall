@@ -75,6 +75,11 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                                                      const bool read_only,
                                                      const size_type vm_reserve_size) {
+  // Check if there is a file that can be used
+  if (!m_segment_storage.openable(priv_make_file_name(base_dir_path, k_segment_prefix))) {
+    return false; // This is not an fatal error due to the open_or_create mode
+  }
+
   m_base_dir_path = base_dir_path;
 
   if (!priv_reserve_vm_region(vm_reserve_size)) {
@@ -91,7 +96,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                               m_vm_region_size - offset,
                               static_cast<char *>(m_vm_region) + offset,
                               read_only)) {
-    return false; // Note: this is not an fatal error due to open_or_create mode
+    std::abort();
   }
 
   if(!priv_deserialize_management_data()) {
