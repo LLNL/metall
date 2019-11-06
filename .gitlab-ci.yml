@@ -2,8 +2,7 @@ stages:
   - build
   - test
 
-default:
-  variables:
+variables:
     BUILD_DIR: "gitlab_build"
     GTEST_COLOR: "1"
     DO_BUILD: "yes"
@@ -11,6 +10,7 @@ default:
     METALL_TEST_DIR: "/l/ssd/"
     IMG: ""
 
+default:
   before_script:
     - echo "=== before_script section ==="
     - spack install gcc@9.2.0
