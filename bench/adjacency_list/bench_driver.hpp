@@ -22,16 +22,24 @@ namespace adjacency_list_bench {
 // ---------------------------------------- //
 // Option
 // ---------------------------------------- //
+#ifdef SMALL_ALLOCATION_TEST
+constexpr std::size_t k_default_chunk_size = 1ULL << 10ULL;
+#else
+constexpr std::size_t k_default_chunk_size = 1ULL << 26ULL;
+#endif
+
 struct bench_options {
   std::vector<std::string> segment_file_name_list;
   std::string adj_list_key_name{"adj_list"};
+
+  std::size_t chunk_size = k_default_chunk_size;
 
   std::size_t segment_size{1 << 25};
   std::vector<std::string> input_file_name_list;
 
   uint64_t seed{123};
   uint64_t vertex_scale{17};
-  uint64_t edge_count{(1ULL << 17ULL) * 16};
+  std::size_t edge_count{(1ULL << 17ULL) * 16};
   double a{0.57};
   double b{0.19};
   double c{0.19};
@@ -41,9 +49,38 @@ struct bench_options {
   std::string dump_file_name;
 };
 
+inline void disp_options(const bench_options &option) {
+  std::cout << "adj_list_key_name" << option.adj_list_key_name << std::endl;
+  std::cout << "chunk_size" << option.chunk_size << std::endl;
+
+  if (!option.segment_file_name_list.empty()) {
+    std::cout << "segment_file_name: " << std::endl;
+    for (const auto &name : option.segment_file_name_list) {
+      std::cout << " " << name << std::endl;
+    }
+  }
+  std::cout << "segment_size: " << option.segment_size << std::endl;
+
+  if (option.input_file_name_list.empty()) {
+    std::cout << "seed: " << option.seed
+              << "\nvertex_scale: " << option.vertex_scale
+              << "\nedge_count: " << option.edge_count
+              << "\na: " << option.a
+              << "\nb: " << option.b
+              << "\nc: " << option.c
+              << "\nscramble_id: " << static_cast<int>(option.scramble_id)
+              << "\nundirected: " << static_cast<int>(option.undirected) << std::endl;
+  } else {
+    std::cout << "Input file list:" << std::endl;
+    for (const auto &str : option.input_file_name_list) {
+      std::cout << str << std::endl;
+    }
+  }
+}
+
 inline bool parse_options(int argc, char **argv, bench_options *option) {
   int p;
-  while ((p = ::getopt(argc, argv, "o:k:f:s:v:e:a:b:c:r:u:d:")) != -1) {
+  while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:")) != -1) {
     switch (p) {
       case 'o': {
         option->segment_file_name_list.clear();
@@ -52,6 +89,9 @@ inline bool parse_options(int argc, char **argv, bench_options *option) {
       }
 
       case 'k': option->adj_list_key_name = optarg;
+        break;
+
+      case 'n': option->chunk_size = std::stoull(optarg);
         break;
 
       case 'f':option->segment_size = std::stoull(optarg);
@@ -94,30 +134,7 @@ inline bool parse_options(int argc, char **argv, bench_options *option) {
     option->input_file_name_list.emplace_back(argv[index]);
   }
 
-  if (!option->segment_file_name_list.empty()) {
-    std::cout << "segment_file_name: " << std::endl;
-    for (const auto &name : option->segment_file_name_list) {
-      std::cout << " " << name << std::endl;
-    }
-  }
-  std::cout << "segment_size: " << option->segment_size << std::endl;
-
-  if (option->input_file_name_list.empty()) {
-    std::cout << "adj_list_key_name" << option->adj_list_key_name
-              << "\nseed: " << option->seed
-              << "\nvertex_scale: " << option->vertex_scale
-              << "\nedge_count: " << option->edge_count
-              << "\na: " << option->a
-              << "\nb: " << option->b
-              << "\nc: " << option->c
-              << "\nscramble_id: " << static_cast<int>(option->scramble_id)
-              << "\nundirected: " << static_cast<int>(option->undirected) << std::endl;
-  } else {
-    std::cout << "Input file list:" << std::endl;
-    for (const auto &str : option->input_file_name_list) {
-      std::cout << str << std::endl;
-    }
-  }
+  disp_options(*option);
 
   return true;
 }
@@ -134,26 +151,28 @@ struct numa_aware_bench_t {};
 /// \brief Run benchmark reading files that contain key-value data, such as edge list
 template <typename adjacency_list_type>
 inline double run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
+                                const std::size_t chunk_size,
                                 single_numa_bench_t,
                                 adjacency_list_type *adj_list) {
 
   utility::pair_reader<typename adjacency_list_type::key_type, typename adjacency_list_type::value_type>
       reader(input_file_name_list.begin(), input_file_name_list.end());
 
-  return kernel(reader.begin(), reader.end(), adj_list);
+  return kernel(chunk_size, reader.begin(), reader.end(), adj_list);
 }
 
 /// \brief Run benchmark reading files that contain key-value data, such as edge list.
 /// Uses the NUMA-aware benchmark kernel
 template <typename adjacency_list_type>
 inline double run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
+                                const std::size_t chunk_size,
                                 numa_aware_bench_t,
                                 adjacency_list_type *adj_list) {
 
   utility::pair_reader<typename adjacency_list_type::key_type, typename adjacency_list_type::value_type>
       reader(input_file_name_list.begin(), input_file_name_list.end());
 
-  return numa_aware_kernel(reader.begin(), reader.end(), adj_list);
+  return numa_aware_kernel(chunk_size, reader.begin(), reader.end(), adj_list);
 }
 
 /// \brief Run benchmark generating an rmat graph
@@ -161,11 +180,12 @@ template <typename adjacency_list_type>
 inline double run_bench_rmat_edge(const uint32_t seed, const uint64_t vertex_scale, const uint64_t edge_count,
                                   const double a, const double b, const double c,
                                   const bool scramble_id, const bool undirected,
+                                  const std::size_t chunk_size,
                                   single_numa_bench_t,
                                   adjacency_list_type *adj_list) {
 
   edge_generator::rmat_edge_generator rmat(seed, vertex_scale, edge_count, a, b, c, scramble_id, undirected);
-  return kernel(rmat.begin(), rmat.end(), adj_list);
+  return kernel(chunk_size, rmat.begin(), rmat.end(), adj_list);
 }
 
 /// \brief Run benchmark generating an rmat graph
@@ -174,11 +194,12 @@ template <typename adjacency_list_type>
 inline double run_bench_rmat_edge(const uint32_t seed, const uint64_t vertex_scale, const uint64_t edge_count,
                                   const double a, const double b, const double c,
                                   const bool scramble_id, const bool undirected,
+                                  const std::size_t chunk_size,
                                   numa_aware_bench_t,
                                   adjacency_list_type *adj_list) {
 
   edge_generator::rmat_edge_generator rmat(seed, vertex_scale, edge_count, a, b, c, scramble_id, undirected);
-  return numa_aware_kernel(rmat.begin(), rmat.end(), adj_list);
+  return numa_aware_kernel(chunk_size, rmat.begin(), rmat.end(), adj_list);
 }
 
 template <typename adjacency_list_type>
@@ -209,12 +230,13 @@ void run_bench(const bench_options &options, bench_mode_type, adjacency_list_typ
   double elapsed_time_sec;
   if (options.input_file_name_list.size() > 0) {
     std::cout << "Get inputs from key-value files" << std::endl;
-    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list, bench_mode_type(), adj_list);
+    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list, options.chunk_size, bench_mode_type(), adj_list);
   } else {
     std::cout << "Get inputs from the RMAT edge generator" << std::endl;
     elapsed_time_sec = run_bench_rmat_edge(options.seed, options.vertex_scale, options.edge_count,
                                            options.a, options.b, options.c,
-                                           options.scramble_id, options.undirected, bench_mode_type(), adj_list);
+                                           options.scramble_id, options.undirected,
+                                           options.chunk_size, bench_mode_type(), adj_list);
   }
   std::cout << "Finished adj_list (s)\t" << elapsed_time_sec << std::endl;
 

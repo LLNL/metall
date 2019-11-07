@@ -18,6 +18,7 @@ add_executable(run_adj_list_bench_bip run_adj_list_bench_bip.cpp)
 add_executable(run_adj_list_bench_bip_extend run_adj_list_bench_bip_extend.cpp)
 add_executable(run_adj_list_bench_metall run_adj_list_bench_metall.cpp)
 add_executable(run_adj_list_bench_metall_numa run_adj_list_bench_metall_numa.cpp)
+add_executable(run_adj_list_bench_reflink_snapshot run_adj_list_bench_reflink_snapshot.cpp)
 
 # Experimental version
 #if (JEMALLOC_ROOT)
