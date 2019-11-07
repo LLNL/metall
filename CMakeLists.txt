@@ -13,6 +13,7 @@ option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 option(BUILD_C "Build C examples and libraries" ON)
+option(DISABLE_FREE_FILE_SPACE "Diable freeing file space" OFF)
 
 # ---------- Experimental options ---------- #
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
@@ -92,6 +93,11 @@ endif()
 if (VERBOSE_SYSTEM_SUPPORT_WARNING)
     add_definitions(-DMETALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
     message(STATUS "Show compile time warning regarding system support")
+endif()
+
+if (DISABLE_FREE_FILE_SPACE)
+    add_definitions(-DMETALL_DISABLE_FREE_FILE_SPACE)
+    message(STATUS "Disable freeing file space in Metall")
 endif()
 
 # -------------------------------------------------------------------------------- #
