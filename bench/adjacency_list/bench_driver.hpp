@@ -50,8 +50,8 @@ struct bench_options {
 };
 
 inline void disp_options(const bench_options &option) {
-  std::cout << "adj_list_key_name" << option.adj_list_key_name << std::endl;
-  std::cout << "chunk_size" << option.chunk_size << std::endl;
+  std::cout << "adj_list_key_name: " << option.adj_list_key_name << std::endl;
+  std::cout << "chunk_size: " << option.chunk_size << std::endl;
 
   if (!option.segment_file_name_list.empty()) {
     std::cout << "segment_file_name: " << std::endl;

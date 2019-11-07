@@ -15,9 +15,10 @@ case "$OSTYPE" in
   darwin*)  GRAPH_DIR_ROOT="/tmp";;
   linux*)   GRAPH_DIR_ROOT="/dev/shm";;
 esac
-NO_DELETE_FILES_AT_END=false
+CHUNK_SIZE=$((2**20))
+NO_CLEANING_FILES_AT_END=false
 
-while getopts "v:f:r:l:m:t:s:g:n" OPT
+while getopts "v:f:r:l:m:t:s:g:n:c" OPT
 do
   case $OPT in
     v) V=$OPTARG;;
@@ -27,7 +28,8 @@ do
     t) NUM_THREADS="env OMP_NUM_THREADS=${OPTARG}";;
     s) SCHEDULE="env OMP_SCHEDULE=${OPTARG}";;
     g) GRAPH_DIR_ROOT=$OPTARG;;
-    n) NO_DELETE_FILES_AT_END=true;;
+    n) CHUNK_SIZE=$OPTARG;;
+    c) NO_CLEANING_FILES_AT_END=true;;
     :) echo  "[ERROR] Option argument is undefined.";;   #
     \?) echo "[ERROR] Undefined options.";;
   esac
@@ -149,7 +151,7 @@ run() {
     execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -g "${GRAPH_DIR}/${GRAPH_NAME}" -k ${ADJ_LIST_KEY_NAME} -r ${BFS_ROOT} -m ${MAX_VERTEX_ID}
 
 
-    if ${NO_DELETE_FILES_AT_END}; then
+    if ${NO_CLEANING_FILES_AT_END}; then
         echo "Do not delete the used directory"
     else
         echo "Delete the used directory"
