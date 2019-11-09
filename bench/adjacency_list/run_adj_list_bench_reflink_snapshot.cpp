@@ -3,6 +3,9 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+#include <ftw.h>
+#include <sys/stat.h>
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -45,6 +48,23 @@ void reflink_copy(const std::string &source_path, const std::string &destination
   }
 }
 
+ssize_t g_directory_total = 0;
+int sum_file_sizes(const char *, const struct stat *statbuf, int typeflag) {
+  if (typeflag == FTW_F)
+    g_directory_total += statbuf->st_size;
+  return 0;
+}
+
+ssize_t get_directory_size_gb(const std::string& dir_path) {
+  if (::ftw(dir_path.c_str(), &sum_file_sizes, 1) == -1) {
+    g_directory_total = 0;
+    return  -1;
+  }
+  const auto wk = g_directory_total;
+  g_directory_total = 0;
+  return (double)wk / (1ULL << 30ULL);
+}
+
 int main(int argc, char *argv[]) {
 
   bench_options option;
@@ -64,6 +84,8 @@ int main(int argc, char *argv[]) {
     std::size_t snapshot_num = 0;
     auto snapshot_func = [&option, &manager, &snapshot_num]() {
       manager.sync();
+      std::cout << "Original datastore size (GB)\t"
+                << get_directory_size_gb(option.segment_file_name_list[0]) << std::endl;
 
       std::stringstream snapshot_id;
       snapshot_id << std::setw(4) << std::setfill('0') << std::to_string(snapshot_num);
@@ -73,6 +95,8 @@ int main(int argc, char *argv[]) {
         normal_copy(option.segment_file_name_list[0], snapshot_dir);
         const auto elapsed_time = util::elapsed_time_sec(start);
         std::cout << "Normal copy took (s)\t" << elapsed_time << std::endl;
+        std::cout << "Normal copy datastore size (GB)\t"
+                  << get_directory_size_gb(snapshot_dir) << std::endl;
       }
 
       {
@@ -81,6 +105,8 @@ int main(int argc, char *argv[]) {
         reflink_copy(option.segment_file_name_list[0], snapshot_dir);
         const auto elapsed_time = util::elapsed_time_sec(start);
         std::cout << "reflink copy took (s)\t" << elapsed_time << std::endl;
+        std::cout << "reflink copy datastore size (GB)\t"
+                  << get_directory_size_gb(snapshot_dir) << std::endl;
       }
 
       ++snapshot_num;
