@@ -22,35 +22,36 @@ class metall_mpi_adaptor {
   // -------------------------------------------------------------------------------- //
   metall_mpi_adaptor(metall::open_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
+        m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     const auto ret = make_local_dir_path(data_store_dir, comm);
-    const auto local_dir_path = make_local_dir_path(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_only, local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_only, m_local_dir_path.c_str());
   }
 
   metall_mpi_adaptor(metall::open_read_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
+        m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     const auto local_dir_path = make_local_dir_path(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_read_only, local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_read_only, m_local_dir_path.c_str());
   }
 
   metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
+        m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     find_or_create_top_level_dir(data_store_dir, comm);
-    const auto local_dir_path = make_local_dir_path(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::create_only, local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::create_only, m_local_dir_path.c_str());
   }
 
   metall_mpi_adaptor(metall::open_or_create_t,
                      const std::string &data_store_dir,
                      const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
+        m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     find_or_create_top_level_dir(data_store_dir, comm);
-    const auto local_dir_path = make_local_dir_path(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_or_create, local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_or_create, m_local_dir_path.c_str());
   }
 
   ~metall_mpi_adaptor() {
@@ -67,6 +68,10 @@ class metall_mpi_adaptor {
 
   const metall::manager &get_local_manager() const {
     return *m_local_metall_manager_pointer;
+  }
+
+  std::string local_dir_path() const {
+    return m_local_dir_path;
   }
 
  private:
@@ -109,6 +114,7 @@ class metall_mpi_adaptor {
   }
 
   MPI_Comm m_mpi_comm;
+  std::string m_local_dir_path;
   std::unique_ptr<metall::manager> m_local_metall_manager_pointer;
 };
 
