@@ -51,11 +51,11 @@ void reflink_copy(const std::string &source_path, const std::string &destination
 ssize_t g_directory_total = 0;
 int sum_file_sizes(const char *, const struct stat *statbuf, int typeflag) {
   if (typeflag == FTW_F)
-    g_directory_total += statbuf->st_size;
+    g_directory_total += statbuf->st_blocks * 512LL;
   return 0;
 }
 
-ssize_t get_directory_size_gb(const std::string& dir_path) {
+double get_directory_size_gb(const std::string& dir_path) {
   if (::ftw(dir_path.c_str(), &sum_file_sizes, 1) == -1) {
     g_directory_total = 0;
     return  -1;
