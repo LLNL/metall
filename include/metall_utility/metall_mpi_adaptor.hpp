@@ -82,14 +82,17 @@ class metall_mpi_adaptor {
   // -------------------------------------------------------------------------------- //
   static void find_or_create_top_level_dir(const std::string &base_dir_path, const MPI_Comm &comm) {
     const int rank = mpi_comm_rank(comm);
-    if (rank == 0) {
-      const std::string full_path = base_dir_path + "/" + k_datastore_top_level_dir_name;
-      if (!metall::detail::utility::file_exist(full_path) && !metall::detail::utility::create_directory(full_path)) {
-        std::cerr << "Failed to create directory: " << full_path << std::endl;
-        MPI_Abort(comm, -1);
+
+    for (int i = 0; i < mpi_comm_size(comm); ++i) {
+      if (i == rank) {
+        const std::string full_path = base_dir_path + "/" + k_datastore_top_level_dir_name;
+        if (!metall::detail::utility::file_exist(full_path) && !metall::detail::utility::create_directory(full_path)) {
+          std::cerr << "Failed to create directory: " << full_path << std::endl;
+          MPI_Abort(comm, -1);
+        }
       }
+      mpi_barrier(comm);
     }
-    mpi_barrier(comm);
   }
 
   static std::string make_local_dir_path(const std::string &base_dir_path, const MPI_Comm &comm) {
@@ -104,6 +107,15 @@ class metall_mpi_adaptor {
       MPI_Abort(comm, -1);
     }
     return rank;
+  }
+
+  static int mpi_comm_size(const MPI_Comm &comm) {
+    int num_ranks;
+    if (::MPI_Comm_size(comm, &num_ranks) != MPI_SUCCESS) {
+      std::cerr << __FILE__ << " : " << __func__ << " Failed MPI_Comm_size" << std::endl;
+      MPI_Abort(comm, -1);
+    }
+    return num_ranks;
   }
 
   static void mpi_barrier(const MPI_Comm &comm) {
