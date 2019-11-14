@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Normal copy took (s)\t" << elapsed_time << std::endl;
         std::cout << "Normal copy datastore size (GB)\t"
                   << get_directory_size_gb(snapshot_dir) << std::endl;
-        std::string out_file_name("snapshot-size-copy-" + snapshot_id.str());
+        std::string out_file_name("storage-usage-copy-" + snapshot_id.str());
         run_df(snapshot_dir, out_file_name);
       }
 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
         std::cout << "reflink copy took (s)\t" << elapsed_time << std::endl;
         std::cout << "reflink copy datastore size (GB)\t"
                   << get_directory_size_gb(snapshot_dir) << std::endl;
-        std::string out_file_name("snapshot-size-reflink-" + snapshot_id.str());
+        std::string out_file_name("storage-usage-reflink-" + snapshot_id.str());
         run_df(snapshot_dir, out_file_name);
       }
 
