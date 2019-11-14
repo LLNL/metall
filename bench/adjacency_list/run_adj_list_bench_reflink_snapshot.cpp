@@ -5,12 +5,11 @@
 
 #include <ftw.h>
 #include <sys/stat.h>
-
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <iomanip>
-
 #include <metall/metall.hpp>
 #include <metall/detail/utility/time.hpp>
 #include <metall/detail/utility/file_clone.hpp>
@@ -65,6 +64,11 @@ double get_directory_size_gb(const std::string& dir_path) {
   return (double)wk / (1ULL << 30ULL);
 }
 
+void run_df(const std::string& dir_path, const std::string& out_file_name) {
+  std::string command("df " + dir_path + " > " + out_file_name);
+  std::system(command.c_str());
+}
+
 int main(int argc, char *argv[]) {
 
   bench_options option;
@@ -97,6 +101,8 @@ int main(int argc, char *argv[]) {
         std::cout << "Normal copy took (s)\t" << elapsed_time << std::endl;
         std::cout << "Normal copy datastore size (GB)\t"
                   << get_directory_size_gb(snapshot_dir) << std::endl;
+        std::string out_file_name("snapshot-size-copy-" + snapshot_id.str());
+        run_df(snapshot_dir, out_file_name);
       }
 
       {
@@ -107,6 +113,8 @@ int main(int argc, char *argv[]) {
         std::cout << "reflink copy took (s)\t" << elapsed_time << std::endl;
         std::cout << "reflink copy datastore size (GB)\t"
                   << get_directory_size_gb(snapshot_dir) << std::endl;
+        std::string out_file_name("snapshot-size-reflink-" + snapshot_id.str());
+        run_df(snapshot_dir, out_file_name);
       }
 
       ++snapshot_num;
