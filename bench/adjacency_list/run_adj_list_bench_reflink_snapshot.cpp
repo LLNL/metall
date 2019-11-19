@@ -16,6 +16,8 @@
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
 
+#define USE_REFLINK_COPY 1
+
 using namespace adjacency_list_bench;
 
 using key_type = uint64_t;
@@ -93,6 +95,8 @@ int main(int argc, char *argv[]) {
 
       std::stringstream snapshot_id;
       snapshot_id << std::setw(4) << std::setfill('0') << std::to_string(snapshot_num);
+
+#if !USE_REFLINK_COPY
       {
         const auto snapshot_dir = option.segment_file_name_list[0] + "-normal-snapshot-" + snapshot_id.str();
         const auto start = util::elapsed_time_sec();
@@ -104,7 +108,7 @@ int main(int argc, char *argv[]) {
         std::string out_file_name("storage-usage-copy-" + snapshot_id.str());
         run_df(snapshot_dir, out_file_name);
       }
-
+#else
       {
         const auto snapshot_dir = option.segment_file_name_list[0] + "-reflink-snapshot-" + snapshot_id.str();
         const auto start = util::elapsed_time_sec();
@@ -116,6 +120,7 @@ int main(int argc, char *argv[]) {
         std::string out_file_name("storage-usage-reflink-" + snapshot_id.str());
         run_df(snapshot_dir, out_file_name);
       }
+#endif
 
       ++snapshot_num;
     };
