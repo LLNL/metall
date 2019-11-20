@@ -42,7 +42,9 @@ inline void configure_numa() {
 }
 
 template <typename adjacency_list_type, typename input_iterator>
-inline double numa_aware_kernel(input_iterator itr, input_iterator end, adjacency_list_type *const adj_list) {
+inline double numa_aware_kernel(const std::size_t chunk_size,
+                                input_iterator itr, input_iterator end,
+                                adjacency_list_type *const adj_list) {
 
   configure_numa();
 
@@ -55,7 +57,7 @@ inline double numa_aware_kernel(input_iterator itr, input_iterator end, adjacenc
     std::cout << "\n[ " << count_loop << " ]" << std::endl;
 
     key_value_list.clear();
-    while (itr != end && key_value_list.size() < k_chunk_size) {
+    while (itr != end && key_value_list.size() < chunk_size) {
       key_value_list.emplace_back(*itr);
       ++itr;
     }

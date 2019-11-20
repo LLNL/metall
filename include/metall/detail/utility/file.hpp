@@ -162,8 +162,8 @@ inline ssize_t get_file_size(const std::string &file_name) {
 inline ssize_t get_actual_file_size(const std::string &file_name) {
   struct stat statbuf;
   if (::stat(file_name.c_str(), &statbuf) != 0) {
-    ::perror("stat");
-    std::cerr << "errno: " << errno << std::endl;
+    // ::perror("stat");
+    // std::cerr << "errno: " << errno << std::endl;
     return -1;
   }
   return statbuf.st_blocks * 512LL;

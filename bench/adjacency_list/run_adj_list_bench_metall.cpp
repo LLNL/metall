@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include <metall/metall.hpp>
 #include <metall/detail/utility/time.hpp>
