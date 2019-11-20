@@ -79,6 +79,17 @@ if (RUN_BUILD_AND_TEST_WITH_CI)
     set(CMAKE_C_FLAGS_RELEASE "-O3")
 endif ()
 
+# ---------- MPI ---------- #
+find_package(MPI)
+if (MPI_C_FOUND )
+    include_directories(MPI_C_INCLUDE_PATH)
+endif()
+
+if (MPI_CXX_FOUND)
+    include_directories(MPI_CXX_INCLUDE_PATH)
+endif()
+
+
 # ---------- Configure Metall ---------- #
 if (USE_SPACE_AWARE_BIN)
     add_definitions(-DMETALL_USE_SPACE_AWARE_BIN)

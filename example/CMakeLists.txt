@@ -28,3 +28,13 @@ if (BUILD_C)
     add_executable(c_api c_api.c)
     target_link_libraries(c_api metall_c)
 endif()
+
+if (MPI_CXX_FOUND)
+    add_executable(mpi_create mpi_create)
+    target_link_libraries(mpi_create PUBLIC MPI::MPI_CXX)
+
+    add_executable(mpi_open mpi_open)
+    target_link_libraries(mpi_open PUBLIC MPI::MPI_CXX)
+else()
+    message(STATUS "Will skip bulding the MPI examples")
+endif()
