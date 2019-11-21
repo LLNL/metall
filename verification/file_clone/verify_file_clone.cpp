@@ -33,26 +33,28 @@ void init_file(const std::string &file_path, const std::size_t size) {
 
 void update_file(const std::string &file_path,
                  const std::size_t size,
-                 const std::size_t offset,
                  const std::size_t update_value) {
 
-  auto ret = util::map_file_write_mode(file_path, nullptr, size, 0);
-  if (ret.first == -1 || !ret.second) {
+  int fd;
+  void* addr;
+  std::tie(fd, addr) = util::map_file_write_mode(file_path, nullptr, size, 0);
+  if (fd == -1 || !addr) {
     std::abort();
   }
 
-  auto map = static_cast<std::size_t *>(ret.second);
+  auto map = static_cast<std::size_t *>(addr);
 
   for (std::size_t i = 0; i < size / sizeof(std::size_t); ++i) {
     map[i] = i + update_value;
   }
 
-  util::munmap(ret.first, ret.second, size, true);
+  if (!util::munmap(fd, addr, size, true)) {
+    std::abort();
+  }
 }
 
 void validate_file(const std::string &file_path,
                    const std::size_t size,
-                   const std::size_t offset,
                    const std::size_t update_value) {
 
   auto ret = util::map_file_read_mode(file_path, nullptr, size, 0);
@@ -64,12 +66,15 @@ void validate_file(const std::string &file_path,
 
   for (std::size_t i = 0; i < size / sizeof(std::size_t); ++i) {
     if (map[i] != i + update_value) {
-      std::cerr << "Invalid value at " << i << std::endl;
+      std::cerr << "Invalid value at " << i << ": has to be "
+                << i + update_value << " instead of " << map[i] << std::endl;
       std::abort();
     }
   }
 
-  util::munmap(ret.first, ret.second, size, false);
+  if (!util::munmap(ret.first, ret.second, size, false)) {
+    std::abort();
+  }
 }
 
 // FIXME: check sparse copy
@@ -82,28 +87,31 @@ int main(int argc, char *argv[]) {
   util::remove_file(source_file_path);
   util::remove_file(destination_file_path);
 
+  std::cout << "Init the source file" << std::endl;
   init_file(source_file_path, file_size);
 
+  std::cout << "\nClone the file" << std::endl;
   if (!util::clone_file(source_file_path, destination_file_path, true)) {
     std::cerr << "Failed to clone file: " << source_file_path << " to " << destination_file_path << std::endl;
     std::abort();
   }
 
-  validate_file(destination_file_path, file_size, 0, 0);
+  std::cout << "Validate the clone file" << std::endl;
+  validate_file(destination_file_path, file_size, 0);
 
-  std::cout << source_file_path
-            << "\nfile size = " << util::get_file_size(source_file_path)
-            << "\nactual file size = " << util::get_actual_file_size(source_file_path) << std::endl;
+  std::cout << "\nUpdate the source file" << std::endl;
+  update_file(source_file_path, file_size, 1);
+  std::cout << "Validate the source file" << std::endl;
+  validate_file(source_file_path, file_size, 1);
+  std::cout << "Validate the clone file (to make sure there is no affect to the clone file)" << std::endl;
+  validate_file(destination_file_path, file_size, 0);
 
-  std::cout << destination_file_path
-            << "\nfile size = " << util::get_file_size(destination_file_path)
-            << "\nactual file size = " << util::get_actual_file_size(destination_file_path) << std::endl;
-
-  update_file(destination_file_path, file_size / 4ULL, file_size / 2ULL, 123);
-  validate_file(destination_file_path, file_size / 4ULL, file_size / 2ULL, 123);
-  std::cout << destination_file_path
-            << "\nfile size = " << util::get_file_size(destination_file_path)
-            << "\nactual file size = " << util::get_actual_file_size(destination_file_path) << std::endl;
+  std::cout << "\nUpdate the clone file" << std::endl;
+  update_file(destination_file_path, file_size, 2);
+  std::cout << "Validate the clone file" << std::endl;
+  validate_file(destination_file_path, file_size, 2);
+  std::cout << "Validate the source file (to make sure there is no affect to the source file)" << std::endl;
+  validate_file(source_file_path, file_size, 1);
 
   return 0;
 }
