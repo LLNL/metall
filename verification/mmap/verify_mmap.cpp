@@ -69,7 +69,7 @@ void unmap(void *const addr, const std::size_t size) {
   std::cout << __FUNCTION__ << " done" << std::endl;
 }
 
-auto gen_index(const std::size_t length) {
+auto gen_random_index(const std::size_t length) {
 
   std::vector<std::size_t> index_list(length);
 
@@ -124,29 +124,41 @@ int main(int argc, char *argv[]) {
 
     const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
     std::cout << "#of threads: " << num_threads << std::endl;
-    std::vector<std::thread *> threads(num_threads, nullptr);
 
     const int num_mutex = 1024;
     std::mutex mutex_list[num_mutex];
 
     std::cout << "Generate index" << std::endl;
-    std::vector<std::vector<std::size_t>> index_list;
-    for (int t = 0; t < num_threads; ++t) {
-      index_list.emplace_back(gen_index(length));
+    std::vector<std::vector<std::size_t>> index_list(num_threads);
+    {
+      std::vector<std::thread *> threads(num_threads, nullptr);
+      for (int t = 0; t < num_threads; ++t) {
+        threads[t] = new std::thread([&length, &num_threads, &index_list](const int thread_no) {
+                                       index_list[thread_no] = gen_random_index(length);
+                                       index_list[thread_no].resize(length / num_threads);
+                                     },
+                                     t);
+      }
+      for (auto &th : threads) {
+        th->join();
+      }
     }
 
     std::cout << "Write data" << std::endl;
-    for (int t = 0; t < num_threads; ++t) {
-      threads[t] = new std::thread([&index_list, &mutex_list, buf](const int thread_no) {
-                                     for (const auto idx : index_list[thread_no]) {
-                                       std::lock_guard<std::mutex> guard(mutex_list[idx % num_mutex]);
-                                       buf[idx] = idx;
-                                     }
-                                   },
-                                   t);
-    }
-    for (auto &th : threads) {
-      th->join();
+    {
+      std::vector<std::thread *> threads(num_threads, nullptr);
+      for (int t = 0; t < num_threads; ++t) {
+        threads[t] = new std::thread([&index_list, &mutex_list, buf](const int thread_no) {
+                                       for (const auto idx : index_list[thread_no]) {
+                                         std::lock_guard<std::mutex> guard(mutex_list[idx % num_mutex]);
+                                         buf[idx] = idx;
+                                       }
+                                     },
+                                     t);
+      }
+      for (auto &th : threads) {
+        th->join();
+      }
     }
     std::cout << "Write data done" << std::endl;
 
