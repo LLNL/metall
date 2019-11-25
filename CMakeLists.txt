@@ -174,6 +174,20 @@ endif ()
 # Clang now supports the C++17 <filesystem> library for iOS 13, macOS 10.15, watchOS 6, and tvOS 13. (50988273)
 # https://developer.apple.com/documentation/xcode_release_notes/xcode_11_beta_release_notes?language=objc
 
+# UMap
+if (UMAP_ROOT)
+    include_directories(${UMAP_ROOT}/include)
+    if(UNIX AND NOT APPLE)
+        find_library(LIBUMAP NAMES umap PATHS ${UMAP_ROOT}/lib)
+        if (LIBUMAP)
+            link_libraries(${LIBUMAP})
+            add_definitions(-DMETALL_USE_UMAP)
+        else()
+            message(FATAL_ERROR "Cannot find umap library")
+        endif ()
+    endif()
+endif()
+
 # Requre Boost
 if (RUN_BUILD_AND_TEST_WITH_CI)
     find_package(Boost)
