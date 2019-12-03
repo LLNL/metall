@@ -338,7 +338,7 @@ class umap_segment_storage {
     if (offset + nbytes > m_current_segment_size) return false;
 
 //   if (m_free_file_space) {
-//     util::free_file_space();
+//     util::free_mmap_region();
 //   }
 
     return true;

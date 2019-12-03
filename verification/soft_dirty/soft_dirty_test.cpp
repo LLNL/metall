@@ -8,7 +8,7 @@
 #include <metall/detail/utility/mmap.hpp>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/memory.hpp>
-#include "../test_utility.hpp"
+#include "../../test/test_utility.hpp"
 
 namespace {
 

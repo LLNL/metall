@@ -9,43 +9,7 @@
 #include <functional>
 #include <thread>
 
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/mmap.hpp>
-#include <metall/detail/utility/time.hpp>
-#include <metall/detail/utility/memory.hpp>
-#include <metall/detail/utility/common.hpp>
-
-namespace util = metall::detail::utility;
-
-static constexpr int k_map_nosync =
-#ifdef MAP_NOSYNC
-    MAP_NOSYNC;
-#else
-    0;
-#warning "MAP_NOSYNC is not defined"
-#endif
-
-std::pair<int, void *> map_file(const std::string &file_path, const std::size_t size) {
-  const auto start = util::elapsed_time_sec();
-
-  std::cout << "size: " << size << std::endl;
-
-  if (!util::create_file(file_path) || !util::extend_file_size(file_path, size)) {
-    std::cerr << __LINE__ << " Failed to initialize file: " << file_path << std::endl;
-    std::abort();
-  }
-
-  const auto ret = util::map_file_write_mode(file_path, nullptr, size, 0, k_map_nosync);
-  if (ret.first == -1 || !ret.second) {
-    std::cerr << __LINE__ << " Failed mapping" << std::endl;
-    std::abort();
-  }
-
-  const auto elapsed_time = util::elapsed_time_sec(start);
-  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
-
-  return ret;
-}
+#include "free_mmap_region.hpp"
 
 void commit_pages(const std::size_t size, void *const addr) {
   const std::size_t page_size = util::get_page_size();
@@ -88,49 +52,6 @@ void free_file_space(const std::size_t size,
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
-void os_msync(void *const addr, const std::size_t size) {
-  const auto start = util::elapsed_time_sec();
-  util::os_msync(addr, size, true);
-  const auto elapsed_time = util::elapsed_time_sec(start);
-  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
-}
-
-void close_file(const int fd) {
-  const auto start = util::elapsed_time_sec();
-  if (!util::os_close(fd)) {
-    std::cerr << __LINE__ << " Failed to close file" << std::endl;
-    std::abort();
-  }
-  const auto elapsed_time = util::elapsed_time_sec(start);
-  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
-}
-
-void os_fsync(const std::string &path) {
-  const int fd = ::open(path.c_str(), O_RDWR);
-  if (fd == -1) {
-    ::perror("open");
-    std::cerr << "errno: " << errno << std::endl;
-    std::abort();
-  }
-
-  const auto start = util::elapsed_time_sec();
-  util::os_fsync(fd);
-  const auto elapsed_time = util::elapsed_time_sec(start);
-  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
-}
-
-void unmap(void *const addr, const std::size_t size) {
-  const auto start = util::elapsed_time_sec();
-
-  if (!util::munmap(addr, size, false)) {
-    std::cerr << __LINE__ << " Failed to munmap" << std::endl;
-    std::abort();
-  }
-
-  const auto elapsed_time = util::elapsed_time_sec(start);
-  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
-}
-
 int main(int, char *argv[]) {
 
   const int mode = std::stoul(argv[1]);
@@ -147,7 +68,7 @@ int main(int, char *argv[]) {
   std::cout << "DRAM cache usage (GB)" << "\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 
   commit_pages(map_size, map_addr);
-  os_msync(map_addr, map_size);
+  sync_mmap(map_addr, map_size);
   std::cout << "DRAM usage (GB)" << "\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
   std::cout << "DRAM cache usage (GB)" << "\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 
@@ -163,10 +84,10 @@ int main(int, char *argv[]) {
                       }
                     },
                     map_addr);
-    os_msync(map_addr, map_size);
-    os_fsync(file_path);
+    sync_mmap(map_addr, map_size);
+    sync_file(file_path);
   } else if (mode == 1) {
-    std::cout << "uncommit_shared_pages and free_file_space" << std::endl;
+    std::cout << "uncommit_shared_pages and free_mmap_region" << std::endl;
 
     free_file_space(map_size,
                     [fd, map_addr](const std::size_t free_size, void *const free_addr) {
@@ -182,8 +103,8 @@ int main(int, char *argv[]) {
                     },
                     map_addr);
     close_file(fd);
-    os_msync(map_addr, map_size);
-    os_fsync(file_path);
+    sync_mmap(map_addr, map_size);
+    sync_file(file_path);
   } else if (mode == 2) {
     std::cout << "uncommit_file_backed_pages" << std::endl;
 
@@ -196,8 +117,8 @@ int main(int, char *argv[]) {
                       }
                     },
                     map_addr);
-    os_msync(map_addr, map_size);
-    os_fsync(file_path);
+    sync_mmap(map_addr, map_size);
+    sync_file(file_path);
   }
 
   unmap(map_addr, map_size);
