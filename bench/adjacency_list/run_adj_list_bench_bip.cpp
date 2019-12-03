@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <cstddef>
 
 #include <boost/interprocess/managed_mapped_file.hpp>
@@ -21,7 +20,7 @@ using key_type = uint64_t;
 using value_type = uint64_t;
 
 namespace bip = boost::interprocess;
-using allocator_type = bip::allocator<void, bip::managed_mapped_file::segment_manager>;
+using allocator_type = bip::allocator<std::byte, bip::managed_mapped_file::segment_manager>;
 using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
 
 namespace util = metall::detail::utility;
