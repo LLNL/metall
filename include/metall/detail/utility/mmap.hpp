@@ -20,6 +20,7 @@
 #endif
 
 #include <metall/detail/utility/memory.hpp>
+#include <metall//detail//utility/file.hpp>
 
 namespace metall {
 namespace detail {
@@ -160,8 +161,10 @@ inline bool munmap(void *const addr, const size_t length, const bool call_msync)
 }
 
 inline bool munmap(const int fd, void *const addr, const size_t length, const bool call_msync) {
-  ::close(fd);
-  return munmap(addr, length, call_msync);
+  bool ret = true;
+  ret &= os_close(fd);
+  ret &= munmap(addr, length, call_msync);
+  return  ret;
 }
 
 inline bool map_with_prot_none(void *const addr, const size_t length) {
@@ -238,7 +241,7 @@ class pagemap_reader {
   }
 
   ~pagemap_reader() {
-    ::close(m_fd);
+    os_close(m_fd);
   }
 
   // Bits 0-54  page frame number (PFN) if present

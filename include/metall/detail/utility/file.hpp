@@ -35,6 +35,15 @@ namespace fs = std::filesystem;
 }
 #endif
 
+inline bool os_close(const int fd) {
+  if (::close(fd) == -1) {
+    ::perror("close");
+    std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+  return true;
+}
+
 inline bool os_fsync(const int fd) {
   if (::fsync(fd) != 0) {
     ::perror("fsync");
@@ -53,9 +62,9 @@ inline bool fsync(const std::string &path) {
     return false;
   }
 
-  const bool ret = os_fsync(fd);
-
-  ::close(fd);
+  bool ret = true;
+  ret &= os_fsync(fd);
+  ret &= os_close(fd);
 
   return ret;
 }
@@ -102,8 +111,7 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
   bool ret = extend_file_size(fd, file_size);
 
   ret &= os_fsync(fd);
-
-  ::close(fd);
+  ret &= os_close(fd);
 
   return ret;
 }
@@ -117,9 +125,9 @@ inline bool create_file(const std::string &file_name) {
     return false;
   }
 
-  const bool ret = os_fsync(fd);
-
-  ::close(fd);
+  bool ret = true;
+  ret &= os_fsync(fd);
+  ret &= os_close(fd);
 
   return ret;
 }

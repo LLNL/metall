@@ -274,13 +274,13 @@ class multifile_backed_segment_storage {
                      util::map_file_write_mode(path, addr, file_size, 0, MAP_FIXED | map_nosync);
     if (ret.first == -1 || !ret.second) {
       std::cerr << "Failed to map a file: " << path << std::endl;
-      if (ret.first == -1) ::close(ret.first);
+      if (ret.first == -1) {
+        util::os_close(ret.first);
+      }
       return false;
     }
 
-    ::close(ret.first);
-
-    return true;
+    return util::os_close(ret.first);
   }
 
   void priv_destroy_segment() {
@@ -335,11 +335,14 @@ class multifile_backed_segment_storage {
 
     const auto ret = util::map_file_write_mode(file_path, nullptr, file_size, 0);
     if (ret.first == -1 || !ret.second) {
-      std::cerr << "Failed to map a file: " << file_path << std::endl;
-      if (ret.first == -1) ::close(ret.first);
+      std::cerr << "Failed to map file: " << file_path << std::endl;
+      if (ret.first == -1) util::os_close(ret.first);
       return;
     }
-    ::close(ret.first);
+    if(!util::os_close(ret.first)) {
+      std::cerr << "Failed to close file: " << file_path << std::endl;
+      return;
+    }
 
     // Test freeing file space
     char *buf = static_cast<char *>(ret.second);

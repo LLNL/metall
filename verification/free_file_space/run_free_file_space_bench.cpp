@@ -97,7 +97,10 @@ void os_msync(void *const addr, const std::size_t size) {
 
 void close_file(const int fd) {
   const auto start = util::elapsed_time_sec();
-  ::close(fd);
+  if (!util::os_close(fd)) {
+    std::cerr << __LINE__ << " Failed to close file" << std::endl;
+    std::abort();
+  }
   const auto elapsed_time = util::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }

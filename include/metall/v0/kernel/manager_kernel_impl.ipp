@@ -99,7 +99,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
     std::abort();
   }
 
-  if(!priv_deserialize_management_data()) {
+  if (!priv_deserialize_management_data()) {
     std::abort();
   }
 

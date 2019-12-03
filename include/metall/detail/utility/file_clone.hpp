@@ -50,10 +50,11 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
     return false;
   }
 
-  ::close(source_fd);
-  ::close(destination_fd);
+  int ret = true;
+  ret &= os_close(source_fd);
+  ret &= os_close(destination_fd);
 
-  return true;
+  return ret;
 #else
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
   #warning "ioctl_ficlone is not supported"

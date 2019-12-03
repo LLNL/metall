@@ -41,7 +41,10 @@ void *map_file(const std::string &backing_file_name, const size_t file_size) {
     std::abort();
   }
 
-  ::close(ret.first);
+  if (!metall::detail::utility::os_close(ret.first)) {
+    std::cerr << "Failed to close the file" << std::endl;
+    std::abort();
+  }
 
   return ret.second;
 }

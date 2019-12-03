@@ -123,7 +123,10 @@ void *map_with_single_file(const std::string &file_prefix, const std::size_t siz
     std::cerr << __LINE__ << " Failed mapping" << std::endl;
     std::abort();
   }
-  ::close(ret.first);
+  if(!util::os_close(ret.first)) {
+    std::cerr << __LINE__ << " Failed to close file: " << file_name << std::endl;
+    std::abort();
+  }
 
   const auto elapsed_time = util::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
@@ -162,7 +165,10 @@ void *map_with_multiple_files(const std::string &file_prefix, const std::size_t 
       std::cerr << __LINE__ << " Failed mapping" << std::endl;
       std::abort();
     }
-    ::close(ret.first);
+    if(!util::os_close(ret.first)) {
+      std::cerr << __LINE__ << " Failed to close file: " << file_name << std::endl;
+      std::abort();
+    }
   }
 
   const auto elapsed_time = util::elapsed_time_sec(start);
@@ -217,7 +223,10 @@ void *map_with_multiple_files_round_robin(const std::string &file_prefix,
       std::cerr << __LINE__ << " Failed mapping" << std::endl;
       std::abort();
     }
-    ::close(ret.first);
+    if(!util::os_close(ret.first)) {
+      std::cerr << __LINE__ << " Failed to close file: " << file_name << std::endl;
+      std::abort();
+    }
   }
 
   const auto elapsed_time = util::elapsed_time_sec(start);
