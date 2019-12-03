@@ -130,7 +130,12 @@ run() {
 
     exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
-    execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o "${DATASTORE_DIR}/${DATASTORE_NAME}" -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE}
+    if [[ $EXEC_NAME = "pmem" ]]; then
+        DATASTORE_PATH=${DATASTORE_DIR}/
+    else
+        DATASTORE_PATH=${DATASTORE_DIR}/${DATASTORE_NAME}
+    fi
+    execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE}
 
     ls -lsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
@@ -146,6 +151,7 @@ run() {
 
 main() {
     run bip
+    run pmem
     run metall
     #run metall_numa
     #run reflink_snapshot
