@@ -29,7 +29,7 @@ constexpr std::size_t k_default_chunk_size = 1ULL << 26ULL;
 #endif
 
 struct bench_options {
-  std::vector<std::string> segment_file_name_list;
+  std::vector<std::string> datastore_path_list;
   std::string adj_list_key_name{"adj_list"};
 
   std::size_t chunk_size = k_default_chunk_size;
@@ -53,9 +53,9 @@ inline void disp_options(const bench_options &option) {
   std::cout << "adj_list_key_name: " << option.adj_list_key_name << std::endl;
   std::cout << "chunk_size: " << option.chunk_size << std::endl;
 
-  if (!option.segment_file_name_list.empty()) {
-    std::cout << "segment_file_name: " << std::endl;
-    for (const auto &name : option.segment_file_name_list) {
+  if (!option.datastore_path_list.empty()) {
+    std::cout << "datastore_path_list: " << std::endl;
+    for (const auto &name : option.datastore_path_list) {
       std::cout << " " << name << std::endl;
     }
   }
@@ -83,8 +83,8 @@ inline bool parse_options(int argc, char **argv, bench_options *option) {
   while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:")) != -1) {
     switch (p) {
       case 'o': {
-        option->segment_file_name_list.clear();
-        boost::split(option->segment_file_name_list, optarg, boost::is_any_of(":"));
+        option->datastore_path_list.clear();
+        boost::split(option->datastore_path_list, optarg, boost::is_any_of(":"));
         break;
       }
 

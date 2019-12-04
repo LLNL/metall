@@ -30,8 +30,8 @@ int main(int argc, char *argv[]) {
   if (!parse_options(argc, argv, &option)) {
     std::abort();
   }
-  if (option.segment_file_name_list.empty()) {
-    std::cerr << "Segment file name is required" << std::endl;
+  if (option.datastore_path_list.empty()) {
+    std::cerr << "Datastore path is required" << std::endl;
     std::abort();
   }
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 
     // bip::file_mapping::remove(option.segment_file_name.c_str());
 
-    bip::managed_mapped_file mfile(bip::create_only, option.segment_file_name_list[0].c_str(), option.segment_size);
+    bip::managed_mapped_file mfile(bip::create_only, option.datastore_path_list[0].c_str(), option.segment_size);
     auto adj_list = mfile.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(mfile.get_allocator<std::byte>());
     run_bench(option, single_numa_bench, adj_list);
 

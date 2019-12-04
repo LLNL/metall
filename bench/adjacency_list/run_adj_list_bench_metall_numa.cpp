@@ -37,14 +37,14 @@ int main(int argc, char *argv[]) {
     std::abort();
   }
 
-  if (option.segment_file_name_list.empty()) {
-    std::cerr << "Segment file name is required" << std::endl;
+  if (option.datastore_path_list.empty()) {
+    std::cerr << "Datastore path is required" << std::endl;
     std::abort();
   }
 
   {
     std::vector<metall_manager_type *> managers;
-    for (const auto &file_name : option.segment_file_name_list) {
+    for (const auto &file_name : option.datastore_path_list) {
       managers.emplace_back(new metall_manager_type(metall::create_only,
                                                     file_name.c_str(),
                                                     option.segment_size,
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Writing profile" << std::endl;
-    for (int i = 0; i < (int)option.segment_file_name_list.size(); ++i) {
+    for (int i = 0; i < (int)option.datastore_path_list.size(); ++i) {
       std::cout << "-------------------- [" << i << "] --------------------" << std::endl;
       managers[i]->profile(&(std::cout));
     }

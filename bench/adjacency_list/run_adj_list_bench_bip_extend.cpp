@@ -74,13 +74,13 @@ int main(int argc, char *argv[]) {
   }
 
   void *addr = nullptr;
-  if (option.segment_file_name_list.empty()) {
+  if (option.datastore_path_list.empty()) {
     std::cout << "!!! Map ANONYMOUS region !!!" << std::endl;
     addr = map_anonymous(option.segment_size);
   } else {
     std::cout << "Map a file" << std::endl;
-    bip::file_mapping::remove(option.segment_file_name_list[0].c_str());
-    addr = map_file(option.segment_file_name_list[0], option.segment_size);
+    bip::file_mapping::remove(option.datastore_path_list[0].c_str());
+    addr = map_file(option.datastore_path_list[0], option.segment_size);
   }
 
   {
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Segment usage (GB) "
               << static_cast<double>(manager.get_size() - manager.get_free_memory()) / (1ULL << 30) << std::endl;
-    metall::detail::utility::munmap(addr, option.segment_size, !option.segment_file_name_list.empty());
+    metall::detail::utility::munmap(addr, option.segment_size, !option.datastore_path_list.empty());
   }
 
   return 0;
