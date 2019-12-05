@@ -23,7 +23,7 @@ using value_type = uint64_t;
 using allocator_type = libmemkind::pmem::allocator<std::byte>;
 using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
 
-std::string run_command(const std::string& cmd) {
+std::string run_command(const std::string &cmd) {
   std::cout << cmd << std::endl;
 
   const std::string tmp_file("/tmp/tmp_command_result");
@@ -31,7 +31,7 @@ std::string run_command(const std::string& cmd) {
   std::system(command.c_str());
 
   std::ifstream ifs(tmp_file);
-  if(!ifs.is_open()) {
+  if (!ifs.is_open()) {
     return std::string("Failed to open: " + tmp_file);
   }
 
@@ -61,7 +61,10 @@ int main(int argc, char *argv[]) {
   adjacency_list_type adj_list(allocator);
   run_bench(option, single_numa_bench, &adj_list);
 
-  std::cout << run_command("df -l " + option.datastore_path_list[0]) << std::endl;
+  std::cout << "File size\t" << metall::detail::utility::get_file_size(option.datastore_path_list[0]) << std::endl;
+  std::cout << "Actual file size\t"
+            << metall::detail::utility::get_actual_file_size(option.datastore_path_list[0]) << std::endl;
+  std::cout << run_command("df " + option.datastore_path_list[0]) << std::endl;
   std::cout << run_command("du " + option.datastore_path_list[0]) << std::endl;
 
   return 0;

@@ -135,6 +135,8 @@ run() {
 
     ls -lsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
+    df ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
+
     du -h ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
     if ${NO_CLEANING_FILES_AT_END}; then
