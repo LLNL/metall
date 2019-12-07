@@ -6,8 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
 
+#include <metall_utility/open_mp.hpp>
 #include "rmat_edge_generator.hpp"
 
 // ---------------------------------------- //
@@ -24,9 +24,9 @@ struct rmat_option_t {
   bool undirected{true};
 };
 
-bool parse_options(int argc, char **argv, rmat_option_t *option, std::string *edge_list_file_name) {
+bool parse_options(int argc, char **argv, rmat_option_t *option, std::string *edge_list_file_name, int *num_threads) {
   int p;
-  while ((p = getopt(argc, argv, "o:s:v:e:a:b:c:r:u:")) != -1) {
+  while ((p = getopt(argc, argv, "o:s:v:e:a:b:c:r:u:t:")) != -1) {
     switch (p) {
       case 'o':*edge_list_file_name = optarg;
         break;
@@ -55,6 +55,9 @@ bool parse_options(int argc, char **argv, rmat_option_t *option, std::string *ed
       case 'u':option->undirected = static_cast<bool>(std::stoi(optarg));
         break;
 
+      case 't':*num_threads = static_cast<int>(std::stoull(optarg));
+        break;
+
       default:std::cerr << "Invalid option" << std::endl;
         return false;
     }
@@ -68,7 +71,8 @@ bool parse_options(int argc, char **argv, rmat_option_t *option, std::string *ed
             << "\nc: " << option->c
             << "\nscramble_id: " << static_cast<int>(option->scramble_id)
             << "\nundirected: " << static_cast<int>(option->undirected)
-            << "\nedge_list_file_name: " << *edge_list_file_name << std::endl;
+            << "\nedge_list_file_name: " << *edge_list_file_name
+            << "\nnum_threads: " << *num_threads << std::endl;
 
   return true;
 }
@@ -77,24 +81,30 @@ int main(int argc, char **argv) {
 
   rmat_option_t rmat_option;
   std::string edge_list_file_name;
-  parse_options(argc, argv, &rmat_option, &edge_list_file_name);
+  int num_threads = 1;
+  parse_options(argc, argv, &rmat_option, &edge_list_file_name, &num_threads);
 
-  edge_generator::rmat_edge_generator rmat(rmat_option.seed, rmat_option.vertex_scale, rmat_option.edge_count,
-                                           rmat_option.a, rmat_option.b, rmat_option.c,
-                                           rmat_option.scramble_id, rmat_option.undirected);
+  metall_utility::omp::set_num_threads(num_threads);
 
-  std::ofstream edge_list_file(edge_list_file_name);
-  if (!edge_list_file.is_open()) {
-    std::cerr << "Cannot open " << edge_list_file_name << std::endl;
-    std::abort();
+  OMP_DIRECTIVE(parallel)
+  {
+    edge_generator::rmat_edge_generator rmat(rmat_option.seed + metall_utility::omp::get_thread_num(),
+                                             rmat_option.vertex_scale, rmat_option.edge_count,
+                                             rmat_option.a, rmat_option.b, rmat_option.c,
+                                             rmat_option.scramble_id, rmat_option.undirected);
+
+    std::ofstream edge_list_file(edge_list_file_name + "-" + std::to_string(metall_utility::omp::get_thread_num()));
+    if (!edge_list_file.is_open()) {
+      std::cerr << "Cannot open " << edge_list_file_name << std::endl;
+      std::abort();
+    }
+
+    for (auto edge : rmat) {
+      // std::cout << edge.first << " " << edge.second << "\n"; // DB
+      edge_list_file << edge.first << " " << edge.second << "\n";
+    }
+    edge_list_file.close();
   }
-
-  for (auto edge : rmat) {
-    // std::cout << edge.first << " " << edge.second << "\n"; // DB
-    edge_list_file << edge.first << " " << edge.second << "\n";
-  }
-  edge_list_file.close();
-
   std::cout << "Generation done" << std::endl;
 
   return 0;

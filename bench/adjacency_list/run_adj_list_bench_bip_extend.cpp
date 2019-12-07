@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())
                                                           (manager.get_allocator<std::byte>());
 
-    run_bench(option, single_numa_bench, adj_list);
+    run_bench(option, adj_list);
 
     const auto start = metall::detail::utility::elapsed_time_sec();
     metall::detail::utility::os_msync(addr, option.segment_size, true);

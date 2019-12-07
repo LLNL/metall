@@ -105,7 +105,13 @@ inline int get_thread_num() noexcept {
 #endif
 }
 
+inline void set_num_threads(const int n) noexcept {
+#ifdef _OPENMP
+  ::omp_set_num_threads(n);
+#endif
+}
+
 } // namespace omp
-} // namespace utility
+} // namespace metall_utility
 
 #endif //METALL_UTILITY_OPEN_MP_HPP

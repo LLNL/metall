@@ -4,8 +4,6 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
-#include <cctype>
-#include <memory>
 #include <cstddef>
 
 #include "../data_structure/multithread_adjacency_list.hpp"
@@ -29,7 +27,7 @@ int main(int argc, char *argv[]) {
   {
     allocator_type allocator;
     adjacency_list_type adj_list(allocator);
-    run_bench(option, single_numa_bench, &adj_list);
+    run_bench(option, &adj_list);
   }
 
   return 0;

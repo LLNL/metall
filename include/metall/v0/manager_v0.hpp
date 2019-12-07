@@ -59,8 +59,8 @@ struct manager_type_holder {
 /// \tparam kernel_allocator_type
 /// The type of the internal allocator
 template <typename chunk_no_type = uint32_t,
-    std::size_t k_chunk_size = 1 << 21,
-          typename kernel_allocator_type = std::allocator<char>>
+          std::size_t k_chunk_size = 1ULL << 21ULL,
+          typename kernel_allocator_type = std::allocator<std::byte>>
 class manager_v0 : public metall::detail::base_manager<manager_v0<chunk_no_type, k_chunk_size, kernel_allocator_type>,
                                                        detail::manager_type_holder<chunk_no_type,
                                                                                    k_chunk_size,

@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     bip::managed_mapped_file mfile(bip::create_only, option.datastore_path_list[0].c_str(), option.segment_size);
     auto adj_list = mfile.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(mfile.get_allocator<std::byte>());
-    run_bench(option, single_numa_bench, adj_list);
+    run_bench(option, adj_list);
 
     const auto start = util::elapsed_time_sec();
     mfile.flush(); // NOTE: this method calls msync() with MS_ASYNC

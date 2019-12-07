@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
   allocator_type allocator(option.datastore_path_list[0].c_str(), option.segment_size);
   adjacency_list_type adj_list(allocator);
-  run_bench(option, single_numa_bench, &adj_list);
+  run_bench(option, &adj_list);
 
   std::cout << "File size\t" << metall::detail::utility::get_file_size(option.datastore_path_list[0]) << std::endl;
   std::cout << "Actual file size\t"

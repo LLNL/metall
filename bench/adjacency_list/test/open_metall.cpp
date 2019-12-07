@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
     }
 
     adjacency_list_type *adj_list = ret.first;
-    if (!option.dump_file_name.empty()) {
-      dump_adj_list(*adj_list, option.dump_file_name);
+    if (!option.adj_list_dump_file_name.empty()) {
+      dump_adj_list(*adj_list, option.adj_list_dump_file_name);
     }
   }
 

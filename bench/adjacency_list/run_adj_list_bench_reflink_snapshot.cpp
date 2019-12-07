@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
     auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(snapshot_func,
                                                                                              manager.get_allocator<>());
 
-    run_bench(option, single_numa_bench, adj_list);
+    run_bench(option, adj_list);
   }
 
   return 0;
