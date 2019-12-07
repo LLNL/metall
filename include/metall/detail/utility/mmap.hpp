@@ -203,7 +203,7 @@ inline bool uncommit_shared_pages(void *const addr, const size_t length) {
 
 inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
                                        [[maybe_unused]] const size_t length) {
-#if defined(__linux__) and defined(MADV_REMOVE)
+#if !defined(METALL_DISABLE_FREE_FILE_SPACE) && defined(__linux__) && defined(MADV_REMOVE)
   if (::madvise(addr, length, MADV_REMOVE) != 0) {
     // ::perror("madvise MADV_REMOVE");
     // std::cerr << "errno: " << errno << std::endl;
@@ -211,9 +211,15 @@ inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
   }
   return true;
 #else
+
+#ifdef METALL_DISABLE_FREE_FILE_SPACE
+#warning "METALL_DISABLE_FREE_FILE_SPACE is defined. Metall will not free file space."
+#else
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "MADV_REMOVE is not supported. Metall cannot free file space."
 #endif
+#endif
+
   return uncommit_shared_pages(addr, length);
 #endif
 }
