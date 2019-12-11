@@ -7,6 +7,7 @@
 #define METALL_MUTEX_HPP
 
 #include <mutex>
+#include <cassert>
 
 namespace metall_utility {
 namespace mutex {

@@ -37,6 +37,21 @@ class container_of_containers_iterator_adaptor {
     }
   }
 
+  container_of_containers_iterator_adaptor(outer_iterator_type outer_begin,
+                                           inner_iterator_type inner_iterator,
+                                           outer_iterator_type outer_end)
+      : m_outer_iterator(outer_begin),
+        m_outer_end(outer_end),
+        m_inner_iterator(inner_iterator),
+        m_inner_end() {
+    if (m_outer_iterator != m_outer_end) {
+      m_inner_end = std::end(*m_outer_iterator);
+      if (m_inner_iterator == m_inner_end) {
+        next();
+      }
+    }
+  }
+
   bool operator==(const container_of_containers_iterator_adaptor &other) {
     return (m_outer_iterator == other.m_outer_iterator && m_inner_iterator == other.m_inner_iterator);
   }
