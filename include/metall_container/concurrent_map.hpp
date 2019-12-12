@@ -95,7 +95,7 @@ class concurrent_map {
     return const_iterator(m_banked_map.cend(), m_banked_map.cend());
   }
 
-  // ---------------------------------------- Iterator ---------------------------------------- //
+  // ---------------------------------------- Look up ---------------------------------------- //
   const_iterator find(const key_type &key) const {
     const auto bank_no = calc_bank_no(key);
     auto itr = m_banked_map[bank_no].find(key);
