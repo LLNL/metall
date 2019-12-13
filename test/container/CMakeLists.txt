@@ -1,0 +1,3 @@
+add_executable(concurrent_map_test concurrent_map_test.cpp)
+target_link_libraries(concurrent_map_test gtest_main)
+gtest_discover_tests(concurrent_map_test)

@@ -1,3 +1,3 @@
 add_subdirectory(file_clone)
-add_subdirectory(free_file_space)
+#add_subdirectory(free_mmap_region)
 add_subdirectory(mmap)

@@ -20,7 +20,7 @@ namespace utility {
 // domain. The author hereby disclaims copyright to this source code.
 //
 //-----------------------------------------------------------------------------
-inline constexpr uint64_t MurmurHash64A(const void *key, int len, uint64_t seed) {
+inline constexpr uint64_t MurmurHash64A(const void *key, const int len, const uint64_t seed) {
   constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
   constexpr int r = 47;
 
@@ -60,10 +60,10 @@ inline constexpr uint64_t MurmurHash64A(const void *key, int len, uint64_t seed)
   return h;
 };
 
-template <typename T>
+template <typename T, unsigned int seed = 123>
 struct hash {
   T operator()(const T& key) const {
-    return static_cast<T>(MurmurHash64A(&key, sizeof(T), 12345));
+    return static_cast<T>(MurmurHash64A(&key, sizeof(T), seed));
   }
 };
 

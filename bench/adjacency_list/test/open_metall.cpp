@@ -25,13 +25,13 @@ int main(int argc, char *argv[]) {
     std::abort();
   }
 
-  if (option.segment_file_name_list.empty()) {
+  if (option.datastore_path_list.empty()) {
     std::cerr << "Out file name is required" << std::endl;
     std::abort();
   }
 
   {
-    metall::manager manager(metall::open_only, option.segment_file_name_list[0].c_str());
+    metall::manager manager(metall::open_only, option.datastore_path_list[0].c_str());
     auto ret = manager.find<adjacency_list_type>(option.adj_list_key_name.c_str());
     if (ret.second != 1) {
       std::cerr << "Its length is not correct" << std::endl;
@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
     }
 
     adjacency_list_type *adj_list = ret.first;
-    if (!option.dump_file_name.empty()) {
-      dump_adj_list(*adj_list, option.dump_file_name);
+    if (!option.adj_list_dump_file_name.empty()) {
+      dump_adj_list(*adj_list, option.adj_list_dump_file_name);
     }
   }
 

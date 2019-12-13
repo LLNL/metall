@@ -16,7 +16,7 @@ esac
 CHUNK_SIZE=$((2**20))
 NO_CLEANING_FILES_AT_END=false
 
-while getopts "v:f:l:t:s:g:n:c" OPT
+while getopts "v:f:l:t:s:d:n:c" OPT
 do
   case $OPT in
     v) V=$OPTARG;;
@@ -24,7 +24,7 @@ do
     l) LOG_FILE_PREFIX=$OPTARG;;
     t) NUM_THREADS="env OMP_NUM_THREADS=${OPTARG}";;
     s) SCHEDULE="env OMP_SCHEDULE=${OPTARG}";;
-    g) DATASTORE_DIR_ROOT=$OPTARG;;
+    d) DATASTORE_DIR_ROOT=$OPTARG;;
     n) CHUNK_SIZE=$OPTARG;;
     c) NO_CLEANING_FILES_AT_END=true;;
     :) echo  "[ERROR] Option argument is undefined.";;   #
@@ -130,9 +130,12 @@ run() {
 
     exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
-    execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o "${DATASTORE_DIR}/${DATASTORE_NAME}" -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE}
+    DATASTORE_PATH=${DATASTORE_DIR}/${DATASTORE_NAME}
+    execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE}
 
     ls -lsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
+
+    df ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
     du -h ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
@@ -146,6 +149,7 @@ run() {
 
 main() {
     run bip
+    #run pmem
     run metall
     #run metall_numa
     #run reflink_snapshot

@@ -18,7 +18,6 @@
 #include <metall/offset_ptr.hpp>
 #include <metall/v0/kernel/manager_kernel_fwd.hpp>
 #include <metall/v0/kernel/segment_header.hpp>
-#include <metall/v0/kernel/segment_storage/multifile_backed_segment_storage.hpp>
 #include <metall/v0/kernel/segment_allocator.hpp>
 #include <metall/v0/kernel/named_object_directory.hpp>
 #include <metall/detail/utility/common.hpp>
@@ -28,6 +27,12 @@
 #include <metall/detail/utility/file_clone.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
+
+#ifdef METALL_USE_UMAP
+#include <metall/v0/kernel/segment_storage/umap_segment_storage.hpp>
+#else
+#include <metall/v0/kernel/segment_storage/multifile_backed_segment_storage.hpp>
+#endif
 
 #define ENABLE_MUTEX_IN_V0_MANAGER_KERNEL 1
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
@@ -73,7 +78,12 @@ class manager_kernel {
   using segment_header_type = segment_header<k_chunk_size>;
   static constexpr size_type k_initial_segment_size = 1ULL << 28ULL; // TODO: get from somewhere else
   static constexpr const char *k_segment_prefix = "segment";
-  using segment_storage_type = multifile_backed_segment_storage<difference_type, size_type>;
+  using segment_storage_type =
+#ifdef METALL_USE_UMAP
+  umap_segment_storage<difference_type, size_type>;
+#else
+  multifile_backed_segment_storage<difference_type, size_type>;
+#endif
 
   // Actual memory allocation layer
   static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";

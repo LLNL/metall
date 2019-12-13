@@ -3,8 +3,17 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
-#define METALL_DETAIL_V0_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
+#ifndef METALL_DETAIL_V0_SEGMENT_STORAGE_UMAP_STORAGE_HPP
+#define METALL_DETAIL_V0_SEGMENT_STORAGE_UMAP_STORAGE_HPP
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include <umap/umap.h>
 
 #include <string>
 #include <iostream>
@@ -20,17 +29,15 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-/// \brief Segment storage that uses mutiple backing files
-/// The current implementation does not delete files even though that are empty
 template <typename different_type, typename size_type>
-class multifile_backed_segment_storage {
+class umap_segment_storage {
 
  public:
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  multifile_backed_segment_storage()
-      : m_system_page_size(0),
+  umap_segment_storage()
+      : m_umap_page_size(0),
         m_num_blocks(0),
         m_vm_region_size(0),
         m_current_segment_size(0),
@@ -38,21 +45,22 @@ class multifile_backed_segment_storage {
         m_base_path(),
         m_read_only(),
         m_free_file_space(true) {
-    if (!priv_load_system_page_size()) {
+    if (!priv_load_umap_page_size()) {
       std::abort();
     }
   }
 
-  ~multifile_backed_segment_storage() {
-    sync(true);
+  ~umap_segment_storage() {
+    // FIXME: turn off for now
+    // sync(true);
     destroy();
   }
 
-  multifile_backed_segment_storage(const multifile_backed_segment_storage &) = delete;
-  multifile_backed_segment_storage &operator=(const multifile_backed_segment_storage &) = delete;
+  umap_segment_storage(const umap_segment_storage &) = delete;
+  umap_segment_storage &operator=(const umap_segment_storage &) = delete;
 
-  multifile_backed_segment_storage(multifile_backed_segment_storage &&other) noexcept :
-      m_system_page_size(other.m_system_page_size),
+  umap_segment_storage(umap_segment_storage &&other) noexcept :
+      m_umap_page_size(other.m_umap_page_size),
       m_num_blocks(other.m_num_blocks),
       m_vm_region_size(other.m_vm_region_size),
       m_current_segment_size(other.m_current_segment_size),
@@ -63,8 +71,8 @@ class multifile_backed_segment_storage {
     other.priv_reset();
   }
 
-  multifile_backed_segment_storage &operator=(multifile_backed_segment_storage &&other) noexcept {
-    m_system_page_size = other.m_system_page_size;
+  umap_segment_storage &operator=(umap_segment_storage &&other) noexcept {
+    m_umap_page_size = other.m_umap_page_size;
     m_num_blocks = other.m_num_blocks;
     m_vm_region_size = other.m_vm_region_size;
     m_current_segment_size = other.m_current_segment_size;
@@ -153,7 +161,7 @@ class multifile_backed_segment_storage {
       priv_test_file_space_free(base_path);
     }
 
-    return m_num_blocks > 0;
+    return (m_num_blocks > 0);
   }
 
   bool extend(const size_type new_segment_size) {
@@ -206,7 +214,7 @@ class multifile_backed_segment_storage {
   }
 
   size_type page_size() const {
-    return m_system_page_size;
+    return m_umap_page_size;
   }
 
   bool read_only() const {
@@ -226,7 +234,7 @@ class multifile_backed_segment_storage {
   }
 
   void priv_reset() {
-    m_system_page_size = 0;
+    m_umap_page_size = 0;
     m_num_blocks = 0;
     m_vm_region_size = 0;
     m_current_segment_size = 0;
@@ -235,7 +243,7 @@ class multifile_backed_segment_storage {
   }
 
   bool priv_inited() const {
-    return (m_system_page_size > 0 && m_num_blocks > 0 && m_vm_region_size > 0 && m_current_segment_size > 0
+    return (m_umap_page_size > 0 && m_num_blocks > 0 && m_vm_region_size > 0 && m_current_segment_size > 0
         && m_segment && !m_base_path.empty());
   }
 
@@ -248,8 +256,7 @@ class multifile_backed_segment_storage {
     const std::string file_name = priv_make_file_name(base_path, block_number);
     if (!util::create_file(file_name)) return false;
     if (!util::extend_file_size(file_name, file_size)) return false;
-    // Comment out the line below because it fails somehow
-    // assert(static_cast<size_type>(util::get_file_size(file_name)) >= file_size);
+    assert(static_cast<size_type>(util::get_file_size(file_name)) >= file_size);
 
     if (!priv_map_file(file_name, file_size, addr, false)) {
       return false;
@@ -262,109 +269,99 @@ class multifile_backed_segment_storage {
     assert(file_size > 0);
     assert(addr);
 
-    static constexpr int map_nosync =
-#ifdef MAP_NOSYNC
-        MAP_NOSYNC;
-#else
-        0;
-#endif
-
-    const auto ret = (read_only) ?
-                     util::map_file_read_mode(path, addr, file_size, 0, MAP_FIXED) :
-                     util::map_file_write_mode(path, addr, file_size, 0, MAP_FIXED | map_nosync);
-    if (ret.first == -1 || !ret.second) {
-      std::cerr << "Failed to map a file: " << path << std::endl;
-      if (ret.first == -1) {
-        util::os_close(ret.first);
-      }
+    /// MEMO: one of the following options does not work on /tmp?
+    const int o_opts = (read_only ? O_RDONLY : O_RDWR) | O_LARGEFILE | O_DIRECT;
+    const int fd = ::open(path.c_str(), o_opts);
+    if (fd == -1) {
+      std::string estr = "Failed to open " + path;
+      perror(estr.c_str());
       return false;
     }
 
-    return util::os_close(ret.first);
+    const int prot = PROT_READ | (read_only ? 0 : PROT_WRITE);
+    const int flags = UMAP_PRIVATE | MAP_FIXED;
+    void *const region = ::umap(addr, file_size, prot, flags, fd, 0);
+    if (region == UMAP_FAILED) {
+      std::ostringstream ss;
+      ss << "umap_mf of " << file_size << " bytes failed for " << path;
+      perror(ss.str().c_str());
+      return false;
+    }
+
+    return true;
+  }
+
+  void priv_unmap_all_files() {
+
+    size_type offset = 0;
+    for (size_type n = 0; n < m_num_blocks; ++n) {
+      const auto file_name = priv_make_file_name(m_base_path, n);
+      assert(util::file_exist(file_name));
+
+      const auto file_size = util::get_file_size(file_name);
+      assert(file_size % page_size() == 0);
+
+      if (::uunmap(static_cast<char *>(m_segment) + offset, file_size) != 0) {
+        std::cerr << "Failed to unmap a Umap region"
+                  << "\nblock number " << n
+                  << "\noffset " << offset << std::endl;
+        std::abort();
+      }
+      offset += file_size;
+    }
+    assert(offset == m_current_segment_size);
+
+    m_num_blocks = 0;
+    m_current_segment_size = 0;
   }
 
   void priv_destroy_segment() {
     if (!priv_inited()) return;
 
-    util::map_with_prot_none(m_segment, m_current_segment_size);
-    // NOTE: the VM region will be unmapped by manager_kernel
+    priv_unmap_all_files();
 
     priv_reset();
   }
 
-  void priv_sync_segment(const bool sync) {
+  void priv_sync_segment([[maybe_unused]] const bool sync) {
     if (!priv_inited() || m_read_only) return;
 
-    util::os_msync(m_segment, m_current_segment_size, sync);
-    // util::os_fsync(m_fd);
+    if (::umap_flush() != 0) {
+      std::cerr << "Failed umap_flush()" << std::endl;
+    }
   }
 
+  /// TODO: implement
   bool priv_free_region(const different_type offset, const size_type nbytes) {
     if (!priv_inited() || m_read_only) return false;
 
     if (offset + nbytes > m_current_segment_size) return false;
 
-    if (m_free_file_space)
-      return util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
-    else
-      return util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
+//   if (m_free_file_space) {
+//     util::free_mmap_region();
+//   }
+
+    return true;
   }
 
-  bool priv_load_system_page_size() {
-    m_system_page_size = util::get_page_size();
-    if (m_system_page_size == -1) {
+  bool priv_load_umap_page_size() {
+    m_umap_page_size = ::umapcfg_get_umap_page_size();
+    if (m_umap_page_size == -1) {
       std::cerr << "Failed to get system pagesize" << std::endl;
       return false;
     }
     return true;
   }
 
-  void priv_test_file_space_free(const std::string &base_path) {
-#ifdef DISABLE_FREE_FILE_SPACE
+  void priv_test_file_space_free(const std::string &) {
     m_free_file_space = false;
     return;
-#endif
-
-    assert(m_system_page_size > 0);
-    const std::string file_path(base_path + "_test");
-    const size_type file_size = m_system_page_size * 2;
-
-    if (!util::create_file(file_path)) return;
-    if (!util::extend_file_size(file_path, file_size)) return;
-    assert(static_cast<size_type>(util::get_file_size(file_path)) >= file_size);
-
-    const auto ret = util::map_file_write_mode(file_path, nullptr, file_size, 0);
-    if (ret.first == -1 || !ret.second) {
-      std::cerr << "Failed to map file: " << file_path << std::endl;
-      if (ret.first == -1) util::os_close(ret.first);
-      return;
-    }
-    if(!util::os_close(ret.first)) {
-      std::cerr << "Failed to close file: " << file_path << std::endl;
-      return;
-    }
-
-    // Test freeing file space
-    char *buf = static_cast<char *>(ret.second);
-    buf[0] = 0;
-    if (util::uncommit_file_backed_pages(ret.second, file_size)) {
-      m_free_file_space = true;
-    } else {
-      m_free_file_space = false;
-    }
-
-    // Closing
-    util::munmap(ret.second, file_size, false);
-    if (!util::remove_file(file_path)) {
-      std::cerr << "Failed to remove a file: " << file_path << std::endl;
-      return;
-    }
   }
 
   /// -------------------------------------------------------------------------------- ///
   /// Private fields
   /// -------------------------------------------------------------------------------- ///
-  ssize_t m_system_page_size{0};
+  ssize_t m_umap_page_size{0};
   size_type m_num_blocks{0};
   size_type m_vm_region_size{0};
   size_type m_current_segment_size{0};
@@ -377,4 +374,5 @@ class multifile_backed_segment_storage {
 } // namespace kernel
 } // namespace v0
 } // namespace metall
-#endif //METALL_DETAIL_V0_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
+
+#endif //METALL_DETAIL_V0_SEGMENT_STORAGE_UMAP_STORAGE_HPP

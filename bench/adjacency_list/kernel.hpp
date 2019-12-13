@@ -37,48 +37,51 @@ inline void print_omp_configuration() {
   }
 }
 
-template <typename adjacency_list_type, typename input_iterator>
-inline double kernel(const std::size_t chunk_size,
-                     input_iterator itr, input_iterator end,
-                     adjacency_list_type *const adj_list) {
-  print_omp_configuration();
+template <typename adjacency_list_type>
+using key_value_input_storage_t = std::vector<std::vector<std::pair<typename adjacency_list_type::key_type,
+                                                                    typename adjacency_list_type::value_type>>>;
 
-  std::vector<typename input_iterator::value_type> key_value_list;
-  size_t count_loop(0);
-  double total_elapsed_time = 0.0;
-  while (true) {
-    std::cout << "\n[ " << count_loop << " ]" << std::endl;
-
-    key_value_list.clear();
-    while (itr != end && key_value_list.size() < chunk_size) {
-      key_value_list.emplace_back(*itr);
-      ++itr;
+template <typename adjacency_list_type>
+inline auto allocate_key_value_input_storage() {
+  int num_threads = 0;
+  OMP_DIRECTIVE(parallel)
+  {
+    OMP_DIRECTIVE(single)
+    {
+      num_threads = omp::get_num_threads();
     }
+  }
 
-    print_current_num_page_faults();
-    const auto start = util::elapsed_time_sec();
-    OMP_DIRECTIVE(parallel for schedule(runtime))
+  return key_value_input_storage_t<adjacency_list_type>(num_threads);
+}
+
+template <typename adjacency_list_type>
+inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_type> &input,
+                              adjacency_list_type *const adj_list) {
+  print_current_num_page_faults();
+
+  std::size_t num_inserted = 0;
+  const auto start = util::elapsed_time_sec();
+  OMP_DIRECTIVE(parallel reduction(+:num_inserted))
+  {
+    assert((int)input.size() == (int)omp::get_num_threads());
+    const auto &key_value_list = input.at(omp::get_thread_num());
     for (std::size_t i = 0; i < key_value_list.size(); ++i) {
       adj_list->add(key_value_list[i].first, key_value_list[i].second);
     }
-    adj_list->sync();
-    const auto elapsed_time = util::elapsed_time_sec(start);
-
-    std::cout << "#of inserted elements\t" << key_value_list.size() << std::endl;
-    std::cout << "Elapsed time (s)\t" << elapsed_time << std::endl;
-    std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-    std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
-    print_current_num_page_faults();
-
-    total_elapsed_time += elapsed_time;
-
-    if (itr == end) break;
-    ++count_loop;
+    num_inserted += key_value_list.size();
   }
+  adj_list->sync();
+  const auto elapsed_time = util::elapsed_time_sec(start);
 
-  return total_elapsed_time;
+  std::cout << "#of inserted elements\t" << num_inserted << std::endl;
+  std::cout << "Elapsed time (s)\t" << elapsed_time << std::endl;
+  std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
+  print_current_num_page_faults();
+
+  return elapsed_time;
 }
-
 }
 
 #endif //METALL_BENCH_ADJACENCY_LIST_KERNEL_HPP

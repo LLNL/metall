@@ -37,12 +37,19 @@ class container_of_containers_iterator_adaptor {
     }
   }
 
-  bool operator==(const container_of_containers_iterator_adaptor &other) {
-    return (m_outer_iterator == other.m_outer_iterator && m_inner_iterator == other.m_inner_iterator);
-  }
-
-  bool operator!=(const container_of_containers_iterator_adaptor &other) {
-    return !(*this == other);
+  container_of_containers_iterator_adaptor(outer_iterator_type outer_begin,
+                                           inner_iterator_type inner_iterator,
+                                           outer_iterator_type outer_end)
+      : m_outer_iterator(outer_begin),
+        m_outer_end(outer_end),
+        m_inner_iterator(inner_iterator),
+        m_inner_end() {
+    if (m_outer_iterator != m_outer_end) {
+      m_inner_end = std::end(*m_outer_iterator);
+      if (m_inner_iterator == m_inner_end) {
+        next();
+      }
+    }
   }
 
   reference operator++() {
@@ -62,6 +69,11 @@ class container_of_containers_iterator_adaptor {
 
   reference operator*() {
     return (*m_inner_iterator);
+  }
+
+  bool equal(const container_of_containers_iterator_adaptor &other) const {
+    return (m_outer_iterator == m_outer_end && other.m_outer_iterator == other.m_outer_end)
+        || (m_outer_iterator == other.m_outer_iterator && m_inner_iterator == other.m_inner_iterator);
   }
 
  private:
@@ -98,6 +110,22 @@ class container_of_containers_iterator_adaptor {
   inner_iterator_type m_inner_iterator;
   inner_iterator_type m_inner_end;
 };
+
+template <typename outer_iterator_type, typename inner_iterator_type>
+inline bool operator==(const container_of_containers_iterator_adaptor<outer_iterator_type,
+                                                                      inner_iterator_type> &lhs,
+                       const container_of_containers_iterator_adaptor<outer_iterator_type,
+                                                                      inner_iterator_type> &rhs) {
+  return lhs.equal(rhs);
+}
+
+template <typename outer_iterator_type, typename inner_iterator_type>
+inline bool operator!=(const container_of_containers_iterator_adaptor<outer_iterator_type,
+                                                                      inner_iterator_type> &lhs,
+                       const container_of_containers_iterator_adaptor<outer_iterator_type,
+                                                                      inner_iterator_type> &rhs) {
+  return !(lhs == rhs);
+}
 
 } // namespace metall_utility
 
