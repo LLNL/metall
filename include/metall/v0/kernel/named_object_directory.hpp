@@ -39,7 +39,7 @@ class named_object_directory {
   template <typename T>
   using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
 
-  static constexpr std::size_t k_max_char_size = 256;
+  static constexpr std::size_t k_max_char_size = 1024;
   using serialized_string_type = std::array<char, k_max_char_size>;
   using mapped_type = std::tuple<serialized_string_type, offset_type, size_type>;
   using key_type = uint64_t;

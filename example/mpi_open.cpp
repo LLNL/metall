@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 
   ::MPI_Init(&argc, &argv);
   {
-    metall_utility::metall_mpi_adaptor mpi_adaptor(metall::open_only, "/tmp");
+    metall::utility::metall_mpi_adaptor mpi_adaptor(metall::open_only, "/tmp");
     auto &metall_manager = mpi_adaptor.get_local_manager();
 
     auto stored_rank = metall_manager.find<int>("my-rank").first;

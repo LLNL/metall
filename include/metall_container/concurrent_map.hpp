@@ -21,7 +21,7 @@ template <typename _key_type,
           typename _compare = std::less<_key_type>,
           typename _bank_no_hasher = std::hash<_key_type>,
           typename _allocator = std::allocator<std::pair<const _key_type, _mapped_type>>,
-    int k_num_banks = 1024>
+          int k_num_banks = 1024>
 class concurrent_map {
  private:
   template <typename T>
@@ -40,8 +40,9 @@ class concurrent_map {
   using mapped_type = typename internal_map_type::mapped_type;
   using value_type = typename internal_map_type::value_type;
   using size_type = typename internal_map_type::size_type;
+  using allocator_type = _allocator;
 
-  using const_iterator = metall_utility::container_of_containers_iterator_adaptor<typename banked_map_type::const_iterator,
+  using const_iterator = metall::utility::container_of_containers_iterator_adaptor<typename banked_map_type::const_iterator,
                                                                                   typename internal_map_type::const_iterator>;
 
   // -------------------------------------------------------------------------------- //
@@ -61,14 +62,14 @@ class concurrent_map {
 
   bool insert(value_type &&value) {
     const auto bank_no = calc_bank_no(value.first);
-    auto lock = metall_utility::mutex::mutex_lock<k_num_banks>(bank_no);
+    auto lock = metall::utility::mutex::mutex_lock<k_num_banks>(bank_no);
     return m_banked_map[bank_no].insert(std::forward<value_type>(value)).second;
   }
 
   std::pair<mapped_type &, std::unique_lock<std::mutex>>
   scoped_edit(const key_type &key) {
     const auto bank_no = calc_bank_no(key);
-    auto lock = metall_utility::mutex::mutex_lock<k_num_banks>(bank_no);
+    auto lock = metall::utility::mutex::mutex_lock<k_num_banks>(bank_no);
     if (!count(key)) {
       [[maybe_unused]] const bool ret = register_key_no_lock(key);
       assert(ret);
@@ -78,7 +79,7 @@ class concurrent_map {
 
   void edit(const key_type &key, const std::function<void(mapped_type &value)> &editor) {
     const auto bank_no = calc_bank_no(key);
-    auto lock = metall_utility::mutex::mutex_lock<k_num_banks>(bank_no);
+    auto lock = metall::utility::mutex::mutex_lock<k_num_banks>(bank_no);
     if (!count(key)) {
       [[maybe_unused]] const bool ret = register_key_no_lock(key);
       assert(ret);
@@ -103,6 +104,11 @@ class concurrent_map {
       return const_iterator(m_banked_map.cbegin(), itr, m_banked_map.cend());
     }
     return cend();
+  }
+
+  // ---------------------------------------- Allocator ---------------------------------------- //
+  allocator_type get_allocator() const {
+    return allocator_type(m_banked_map.get_allocator());
   }
 
  private:

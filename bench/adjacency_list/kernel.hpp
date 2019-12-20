@@ -16,7 +16,7 @@ namespace adjacency_list_bench {
 
 namespace {
 namespace util = metall::detail::utility;
-namespace omp = metall_utility::omp;
+namespace omp = metall::utility::omp;
 }
 
 inline void print_current_num_page_faults() {
