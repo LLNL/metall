@@ -21,7 +21,7 @@ namespace bfs_bench {
 
 namespace {
 namespace util = metall::detail::utility;
-namespace omp = metall_utility::omp;
+namespace omp = metall::utility::omp;
 }
 
 // ---------------------------------------- //

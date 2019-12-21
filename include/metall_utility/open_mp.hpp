@@ -28,7 +28,7 @@
 #define OMP_DIRECTIVE(directive)
 #endif
 
-namespace metall_utility {
+namespace metall::utility {
 namespace omp {
 
 using omp_sched_type =
@@ -112,6 +112,6 @@ inline void set_num_threads(const int n) noexcept {
 }
 
 } // namespace omp
-} // namespace metall_utility
+} // namespace metall::utility
 
 #endif //METALL_UTILITY_OPEN_MP_HPP

@@ -11,7 +11,7 @@
 #include <metall/metall.hpp>
 #include <metall/detail/utility/file.hpp>
 
-namespace metall_utility {
+namespace metall::utility {
 
 /// \brief A utility class for using Metall with MPI
 /// This is an experimental implementation

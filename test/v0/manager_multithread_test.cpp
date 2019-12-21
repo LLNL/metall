@@ -23,7 +23,7 @@
 
 namespace {
 
-namespace omp = metall_utility::omp;
+namespace omp = metall::utility::omp;
 
 /// -------------------------------------------------------------------------------- ///
 /// Manage Type

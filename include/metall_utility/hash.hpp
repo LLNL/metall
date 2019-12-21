@@ -3,14 +3,12 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_UTILITY_HASH_HPP
-#define METALL_DETAIL_UTILITY_HASH_HPP
+#ifndef METALL_UTILITY_HASH_HPP
+#define METALL_UTILITY_HASH_HPP
 
 #include <cstdint>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::utility {
 
 // -----------------------------------------------------------------------------
 // This also contains public domain code from MurmurHash2.
@@ -60,15 +58,23 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len, const ui
   return h;
 };
 
+/// \brief Hash a value of type T
+/// \tparam T The type of a value to hash
+/// \tparam seed A seed value used for hashing
 template <typename T, unsigned int seed = 123>
 struct hash {
-  T operator()(const T& key) const {
-    return static_cast<T>(MurmurHash64A(&key, sizeof(T), seed));
+  uint64_t operator()(const T& key) const {
+    return MurmurHash64A(&key, sizeof(T), seed);
   }
 };
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+template <typename string_type, unsigned int seed = 123>
+struct string_hash {
+  uint64_t operator()(const string_type& key) const {
+    return MurmurHash64A(key.c_str(), key.length() * sizeof(typename string_type::value_type), seed);
+  }
+};
 
-#endif //METALL_DETAIL_UTILITY_HASH_HPP
+} // namespace metall::utility
+
+#endif //METALL_UTILITY_HASH_HPP

@@ -9,7 +9,7 @@
 #include <mutex>
 #include <cassert>
 
-namespace metall_utility {
+namespace metall::utility {
 namespace mutex {
 
 /// \brief A utility function that returns a mutex lock allocated as a static object

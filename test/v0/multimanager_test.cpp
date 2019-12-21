@@ -15,7 +15,7 @@
 #include "../test_utility.hpp"
 
 namespace {
-namespace omp = metall_utility::omp;
+namespace omp = metall::utility::omp;
 
 using chunk_no_type = uint32_t;
 constexpr std::size_t k_chunk_size = 1UL << 21UL;

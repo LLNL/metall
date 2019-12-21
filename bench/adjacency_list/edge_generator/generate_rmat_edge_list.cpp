@@ -84,16 +84,16 @@ int main(int argc, char **argv) {
   int num_threads = 1;
   parse_options(argc, argv, &rmat_option, &edge_list_file_name, &num_threads);
 
-  metall_utility::omp::set_num_threads(num_threads);
+  metall::utility::omp::set_num_threads(num_threads);
 
   OMP_DIRECTIVE(parallel)
   {
-    edge_generator::rmat_edge_generator rmat(rmat_option.seed + metall_utility::omp::get_thread_num(),
+    edge_generator::rmat_edge_generator rmat(rmat_option.seed + metall::utility::omp::get_thread_num(),
                                              rmat_option.vertex_scale, rmat_option.edge_count,
                                              rmat_option.a, rmat_option.b, rmat_option.c,
                                              rmat_option.scramble_id, rmat_option.undirected);
 
-    std::ofstream edge_list_file(edge_list_file_name + "-" + std::to_string(metall_utility::omp::get_thread_num()));
+    std::ofstream edge_list_file(edge_list_file_name + "-" + std::to_string(metall::utility::omp::get_thread_num()));
     if (!edge_list_file.is_open()) {
       std::cerr << "Cannot open " << edge_list_file_name << std::endl;
       std::abort();

@@ -20,7 +20,8 @@
 #endif
 
 #include <metall/detail/utility/memory.hpp>
-#include <metall//detail//utility/file.hpp>
+#include <metall/detail/utility/file.hpp>
+#include <metall/detail/utility/common.hpp>
 
 namespace metall {
 namespace detail {
@@ -164,7 +165,66 @@ inline bool munmap(const int fd, void *const addr, const size_t length, const bo
   bool ret = true;
   ret &= os_close(fd);
   ret &= munmap(addr, length, call_msync);
-  return  ret;
+  return ret;
+}
+
+/// \brief Maps a file to a aligned address, checking errors
+/// \param alignment Specifies the alignment. Must be a valid alignment supported by the implementation
+/// \param length Same as mmap(2)
+/// \param protection Same as mmap(2)
+/// \param flags Same as mmap(2)
+/// \param fd Same as mmap(2)
+/// \param offset  Same as mmap(2)
+/// \return On success, returns a pointer to the mapped area.
+/// On error, nullptr is returned.
+inline void *aligned_mmap(const size_t alignment, const size_t length,
+                          const int protection, const int flags,
+                          const int fd, const off_t offset) {
+
+  const ssize_t page_size = get_page_size();
+  if (page_size == -1) {
+    return nullptr;
+  }
+
+  if (alignment % page_size != 0) {
+    std::cerr << "alignment (" << alignment << ") is not a multiple of the page size (" << ::sysconf(_SC_PAGE_SIZE)
+              << ")"
+              << std::endl;
+    return nullptr;
+  }
+
+  if (length % alignment != 0) {
+    std::cerr << "length (" << length << ") is not a multiple of alignment (" << ::sysconf(_SC_PAGE_SIZE) << ")"
+              << std::endl;
+    return nullptr;
+  }
+
+  if (offset % alignment != 0) {
+    std::cerr << "offset (" << offset << ") is not a multiple of alignment (" << ::sysconf(_SC_PAGE_SIZE) << ")"
+              << std::endl;
+    return nullptr;
+  }
+
+  void *const map_addr = os_mmap(nullptr, length + alignment, protection, flags, fd, offset);
+  void *const aligned_map_addr = reinterpret_cast<void *>(utility::round_up(reinterpret_cast<size_t>(map_addr),
+                                                                            alignment));
+
+  // Trim the head
+  const size_t surplus_head_length = reinterpret_cast<size_t>(aligned_map_addr) - reinterpret_cast<size_t>(map_addr);
+  assert(surplus_head_length % page_size == 0);
+  assert(alignment <= surplus_head_length);
+  if (!os_munmap(map_addr, surplus_head_length)) {
+    return nullptr;
+  }
+
+  // Trim the tail
+  const size_t surplus_tail_length = alignment - surplus_head_length;
+  assert(surplus_tail_length % page_size == 0);
+  if (!os_munmap(reinterpret_cast<char*>(aligned_map_addr) + length, surplus_tail_length)) {
+    return nullptr;
+  }
+
+  return aligned_map_addr;
 }
 
 inline bool map_with_prot_none(void *const addr, const size_t length) {
