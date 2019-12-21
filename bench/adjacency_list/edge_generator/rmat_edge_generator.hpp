@@ -11,9 +11,8 @@
 #include <limits>
 #include <utility>
 
-#include <boost/random/mersenne_twister.hpp>
 #include <boost/graph/rmat_graph_generator.hpp>
-
+#include <metall_utility/random.hpp>
 #include <metall_utility/hash.hpp>
 
 namespace edge_generator {
@@ -22,7 +21,7 @@ namespace edge_generator {
 template <typename parent_type>
 class rmat_edge_generator_iterator {
  private:
-  using rnd_generator_type = boost::random::mt19937_64;
+  using rnd_generator_type = metall::utility::rand_512;
 
  public:
   using value_type = std::pair<uint64_t, uint64_t>;
