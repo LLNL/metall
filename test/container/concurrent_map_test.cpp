@@ -5,8 +5,14 @@
 
 #include "gtest/gtest.h"
 
+#include <boost/interprocess/managed_mapped_file.hpp>
+#include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/container/map.hpp>
 #include <metall_container/concurrent_map.hpp>
+#include <metall/detail/utility/file.hpp>
+#include "../test_utility.hpp"
+
+namespace bip = boost::interprocess;
 
 namespace {
 
@@ -98,5 +104,46 @@ TEST (ConcurrentMapTest, Iterator) {
     ++num_elems;
   }
   GTEST_ASSERT_EQ(num_elems, 2);
+}
+
+TEST (ConcurrentMapTest, Persistence) {
+  
+  using allocator_type = bip::allocator<std::pair<const char, int>, bip::managed_mapped_file::segment_manager>;
+  using map_type =  metall::container::concurrent_map<char, int, std::less<char>, std::hash<char>, allocator_type, 2>;
+
+  const std::string dir_path(test_utility::make_test_dir_path("concurrent_map"));
+  const std::string file_path(dir_path + "/persistentce_test");
+
+  test_utility::create_test_dir();
+  metall::detail::utility::create_directory(dir_path);
+  metall::detail::utility::remove_file(file_path);
+
+  std::vector<std::pair<char, int>> inputs(10);
+  for (int i = 0; i < (int)inputs.size(); ++i) {
+    inputs[i].first = (char)('a' + i);    
+    inputs[i].second = i;
+  }
+
+  {
+    bip::managed_mapped_file mfile(bip::create_only, file_path.c_str(), 1 << 20);
+    auto pmap = mfile.construct<map_type>("map")(mfile.get_allocator<typename allocator_type::value_type>());
+
+    for (auto& elem : inputs) {
+        pmap->insert(elem);
+    }
+  }
+
+  {
+    bip::managed_mapped_file mfile(bip::open_only, file_path.c_str());
+    const auto pmap = mfile.find<map_type>("map").first;
+    GTEST_ASSERT_NE(pmap, nullptr);
+
+    for (auto& elem : inputs) {
+      GTEST_ASSERT_NE(pmap->find(elem.first), pmap->cend());
+      auto itr = pmap->find(elem.first);
+      GTEST_ASSERT_EQ(itr->first, elem.first);
+      GTEST_ASSERT_EQ(itr->second, elem.second);
+    }
+  }
 }
 }

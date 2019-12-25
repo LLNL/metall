@@ -54,12 +54,21 @@ class concurrent_map {
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
-  // ---------------------------------------- Modifier ---------------------------------------- //
-  size_type count(const key_type &key) {
+  size_type count(const key_type &key) const {
     const auto bank_no = calc_bank_no(key);
     return m_banked_map[bank_no].count(key);
   }
 
+  // TODO: implement an optimized version
+  size_type size() const {
+    size_type count = 0;
+    for (const auto& map : m_banked_map) {
+      count += map.size();
+    }
+    return count;
+  }
+
+  // ---------------------------------------- Modifier ---------------------------------------- //
   bool insert(value_type &&value) {
     const auto bank_no = calc_bank_no(value.first);
     auto lock = metall::utility::mutex::mutex_lock<k_num_banks>(bank_no);
