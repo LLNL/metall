@@ -237,7 +237,7 @@ inline void *reserve_vm_region(const size_t length) {
 /// \brief Reserve an aligned VM region
 /// \param alignment Specifies the alignment. Must be a multiple of the system page size
 /// \param length Length of the region to reserve
-/// \return The top address of the reserved region
+/// \return The address of the reserved region
 inline void *reserve_aligned_vm_region(const size_t alignment, const size_t length) {
   const ssize_t page_size = get_page_size();
   if (page_size == -1) {
@@ -277,7 +277,7 @@ inline void *reserve_aligned_vm_region(const size_t alignment, const size_t leng
   }
 
   // The final check, just in case
-  assert(aligned_map_addr % alignment == 0);
+  assert(reinterpret_cast<uint64_t>(aligned_map_addr) % alignment == 0);
   
   return aligned_map_addr;
 }

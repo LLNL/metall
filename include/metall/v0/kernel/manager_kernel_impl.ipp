@@ -333,11 +333,12 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_reserve_vm_region(const size_typ
   assert(alignment > 0);
   m_vm_region_size = util::round_up(nbytes, alignment);
   m_vm_region = util::reserve_aligned_vm_region(alignment, m_vm_region_size);
-  if (!m_vm_region || m_vm_region % alignment != 0) {
+  if (!m_vm_region) {
     std::cerr << "Cannot reserve a VM region " << nbytes << " bytes" << std::endl;
     m_vm_region_size = 0;
     return false;
   }
+  assert(reinterpret_cast<uint64_t>(m_vm_region) % alignment == 0);
 
   return true;
 }
