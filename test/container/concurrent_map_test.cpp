@@ -44,6 +44,21 @@ TEST (ConcurrentMapTest, Count) {
   GTEST_ASSERT_EQ(map.count(v2.first), 1);
 }
 
+TEST (ConcurrentMapTest, Size) {
+  metall::container::concurrent_map<char, int> map;
+
+  GTEST_ASSERT_EQ(map.size(), 0);
+
+  map.insert(std::make_pair('a', 0));
+  GTEST_ASSERT_EQ(map.size(), 1);
+
+  map.insert(std::make_pair('b', 0));
+  GTEST_ASSERT_EQ(map.size(), 2);
+
+  map.insert(std::make_pair('b', 0));
+  GTEST_ASSERT_EQ(map.size(), 2);
+}
+
 TEST (ConcurrentMapTest, SequentialEdit) {
   boost::container::map<char, int> ref_map;
   metall::container::concurrent_map<char, int> map;

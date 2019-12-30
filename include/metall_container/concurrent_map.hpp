@@ -49,7 +49,8 @@ class concurrent_map {
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
   explicit concurrent_map(const _allocator &allocator = _allocator())
-      : m_banked_map(k_num_banks, allocator) {}
+      : m_banked_map(k_num_banks, allocator),
+        m_num_items(0) {}
 
   // -------------------------------------------------------------------------------- //
   // Public methods
@@ -59,20 +60,17 @@ class concurrent_map {
     return m_banked_map[bank_no].count(key);
   }
 
-  // TODO: implement an optimized version
   size_type size() const {
-    size_type count = 0;
-    for (const auto& map : m_banked_map) {
-      count += map.size();
-    }
-    return count;
+    return m_num_items;
   }
 
   // ---------------------------------------- Modifier ---------------------------------------- //
   bool insert(value_type &&value) {
     const auto bank_no = calc_bank_no(value.first);
     auto lock = metall::utility::mutex::mutex_lock<k_num_banks>(bank_no);
-    return m_banked_map[bank_no].insert(std::forward<value_type>(value)).second;
+    const bool ret = m_banked_map[bank_no].insert(std::forward<value_type>(value)).second;
+    m_num_items += (ret) ? 1 : 0;
+    return ret;
   }
 
   std::pair<mapped_type &, std::unique_lock<std::mutex>>
@@ -82,6 +80,7 @@ class concurrent_map {
     if (!count(key)) {
       [[maybe_unused]] const bool ret = register_key_no_lock(key);
       assert(ret);
+      ++m_num_items;
     }
     return std::make_pair(std::ref(m_banked_map[bank_no].at(key)), std::move(lock));
   }
@@ -92,6 +91,7 @@ class concurrent_map {
     if (!count(key)) {
       [[maybe_unused]] const bool ret = register_key_no_lock(key);
       assert(ret);
+      ++m_num_items;
     }
     editor(m_banked_map[bank_no].at(key));
   }
@@ -125,13 +125,13 @@ class concurrent_map {
     return _bank_no_hasher()(key) % k_num_banks;
   }
 
-  // TODO
   bool register_key_no_lock(const key_type &key) {
     const auto bank_no = calc_bank_no(key);
     return m_banked_map[bank_no].try_emplace(key).second;
   }
 
   banked_map_type m_banked_map;
+  size_type m_num_items;
 };
 
 } // namespace metall::container
