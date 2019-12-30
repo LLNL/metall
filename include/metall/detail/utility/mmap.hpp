@@ -264,15 +264,15 @@ inline void *reserve_aligned_vm_region(const size_t alignment, const size_t leng
   // Trim the head
   const size_t surplus_head_length = reinterpret_cast<size_t>(aligned_map_addr) - reinterpret_cast<size_t>(map_addr);
   assert(surplus_head_length % page_size == 0);
-  assert(alignment <= surplus_head_length);
-  if (!os_munmap(map_addr, surplus_head_length)) {
+  // assert(alignment <= surplus_head_length);
+  if (surplus_head_length > 0 && !os_munmap(map_addr, surplus_head_length)) {
     return nullptr;
   }
 
   // Trim the tail
   const size_t surplus_tail_length = alignment - surplus_head_length;
   assert(surplus_tail_length % page_size == 0);
-  if (!os_munmap(reinterpret_cast<char*>(aligned_map_addr) + length, surplus_tail_length)) {
+  if (surplus_tail_length > 0 && !os_munmap(reinterpret_cast<char*>(aligned_map_addr) + length, surplus_tail_length)) {
     return nullptr;
   }
 
