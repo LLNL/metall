@@ -18,7 +18,6 @@ constexpr std::size_t k_chunk_size = metall::manager::chunk_size();
 using bin_no_mngr = metall::v0::kernel::bin_number_manager<k_chunk_size, 1ULL << 48>;
 constexpr int k_num_small_bins = bin_no_mngr::num_small_bins();
 
-using directory_type = metall::v0::kernel::bin_directory<k_num_small_bins, chunk_no_type, std::allocator<char>>;
 using chunk_directory_type = metall::v0::kernel::chunk_directory<chunk_no_type,
                                                                  k_chunk_size,
                                                                  1ULL << 48,
