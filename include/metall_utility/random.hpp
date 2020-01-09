@@ -244,7 +244,7 @@ class xoshiro1024pp {
   // 2^768 calls to next(); it can be used to generate 2^256 starting points,
   // from each of which jump() will generate 2^256 non-overlapping
   // subsequences for parallel distributed computations.
-  void long_jump(void) {
+  void long_jump() {
     static const uint64_t LONG_JUMP[] = {0x7374156360bbf00f,
                                          0x4630c2efa3b3c1f6, 0x6654183a892786b1, 0x94f7bfcbfb0f1661,
                                          0x27d8243d3d13eb2d, 0x9701730f3dfb300f, 0x2f293baae6f604ad,
@@ -268,7 +268,7 @@ class xoshiro1024pp {
   }
 
  private:
-  constexpr uint64_t rotl(const uint64_t x, int k) {
+  constexpr uint64_t rotl(const uint64_t x, const int k) {
     return (x << k) | (x >> (64 - k));
   }
 
