@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <type_traits>
 #include <thread>
+#include <vector>
 
 #include <metall/detail/utility/time.hpp>
 #include <metall/detail/utility/common.hpp>
