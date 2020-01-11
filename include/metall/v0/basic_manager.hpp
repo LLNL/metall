@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_V0_MANAGER_V0_HPP
-#define METALL_V0_MANAGER_V0_HPP
+#ifndef METALL_V0_BASIC_MANAGER_HPP
+#define METALL_V0_BASIC_MANAGER_HPP
 
 #include <memory>
 
@@ -314,4 +314,4 @@ class basic_manager {
 } // namespace v0
 } // namespace metall
 
-#endif //METALL_V0_MANAGER_V0_HPP
+#endif //METALL_V0_BASIC_MANAGER_HPP
