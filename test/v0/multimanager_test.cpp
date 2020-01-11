@@ -20,7 +20,7 @@ namespace omp = metall::utility::omp;
 using chunk_no_type = uint32_t;
 constexpr std::size_t k_chunk_size = 1UL << 21UL;
 
-using manager_type = metall::v0::manager_v0<chunk_no_type, k_chunk_size>;
+using manager_type = metall::v0::basic_manager<chunk_no_type, k_chunk_size>;
 
 template <typename T>
 using metall_allocator = typename manager_type::allocator_type<T>;

@@ -4,11 +4,11 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <metall/c_api/metall.h>
-#include <metall/v0/manager_v0.hpp>
+#include <metall/v0/basic_manager.hpp>
 
 using chunk_number_type = uint32_t;
 constexpr std::size_t k_chunk_size = 1 << 21;
-using manager_type = metall::v0::manager_v0<chunk_number_type,// Chunk number type
+using manager_type = metall::v0::basic_manager<chunk_number_type,// Chunk number type
                                             k_chunk_size>;    // Chunk size in byte
 
 manager_type *g_manager = nullptr;
