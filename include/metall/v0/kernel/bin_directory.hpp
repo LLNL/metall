@@ -39,8 +39,8 @@ namespace util = metall::detail::utility;
 /// otherwise, values are stored in the FIFO order.
 /// \tparam _k_num_bins The number of bins
 /// \tparam _value_type The value type to store
-/// \tparam allocator_type The allocator type to allocate internal data
-template <std::size_t _k_num_bins, typename _value_type, typename allocator_type>
+/// \tparam _allocator_type The allocator type to allocate internal data
+template <std::size_t _k_num_bins, typename _value_type, typename _allocator_type>
 class bin_directory {
  public:
   // -------------------------------------------------------------------------------- //
@@ -48,6 +48,7 @@ class bin_directory {
   // -------------------------------------------------------------------------------- //
   static constexpr std::size_t k_num_bins = _k_num_bins;
   using value_type = _value_type;
+  using allocator_type = _allocator_type;
   using bin_no_type = typename util::unsigned_variable_type<k_num_bins>::type;
 
  private:
@@ -84,9 +85,9 @@ class bin_directory {
   bin_directory &operator=(const bin_directory &) = default;
   bin_directory &operator=(bin_directory &&) = default;
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Public methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Public methods
+  // -------------------------------------------------------------------------------- //
   /// \brief
   /// \param bin_no
   /// \return
@@ -242,13 +243,13 @@ class bin_directory {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private methods
+  // -------------------------------------------------------------------------------- //
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private fields
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
   table_type m_table;
 };
 

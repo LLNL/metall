@@ -69,7 +69,7 @@ inline bool fsync(const std::string &path) {
   return ret;
 }
 
-inline void extend_file_size_manually(const int fd, const ssize_t file_size) {
+inline bool extend_file_size_manually(const int fd, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
   for (off_t i = 0; i < file_size / 4096; ++i) {
     ::pwrite(fd, buffer, 4096, i * 4096);
@@ -78,8 +78,13 @@ inline void extend_file_size_manually(const int fd, const ssize_t file_size) {
   if (remained_size > 0)
     ::pwrite(fd, buffer, remained_size, file_size - remained_size);
 
-  ::sync();
   delete[] buffer;
+
+  bool ret = true;
+  ret &= os_fsync(fd);
+  ret &= os_close(fd);
+
+  return ret;
 }
 
 inline bool extend_file_size(const int fd, const size_t file_size) {
@@ -97,7 +102,12 @@ inline bool extend_file_size(const int fd, const size_t file_size) {
       return false;
     }
   }
-  return true;
+
+  bool ret = true;
+  ret &= os_fsync(fd);
+  ret &= os_close(fd);
+
+  return ret;
 }
 
 inline bool extend_file_size(const std::string &file_name, const size_t file_size) {
@@ -108,10 +118,7 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
     return false;
   }
 
-  bool ret = extend_file_size(fd, file_size);
-
-  ret &= os_fsync(fd);
-  ret &= os_close(fd);
+  const bool ret = extend_file_size(fd, file_size);
 
   return ret;
 }
