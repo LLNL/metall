@@ -57,9 +57,10 @@ class segment_allocator {
   using bin_no_type = typename bin_no_mngr::bin_no_type;
   static constexpr size_type k_num_small_bins = bin_no_mngr::num_small_bins();
 
-  // For bin directory (NOTE: we only manage small bins)
-  using bin_directory_type = bin_directory<k_num_small_bins, chunk_no_type, internal_data_allocator_type>;
-  static constexpr const char *k_bin_directory_file_name = "bin_directory";
+  // For non-full chunk number bin (used to called 'bin directory')
+  // NOTE: we only manage the non-full chunk numbers of the small bins (small oject sizes)
+  using non_full_chunk_bin_type = bin_directory<k_num_small_bins, chunk_no_type, internal_data_allocator_type>;
+  static constexpr const char *k_non_full_chunk_bin_file_name = "non_full_chunk_bin";
 
   // For chunk directory
   using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size, internal_data_allocator_type>;
@@ -77,7 +78,7 @@ class segment_allocator {
   // -------------------------------------------------------------------------------- //
   explicit segment_allocator(segment_storage_type *segment_storage,
                              const internal_data_allocator_type &allocator = internal_data_allocator_type())
-      : m_bin_directory(allocator),
+      : m_non_full_chunk_bin(allocator),
         m_chunk_directory(allocator),
         m_segment_storage(segment_storage)
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
@@ -144,7 +145,7 @@ class segment_allocator {
   }
 
   bool serialize(const std::string &base_path) {
-    if (!m_bin_directory.serialize(priv_make_file_name(base_path, k_bin_directory_file_name).c_str())) {
+    if (!m_non_full_chunk_bin.serialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
       std::cerr << "Failed to serialize bin directory" << std::endl;
       return false;
     }
@@ -156,7 +157,7 @@ class segment_allocator {
   }
 
   bool deserialize(const std::string &base_path) {
-    if (!m_bin_directory.deserialize(priv_make_file_name(base_path, k_bin_directory_file_name).c_str())) {
+    if (!m_non_full_chunk_bin.deserialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
       std::cerr << "Failed to deserialize bin directory" << std::endl;
       return false;
     }
@@ -209,7 +210,7 @@ class segment_allocator {
     (*log_out) << "NOTE: only chunks used for small objects are in the bin directory\n";
     (*log_out) << "[bin no]\t[obj size]\t[#of non-full chunks]" << "\n";
     for (std::size_t bin_no = 0; bin_no < bin_no_mngr::num_small_bins(); ++bin_no) {
-      std::size_t num_non_full_chunks = std::distance(m_bin_directory.begin(bin_no), m_bin_directory.end(bin_no));
+      std::size_t num_non_full_chunks = std::distance(m_non_full_chunk_bin.begin(bin_no), m_non_full_chunk_bin.end(bin_no));
       (*log_out) << bin_no << "\t" << bin_no_mngr::to_object_size(bin_no) << "\t" << num_non_full_chunks << "\n";
     }
   }
@@ -234,7 +235,7 @@ class segment_allocator {
     lock_guard_type bin_guard(m_bin_mutex[bin_no]);
 #endif
 
-    if (m_bin_directory.empty(bin_no)) {
+    if (m_non_full_chunk_bin.empty(bin_no)) {
       chunk_no_type new_chunk_no;
       {
 #if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
@@ -242,18 +243,18 @@ class segment_allocator {
 #endif
         new_chunk_no = m_chunk_directory.insert(bin_no);
       }
-      m_bin_directory.insert(bin_no, new_chunk_no);
+      m_non_full_chunk_bin.insert(bin_no, new_chunk_no);
       priv_extend_segment(new_chunk_no, 1);
     }
 
-    assert(!m_bin_directory.empty(bin_no));
-    const chunk_no_type chunk_no = m_bin_directory.front(bin_no);
+    assert(!m_non_full_chunk_bin.empty(bin_no));
+    const chunk_no_type chunk_no = m_non_full_chunk_bin.front(bin_no);
 
     assert(!m_chunk_directory.all_slots_marked(chunk_no));
     const chunk_slot_no_type chunk_slot_no = m_chunk_directory.find_and_mark_slot(chunk_no);
 
     if (m_chunk_directory.all_slots_marked(chunk_no)) {
-      m_bin_directory.pop(bin_no);
+      m_non_full_chunk_bin.pop(bin_no);
     }
 
     const difference_type offset = k_chunk_size * chunk_no + object_size * chunk_slot_no;
@@ -299,7 +300,7 @@ class segment_allocator {
     m_chunk_directory.unmark_slot(chunk_no, slot_no);
 
     if (was_full) {
-      m_bin_directory.insert(bin_no, chunk_no);
+      m_non_full_chunk_bin.insert(bin_no, chunk_no);
     } else if (m_chunk_directory.all_slots_unmarked(chunk_no)) {
       // All slots in the chunk are not used, deallocate it
       {
@@ -309,7 +310,7 @@ class segment_allocator {
         m_chunk_directory.erase(chunk_no);
         priv_free_chunk(chunk_no, 1);
       }
-      m_bin_directory.erase(bin_no, chunk_no);
+      m_non_full_chunk_bin.erase(bin_no, chunk_no);
 
       return;
     }
@@ -393,7 +394,7 @@ class segment_allocator {
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  bin_directory_type m_bin_directory;
+  non_full_chunk_bin_type m_non_full_chunk_bin;
   chunk_directory_type m_chunk_directory;
   segment_storage_type *m_segment_storage;
 

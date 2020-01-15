@@ -248,8 +248,10 @@ class multifile_backed_segment_storage {
     const std::string file_name = priv_make_file_name(base_path, block_number);
     if (!util::create_file(file_name)) return false;
     if (!util::extend_file_size(file_name, file_size)) return false;
-    // Comment out the line below because it fails somehow
-    // assert(static_cast<size_type>(util::get_file_size(file_name)) >= file_size);
+    if (static_cast<size_type>(util::get_file_size(file_name)) < file_size) {
+      std::cerr << "Failed to create and extend file: " << file_name << std::endl;
+      std::abort();
+    }
 
     if (!priv_map_file(file_name, file_size, addr, false)) {
       return false;

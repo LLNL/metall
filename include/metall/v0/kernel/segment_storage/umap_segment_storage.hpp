@@ -256,7 +256,11 @@ class umap_segment_storage {
     const std::string file_name = priv_make_file_name(base_path, block_number);
     if (!util::create_file(file_name)) return false;
     if (!util::extend_file_size(file_name, file_size)) return false;
-    assert(static_cast<size_type>(util::get_file_size(file_name)) >= file_size);
+    if (static_cast<size_type>(util::get_file_size(file_name)) < file_size) {
+      std::cerr << "Failed to create and extend file: " << file_name << std::endl;
+      std::abort();
+    }
+
 
     if (!priv_map_file(file_name, file_size, addr, false)) {
       return false;
@@ -269,7 +273,7 @@ class umap_segment_storage {
     assert(file_size > 0);
     assert(addr);
 
-    /// MEMO: one of the following options does not work on /tmp?
+    // MEMO: one of the following options does not work on /tmp?
     const int o_opts = (read_only ? O_RDONLY : O_RDWR) | O_LARGEFILE | O_DIRECT;
     const int fd = ::open(path.c_str(), o_opts);
     if (fd == -1) {

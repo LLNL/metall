@@ -128,7 +128,7 @@ if (BUILD_DOC)
                 COMMENT "Generating API documentation with Doxygen"
                 VERBATIM)
     else ()
-        message(WARNING "Can not find Doxygen")
+        message(FATAL_ERROR "Can not find Doxygen")
     endif ()
 endif ()
 
@@ -167,7 +167,7 @@ if (FILESYSTEM_INCLUDE_FILE)
         link_libraries(c++fs)
     endif ()
 else ()
-    message(STATUS "Cannot find the filesystem library (C++17)")
+    message(NOTICE "Cannot find the filesystem library (C++17). Use own implementation.")
 endif ()
 
 # Xcode 11 Beta Release Notes

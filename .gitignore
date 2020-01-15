@@ -7,10 +7,9 @@ build*/
 .error
 .autosave
 .DS_Store
-cmake-build-debug
+cmake-build-*
 .idea
 *~
 ~*
 *.xls
 *.xlsx
-cmake-build-debug_memkind

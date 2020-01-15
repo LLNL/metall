@@ -230,7 +230,7 @@ class manager_kernel {
   T *priv_generic_named_construct(const char_type *name,
                                   size_type num,
                                   bool try2find,
-                                  bool, // TODO implement 'dothrow'
+                                  bool dothrow, // TODO implement 'dothrow'
                                   util::in_place_interface &table);
 
   // ---------------------------------------- For segment ---------------------------------------- //

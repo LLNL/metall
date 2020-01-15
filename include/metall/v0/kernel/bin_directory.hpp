@@ -33,18 +33,22 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-/// \brief
-/// \tparam _k_num_bins
-/// \tparam _chunk_no_type
-/// \tparam allocator_type
-template <std::size_t _k_num_bins, typename _chunk_no_type, typename allocator_type>
+/// \brief A simple key-value store designed to store values related to memory address,
+/// such as free chunk numbers or free objects.
+/// Values are sorted with ascending order if METALL_USE_SPACE_AWARE_BIN is defined;
+/// otherwise, values are stored in the FIFO order.
+/// \tparam _k_num_bins The number of bins
+/// \tparam _value_type The value type to store
+/// \tparam _allocator_type The allocator type to allocate internal data
+template <std::size_t _k_num_bins, typename _value_type, typename _allocator_type>
 class bin_directory {
  public:
   // -------------------------------------------------------------------------------- //
   // Public types and static values
   // -------------------------------------------------------------------------------- //
   static constexpr std::size_t k_num_bins = _k_num_bins;
-  using chunk_no_type = _chunk_no_type;
+  using value_type = _value_type;
+  using allocator_type = _allocator_type;
   using bin_no_type = typename util::unsigned_variable_type<k_num_bins>::type;
 
  private:
@@ -54,11 +58,11 @@ class bin_directory {
   template <typename T>
   using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
 #ifdef METALL_USE_SPACE_AWARE_BIN
-  using bin_allocator_type = other_allocator_type<chunk_no_type>;
-  using bin_type = boost::container::flat_set<chunk_no_type, std::greater<chunk_no_type>, bin_allocator_type>;
+  using bin_allocator_type = other_allocator_type<value_type>;
+  using bin_type = boost::container::flat_set<value_type, std::greater<value_type>, bin_allocator_type>;
 #else
-  using bin_allocator_type = other_allocator_type<chunk_no_type>;
-  using bin_type = boost::container::deque<chunk_no_type, bin_allocator_type>;
+  using bin_allocator_type = other_allocator_type<value_type>;
+  using bin_type = boost::container::deque<value_type, bin_allocator_type>;
 #endif
   using table_allocator = boost::container::scoped_allocator_adaptor<other_allocator_type<bin_type>>;
   using table_type = boost::container::vector<bin_type, table_allocator>;
@@ -81,9 +85,9 @@ class bin_directory {
   bin_directory &operator=(const bin_directory &) = default;
   bin_directory &operator=(bin_directory &&) = default;
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Public methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Public methods
+  // -------------------------------------------------------------------------------- //
   /// \brief
   /// \param bin_no
   /// \return
@@ -95,7 +99,15 @@ class bin_directory {
   /// \brief
   /// \param bin_no
   /// \return
-  chunk_no_type front(const bin_no_type bin_no) const {
+  std::size_t size(const bin_no_type bin_no) const {
+    assert(bin_no < k_num_bins);
+    return m_table[bin_no].size();
+  }
+
+  /// \brief
+  /// \param bin_no
+  /// \return
+  value_type front(const bin_no_type bin_no) const {
     assert(bin_no < k_num_bins);
     assert(!empty(bin_no));
 #ifdef METALL_USE_SPACE_AWARE_BIN
@@ -107,13 +119,13 @@ class bin_directory {
 
   /// \brief
   /// \param bin_no
-  /// \param chunk_no
-  void insert(const bin_no_type bin_no, const chunk_no_type chunk_no) {
+  /// \param value
+  void insert(const bin_no_type bin_no, const value_type value) {
     assert(bin_no < k_num_bins);
 #ifdef METALL_USE_SPACE_AWARE_BIN
-    m_table[bin_no].insert(chunk_no);
+    m_table[bin_no].insert(value);
 #else
-    m_table[bin_no].emplace_front(chunk_no);
+    m_table[bin_no].emplace_front(value);
 #endif
   }
 
@@ -130,19 +142,19 @@ class bin_directory {
 
   /// \brief
   /// \param bin_no
-  /// \param chunk_no
+  /// \param value
   /// \return
-  bool erase(const bin_no_type bin_no, const chunk_no_type chunk_no) {
+  bool erase(const bin_no_type bin_no, const value_type value) {
     assert(bin_no < k_num_bins);
 #ifdef METALL_USE_SPACE_AWARE_BIN
-    const auto itr = m_table[bin_no].find(chunk_no);
+    const auto itr = m_table[bin_no].find(value);
     if (itr != m_table[bin_no].end()) {
       m_table[bin_no].erase(itr);
       return true;
     }
 #else
     for (auto itr = m_table[bin_no].begin(), end = m_table[bin_no].end(); itr != end; ++itr) {
-      if (*itr == chunk_no) {
+      if (*itr == value) {
         m_table[bin_no].erase(itr);
         return true;
       }
@@ -151,11 +163,17 @@ class bin_directory {
     return false;
   }
 
+  /// \brief
+  /// \param bin_no
+  /// \return
   bin_const_iterator begin(const bin_no_type bin_no) const {
     assert(bin_no < k_num_bins);
     return m_table[bin_no].begin();
   }
 
+  /// \brief
+  /// \param bin_no
+  /// \return
   bin_const_iterator end(const bin_no_type bin_no) const {
     assert(bin_no < k_num_bins);
     return m_table[bin_no].end();
@@ -171,8 +189,8 @@ class bin_directory {
     }
 
     for (uint64_t i = 0; i < m_table.size(); ++i) {
-      for (const auto chunk_no : m_table[i]) {
-        ofs << static_cast<uint64_t>(i) << " " << static_cast<uint64_t>(chunk_no) << "\n";
+      for (const auto value : m_table[i]) {
+        ofs << static_cast<uint64_t>(i) << " " << static_cast<uint64_t>(value) << "\n";
         if (!ofs) {
           std::cerr << "Something happened in the ofstream: " << path << std::endl;
           return false;
@@ -197,16 +215,16 @@ class bin_directory {
     uint64_t buf2;
     while (ifs >> buf1 >> buf2) {
       const auto bin_no = static_cast<bin_no_type>(buf1);
-      const auto chunk_no = static_cast<chunk_no_type>(buf2);
+      const auto value = static_cast<value_type>(buf2);
 
       if (m_table.size() <= bin_no) {
         std::cerr << "Too large bin number is found: " << bin_no << std::endl;
         return false;
       }
 #ifdef METALL_USE_SPACE_AWARE_BIN
-      m_table[bin_no].insert(chunk_no);
+      m_table[bin_no].insert(value);
 #else
-      m_table[bin_no].emplace_back(chunk_no);
+      m_table[bin_no].emplace_back(value);
 #endif
     }
 
@@ -225,13 +243,13 @@ class bin_directory {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private methods
+  // -------------------------------------------------------------------------------- //
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private fields
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
   table_type m_table;
 };
 

@@ -22,7 +22,7 @@
 
 using namespace adjacency_list_bench;
 
-using manager_type = metall::v0::manager_v0<uint32_t, 1 << 21, utility::jemalloc_allocator<std::byte>>;
+using manager_type = metall::v0::basic_manager<uint32_t, 1 << 21, utility::jemalloc_allocator<std::byte>>;
 
 using key_type = uint64_t;
 using value_type = uint64_t;
