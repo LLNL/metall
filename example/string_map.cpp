@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
-#include <functional>
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/container/string.hpp>
 #include <boost/container/map.hpp>
