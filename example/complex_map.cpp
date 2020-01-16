@@ -34,9 +34,9 @@ struct mapped_type {
   }
 
   template <typename dummy>
-  mapped_type(dummy, const allocator_type &allocator)
-      : vec(allocator),
-        str(allocator) {
+  mapped_type(const allocator_type &allocator1, const allocator_type &allocator2)
+      : vec(allocator2),
+        str(allocator2) {
     // std::cout << "C2" << std::endl;
   }
 };
