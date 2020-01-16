@@ -33,7 +33,7 @@ struct mapped_type {
     // std::cout << "C1" << std::endl;
   }
 
-  template <typename dummy>
+  // Not sure how to handle the two allocators (allocator1 is outer allocator and allocator2 is inner allocator?)
   mapped_type(const allocator_type &allocator1, const allocator_type &allocator2)
       : vec(allocator2),
         str(allocator2) {
