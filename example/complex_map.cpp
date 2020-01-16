@@ -29,16 +29,7 @@ struct mapped_type {
 
   explicit mapped_type(const allocator_type &allocator)
       : vec(allocator),
-        str(allocator) {
-    // std::cout << "C1" << std::endl;
-  }
-
-  // Not sure how to handle the two allocators (allocator1 is outer allocator and allocator2 is inner allocator?)
-  mapped_type(const allocator_type &allocator1, const allocator_type &allocator2)
-      : vec(allocator2),
-        str(allocator2) {
-    // std::cout << "C2" << std::endl;
-  }
+        str(allocator) {}
 };
 
 // Value type
@@ -62,15 +53,24 @@ int main() {
     auto pmap = manager.construct<metall_map_type>("map")(manager.get_allocator<>());
 
     (*pmap)[0] = metall_map_type::mapped_type(manager.get_allocator<>());
-    pmap->at(0).vec.push_back(1);
-    pmap->at(0).str = "hello, world";
+    pmap->at(0).vec.push_back(0);
+    pmap->at(0).str = "hello, world 0";
+
+    pmap->try_emplace(1); // Scoped_allocator_adopter passes an allocator object to mapped_type?
+                                // pmap->try_emplace(1, manager.get_allocator<>()); does not work?
+    pmap->at(1).vec.push_back(1);
+    pmap->at(1).str = "hello, world 1";
   }
 
   {
     metall::manager manager(metall::open_only, "/tmp/datastore");
     auto pmap = manager.find<metall_map_type>("map").first;
-    std::cout << pmap->at(0).vec[0] << std::endl; // Prints out "1"
-    std::cout << pmap->at(0).str << std::endl; // Prints out "hello, world"
+
+    std::cout << pmap->at(0).vec[0] << std::endl; // Prints out "0"
+    std::cout << pmap->at(0).str << std::endl; // Prints out "hello, world 0"
+
+    std::cout << pmap->at(1).vec[0] << std::endl; // Prints out "1"
+    std::cout << pmap->at(1).str << std::endl; // Prints out "hello, world 1"
   }
 
   return 0;
