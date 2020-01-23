@@ -6,6 +6,7 @@
 #ifndef METALL_V0_BASIC_MANAGER_HPP
 #define METALL_V0_BASIC_MANAGER_HPP
 
+#include <cstddef>
 #include <memory>
 
 #include <metall/tags.hpp>
