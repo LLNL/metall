@@ -135,7 +135,7 @@ run() {
     DATASTORE_PATH=${DATASTORE_DIR}/${DATASTORE_NAME}
     execute ${NUM_THREADS} ${SCHEDULE} ${UMAP_PAGESIZE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE}
 
-    ls -lsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
+    ls -Rlsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
     df ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 

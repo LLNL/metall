@@ -135,7 +135,11 @@ run() {
     try_to_get_compiler_ver ${exec_file_name}
     execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o "${GRAPH_DIR}/${GRAPH_NAME}" -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1
 
-    ls -lsth ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
+    ls -Rlsth ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
+
+    df ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
+
+    du -h ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
 
     echo "" | tee -a ${LOG_FILE}
     echo "----------------------------------------" | tee -a ${LOG_FILE}
