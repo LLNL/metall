@@ -40,11 +40,9 @@ using allocator_type = typename manager_type::allocator_type<T>;
 /// TEST utility functions
 /// -------------------------------------------------------------------------------- ///
 
-/// \brief Check there is no overlap among given allocation lists
-/// \tparam check_no_blank If true, check if there is no blank between allocations
+/// \brief Check if there is no overlap among given allocation lists
 template <typename addr_list_type>
-void validate_overlap(const addr_list_type &addr_and_size_lists,
-                      const bool check_no_blank = false) {
+void validate_overlap(const addr_list_type &addr_and_size_lists) {
 
   std::list<std::pair<void *, void *>> allocation_range_list;
   for (const auto &addr_and_size : addr_and_size_lists) {
@@ -60,10 +58,7 @@ void validate_overlap(const addr_list_type &addr_and_size_lists,
 
   void *previous_end = allocation_range_list.front().first;
   for (const auto begin_and_end : allocation_range_list) {
-    if (check_no_blank)
-      ASSERT_EQ(previous_end, begin_and_end.first);
-    else
-      ASSERT_LE(previous_end, begin_and_end.first);
+    ASSERT_LE(previous_end, begin_and_end.first);
     previous_end = begin_and_end.second;
   }
 }
@@ -121,25 +116,13 @@ void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
     }
 
     // Validate allocated addresses
-    // Check if there is no overlap and blank
-    validate_overlap(addr_and_size_array, true);
+    // Check if there is no overlap
+    validate_overlap(addr_and_size_array);
 
     // Deallocation
     OMP_DIRECTIVE(parallel for)
     for (std::size_t i = 0; i < addr_and_size_array.size(); ++i)
       manager.deallocate(addr_and_size_array[i].first);
-
-    // Compare the begin and end addresses of the previous and current loop
-    // to make sure all allocations were deallocated in the previous loop.
-    // As we confirmed there is no blank in the range of allocations,
-    // just checking the begin and end addresses is enough.
-    const auto begin_end_addr = get_addr_range(addr_and_size_array);
-    if (k == 0) {
-      previous_allocation_rage = begin_end_addr;
-    } else {
-      ASSERT_EQ(begin_end_addr.first, previous_allocation_rage.first);
-      ASSERT_EQ(begin_end_addr.second, previous_allocation_rage.second);
-    }
   }
 }
 
