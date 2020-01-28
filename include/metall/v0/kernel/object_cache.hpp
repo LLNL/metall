@@ -33,8 +33,8 @@ class object_cache {
   // -------------------------------------------------------------------------------- //
   // Public types and static values
   // -------------------------------------------------------------------------------- //
-  static constexpr std::size_t k_num_bins = _k_num_bins;
-  static constexpr std::size_t k_full_cache_size = 8;
+  static constexpr unsigned int k_num_bins = _k_num_bins;
+  static constexpr unsigned int k_full_cache_size = 8;
   using difference_type = _difference_type;
   using allocator_type = _allocator_type;
 
@@ -48,11 +48,11 @@ class object_cache {
   using cache_table_allocator = boost::container::scoped_allocator_adaptor<other_allocator_type<local_object_cache_type>>;
   using cache_table_type = boost::container::vector<local_object_cache_type, cache_table_allocator>;
 
-  static constexpr std::size_t k_num_cache_multiple_factor = 8;
+  static constexpr unsigned int k_num_cache_multiple_factor = 8;
   static constexpr std::size_t k_max_total_cache_size_per_bin = 1ULL << 20ULL;
-  static constexpr std::size_t k_cache_block_size = 8; // Add and remove caches by this size
+  static constexpr unsigned int k_cache_block_size = 8; // Add and remove caches by this size
   static constexpr std::size_t k_max_cache_object_size = k_max_total_cache_size_per_bin / k_cache_block_size / 2;
-  static constexpr std::size_t k_max_bin_no = bin_no_mngr::to_bin_no(k_max_cache_object_size);
+  static constexpr unsigned int k_max_bin_no = bin_no_mngr::to_bin_no(k_max_cache_object_size);
 
 #if ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE
   using mutex_type = util::mutex;
@@ -64,6 +64,7 @@ class object_cache {
   // Public types and static values
   // -------------------------------------------------------------------------------- //
   using bin_no_type = typename local_object_cache_type::bin_no_type;
+  using const_bin_iterator = typename local_object_cache_type::const_bin_iterator;
 
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
@@ -90,7 +91,7 @@ class object_cache {
   /// \param allocator
   /// \return
   difference_type get(const bin_no_type bin_no,
-                      const std::function<void(bin_no_type, std::size_t, _difference_type *const)> &allocator) {
+                      const std::function<void(bin_no_type, unsigned int, _difference_type *const)> &allocator) {
     if (bin_no > max_bin_no()) return -1;
 
     const auto cache_no = comp_cache_no(get_core_no());
@@ -100,7 +101,7 @@ class object_cache {
     if (m_cache_table[cache_no].empty(bin_no)) {
       difference_type allocated_offsets[k_cache_block_size];
       allocator(bin_no, k_cache_block_size, allocated_offsets);
-      for (std::size_t i = 0; i < k_cache_block_size; ++i) {
+      for (unsigned int i = 0; i < k_cache_block_size; ++i) {
         m_cache_table[cache_no].insert(bin_no, allocated_offsets[i]);
       }
     }
@@ -114,7 +115,7 @@ class object_cache {
   /// \param bin_no
   /// \param object_offset
   bool insert(const bin_no_type bin_no, const difference_type object_offset,
-              const std::function<void(bin_no_type, std::size_t, const _difference_type *const)> &deallocator) {
+              const std::function<void(bin_no_type, unsigned int, const _difference_type *const)> &deallocator) {
     assert(object_offset >= 0);
     if (bin_no > max_bin_no()) return false; // Error
 
@@ -128,7 +129,7 @@ class object_cache {
     if (m_cache_table[cache_no].size(bin_no) * object_size >= k_max_total_cache_size_per_bin) {
       assert(m_cache_table[cache_no].size(bin_no) >= k_cache_block_size);
       difference_type offsets[k_cache_block_size];
-      for (std::size_t i = 0; i < k_cache_block_size; ++i) {
+      for (unsigned int i = 0; i < k_cache_block_size; ++i) {
         offsets[i] = m_cache_table[cache_no].front(bin_no);
         m_cache_table[cache_no].pop(bin_no);
       }
@@ -138,16 +139,26 @@ class object_cache {
     return true;
   }
 
-  std::size_t size(const unsigned int cpu_core_no, const bin_no_type bin_no) const {
-    return m_cache_table[comp_cache_no(cpu_core_no)].size(bin_no);
+  void clear() {
+    for (auto& table : m_cache_table) {
+      table.clear();
+    }
   }
 
-  static std::size_t num_cores() {
-    return std::thread::hardware_concurrency();
+  unsigned int num_caches() const {
+    return m_cache_table.size();
   }
 
-  static constexpr std::size_t max_bin_no() {
+  static constexpr unsigned int max_bin_no() {
     return k_max_bin_no;
+  }
+
+  const_bin_iterator begin(const unsigned int cache_no, const bin_no_type bin_no) const {
+    return m_cache_table[cache_no].begin(bin_no);
+  }
+
+  const_bin_iterator end(const unsigned int cache_no, const bin_no_type bin_no) const {
+    return m_cache_table[cache_no].end(bin_no);
   }
 
  private:
@@ -162,10 +173,12 @@ class object_cache {
     return metall::utility::hash<unsigned int>{}(core_num) % m_cache_table.size();
   }
 
-  auto get_core_no() const {
-    const unsigned int core_no = util::get_cpu_core_no();
-    assert(core_no < m_cache_table.size());
-    return core_no;
+  static unsigned int get_core_no() {
+    return util::get_cpu_core_no();
+  }
+
+  static unsigned int num_cores() {
+    return std::thread::hardware_concurrency();
   }
 
   // -------------------------------------------------------------------------------- //
