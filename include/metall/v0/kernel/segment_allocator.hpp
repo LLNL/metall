@@ -16,13 +16,17 @@
 
 #include <metall/v0/kernel/bin_number_manager.hpp>
 #include <metall/v0/kernel/bin_directory.hpp>
-#include <metall/v0/kernel/object_cache.hpp>
 #include <metall/v0/kernel/chunk_directory.hpp>
 #include <metall/v0/kernel/object_size_manager.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
+
 #define ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR 1
 #if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
 #include <metall/detail/utility/mutex.hpp>
+#endif
+
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
+#include <metall/v0/kernel/object_cache.hpp>
 #endif
 
 namespace metall {
@@ -67,10 +71,12 @@ class segment_allocator {
   static constexpr const char *k_chunk_directory_file_name = "chunk_directory";
 
   // For object cache
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
   using small_object_cache_type = object_cache<k_num_small_bins,
                                                difference_type,
                                                bin_no_mngr,
                                                internal_data_allocator_type>;
+#endif
 
 #if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
   using mutex_type = util::mutex;
@@ -85,8 +91,10 @@ class segment_allocator {
                              const internal_data_allocator_type &allocator = internal_data_allocator_type())
       : m_non_full_chunk_bin(allocator),
         m_chunk_directory(allocator),
-        m_segment_storage(segment_storage),
-        m_object_cache(allocator)
+        m_segment_storage(segment_storage)
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
+      , m_object_cache(allocator)
+#endif
 #if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
       , m_chunk_mutex(),
         m_bin_mutex()
@@ -115,7 +123,7 @@ class segment_allocator {
     const bin_no_type bin_no = bin_no_mngr::to_bin_no(nbytes);
 
     const auto offset = (priv_small_object_bin(bin_no)) ?
-                        priv_allocate_small_object_with_cache(bin_no) : priv_allocate_large_object(bin_no);
+                        priv_allocate_small_object(bin_no) : priv_allocate_large_object(bin_no);
     assert(offset >= 0);
     assert((difference_type)offset < (difference_type)size());
 
@@ -138,7 +146,7 @@ class segment_allocator {
     const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
 
     if (priv_small_object_bin(bin_no)) {
-      priv_deallocate_small_object_with_cache(offset, bin_no);
+      priv_deallocate_small_object(offset, bin_no);
     } else {
       priv_deallocate_large_object(chunk_no, bin_no);
     }
@@ -151,7 +159,9 @@ class segment_allocator {
   }
 
   bool serialize(const std::string &base_path) {
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
     priv_clear_object_cache();
+#endif
 
     if (!m_non_full_chunk_bin.serialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
       std::cerr << "Failed to serialize bin directory" << std::endl;
@@ -178,7 +188,9 @@ class segment_allocator {
 
   template <typename out_stream_type>
   void profile(out_stream_type *log_out) const {
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
     priv_clear_object_cache();
+#endif
 
     std::vector<std::size_t> num_used_chunks_per_bin(bin_no_mngr::num_bins(), 0);
 
@@ -239,7 +251,8 @@ class segment_allocator {
   }
 
   // ---------------------------------------- For allocation ---------------------------------------- //
-  difference_type priv_allocate_small_object_with_cache(const bin_no_type bin_no) {
+  difference_type priv_allocate_small_object(const bin_no_type bin_no) {
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
     if (bin_no <= small_object_cache_type::max_bin_no()) {
       auto global_allocator = [this](const bin_no_type a,
                                      const unsigned int b,
@@ -251,7 +264,7 @@ class segment_allocator {
       assert(offset >= 0);
       return offset;
     }
-
+#endif
     difference_type offset;
     priv_allocate_small_objects_from_global(bin_no, 1, &offset);
     return offset;
@@ -321,7 +334,8 @@ class segment_allocator {
   }
 
   // ---------------------------------------- For deallocation ---------------------------------------- //
-  void priv_deallocate_small_object_with_cache(const difference_type offset, const bin_no_type bin_no) {
+  void priv_deallocate_small_object(const difference_type offset, const bin_no_type bin_no) {
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
     if (bin_no <= small_object_cache_type::max_bin_no()) {
       auto global_deallocator = [this](const bin_no_type a,
                                        const unsigned int b,
@@ -332,7 +346,7 @@ class segment_allocator {
       assert(ret);
       return;
     }
-
+#endif
     priv_deallocate_small_objects_from_global(bin_no, 1, &offset);
   }
 
@@ -446,6 +460,7 @@ class segment_allocator {
   }
 
   // ---------------------------------------- For object cache ---------------------------------------- //
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
   void priv_clear_object_cache() {
     for (unsigned int c = 0; c < m_object_cache.num_caches(); ++c) {
       for (bin_no_type b = 0; b < m_object_cache.max_bin_no(); ++b) {
@@ -457,6 +472,7 @@ class segment_allocator {
     }
     m_object_cache.clear();
   }
+#endif
 
   // -------------------------------------------------------------------------------- //
   // Private fields
@@ -464,7 +480,10 @@ class segment_allocator {
   non_full_chunk_bin_type m_non_full_chunk_bin;
   chunk_directory_type m_chunk_directory;
   segment_storage_type *m_segment_storage;
+
+#ifndef DISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR
   small_object_cache_type m_object_cache;
+#endif
 
 #if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
   mutex_type m_chunk_mutex;

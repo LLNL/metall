@@ -13,7 +13,8 @@ option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 option(BUILD_C "Build C examples and libraries" ON)
-option(DISABLE_FREE_FILE_SPACE "Diable freeing file space" OFF)
+option(DISABLE_FREE_FILE_SPACE "Disable freeing file space" OFF)
+option(DISABLE_SMALL_OBJECT_CACHE "Disable small object cache" OFF)
 
 # ---------- Experimental options ---------- #
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
@@ -109,6 +110,11 @@ endif()
 if (DISABLE_FREE_FILE_SPACE)
     add_definitions(-DMETALL_DISABLE_FREE_FILE_SPACE)
     message(STATUS "Disable freeing file space in Metall")
+endif()
+
+if (DISABLE_SMALL_OBJECT_CACHE)
+    add_definitions(-DDISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR)
+    message(STATUS "Disable small object cache")
 endif()
 
 # -------------------------------------------------------------------------------- #

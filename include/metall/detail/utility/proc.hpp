@@ -12,20 +12,30 @@ namespace metall {
 namespace detail {
 namespace utility {
 
+#ifdef _GNU_SOURCE
+#define SUPPORT_GET_CPU_CORE_NO true
+#else
+#define SUPPORT_GET_CPU_CORE_NO false
+#endif
+
 /// \brief Returns the number of the CPU core on which the calling thread is currently executing
 /// \return Returns a nonnegative CPU core number
 inline int get_cpu_core_no() {
-#if defined(_GNU_SOURCE)
-  const int cpu = sched_getcpu();
+#if SUPPORT_GET_CPU_CORE_NO
+
+  const int cpu = ::sched_getcpu();
   if (cpu == -1) {
     return 0;
   }
   return cpu;
-#else
+
+  #else
+
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "CPU core number is always 0"
 #endif
   return 0;
+
 #endif
 }
 
