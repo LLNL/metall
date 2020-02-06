@@ -6,6 +6,7 @@
 
 #include "gtest/gtest.h"
 
+#include <unordered_set>
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
@@ -98,23 +99,18 @@ TEST(ManagerTest, TinyAllocation) {
   manager_type manager(metall::create_only, dir_path().c_str());
 
   const std::size_t alloc_size = k_min_object_size / 2;
-  char *base_addr = nullptr;
-  for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
-    auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    if (i == 0) {
-      base_addr = addr;
-    }
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i * k_min_object_size);
-  }
 
-  for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
-    char *addr = base_addr + i * k_min_object_size;
-    manager.deallocate(addr);
-  }
+  // To make sure that there is no duplicated allocation
+  std::unordered_set<void*> set;
 
   for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
     auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i * k_min_object_size);
+    ASSERT_EQ(set.count(addr), 0);
+    set.insert(addr);
+  }
+
+  for (auto add : set) {
+    manager.deallocate(add);
   }
 }
 
@@ -122,32 +118,28 @@ TEST(ManagerTest, SmallAllocation) {
   manager_type manager(metall::create_only, dir_path().c_str());
 
   const std::size_t alloc_size = k_min_object_size;
-  char *base_addr = nullptr;
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
+
+  // To make sure that there is no duplicated allocation
+  std::unordered_set<void*> set;
+
+  for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
     auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    if (i == 0) {
-      base_addr = addr;
-    }
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i * alloc_size);
+    ASSERT_EQ(set.count(addr), 0);
+    set.insert(addr);
   }
 
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
-    char *addr = base_addr + i * alloc_size;
-    manager.deallocate(addr);
-  }
-
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
-    auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i * alloc_size);
+  for (auto add : set) {
+    manager.deallocate(add);
   }
 }
 
 TEST(ManagerTest, MaxSmallAllocation) {
   manager_type manager(metall::create_only, dir_path().c_str());
 
-  const std::size_t
-      alloc_size = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1); // Max small object num_blocks
+  // Max small allocation size
+  const std::size_t alloc_size = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1);
 
+  // This test will fail if the ojbect cache is enabled to cache alloc_size
   char *base_addr = nullptr;
   for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
     auto addr = static_cast<char *>(manager.allocate(alloc_size));
@@ -171,57 +163,41 @@ TEST(ManagerTest, MaxSmallAllocation) {
 TEST(ManagerTest, MixedSmallAllocation) {
   manager_type manager(metall::create_only, dir_path().c_str());
 
-  const std::size_t alloc_size1 = k_min_object_size;
-  const std::size_t alloc_size2 = k_min_object_size * 2;
+  const std::size_t alloc_size1 = k_min_object_size * 2;
+  const std::size_t alloc_size2 = k_min_object_size * 4;
   const std::size_t
       alloc_size3 = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1); // Max small object num_blocks
 
-  char *base_addr = nullptr;
+  // To make sure that there is no duplicated allocation
+  std::unordered_set<void*> set;
+
   for (uint64_t i = 0; i < k_chunk_size / alloc_size1; ++i) {
-    auto addr1 = static_cast<char *>(manager.allocate(alloc_size1));
-    if (i == 0) {
-      base_addr = addr1;
+    {
+      auto addr = static_cast<char *>(manager.allocate(alloc_size1));
+      ASSERT_EQ(set.count(addr), 0);
+      set.insert(addr);
     }
-    ASSERT_EQ((addr1 - base_addr) % k_chunk_size, i * alloc_size1);
-
-    if (i < k_chunk_size / alloc_size2) {
-      auto addr2 = static_cast<char *>(manager.allocate(alloc_size2));
-      ASSERT_EQ((addr2 - base_addr) % k_chunk_size, i * alloc_size2);
+    {
+      auto addr = static_cast<char *>(manager.allocate(alloc_size2));
+      ASSERT_EQ(set.count(addr), 0);
+      set.insert(addr);
     }
-
-    if (i < k_chunk_size / alloc_size3) {
-      auto addr3 = static_cast<char *>(manager.allocate(alloc_size3));
-      ASSERT_EQ((addr3 - base_addr) % k_chunk_size, i * alloc_size3);
+    {
+      auto addr = static_cast<char *>(manager.allocate(alloc_size3));
+      ASSERT_EQ(set.count(addr), 0);
+      set.insert(addr);
     }
   }
 
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size1; ++i) {
-    manager.deallocate(base_addr + i * alloc_size1);
-    if (i < k_chunk_size / alloc_size2)
-      manager.deallocate(base_addr + k_chunk_size + i * alloc_size2);
-    if (i < k_chunk_size / alloc_size3)
-      manager.deallocate(base_addr + 2 * k_chunk_size + i * alloc_size3);
-  }
-
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size1; ++i) {
-    auto addr1 = static_cast<char *>(manager.allocate(alloc_size1));
-    ASSERT_EQ((addr1 - base_addr) % k_chunk_size, i * alloc_size1);
-
-    if (i < k_chunk_size / alloc_size2) {
-      auto addr2 = static_cast<char *>(manager.allocate(alloc_size2));
-      ASSERT_EQ((addr2 - base_addr - k_chunk_size) % k_chunk_size, i * alloc_size2);
-    }
-
-    if (i < k_chunk_size / alloc_size3) {
-      auto addr3 = static_cast<char *>(manager.allocate(alloc_size3));
-      ASSERT_EQ((addr3 - base_addr - 2 * k_chunk_size) % k_chunk_size, i * alloc_size3);
-    }
+  for (auto add : set) {
+    manager.deallocate(add);
   }
 }
 
 TEST(ManagerTest, LargeAllocation) {
   manager_type manager(metall::create_only, dir_path().c_str());
 
+  // Assume the object cache is not used for large allocation
   char *base_addr = nullptr;
   {
     auto addr1 = static_cast<char *>(manager.allocate(k_chunk_size));
@@ -254,24 +230,18 @@ TEST(ManagerTest, StlAllocator) {
   manager_type manager(metall::create_only, dir_path().c_str());
 
   allocator_type<uint64_t> stl_allocator_instance(manager.get_allocator<uint64_t>());
-  uint64_t *base_addr = nullptr;
 
-  for (uint64_t i = 0; i < k_chunk_size / sizeof(uint64_t); ++i) {
+  // To make sure that there is no duplicated allocation
+  std::unordered_set<uint64_t*> set;
+
+  for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
     auto addr = stl_allocator_instance.allocate(1).get();
-    if (i == 0) {
-      base_addr = addr;
-    }
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i);
+    ASSERT_EQ(set.count(addr), 0);
+    set.insert(addr);
   }
 
-  for (uint64_t i = 0; i < k_chunk_size / sizeof(uint64_t); ++i) {
-    uint64_t *addr = base_addr + i;
-    stl_allocator_instance.deallocate(addr, 1);
-  }
-
-  for (uint64_t i = 0; i < k_chunk_size / sizeof(uint64_t); ++i) {
-    auto addr = stl_allocator_instance.allocate(1).get();
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i);
+  for (auto add : set) {
+    stl_allocator_instance.deallocate(add, 1);
   }
 }
 

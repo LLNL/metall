@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
-project(Metall)
+project(Metall VERSION 0.1)
+
+configure_file(MetallConfig.h.in MetallConfig.h)
+include_directories(${PROJECT_BINARY_DIR})
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # -------------------------------------------------------------------------------- #
-# Options
+# User configurable options
 # -------------------------------------------------------------------------------- #
 option(BUILD_BENCH "Build the benchmark" ON)
 option(BUILD_TEST "Build the test" OFF)
@@ -13,7 +19,8 @@ option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 option(BUILD_C "Build C examples and libraries" ON)
-option(DISABLE_FREE_FILE_SPACE "Diable freeing file space" OFF)
+option(DISABLE_FREE_FILE_SPACE "Disable freeing file space" OFF)
+option(DISABLE_SMALL_OBJECT_CACHE "Disable small object cache" OFF)
 
 # ---------- Experimental options ---------- #
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
@@ -23,8 +30,6 @@ option(FREE_SMALL_OBJECT_SIZE_HINT
        "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
        0)
 # -------------------------------------------------------------------------------- #
-
-set(CMAKE_CXX_STANDARD 17)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -81,7 +86,7 @@ endif ()
 
 # ---------- MPI ---------- #
 find_package(MPI)
-if (MPI_C_FOUND )
+if (MPI_C_FOUND)
     include_directories(MPI_C_INCLUDE_PATH)
 endif()
 
@@ -111,6 +116,11 @@ if (DISABLE_FREE_FILE_SPACE)
     message(STATUS "Disable freeing file space in Metall")
 endif()
 
+if (DISABLE_SMALL_OBJECT_CACHE)
+    add_definitions(-DDISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR)
+    message(STATUS "Disable small object cache")
+endif()
+
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
 # -------------------------------------------------------------------------------- #
@@ -136,7 +146,7 @@ endif ()
 # -------------------------------------------------------------------------------- #
 # Executables
 # -------------------------------------------------------------------------------- #
-# Requrements for GCC
+# Requirements for GCC
 if (NOT RUN_BUILD_AND_TEST_WITH_CI)
     if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
         if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
@@ -152,7 +162,7 @@ if (ONLY_DOWNLOAD_GTEST)
     return()
 endif()
 
-# ---------- filesytem ---------- #
+# ---------- filesystem ---------- #
 include(CheckIncludeFileCXX)
 CHECK_INCLUDE_FILE_CXX(filesystem FILESYSTEM_INCLUDE_FILE)
 if (FILESYSTEM_INCLUDE_FILE)

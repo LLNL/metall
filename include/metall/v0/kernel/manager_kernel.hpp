@@ -34,8 +34,8 @@
 #include <metall/v0/kernel/segment_storage/multifile_backed_segment_storage.hpp>
 #endif
 
-#define ENABLE_MUTEX_IN_V0_MANAGER_KERNEL 1
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+#define ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL 1
+#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
 #include <metall/detail/utility/mutex.hpp>
 #endif
 
@@ -73,8 +73,15 @@ class manager_kernel {
   static constexpr const char *k_datastore_dir_name = "metall_datastore";
 
   // For segment
-  static constexpr size_type k_default_vm_reserve_size = 1ULL << 43ULL; // TODO: get from somewhere else
+  // TODO: get from somewhere else
+  static constexpr size_type k_default_vm_reserve_size =
+#if defined(__linux__)
+      1ULL << 43ULL;
+#elif defined(__APPLE__)
+      1ULL << 42ULL;
+#endif
   static constexpr size_type k_max_segment_size = 1ULL << 48ULL; // TODO: get from somewhere else
+  static_assert(k_default_vm_reserve_size <= k_max_segment_size, "k_default_vm_reserve_size must be <= k_max_segment_size");
   using segment_header_type = segment_header<k_chunk_size>;
   static constexpr size_type k_initial_segment_size = 1ULL << 28ULL; // TODO: get from somewhere else
   static constexpr const char *k_segment_prefix = "segment";
@@ -96,7 +103,7 @@ class manager_kernel {
   using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
   static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
 
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
   using mutex_type = util::mutex;
   using lock_guard_type = util::mutex_lock_guard;
 #endif
@@ -262,7 +269,7 @@ class manager_kernel {
   segment_storage_type m_segment_storage;
   segment_memory_allocator m_segment_memory_allocator;
 
-#if ENABLE_MUTEX_IN_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
   mutex_type m_named_object_directory_mutex;
 #endif
 };
