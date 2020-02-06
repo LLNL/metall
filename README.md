@@ -153,7 +153,8 @@ Example programs are located in [example/](example/)
 	* Metall does not support multi-process, i.e., there is no inter-process synchronization mechanism in Metall. Metall assumes that each process access a different memory region. The examples above shows how to use Metall with MPI.
 
 
-#Publication
+# Publication
+
 [Metall: A Persistent Memory Allocator Enabling Graph Processing](https://www.osti.gov/servlets/purl/1576900)
 
 ```text
