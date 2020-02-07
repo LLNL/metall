@@ -79,7 +79,7 @@ if (Linux)
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -pg")
 endif ()
 
-# CI
+# ---------- CI ----------
 if (RUN_BUILD_AND_TEST_WITH_CI)
     set(CMAKE_C_FLAGS_RELEASE "-O3")
 endif ()
@@ -117,7 +117,7 @@ if (DISABLE_FREE_FILE_SPACE)
 endif()
 
 if (DISABLE_SMALL_OBJECT_CACHE)
-    add_definitions(-DDISABLE_SMALL_OBJECT_CACHE_IN_METALL_V0_SEGMENT_ALLOCATOR)
+    add_definitions(-DMETALL_DISABLE_OBJECT_CACHE)
     message(STATUS "Disable small object cache")
 endif()
 
@@ -162,12 +162,11 @@ if (ONLY_DOWNLOAD_GTEST)
     return()
 endif()
 
+
 # ---------- filesystem ---------- #
 include(CheckIncludeFileCXX)
 CHECK_INCLUDE_FILE_CXX(filesystem FILESYSTEM_INCLUDE_FILE)
 if (FILESYSTEM_INCLUDE_FILE)
-    add_definitions(-DMETALL_FOUND_CPP17_FILESYSTEM_LIB)
-
     # GCC
     if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
         link_libraries(stdc++fs)
@@ -184,7 +183,8 @@ endif ()
 # Clang now supports the C++17 <filesystem> library for iOS 13, macOS 10.15, watchOS 6, and tvOS 13. (50988273)
 # https://developer.apple.com/documentation/xcode_release_notes/xcode_11_beta_release_notes?language=objc
 
-# UMap
+
+# ---------- UMap ---------- #
 if (UMAP_ROOT)
     include_directories(${UMAP_ROOT}/include)
     if(UNIX AND NOT APPLE)
@@ -198,7 +198,8 @@ if (UMAP_ROOT)
     endif()
 endif()
 
-# Requre Boost
+
+# ---------- Boost ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
     find_package(Boost)
 else ()
