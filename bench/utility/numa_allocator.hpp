@@ -36,12 +36,12 @@ class numa_allocator {
   numa_allocator &operator=(numa_allocator &&other) noexcept = default;
 
   template <typename T2>
-  numa_allocator &operator=(const numa_allocator<T2> &other) {
+  numa_allocator &operator=([[maybe_unused]] const numa_allocator<T2> &other) {
     return *this;
   }
 
   template <typename T2>
-  numa_allocator &operator=(numa_allocator<T2> &&other) noexcept {
+  numa_allocator &operator=([[maybe_unused]] numa_allocator<T2> &&other) noexcept {
     return *this;
   }
 
@@ -104,7 +104,7 @@ class numa_allocator {
 };
 
 template <typename T>
-bool operator==(const numa_allocator<T> &rhd, const numa_allocator<T> &lhd) {
+bool operator==([[maybe_unused]] const numa_allocator<T> &rhd, [[maybe_unused]] const numa_allocator<T> &lhd) {
   return true;
 }
 

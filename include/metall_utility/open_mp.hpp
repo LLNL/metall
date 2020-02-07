@@ -105,7 +105,7 @@ inline int get_thread_num() noexcept {
 #endif
 }
 
-inline void set_num_threads(const int n) noexcept {
+inline void set_num_threads([[maybe_unused]]const int n) noexcept {
 #ifdef _OPENMP
   ::omp_set_num_threads(n);
 #endif
