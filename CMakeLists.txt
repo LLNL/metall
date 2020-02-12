@@ -1,3 +1,19 @@
+# -------------------------------------------------------------------------------- #
+# Configuration for installing header file
+# -------------------------------------------------------------------------------- #
+install(DIRECTORY include/metall DESTINATION include)
+install(DIRECTORY include/metall_container DESTINATION include)
+install(DIRECTORY include/metall_utility DESTINATION include)
+
+option(INSTALL_HEADER_ONLY "Only installing header files" OFF)
+if (INSTALL_HEADER_ONLY)
+    return()
+endif()
+# -------------------------------------------------------------------------------- #
+
+# -------------------------------------------------------------------------------- #
+# Configuration for building test, benchmark, example, etc.
+# -------------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
 project(Metall VERSION 0.1)
 
@@ -220,7 +236,7 @@ if (Boost_FOUND)
     if (BUILD_TEST)
         if (RUN_LARGE_SCALE_TEST)
             add_definitions(-DMETALL_RUN_LARGE_SCALE_TEST)
-            message(STATUS "Run lage-scale tests")
+            message(STATUS "Run large-scale tests")
         endif ()
         enable_testing()
         add_subdirectory(test)
