@@ -152,7 +152,7 @@ class xoshiro512pp {
   }
 
  private:
-  constexpr uint64_t rotl(const uint64_t x, int k) {
+  static constexpr uint64_t rotl(const uint64_t x, int k) {
     return (x << k) | (x >> (64 - k));
   }
 
@@ -268,7 +268,7 @@ class xoshiro1024pp {
   }
 
  private:
-  constexpr uint64_t rotl(const uint64_t x, const int k) {
+  static constexpr uint64_t rotl(const uint64_t x, const int k) {
     return (x << k) | (x >> (64 - k));
   }
 
