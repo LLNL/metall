@@ -290,9 +290,9 @@ class segment_allocator {
         lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
         new_chunk_no = m_chunk_directory.insert(bin_no);
+        priv_extend_segment(new_chunk_no, 1);
+        m_non_full_chunk_bin.insert(bin_no, new_chunk_no);
       }
-      m_non_full_chunk_bin.insert(bin_no, new_chunk_no);
-      priv_extend_segment(new_chunk_no, 1);
     }
 
     assert(!m_non_full_chunk_bin.empty(bin_no));
