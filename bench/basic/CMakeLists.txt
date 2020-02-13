@@ -1,3 +1,0 @@
-add_executable(run_basic_allocation_bench_stl run_basic_allocation_bench_stl.cpp)
-add_executable(run_basic_allocation_bench_metall run_basic_allocation_bench_metall.cpp)
-add_executable(run_basic_allocation_bench_bip run_basic_allocation_bench_bip.cpp)
