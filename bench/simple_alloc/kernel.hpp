@@ -6,6 +6,7 @@
 #ifndef METALL_BENCH_BASIC_KERNEL_HPP
 #define METALL_BENCH_BASIC_KERNEL_HPP
 
+#include <unistd.h>
 #include <iostream>
 #include <memory>
 #include <vector>
