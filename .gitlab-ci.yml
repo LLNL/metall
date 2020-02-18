@@ -15,11 +15,12 @@ default:
     - echo "=== before_script section ==="
     - hostname
     - spack find
+    - spack clean
     - spack install gcc@9.2.0
-    - spack install gcc@9.1.0
-    - spack install gcc@8.3.0
-    - spack install gcc@8.2.0
-    - spack install gcc@8.1.0
+#    - spack install gcc@9.1.0
+#    - spack install gcc@8.3.0
+#    - spack install gcc@8.2.0
+#    - spack install gcc@8.1.0
 
   after_script:
     - echo "=== after_script section ==="
@@ -38,22 +39,22 @@ build_gcc9.2:
   script:
     - spack load gcc@9.2.0
 
-build_gcc9.1:
-  extends: .build
-  script:
-    - spack load gcc@9.1.0
+# build_gcc9.1:
+#   extends: .build
+#   script:
+#     - spack load gcc@9.1.0
 
-build_gcc8.3:
-  extends: .build
-  script:
-    - spack load gcc@8.3.0
+# build_gcc8.3:
+#   extends: .build
+#   script:
+#     - spack load gcc@8.3.0
 
-build_gcc8.2:
-  extends: .build
-  script:
-    - spack load gcc@8.2.0
+# build_gcc8.2:
+#   extends: .build
+#   script:
+#     - spack load gcc@8.2.0
 
-build_gcc8.1:
-  extends: .build
-  script:
-    - spack load gcc@8.1.0
+# build_gcc8.1:
+#   extends: .build
+#   script:
+#     - spack load gcc@8.1.0
