@@ -59,7 +59,7 @@ TEST(MultilayerBitsetTest, NumInternalTrees) {
 }
 
 TEST(MultilayerBitsetTest, FindAndSet) {
-  for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 64); num_bits *= 2) { // Test up to 4 layers
+  for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 32); num_bits *= 64) { // Test up to 4 layers,
     metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
     auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
     bitset.allocate(num_bits, allocator);
@@ -72,7 +72,7 @@ TEST(MultilayerBitsetTest, FindAndSet) {
 }
 
 TEST(MultilayerBitsetTest, Reset) {
-  for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 64); num_bits *= 2) { // Test up to 4 layers
+  for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 32); num_bits *= 64) { // Test up to 4 layers
     metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
     auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
     bitset.allocate(num_bits, allocator);

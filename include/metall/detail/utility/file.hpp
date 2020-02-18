@@ -22,9 +22,19 @@
 #include <fstream>
 
 #ifdef __has_include
+// ----- __has_include(<filesystem>) ----- //
 #if __has_include(<filesystem>)
 #include <filesystem>
+#else
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#warning "Cannot find the Filesystem library"
 #endif
+#endif
+// ----- End of __has_include(<filesystem>) ----- //
+#else
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#warning "__has_include is not defined, consequently disable the Filesystem library"
+#endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #endif
 
 namespace metall {
@@ -55,7 +65,6 @@ inline bool os_fsync(const int fd) {
   return true;
 }
 
-// FIXME: Add a mode that calls fsync recursively
 inline bool fsync(const std::string &path) {
   const int fd = ::open(path.c_str(), O_RDONLY);
   if (fd == -1) {
@@ -69,6 +78,29 @@ inline bool fsync(const std::string &path) {
   ret &= os_close(fd);
 
   return ret;
+}
+
+inline bool fsync_recursive(const std::string &path) {
+#ifdef __cpp_lib_filesystem
+  fs::path p(path);
+  p = fs::canonical(p);
+  while (true) {
+    if (!fsync(p.string())) {
+      return false;
+    }
+    if (p == p.root_path()) {
+      break;
+    }
+    p = p.parent_path();
+  }
+  return true;
+#else
+// FIXME: Implement recersive fsync w/o the C++17 Filesystem library
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#warning "Cannot call fsync recursively"
+#endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+  return fsync(path);
+#endif
 }
 
 inline bool extend_file_size_manually(const int fd, const ssize_t file_size) {
@@ -134,11 +166,10 @@ inline bool create_file(const std::string &file_name) {
     return false;
   }
 
-  bool ret = true;
-  ret &= os_fsync(fd);
-  ret &= os_close(fd);
+   if (!os_close(fd))
+     return false;
 
-  return ret;
+  return fsync_recursive(file_name);
 }
 
 #ifdef __cpp_lib_filesystem
