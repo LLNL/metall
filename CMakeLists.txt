@@ -30,8 +30,7 @@ option(BUILD_BENCH "Build the benchmark" ON)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(BUILD_DOC "Build documentation" OFF)
-option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
-option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test" OFF)
+option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 option(BUILD_C "Build C examples and libraries" ON)
@@ -53,8 +52,11 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 # ---------- CPP ---------- #
-# Basic
-set(CMAKE_CXX_FLAGS "-Wall -pthread")
+if (RUN_BUILD_AND_TEST_WITH_CI)
+    set(CMAKE_CXX_FLAGS "-pthread")
+else()
+    set(CMAKE_CXX_FLAGS "-Wall -pthread")
+endif()
 
 # Debug
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
@@ -63,7 +65,11 @@ if (Linux)
 endif ()
 
 # Release
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+if (RUN_BUILD_AND_TEST_WITH_CI)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+endif ()
 
 # Release with debug info
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -Og")
@@ -71,14 +77,12 @@ if (Linux)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -pg")
 endif ()
 
-# CI
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-endif ()
-
 # ---------- C ---------- #
-# Basic
-set(CMAKE_C_FLAGS "-Wall -pthread")
+if (RUN_BUILD_AND_TEST_WITH_CI)
+    set(CMAKE_C_FLAGS "-pthread")
+else()
+    set(CMAKE_C_FLAGS "-Wall -pthread")
+endif()
 
 # Debug
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
@@ -87,7 +91,11 @@ if (Linux)
 endif ()
 
 # Release
-set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+if (RUN_BUILD_AND_TEST_WITH_CI)
+    set(CMAKE_C_FLAGS_RELEASE "-O3")
+else()
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+endif ()
 
 # Release with debug info
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g3 -Og")
@@ -95,28 +103,10 @@ if (Linux)
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -pg")
 endif ()
 
-# ---------- CI ----------
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS_RELEASE "-O3")
-endif ()
-
 # ---------- MPI ---------- #
 find_package(MPI)
-if (MPI_C_FOUND)
-    include_directories(MPI_C_INCLUDE_PATH)
-endif()
-
-if (MPI_CXX_FOUND)
-    include_directories(MPI_CXX_INCLUDE_PATH)
-endif()
-
 
 # ---------- Configure Metall ---------- #
-if (USE_SPACE_AWARE_BIN)
-    add_definitions(-DMETALL_USE_SPACE_AWARE_BIN)
-    message(STATUS "Try to fill from lower address.")
-endif ()
-
 if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
     add_definitions(-DMETALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
     message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")

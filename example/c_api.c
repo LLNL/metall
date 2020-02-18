@@ -3,9 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <stdlib.h>
 #include <assert.h>
-
 #include <metall/c_api/metall.h>
 
 int main(void) {

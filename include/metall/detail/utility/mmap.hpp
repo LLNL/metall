@@ -213,12 +213,8 @@ inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
   return true;
 #else
 
-#ifdef METALL_DISABLE_FREE_FILE_SPACE
-#warning "METALL_DISABLE_FREE_FILE_SPACE is defined. Metall will not free file space."
-#else
-#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#if !defined(METALL_DISABLE_FREE_FILE_SPACE) && defined (METALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
 #warning "MADV_REMOVE is not supported. Metall cannot free file space."
-#endif
 #endif
 
   return uncommit_shared_pages(addr, length);
