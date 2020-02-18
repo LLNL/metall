@@ -21,6 +21,8 @@ default:
 #    - spack install gcc@8.3.0
 #    - spack install gcc@8.2.0
 #    - spack install gcc@8.1.0
+    - for b in {64..64}; do spack install boost@1.${b}.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave; done
+
 
   after_script:
     - echo "=== after_script section ==="
