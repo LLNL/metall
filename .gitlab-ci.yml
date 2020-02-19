@@ -39,37 +39,65 @@ default:
   script:
     - echo "=== build section ==="
     - module load gcc/${COMP_VERSION}
-    - spack load boost@1.72.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.71.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.70.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.69.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.68.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.67.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.66.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.65.1 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.65.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-    - spack load boost@1.64.0 ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build.sh
-#build_gcc9.2:
-#  extends: .build
-#  script:
-#    - spack load gcc@9.2.0
+    - spack load boost@${BOOST_VERSION} ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build_and_test.sh
 
-# build_gcc9.1:
-#   extends: .build
-#   script:
-#     - spack load gcc@9.1.0
 
-# build_gcc8.3:
-#   extends: .build
-#   script:
-#     - spack load gcc@8.3.0
-
-#build_gcc8.2:
-#  extends: .build
-#  variables:
-#    COMP_VERSION: "7.3.0"
-
-build_gcc8.1:
+build_gcc8.1_bst1.72.0:
   extends: .build
   variables:
     COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.72.0"
+
+build_gcc8.1_bst1.71.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.71.0"
+
+build_gcc8.1_bst1.70.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.70.0"
+
+build_gcc8.1_bst1.69.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.69.0"
+
+build_gcc8.1_bst1.68.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.68.0"
+
+build_gcc8.1_bst1.67.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.67.0"
+
+build_gcc8.1_bst1.66.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.66.0"
+
+build_gcc8.1_bst1.65.1:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.65.1"
+
+build_gcc8.1_bst1.65.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.65.0"
+
+build_gcc8.1_bst1.64.0:
+  extends: .build
+  variables:
+    COMP_VERSION: "8.1.0"
+    BOOST_VERSION: "1.64.0"
