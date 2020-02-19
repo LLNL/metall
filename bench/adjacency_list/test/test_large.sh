@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 # USAGE
 # cd metall/build/bench/adjacency_list/
 # sh ../../../bench/adjacency_list/test/test_large.sh
 
-# ----- Configuration ----- #
+# ----- Default Configuration ----- #
 file_size=$((2**30))
 v=17
 a=0.57
@@ -17,10 +17,6 @@ case "$OSTYPE" in
   darwin*)  out_path="/tmp";;
   linux*)   out_path="/dev/shm";;
 esac
-
-data_store_path="${out_path}/metall_test_dir"
-adj_list_dump_file="${out_path}/dumped_edge_list"
-edge_dump_file="${out_path}/ref_edge_list"
 # --------------- #
 
 err() {
@@ -68,7 +64,24 @@ check_program_exit_status() {
   fi
 }
 
+parse_option() {
+  while getopts "d:" OPT
+  do
+    case $OPT in
+      d) out_dir_path=$OPTARG;;
+      :) echo  "[ERROR] Option argument is undefined.";;
+      \?) echo "[ERROR] Undefined options.";;
+    esac
+  done
+}
+
 main() {
+  parse_option "$@"
+  mkdir -p ${out_dir_path}
+
+  data_store_path="${out_dir_path}/metall_test_dir"
+  adj_list_dump_file="${out_dir_path}/dumped_edge_list"
+  edge_dump_file="${out_dir_path}/ref_edge_list"
 
   ./run_adj_list_bench_metall -o ${data_store_path} -f ${file_size} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${edge_dump_file}
   check_program_exit_status
