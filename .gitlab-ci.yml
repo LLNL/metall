@@ -39,7 +39,7 @@ default:
   script:
     - echo "=== build section ==="
     - module load gcc/${COMP_VERSION}
-    - spack load boost@${BOOST_VERSION} ${BOOST_INSTALL_ARGS}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build_and_test.sh
+    - spack load boost@${BOOST_VERSION}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build_and_test.sh
 
 
 build_gcc8.1_bst1.72.0:
