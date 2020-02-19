@@ -1,7 +1,9 @@
 #!/bin/sh
 
 # Bash script that builds and tests Metall with many compile time configurations
-# Assume that this script is called from Metall root directory
+# This script assumes:
+#   1. Called from Metall root directory
+#   2. Proper GCC compiler and Boost are loaded properly, e.g., 'module load' or 'spack load'.
 
 METALL_TEST_DIR="/tmp/${RANDOM}"
 METALL_ROOT_DIR=${PWD}
@@ -41,35 +43,30 @@ run_buid_and_test_core() {
     CMAKE_FILE_LOCATION=${METALL_ROOT_DIR}
     or_die cmake ${CMAKE_FILE_LOCATION} \
                  -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
-                 -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=ON \
+                 -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF \
                  ${CMAKE_OPTIONS}
     or_die make -j
 
     # Test 1
-    or_die ctest -T test --output-on-failure -V
     rm -rf ${METALL_TEST_DIR}
+    or_die ctest
 
     # Test 2
+    rm -rf ${METALL_TEST_DIR}
     cd bench/adjacency_list
     or_die bash ../../../bench/adjacency_list/test/test.sh -d${METALL_TEST_DIR}
-    rm -rf ${METALL_TEST_DIR}
 
     # Test 3
-    or_die bash ../../../bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
     rm -rf ${METALL_TEST_DIR}
+    or_die bash ../../../bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
 
-    cd ${METALL_ROOT_DIR}
     rm -rf ./build
+    cd ${METALL_ROOT_DIR}
 }
 
 main() {
 
   setup_test_dir
-
-# USE_SPACE_AWARE_BIN
-# DISABLE_FREE_FILE_SPACE
-# DISABLE_SMALL_OBJECT_CACHE
-# FREE_SMALL_OBJECT_SIZE_HINT
 
   for BUILD_TYPE in Debug Release RelWithDebInfo; do
     for USE_SPACE_AWARE_BIN in ON OFF; do
