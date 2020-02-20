@@ -21,7 +21,7 @@ All you have to do is just setting include paths such as '-I' or CPLUS_INCLUDE_P
 
 For example,
 ```bash
-g++ -std=c++17 -lstdc++fs your_program.cpp -I/path/to/metall/include -I/path/to/boost/include
+g++ -std=c++17 -lstdc++fs your_progr/Users/iwabuchi1/git_local/metall_folk/mkdocs.ymlam.cpp -I/path/to/metall/include -I/path/to/boost/include
 ```
 Note GCC requires linking stdc++fs to use the Filesystem library in C++17.
 
@@ -150,44 +150,3 @@ Example programs are located in [example/](example/)
 	* [mpi_create.cpp](./example/mpi_create.cpp) and [mpi_open.cpp](./example/mpi_open.cpp)
 	* Metall does not support multi-process, i.e., there is no inter-process synchronization mechanism in Metall. Metall assumes that each process access a different memory region. The examples above shows how to use Metall with MPI.
 
-
-# Publication
-
-[Metall: A Persistent Memory Allocator Enabling Graph Processing](https://www.osti.gov/servlets/purl/1576900)
-
-```text
-@INPROCEEDINGS{8945094,
-author={K. {Iwabuchi} and L. {Lebanoff} and M. {Gokhale} and R. {Pearce}},
-booktitle={2019 IEEE/ACM 9th Workshop on Irregular Applications: Architectures and Algorithms (IA3)},
-title={Metall: A Persistent Memory Allocator Enabling Graph Processing},
-year={2019},
-pages={39-44},
-doi={10.1109/IA349570.2019.00012},
-month={Nov},}
-```
-
-
-# Authors
-
-* Keita Iwabuchi (kiwabuchi at llnl dot gov)
-* Roger A Pearce (rpearce at llnl dot gov)
-* Maya B Gokhale (gokhale2 at llnl dot gov).
-
-
-
-# License
-
-Metall is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
-Users may choose either license, at their option.
-
-All new contributions must be made under both the MIT and Apache-2.0 licenses.
-
-See [LICENSE-MIT](LICENSE-MIT), [LICENSE-APACHE](LICENSE-APACHE), [NOTICE](NOTICE), and [COPYRIGHT](COPYRIGHT) for details.
-
-SPDX-License-Identifier: (Apache-2.0 OR MIT)
-
-
-
-# Release
-
-LLNL-CODE-768617
