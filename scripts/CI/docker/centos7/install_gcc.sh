@@ -11,14 +11,14 @@ build_gcc() {
     cd ./gcc_build_${VERSION}
     ../gcc-${VERSION}/configure --enable-languages=c,c++ --disable-multilib --program-suffix=${VERSION}
     make -j4  > /dev/null
-    make test  > /dev/null
+    # make test  > /dev/null
     make install
     cd ../
 }
 
 main() {
-#    build_gcc "8.1.0"
-#    build_gcc "8.2.0"
+    build_gcc "8.1.0"
+    build_gcc "8.2.0"
     build_gcc "8.3.0"
     build_gcc "9.1.0"
     build_gcc "9.2.0"

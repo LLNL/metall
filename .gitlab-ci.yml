@@ -1,9 +1,14 @@
+# GitLab CI YML file dedicated for LC enviroment (Catalyst)
+# Change the location of builds directory on LC clusters
+# ln -s /usr/workspace/lc-username ~/.gitlab-runner
+
 stages:
   - build
 
 variables:
   GTEST_COLOR: "1"
   BOOST_INSTALL_ARGS: "~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave"
+  GIT_DEPTH: 0
 
 default:
   before_script:
@@ -15,7 +20,7 @@ default:
     #    - spack install gcc@9.2.0
     #    - spack install gcc@9.1.0
     #    - spack install gcc@8.3.0
-    #       - spack install gcc@8.2.0
+    #    - spack install gcc@8.2.0
     #    - spack install gcc@8.1.0
     - spack install boost@1.72.0 ${BOOST_INSTALL_ARGS}
     - spack install boost@1.71.0 ${BOOST_INSTALL_ARGS}
@@ -39,7 +44,7 @@ default:
   script:
     - echo "=== build section ==="
     - module load gcc/${COMP_VERSION}
-    - spack load boost@${BOOST_VERSION}; salloc -N1 -t 2:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build_and_test.sh
+    - spack load boost@${BOOST_VERSION}; srun -N1 -t 4:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build_and_test.sh
 
 
 build_gcc8.1_bst1.72.0:
