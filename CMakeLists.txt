@@ -102,14 +102,6 @@ endif ()
 
 # ---------- MPI ---------- #
 find_package(MPI)
-if (MPI_C_FOUND)
-    include_directories(MPI_C_INCLUDE_PATH)
-endif()
-
-if (MPI_CXX_FOUND)
-    include_directories(MPI_CXX_INCLUDE_PATH)
-endif()
-
 
 # ---------- Configure Metall ---------- #
 if (USE_SPACE_AWARE_BIN)

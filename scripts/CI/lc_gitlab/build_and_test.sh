@@ -24,7 +24,7 @@ setup_test_dir() {
   if [[ -z "${CI_JOB_ID}" ]]; then
     echo "Cannot find an environmental variable CI_JOB_ID"
   else
-    METALL_TEST_DIR="/tmp/${CI_JOB_ID}"
+    METALL_TEST_DIR="/dev/shm/${CI_JOB_ID}"
   fi
 
   mkdir -p ${METALL_TEST_DIR}
