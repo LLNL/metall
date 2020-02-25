@@ -307,7 +307,7 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   }
 
   std::vector<std::string> keys;
-  for (uint64_t i = 0; i < addr_list[0].size(); ++i) {
+  for (uint64_t i = 0; i < num_allocates; ++i) {
     keys.emplace_back(std::to_string(i));
   }
 
