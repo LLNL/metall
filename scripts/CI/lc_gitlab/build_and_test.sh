@@ -50,9 +50,11 @@ run_buid_and_test_core() {
                  ${CMAKE_OPTIONS}
     or_die make -j
 
+    echo "Succeeded the build"
+
     # Test 1
     rm -rf ${METALL_TEST_DIR}
-    or_die ctest --timeout 100
+    or_die ctest --timeout 1000
 
     # Test 2
     rm -rf ${METALL_TEST_DIR}
