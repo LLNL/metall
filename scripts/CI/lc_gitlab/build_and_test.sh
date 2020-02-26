@@ -52,7 +52,7 @@ run_buid_and_test_core() {
 
     # Test 1
     rm -rf ${METALL_TEST_DIR}
-    or_die ctest
+    or_die ctest --timeout 100
 
     # Test 2
     rm -rf ${METALL_TEST_DIR}
