@@ -17,8 +17,8 @@ build_gcc() {
 }
 
 main() {
-#    build_gcc "8.1.0"
-#    build_gcc "8.2.0"
+    build_gcc "8.1.0" # Might fail with CentOS 8
+    build_gcc "8.2.0" # Might fail with CentOS 8
     build_gcc "8.3.0"
     build_gcc "9.1.0"
     build_gcc "9.2.0"

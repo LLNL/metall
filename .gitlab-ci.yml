@@ -1,5 +1,8 @@
-# GitLab CI YML file dedicated for LC enviroment (Catalyst)
-# Change the location of builds directory on LC clusters
+# GitLab CI YML file dedicated for LC environment (Catalyst)
+#
+# spack must be available
+#
+# One might want to change the location of builds directory on LC clusters to avoid consuming the home directory space
 # ln -s /usr/workspace/lc-username ~/.gitlab-runner
 
 stages:
@@ -15,8 +18,8 @@ default:
     - echo "=== before_script section ==="
     - hostname
     - pwd
-    - spack find
-    - spack clean
+    #- spack find
+    #- spack clean
     #    - spack install gcc@9.2.0
     #    - spack install gcc@9.1.0
     #    - spack install gcc@8.3.0
@@ -44,7 +47,8 @@ default:
   script:
     - echo "=== build section ==="
     - module load gcc/${COMP_VERSION}
-    - spack load boost@${BOOST_VERSION}; srun -N1 -t 4:00:00 --clear-ssd bash ./scripts/CI/lc_gitlab/build_and_test.sh
+    - spack load boost@${BOOST_VERSION}
+    - srun -N1 -t 4:00:00 --clear-ssd bash ./scripts/CI/build_and_test.sh
 
 
 build_gcc8.1_bst1.72.0:

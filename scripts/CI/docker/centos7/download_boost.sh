@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 download_boost() {
     BOOST_MINOR_VER=$1
