@@ -49,7 +49,7 @@ run_buid_and_test_core() {
     CMAKE_FILE_LOCATION=${METALL_ROOT_DIR}
     /bin/rm -f ${CMAKE_FILE_LOCATION}/CMakeCache.txt
     or_die cmake ${CMAKE_FILE_LOCATION} \
-                 -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF \
+                 -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF -DBUILD_C=ON \
                  ${CMAKE_OPTIONS}
     or_die make -j
 
@@ -68,8 +68,8 @@ run_buid_and_test_core() {
     rm -rf ${METALL_TEST_DIR}
     or_die bash ../../../bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
 
-    # TODO: reflink test
-
+    # TODO: reflink test and C_API test
+    
     rm -rf ./build
     cd ${METALL_ROOT_DIR}
 }
