@@ -1,9 +1,16 @@
 #!/bin/sh
 
 # Bash script that builds and tests Metall with many compile time configurations
+# 1. Config environmental variables manually
 # export CC=gcc
 # export CXX=g++
 # export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/path/to/boost
+#
+# Or, config environmental variables using spack
+# spack load g++
+# spack load boost
+#
+# 2. Run the script
 # sh ./scripts/CI/travis_ci/build_and_test.sh
 
 METALL_TEST_DIR="/tmp/${RANDOM}"
@@ -29,8 +36,6 @@ setup_test_dir() {
         METALL_TEST_DIR="/tmp/${CI_JOB_ID}"
     elif [[ -n "${TRAVIS_BUILD_ID}" ]]; then
         METALL_TEST_DIR="/tmp/${TRAVIS_BUILD_ID}-${TRAVIS_BUILD_NUMBER}"
-    else
-        echo "Cannot find an environmental variable CI_JOB_ID"
     fi
 
     mkdir -p ${METALL_TEST_DIR}
@@ -49,28 +54,31 @@ run_buid_and_test_core() {
     CMAKE_FILE_LOCATION=${METALL_ROOT_DIR}
     /bin/rm -f ${CMAKE_FILE_LOCATION}/CMakeCache.txt
     or_die cmake ${CMAKE_FILE_LOCATION} \
-                 -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF -DBUILD_C=ON \
+                 -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF  -DBUILD_C=ON \
+                 -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF \
                  ${CMAKE_OPTIONS}
     or_die make -j
 
     echo "Succeeded the build"
 
     # Test 1
-    rm -rf ${METALL_TEST_DIR}
+    rm -rf ${METALL_TEST_DIR}/*
     or_die ctest --timeout 1000
 
     # Test 2
-    rm -rf ${METALL_TEST_DIR}
+    rm -rf ${METALL_TEST_DIR}/*
     cd bench/adjacency_list
     or_die bash ../../../bench/adjacency_list/test/test.sh -d${METALL_TEST_DIR}
 
     # Test 3
-    rm -rf ${METALL_TEST_DIR}
+    rm -rf ${METALL_TEST_DIR}/*
     or_die bash ../../../bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
 
     # TODO: reflink test and C_API test
 
     rm -rf ./build
+    rm -rf ${METALL_TEST_DIR}
+
     cd ${METALL_ROOT_DIR}
 }
 

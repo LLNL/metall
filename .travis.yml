@@ -64,4 +64,4 @@ before_install:
 
 script:
   - docker run --name centos7_bash -v ${TRAVIS_BUILD_DIR}:/mnt/travis_build_dir -it -d kiwabuchi/metall_test:centos7 bash
-  - docker exec -it -w /mnt/travis_build_dir -e CC -e CXX --env LD_LIBRARY_PATH="/usr/local/lib64/:${LD_LIBRARY_PATH}" --env CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:/var/boost/boost_${BOOST_VERSION}" centos7_bash bash ./scripts/CI/build_and_test.sh
+  - docker exec -it -w /mnt/travis_build_dir -e TRAVIS_BUILD_ID -e CC -e CXX --env LD_LIBRARY_PATH="/usr/local/lib64/:${LD_LIBRARY_PATH}" --env CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:/var/boost/boost_${BOOST_VERSION}" centos7_bash bash ./scripts/CI/build_and_test.sh
