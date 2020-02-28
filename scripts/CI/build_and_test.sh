@@ -69,7 +69,7 @@ run_buid_and_test_core() {
     or_die bash ../../../bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
 
     # TODO: reflink test and C_API test
-    
+
     rm -rf ./build
     cd ${METALL_ROOT_DIR}
 }
