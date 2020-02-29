@@ -17,6 +17,7 @@
 #include <boost/container/vector.hpp>
 #include <boost/container/scoped_allocator.hpp>
 
+#define METALL_USE_SPACE_AWARE_BIN
 #ifdef METALL_USE_SPACE_AWARE_BIN
 #include <boost/container/flat_set.hpp>
 #else

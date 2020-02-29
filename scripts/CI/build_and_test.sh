@@ -87,17 +87,14 @@ main() {
 
   setup_test_dir
 
-  for BUILD_TYPE in Debug Release RelWithDebInfo; do
-    for USE_SPACE_AWARE_BIN in ON OFF; do
-      for DISABLE_FREE_FILE_SPACE in ON OFF; do
-        for DISABLE_SMALL_OBJECT_CACHE in ON OFF; do
-          for FREE_SMALL_OBJECT_SIZE_HINT in 0 8192; do
-            run_buid_and_test_core -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-                                   -DUSE_SPACE_AWARE_BIN=${USE_SPACE_AWARE_BIN} \
-                                   -DDISABLE_FREE_FILE_SPACE=${DISABLE_FREE_FILE_SPACE} \
-                                   -DDISABLE_SMALL_OBJECT_CACHE=${DISABLE_SMALL_OBJECT_CACHE} \
-                                   -DFREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT}
-          done
+  for BUILD_TYPE in Debug Release; do
+    for DISABLE_FREE_FILE_SPACE in ON OFF; do
+      for DISABLE_SMALL_OBJECT_CACHE in OFF; do
+        for FREE_SMALL_OBJECT_SIZE_HINT in 0 8192; do
+          run_buid_and_test_core -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+                                 -DDISABLE_FREE_FILE_SPACE=${DISABLE_FREE_FILE_SPACE} \
+                                 -DDISABLE_SMALL_OBJECT_CACHE=${DISABLE_SMALL_OBJECT_CACHE} \
+                                 -DFREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT}
         done
       done
     done
