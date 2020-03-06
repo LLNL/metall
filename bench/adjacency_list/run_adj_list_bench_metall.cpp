@@ -39,9 +39,9 @@ int main(int argc, char *argv[]) {
     run_bench(option, adj_list);
 
     const auto start = metall::detail::utility::elapsed_time_sec();
-    manager.sync();
+    manager.flush();
     const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
-    std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
+    std::cout << "flush_time (s)\t" << elapsed_time << std::endl;
 
     // std::cout << "Writing profile" << std::endl;
     // manager.profile(&(std::cout));

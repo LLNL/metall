@@ -34,6 +34,9 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
   close();
+
+  // This function must be called at the last line
+  priv_mark_properly_closed(m_base_dir_path);
 }
 
 // -------------------------------------------------------------------------------- //
@@ -47,6 +50,8 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path
   }
 
   m_base_dir_path = base_dir_path;
+
+  priv_unmark_properly_closed(m_base_dir_path);
 
   if (!priv_init_datastore_directory(base_dir_path)) {
     std::abort();
@@ -75,9 +80,13 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                                                      const bool read_only,
                                                      const size_type vm_reserve_size) {
-  // Check if there is a file that can be used
   if (!m_segment_storage.openable(priv_make_file_name(base_dir_path, k_segment_prefix))) {
     return false; // This is not an fatal error due to the open_or_create mode
+  }
+
+  if (!priv_properly_closed(base_dir_path)) {
+    std::cerr << "Backing data store was not closed properly. The data might have been collapsed." << std::endl;
+    std::abort();
   }
 
   m_base_dir_path = base_dir_path;
@@ -87,6 +96,12 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
   }
 
   if (!priv_allocate_segment_header(m_vm_region)) {
+    std::abort();
+  }
+
+  // Clear the consistent mark before opening with the write mode
+  if (!read_only && !priv_unmark_properly_closed(m_base_dir_path)) {
+    std::cerr << "Failed to erase the properly close mark before opening" << std::endl;
     std::abort();
   }
 
@@ -118,11 +133,9 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::close() {
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::sync(const bool sync) {
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::flush(const bool synchronous) {
   assert(priv_initialized());
-
-  m_segment_storage.sync(sync);
-  priv_serialize_management_data(); // Not to serialize
+  m_segment_storage.sync(synchronous);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -253,8 +266,15 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::get_segment_header() const {
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination_base_dir_path) {
   assert(priv_initialized());
-  sync(true);
-  return priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true);
+  m_segment_storage.sync(true);
+  priv_serialize_management_data();
+  if (!priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true)) {
+    return false;
+  }
+  if (!priv_mark_properly_closed(destination_base_dir_path)) {
+    return false;
+  }
+  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -280,8 +300,13 @@ std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const 
   return std::async(std::launch::async, remove, dir_path);
 }
 
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::consistent(const char *dir_path) {
+  return priv_properly_closed(dir_path);
+}
+
 // -------------------------------------------------------------------------------- //
-// Private methods (not designed to be used by the base class)
+// Private methods
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string
@@ -323,6 +348,21 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_initialized() const {
   assert(!m_base_dir_path.empty());
   assert(m_segment_storage.get_segment());
   return (m_vm_region && m_vm_region_size > 0 && m_segment_header && m_segment_storage.size() > 0);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_properly_closed(const std::string &base_dir_path) {
+  return util::file_exist(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_mark_properly_closed(const std::string &base_dir_path) {
+  return util::create_file(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_unmark_properly_closed(const std::string &base_dir_path) {
+  return util::remove_file(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>

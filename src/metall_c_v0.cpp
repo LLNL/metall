@@ -30,8 +30,8 @@ void metall_close() {
   delete g_manager;
 }
 
-void metall_sync() {
-  g_manager->sync();
+void metall_flush() {
+  g_manager->flush();
 }
 
 void *metall_malloc(const uint64_t size) {

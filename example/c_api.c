@@ -28,7 +28,7 @@ int main(void) {
 
     array[0] = 0;
 
-    metall_sync();
+    metall_flush();
 
     array[1] = 1;
 

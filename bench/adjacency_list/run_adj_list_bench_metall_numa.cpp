@@ -57,10 +57,10 @@ int main(int argc, char *argv[]) {
 
     const auto start = metall::detail::utility::elapsed_time_sec();
     for (auto manager : managers) {
-      manager->sync();
+      manager->flush();
     }
     const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
-    std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
+    std::cout << "flush_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Writing profile" << std::endl;
     for (int i = 0; i < (int)option.datastore_path_list.size(); ++i) {

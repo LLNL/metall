@@ -103,6 +103,8 @@ class manager_kernel {
   using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
   static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
 
+  static constexpr const char *k_properly_closed_mark_file_name = "properly_closed_mark";
+
 #if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
   using mutex_type = util::mutex;
   using lock_guard_type = util::mutex_lock_guard;
@@ -126,22 +128,22 @@ class manager_kernel {
   // Public methods
   // -------------------------------------------------------------------------------- //
   /// \brief Expect to be called by a single thread
-  /// \param path
+  /// \param base_dir_path
   /// \param vm_reserve_size
-  void create(const char *path, size_type vm_reserve_size = k_default_vm_reserve_size);
+  void create(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Expect to be called by a single thread
-  /// \param path
+  /// \param base_dir_path
   /// \return
-  bool open(const char *path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
+  bool open(const char *base_dir_path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Expect to be called by a single thread
   void close();
 
-  /// \brief Sync with backing files
-  /// \param sync If true, performs synchronous synchronization;
-  /// otherwise, performs asynchronous synchronization
-  void sync(bool sync);
+  /// \brief Flush data to persistent memory
+  /// \param synchronous If true, performs synchronous operation;
+  /// otherwise, performs asynchronous operation.
+  void flush(bool synchronous);
 
   /// \brief Allocates memory space
   /// \param nbytes
@@ -217,6 +219,12 @@ class manager_kernel {
   /// If succeeded, its get() returns True; other false
   static std::future<bool> remove_async(const char *dir_path);
 
+  /// \brief Check if the backing data store is consistent,
+  /// i.e. it was closed properly.
+  /// \param dir_path
+  /// \return Return true if it is consistent; otherwise, returns false.
+  static bool consistent(const char *dir_path);
+
   /// \brief Show some profile infromation
   /// \tparam out_stream_type
   /// \param log_out
@@ -225,13 +233,17 @@ class manager_kernel {
 
  private:
   // -------------------------------------------------------------------------------- //
-  // Private methods (not designed to be used by the base class)
+  // Private methods
   // -------------------------------------------------------------------------------- //
   static std::string priv_make_datastore_dir_path(const std::string &base_dir_path);
   static std::string priv_make_file_name(const std::string &base_dir_path, const std::string &item_name);
   static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   bool priv_initialized() const;
+
+  static bool priv_properly_closed(const std::string &base_dir_path);
+  static bool priv_mark_properly_closed(const std::string &base_dir_path);
+  static bool priv_unmark_properly_closed(const std::string &base_dir_path);
 
   template <typename T>
   T *priv_generic_named_construct(const char_type *name,
