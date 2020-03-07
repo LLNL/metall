@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    metall::manager manager(metall::create_only, option.datastore_path_list[0].c_str(), option.segment_size);
+    metall::manager manager(metall::create_only, option.datastore_path_list[0].c_str());
     auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<>());
 
     run_bench(option, adj_list);

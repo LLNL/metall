@@ -53,7 +53,7 @@ endif ()
 
 # ---------- CPP ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS "-pthread")
+    set(CMAKE_CXX_FLAGS "-w -pthread")
 else()
     set(CMAKE_CXX_FLAGS "-Wall -pthread")
 endif()
@@ -79,7 +79,7 @@ endif ()
 
 # ---------- C ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS "-pthread")
+    set(CMAKE_C_FLAGS "-w -pthread")
 else()
     set(CMAKE_C_FLAGS "-Wall -pthread")
 endif()

@@ -1,78 +1,91 @@
 #!/bin/sh
 
 # Bash script that builds and tests Metall with many compile time configurations
-# 1. Config environmental variables manually
+# 1. Set environmental variables for build
+# Set manually:
 # export CC=gcc
 # export CXX=g++
 # export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/path/to/boost
 #
-# Or, config environmental variables using spack
+# Or, config environmental variables using spack:
 # spack load g++
 # spack load boost
 #
-# 2. Run the script
+# 2. Set environmental variables for test
+# (option)
+# export METALL_TEST_DIR=/tmp
+#
+# 3. Run the script
 # sh ./scripts/CI/travis_ci/build_and_test.sh
 
-METALL_TEST_DIR="/tmp/${RANDOM}"
 METALL_ROOT_DIR=${PWD}
 
 or_die () {
-    echo "Command: " "$@"
-    echo ">>>>>>>>>>"
-    "$@"
-    local status=$?
-    if [[ $status != 0 ]] ; then
-        echo ERROR $status command: $@
-        exit $status
-    fi
-    echo "<<<<<<<<<<"
+  echo "Command: " "$@"
+  echo ">>>>>>>>>>"
+  "$@"
+  local status=$?
+  if [[ $status != 0 ]] ; then
+      echo ERROR $status command: $@
+      exit $status
+  fi
+  echo "<<<<<<<<<<"
+}
+
+exec () {
+  echo "Command: " "$@"
+  echo ">>>>>>>>>>"
+  "$@"
+  echo "<<<<<<<<<<"
 }
 
 # As multiple CI jobs could run on the same machine
 # generate an unique test dir for each CI job
+# MEMO: setup a filesytem in local
+# truncate --size 512m XFSfile
+# mkfs.xfs -m crc=1 -m reflink=1 XFSfile
+# mkdir XFSmountpoint
+# mount -o loop XFSfile XFSmountpoint
+# xfs_info XFSmountpoint
+# cd XFSmountpoint
 setup_test_dir() {
-    # CI_JOB_ID is set by Gitlab
-    if [[ -n "${CI_JOB_ID}" ]]; then
-        METALL_TEST_DIR="/tmp/${CI_JOB_ID}"
-    elif [[ -n "${TRAVIS_BUILD_ID}" ]]; then
-        METALL_TEST_DIR="/tmp/${TRAVIS_BUILD_ID}-${TRAVIS_BUILD_NUMBER}"
-    fi
+  if [[ -z "${METALL_TEST_DIR}" ]]; then
+    METALL_TEST_DIR="/tmp/${RANDOM}"
+  fi
 
-    mkdir -p ${METALL_TEST_DIR}
-    echo "Store test data to ${METALL_TEST_DIR}"
+  # mkdir -p ${METALL_TEST_DIR} # Metall creates automatically if the directory does not exist
+  echo "Store test data to ${METALL_TEST_DIR}"
 }
 
 run_buid_and_test_core() {
   mkdir -p ./build
   cd build
-  echo "Build in ${PWD}"
+  echo "Build and test in ${PWD}"
 
   # Build
-  CMAKE_OPTIONS="$@"
-  CMAKE_FILE_LOCATION=${METALL_ROOT_DIR}
-
-  /bin/rm -f ${CMAKE_FILE_LOCATION}/CMakeCache.txt
-
+  local CMAKE_OPTIONS="$@"
+  local CMAKE_FILE_LOCATION=${METALL_ROOT_DIR}
   or_die cmake ${CMAKE_FILE_LOCATION} \
                -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF  -DBUILD_C=ON \
                -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF \
                ${CMAKE_OPTIONS}
   or_die make -j
 
-  echo "Succeeded the build"
-
   # Test 1
-  rm -rf ${METALL_TEST_DIR}/*
+  rm -rf ${METALL_TEST_DIR}
   or_die ctest --timeout 1000
 
   # Test 2
-  rm -rf ${METALL_TEST_DIR}/*
+  rm -rf ${METALL_TEST_DIR}
   cd bench/adjacency_list
-  or_die bash ../../../bench/adjacency_list/test/test.sh -d${METALL_TEST_DIR}
+  or_die bash ${METALL_ROOT_DIR}/bench/adjacency_list/test/test.sh -d${METALL_TEST_DIR}
+  cd ../../
 
   # Test 3
-  rm -rf ${METALL_TEST_DIR}/*
-  or_die bash ../../../bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
+  rm -rf ${METALL_TEST_DIR}
+  cd bench/adjacency_list
+  or_die bash ${METALL_ROOT_DIR}/bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
+  cd ../../
 
   # TODO: reflink test and C_API test
 
@@ -81,7 +94,16 @@ run_buid_and_test_core() {
   rm -rf ./build
 }
 
+show_system_info() {
+  exec df -h
+  exec df -ih
+  exec free -g
+  exec uname -r
+}
+
 main() {
+  show_system_info
+
   echo "Build and test on ${HOSTNAME}"
 
   setup_test_dir

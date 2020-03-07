@@ -48,6 +48,7 @@ default:
     - echo "=== build section ==="
     - module load gcc/${COMP_VERSION}
     - spack load boost@${BOOST_VERSION}
+    - export METALL_TEST_DIR="/l/ssd/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
     - srun -N1 -t 4:00:00 --clear-ssd bash ./scripts/CI/build_and_test.sh
 
 
