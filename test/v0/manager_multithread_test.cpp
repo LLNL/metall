@@ -44,19 +44,19 @@ using allocator_type = typename manager_type::allocator_type<T>;
 template <typename addr_list_type>
 void validate_overlap(const addr_list_type &addr_and_size_lists) {
 
-  std::list<std::pair<void *, void *>> allocation_range_list;
+  std::vector<std::pair<void *, void *>> allocation_range_list;
   for (const auto &addr_and_size : addr_and_size_lists) {
     void *begin_addr = addr_and_size.first;
     void *end_addr = static_cast<char *>(begin_addr) + addr_and_size.second;
     allocation_range_list.emplace_back(std::make_pair(begin_addr, end_addr));
   }
 
-  allocation_range_list.sort(
-      [](const std::pair<void *, void *> lhd, const std::pair<void *, void *> rhd) -> bool {
-        return lhd.first < rhd.first;
-      });
+  std::sort(allocation_range_list.begin(), allocation_range_list.end(),
+            [](const std::pair<void *, void *> lhd, const std::pair<void *, void *> rhd) -> bool {
+              return lhd.first < rhd.first;
+            });
 
-  void *previous_end = allocation_range_list.front().first;
+  void *previous_end = allocation_range_list[0].first;
   for (const auto begin_and_end : allocation_range_list) {
     ASSERT_LE(previous_end, begin_and_end.first);
     previous_end = begin_and_end.second;
@@ -105,12 +105,10 @@ void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
   // Main loop
   std::pair<void *, void *> previous_allocation_rage(nullptr, nullptr);
   for (int k = 0; k < 2; ++k) {
-    std::vector<std::pair<void *, std::size_t>> addr_and_size_array(allocation_size_list.size(),
-                                                                    {nullptr, 0});
+    std::vector<std::pair<void *, std::size_t>> addr_and_size_array(allocation_size_list.size(), {nullptr, 0});
 
     // Allocation
-    OMP_DIRECTIVE(parallel
-                      for)
+    OMP_DIRECTIVE(parallel for)
     for (std::size_t i = 0; i < allocation_size_list.size(); ++i) {
       const std::size_t allocation_size = allocation_size_list[i];
       addr_and_size_array[i] = std::make_pair(manager.allocate(allocation_size), allocation_size);
@@ -121,8 +119,7 @@ void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
     validate_overlap(addr_and_size_array);
 
     // Deallocation
-    OMP_DIRECTIVE(parallel
-                      for)
+    OMP_DIRECTIVE(parallel for)
     for (std::size_t i = 0; i < addr_and_size_array.size(); ++i)
       manager.deallocate(addr_and_size_array[i].first);
   }
@@ -142,8 +139,7 @@ void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_si
   for (int k = 0; k < 2; ++k) {
     std::vector<std::pair<void *, std::size_t>> current_addr_and_size_array(allocation_size_list.size(), {nullptr, 0});
 
-    OMP_DIRECTIVE(parallel
-                      for)
+    OMP_DIRECTIVE(parallel for)
     for (std::size_t i = 0; i < allocation_size_list.size(); ++i) {
 
       const std::size_t allocation_size = allocation_size_list[i];
@@ -168,8 +164,7 @@ void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_si
     shuffle_list(&previous_addr_and_size_array);
   }
 
-  OMP_DIRECTIVE(parallel
-                    for)
+  OMP_DIRECTIVE(parallel for)
   for (std::size_t i = 0; i < previous_addr_and_size_array.size(); ++i) {
     manager.deallocate(previous_addr_and_size_array[i].first);
   }
@@ -296,7 +291,6 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   manager_type manager(metall::create_only, dir.c_str());
 
-
   std::vector<std::string> keys;
   for (uint64_t i = 0; i < num_allocates; ++i) {
     keys.emplace_back(std::to_string(i));
@@ -326,7 +320,7 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   }
 
   std::vector<int> num_deallocated(keys.size(), 0);
-  int* ptr_num_deallocated = num_deallocated.data();
+  int *ptr_num_deallocated = num_deallocated.data();
   OMP_DIRECTIVE(parallel)
   {
     for (uint64_t i = 0; i < keys.size(); ++i) {
