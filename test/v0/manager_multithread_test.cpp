@@ -297,15 +297,15 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   manager_type manager(metall::create_only, dir.c_str());
 
 
-  std::vector<std::vector<allocation_element_type *>> addr_list(get_num_threads());
-  OMP_DIRECTIVE(parallel)
-  {
-    addr_list[omp::get_thread_num()].resize(num_allocates);
-  }
-
   std::vector<std::string> keys;
   for (uint64_t i = 0; i < num_allocates; ++i) {
     keys.emplace_back(std::to_string(i));
+  }
+
+  std::vector<std::vector<allocation_element_type *>> addr_list(get_num_threads());
+  OMP_DIRECTIVE(parallel)
+  {
+    addr_list[omp::get_thread_num()].resize(keys.size(), nullptr);
   }
 
   // Concurrent find or construct test
@@ -319,20 +319,21 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   }
 
   // All threads must point to the same address
-  for (uint64_t i = 0; i < addr_list[0].size(); ++i) {
-    for (int t = 1; t < get_num_threads(); ++t) {
+  for (int t = 1; t < addr_list.size(); ++t) {
+    for (uint64_t i = 0; i < addr_list[0].size(); ++i) {
       ASSERT_EQ(addr_list[0][i], addr_list[t][i]);
     }
   }
 
   std::vector<int> num_deallocated(keys.size(), 0);
+  int* ptr_num_deallocated = num_deallocated.data();
   OMP_DIRECTIVE(parallel)
   {
     for (uint64_t i = 0; i < keys.size(); ++i) {
       const bool ret = manager.destroy<allocation_element_type>(keys[i].c_str());
       if (ret) {
         OMP_DIRECTIVE(atomic)
-        ++num_deallocated[i];
+        ++(ptr_num_deallocated[i]);
       }
     }
   }
