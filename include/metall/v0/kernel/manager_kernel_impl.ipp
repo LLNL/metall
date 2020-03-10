@@ -224,16 +224,17 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::destroy(char_ptr_holder_type nam
     m_named_object_directory.erase(iterator);
     offset = std::get<1>(iterator->second);
     length = std::get<2>(iterator->second);
-  }
 
-  // Destruct each object
-  auto ptr = static_cast<T *>(static_cast<void *>(offset + static_cast<char *>(m_segment_storage.get_segment())));
-  for (size_type i = 0; i < length; ++i) {
-    ptr->~T();
-    ++ptr;
-  }
+    // TODO: might be able to free the lock here ?
 
-  deallocate(offset + static_cast<char *>(m_segment_storage.get_segment()));
+    // Destruct each object
+    auto ptr = static_cast<T *>(static_cast<void *>(offset + static_cast<char *>(m_segment_storage.get_segment())));
+    for (size_type i = 0; i < length; ++i) {
+      ptr->~T();
+      ++ptr;
+    }
+    deallocate(offset + static_cast<char *>(m_segment_storage.get_segment()));
+  }
 
   return true;
 }
@@ -464,9 +465,9 @@ priv_generic_named_construct(const char_type *const name,
       std::cerr << "Failed to insert a new name: " << name << std::endl;
       return nullptr;
     }
-  }
 
-  util::array_construct(ptr, num, table);
+    util::array_construct(ptr, num, table);
+  }
 
   return static_cast<T *>(ptr);
 }
