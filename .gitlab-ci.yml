@@ -1,113 +1,112 @@
-# GitLab CI YML file dedicated for LC environment (Catalyst)
+# GitLab CI YML file dedicated for LC environment (Quartz)
 #
-# spack must be available
+# Spack must be available
 #
 # One might want to change the location of builds directory on LC clusters to avoid consuming the home directory space
 # ln -s /usr/workspace/lc-username ~/.gitlab-runner
 
 stages:
+  - install
   - build
+
 
 variables:
   GTEST_COLOR: "1"
-  BOOST_INSTALL_ARGS: "~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave"
   GIT_DEPTH: 0
+  SPACK_ARCH_INFO: "arch=linux-rhel7-broadwell"
 
-default:
-  before_script:
-    - echo "=== before_script section ==="
+
+install_boost:
+  stage: install
+  tags:
+    - quartz
+    - shell
+  script:
     - hostname
     - pwd
-    #- spack find
-    #- spack clean
-    #    - spack install gcc@9.2.0
-    #    - spack install gcc@9.1.0
-    #    - spack install gcc@8.3.0
-    #    - spack install gcc@8.2.0
-    #    - spack install gcc@8.1.0
-    - spack install boost@1.72.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.71.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.70.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.69.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.68.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.67.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.66.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.65.1 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.65.0 ${BOOST_INSTALL_ARGS}
-    - spack install boost@1.64.0 ${BOOST_INSTALL_ARGS}
+    - spack install boost@1.72.0
+    - spack install boost@1.71.0
+    - spack install boost@1.70.0
+    - spack install boost@1.69.0
+    - spack install boost@1.68.0
+    - spack install boost@1.67.0
+    - spack install boost@1.66.0
+    - spack install boost@1.65.1
+    - spack install boost@1.65.0
+    - spack install boost@1.64.0
+    - spack clean
     - spack find
-  after_script:
-    - echo "=== after_script section ==="
+
 
 .build:
   stage: build
   tags:
-    - catalyst
+    - quartz
     - shell
   script:
     - echo "=== build section ==="
-    - module load gcc/${COMP_VERSION}
-    - spack load boost@${BOOST_VERSION}
-    - export METALL_TEST_DIR="/l/ssd/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
-    - srun -N1 -t 4:00:00 --clear-ssd bash ./scripts/CI/build_and_test.sh
+    - module load gcc/${GCC_VERSION}
+    - spack load boost@${BOOST_VERSION} ${SPACK_ARCH_INFO}
+    - export METALL_TEST_DIR="/dev/shm/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
+    - srun -N1 -ppdebug bash ./scripts/CI/build_and_test.sh
 
 
 build_gcc8.1_bst1.72.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.72.0"
 
 build_gcc8.1_bst1.71.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.71.0"
 
 build_gcc8.1_bst1.70.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.70.0"
 
 build_gcc8.1_bst1.69.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.69.0"
 
 build_gcc8.1_bst1.68.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.68.0"
 
 build_gcc8.1_bst1.67.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.67.0"
 
 build_gcc8.1_bst1.66.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.66.0"
 
 build_gcc8.1_bst1.65.1:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.65.1"
 
 build_gcc8.1_bst1.65.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.65.0"
 
 build_gcc8.1_bst1.64.0:
   extends: .build
   variables:
-    COMP_VERSION: "8.1.0"
+    GCC_VERSION: "8.1.0"
     BOOST_VERSION: "1.64.0"

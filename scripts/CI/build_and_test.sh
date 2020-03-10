@@ -41,7 +41,7 @@ exec () {
 
 # As multiple CI jobs could run on the same machine
 # generate an unique test dir for each CI job
-# MEMO: setup a filesytem in local
+# MEMO: setup a filesystem in local
 # truncate --size 512m XFSfile
 # mkfs.xfs -m crc=1 -m reflink=1 XFSfile
 # mkdir XFSmountpoint
