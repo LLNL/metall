@@ -321,6 +321,7 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
 
   std::vector<int> num_deallocated(keys.size(), 0);
   int *ptr_num_deallocated = num_deallocated.data();
+
   OMP_DIRECTIVE(parallel)
   {
     for (uint64_t i = 0; i < keys.size(); ++i) {
