@@ -23,10 +23,14 @@ compare() {
 
   echo "Sort the dumped edges"
   sort -k 1,1n -k2,2n < ${file1} > ${DATASTORE_DIR_ROOT}/file1_sorted
+  check_program_exit_status
+
   sort -k 1,1n -k2,2n < ${file1} > ${DATASTORE_DIR_ROOT}/file2_sorted
+  check_program_exit_status
 
   echo "Compare the dumped edges"
   diff ${DATASTORE_DIR_ROOT}/file1_sorted ${DATASTORE_DIR_ROOT}/file2_sorted > ${DATASTORE_DIR_ROOT}/file_diff
+  check_program_exit_status
   num_diff=$(< ${DATASTORE_DIR_ROOT}/file_diff wc -l)
 
   if [[ ${num_diff} -eq 0 ]]; then
@@ -36,15 +40,15 @@ compare() {
   fi
   echo ""
 
-  # /bin/rm ${file1} ${file2} ${DATASTORE_DIR_ROOT}/file1_sorted ${DATASTORE_DIR_ROOT}/file2_sorted ${DATASTORE_DIR_ROOT}/file_diff
+  /bin/rm -f ${DATASTORE_DIR_ROOT}/file1_sorted ${DATASTORE_DIR_ROOT}/file2_sorted ${DATASTORE_DIR_ROOT}/file_diff
 }
 
 check_program_exit_status() {
-  ret=$?
+  local status=$?
 
-  if [[ $ret -ne 0 ]]; then
+  if [[ $status -ne 0 ]]; then
     err "<< The program did not finished correctly!! >>"
-    exit
+    exit $status
   fi
 }
 
@@ -69,6 +73,7 @@ main() {
   check_program_exit_status
   cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
   compare "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
+  /bin/rm -f "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
 
   echo ""
   echo "OpenTest"
@@ -77,7 +82,7 @@ main() {
   cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
   compare "${DATASTORE_DIR_ROOT}/adj_out_reopen" "${DATASTORE_DIR_ROOT}/adj_ref"
 
-  /bin/rm -rf ${DATASTORE_DIR_ROOT}/metall_test_dir
+  /bin/rm -rf ${DATASTORE_DIR_ROOT}
 }
 
 main "$@"

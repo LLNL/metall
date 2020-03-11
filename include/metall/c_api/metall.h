@@ -18,7 +18,7 @@ extern "C" {
 
 extern int metall_open(int mode, const char *path, uint64_t size);
 extern void metall_close();
-extern void metall_sync();
+extern void metall_flush();
 extern void *metall_malloc(uint64_t size);
 extern void metall_free(void *ptr);
 extern void* metall_named_malloc(const char *name, uint64_t size);

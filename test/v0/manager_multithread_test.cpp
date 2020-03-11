@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 
+#include <stdlib.h>
 #include <vector>
 #include <array>
 #include <list>
@@ -44,19 +45,19 @@ using allocator_type = typename manager_type::allocator_type<T>;
 template <typename addr_list_type>
 void validate_overlap(const addr_list_type &addr_and_size_lists) {
 
-  std::list<std::pair<void *, void *>> allocation_range_list;
+  std::vector<std::pair<void *, void *>> allocation_range_list;
   for (const auto &addr_and_size : addr_and_size_lists) {
     void *begin_addr = addr_and_size.first;
     void *end_addr = static_cast<char *>(begin_addr) + addr_and_size.second;
     allocation_range_list.emplace_back(std::make_pair(begin_addr, end_addr));
   }
 
-  allocation_range_list.sort(
-      [](const std::pair<void *, void *> lhd, const std::pair<void *, void *> rhd) -> bool {
-        return lhd.first < rhd.first;
-      });
+  std::sort(allocation_range_list.begin(), allocation_range_list.end(),
+            [](const std::pair<void *, void *> lhd, const std::pair<void *, void *> rhd) -> bool {
+              return lhd.first < rhd.first;
+            });
 
-  void *previous_end = allocation_range_list.front().first;
+  void *previous_end = allocation_range_list[0].first;
   for (const auto begin_and_end : allocation_range_list) {
     ASSERT_LE(previous_end, begin_and_end.first);
     previous_end = begin_and_end.second;
@@ -105,8 +106,7 @@ void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
   // Main loop
   std::pair<void *, void *> previous_allocation_rage(nullptr, nullptr);
   for (int k = 0; k < 2; ++k) {
-    std::vector<std::pair<void *, std::size_t>> addr_and_size_array(allocation_size_list.size(),
-                                                                    {nullptr, 0});
+    std::vector<std::pair<void *, std::size_t>> addr_and_size_array(allocation_size_list.size(), {nullptr, 0});
 
     // Allocation
     OMP_DIRECTIVE(parallel for)
@@ -188,13 +188,11 @@ TEST(ManagerMultithreadsTest, CheckOpenMP) {
 
 TEST(ManagerMultithreadsTest, SmallAllocDeallocSeparated) {
 
-  const std::size_t num_allocations_per_size = k_chunk_size / k_min_object_size;
-
   std::vector<std::size_t> allocation_size_list;
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 2);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 8);
+  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 2, k_min_object_size * 1);
+  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 1, k_min_object_size * 2);
+  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size / 4, k_min_object_size * 4);
+  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 8);
 
   shuffle_list(&allocation_size_list);
 
@@ -221,14 +219,13 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 #ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocSeparated) {
 
-  const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;
   const std::size_t num_allocations_per_large_size = 1024;
 
   std::vector<std::size_t> allocation_size_list;
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 2);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 8);
+  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 2, k_min_object_size * 1);
+  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 1, k_min_object_size * 2);
+  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 4);
+  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 8);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 2);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 4);
@@ -264,7 +261,6 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_chunk_size);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_chunk_size * 2);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_chunk_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_chunk_size * 8);
 
   shuffle_list(&allocation_size_list);
 
@@ -280,14 +276,9 @@ TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
 
   std::vector<std::size_t> allocation_size_list;
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 2);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 8);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 2);
   allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 8);
-
   shuffle_list(&allocation_size_list);
 
   run_alloc_dealloc_mixed_and_write_value_test(allocation_size_list);
@@ -296,38 +287,63 @@ TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
 
 TEST(ManagerMultithreadsTest, ConstructAndFind) {
   using allocation_element_type = std::array<char, 256>;
+  constexpr std::size_t num_allocates = 1024;
 
-  const std::size_t file_size = k_chunk_size;
   const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
   manager_type manager(metall::create_only, dir.c_str());
 
-  for (uint64_t i = 0; i < file_size / sizeof(allocation_element_type); ++i) {
+  std::vector<std::string> keys;
+  for (std::size_t i = 0; i < num_allocates; ++i) {
+    keys.emplace_back(std::to_string(i));
+  }
 
-    // Allocation (one of threads 'construct' the object and the rest 'find' the address)
-    std::vector<allocation_element_type *> addr_list(get_num_threads(), nullptr);
-    OMP_DIRECTIVE(parallel)
-    {
-      addr_list[omp::get_thread_num()] = manager.find_or_construct<allocation_element_type>(std::to_string(i).c_str())();
+  std::vector<std::vector<allocation_element_type *>> addr_list(get_num_threads());
+  OMP_DIRECTIVE(parallel)
+  {
+    addr_list[omp::get_thread_num()].resize(keys.size(), nullptr);
+  }
+
+  // Concurrent find or construct test
+  // (one of threads 'constructs' the object, and the rest 'find' the address)
+  OMP_DIRECTIVE(parallel)
+  {
+    const int tid = omp::get_thread_num();
+    for (std::size_t i = 0; i < keys.size(); ++i) {
+      addr_list[tid][i] = manager.find_or_construct<allocation_element_type>(keys[i].c_str())();
     }
+  }
 
-    // All threads must point to the same address
-    for (int t = 0; t < get_num_threads() - 1; ++t) {
-      ASSERT_EQ(addr_list[t], addr_list[t + 1]);
+  // All threads must point to the same address
+  for (std::size_t t = 1; t < addr_list.size(); ++t) {
+    for (std::size_t i = 0; i < addr_list[0].size(); ++i) {
+      ASSERT_EQ(addr_list[0][i], addr_list[t][i]);
     }
+  }
 
-    // Deallocation
-    int num_succeeded = 0;
-    OMP_DIRECTIVE(parallel)
-    {
-      const bool ret = manager.destroy<allocation_element_type>(std::to_string(i).c_str());
-      OMP_DIRECTIVE(critical)
-      {
-        num_succeeded += ret;
+  int* num_deallocated = nullptr;
+#if defined(__APPLE__)
+  num_deallocated = static_cast<int *>(::malloc(keys.size() * sizeof(int)));
+#else
+  num_deallocated = static_cast<int *>(::aligned_alloc(4096, keys.size() * sizeof(int)));
+#endif
+  for (std::size_t i = 0; i < keys.size(); ++i) num_deallocated[i] = 0;
+
+  OMP_DIRECTIVE(parallel)
+  {
+    for (std::size_t i = 0; i < keys.size(); ++i) {
+      const bool ret = manager.destroy<allocation_element_type>(keys[i].c_str());
+      if (ret) {
+        OMP_DIRECTIVE(atomic)
+        ++(num_deallocated[i]);
       }
     }
-    ASSERT_EQ(num_succeeded, 1);
   }
-}
 
-// TODO: test concurrent find_or_construct and destroy
+  // There must be only one thread that destroys the object
+  for (std::size_t i = 0; i < keys.size(); ++i) {
+    ASSERT_EQ(num_deallocated[i], 1);
+  }
+
+  ::free(num_deallocated);
+}
 }

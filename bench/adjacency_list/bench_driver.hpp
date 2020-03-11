@@ -62,7 +62,7 @@ inline void disp_options(const bench_options &option) {
       std::cout << " " << name << std::endl;
     }
   }
-  std::cout << "segment_size: " << option.segment_size << std::endl;
+  std::cout << "segment_size (for Boost) : " << option.segment_size << std::endl;
 
   if (option.input_file_name_list.empty()) {
     std::cout << "seed: " << option.rmat.seed

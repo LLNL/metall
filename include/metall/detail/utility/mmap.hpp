@@ -172,6 +172,23 @@ inline bool map_with_prot_none(void *const addr, const size_t length) {
   return (os_mmap(addr, length, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0) == addr);
 }
 
+inline bool os_mprotect(void *const addr, const size_t length, const int prot) {
+  if(::mprotect(addr, length, prot) == -1) {
+    ::perror("mprotect");
+    std::cerr << "errno: " << errno << std::endl;
+    return false;
+  }
+  return true;
+}
+
+inline bool mprotect_read_only(void *const addr, const size_t length) {
+  return os_mprotect(addr, length, PROT_READ);
+}
+
+inline bool mprotect_read_write(void *const addr, const size_t length) {
+  return os_mprotect(addr, length, PROT_READ | PROT_WRITE);
+}
+
 // NOTE: the MADV_FREE operation can be applied only to private anonymous pages.
 inline bool uncommit_private_pages(void *const addr, const size_t length) {
 #ifdef MADV_FREE
@@ -213,12 +230,8 @@ inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
   return true;
 #else
 
-#ifdef METALL_DISABLE_FREE_FILE_SPACE
-#warning "METALL_DISABLE_FREE_FILE_SPACE is defined. Metall will not free file space."
-#else
-#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#if !defined(METALL_DISABLE_FREE_FILE_SPACE) && defined (METALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
 #warning "MADV_REMOVE is not supported. Metall cannot free file space."
-#endif
 #endif
 
   return uncommit_shared_pages(addr, length);
