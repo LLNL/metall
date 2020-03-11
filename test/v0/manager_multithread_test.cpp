@@ -326,6 +326,7 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
 #else
   num_deallocated = static_cast<int *>(::aligned_alloc(4096, keys.size() * sizeof(int)));
 #endif
+  for (std::size_t i = 0; i < keys.size(); ++i) num_deallocated[i] = 0;
 
   OMP_DIRECTIVE(parallel)
   {
