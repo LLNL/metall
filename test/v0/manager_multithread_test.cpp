@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 
+#include <stdlib.h>
 #include <vector>
 #include <array>
 #include <list>
@@ -319,8 +320,12 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
     }
   }
 
-  std::vector<int> num_deallocated(keys.size(), 0);
-  int *ptr_num_deallocated = num_deallocated.data();
+  int* num_deallocated = nullptr;
+#if defined(__APPLE__)
+  num_deallocated = static_cast<int *>(::malloc(keys.size() * sizeof(int)));
+#else
+  num_deallocated = static_cast<int *>(::aligned_alloc(4096, keys.size() * sizeof(int)));
+#endif
 
   OMP_DIRECTIVE(parallel)
   {
@@ -328,14 +333,16 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
       const bool ret = manager.destroy<allocation_element_type>(keys[i].c_str());
       if (ret) {
         OMP_DIRECTIVE(atomic)
-        ++(ptr_num_deallocated[i]);
+        ++(num_deallocated[i]);
       }
     }
   }
 
   // There must be only one thread that destroys the object
-  for (std::size_t i = 0; i < num_deallocated.size(); ++i) {
+  for (std::size_t i = 0; i < keys.size(); ++i) {
     ASSERT_EQ(num_deallocated[i], 1);
   }
+
+  ::free(num_deallocated);
 }
 }

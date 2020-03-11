@@ -210,8 +210,6 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::destroy(char_ptr_holder_type nam
     return false;
   }
 
-  difference_type offset;
-  size_type length;
   { // Erase from named_object_directory
 #if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
     lock_guard_type guard(m_named_object_directory_mutex);
@@ -221,17 +219,19 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::destroy(char_ptr_holder_type nam
 
     const auto iterator = m_named_object_directory.find(raw_name);
     if (iterator == m_named_object_directory.end()) return false; // No object with the name
+
+    const difference_type offset = std::get<1>(iterator->second);
+    const size_type length = std::get<2>(iterator->second);
+
     m_named_object_directory.erase(iterator);
-    offset = std::get<1>(iterator->second);
-    length = std::get<2>(iterator->second);
 
     // TODO: might be able to free the lock here ?
 
     // Destruct each object
-    auto ptr = static_cast<T *>(static_cast<void *>(offset + static_cast<char *>(m_segment_storage.get_segment())));
+    auto object = static_cast<T *>(static_cast<void *>(offset + static_cast<char *>(m_segment_storage.get_segment())));
     for (size_type i = 0; i < length; ++i) {
-      ptr->~T();
-      ++ptr;
+      object->~T();
+      ++object;
     }
     deallocate(offset + static_cast<char *>(m_segment_storage.get_segment()));
   }
