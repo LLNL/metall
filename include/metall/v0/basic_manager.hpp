@@ -229,12 +229,12 @@ class basic_manager {
 
   // void deallocate_many(multiallocation_chain &chain);
 
-  // -------------------- Sync -------------------- //
-  /// \brief Sync with persistent memory
-  /// \param sync If true, performs synchronous synchronization;
-  /// otherwise, performs asynchronous synchronization
-  void sync(const bool sync = true) {
-    m_kernel.sync(sync);
+  // -------------------- Flush -------------------- //
+  /// \brief Flush data to persistent memory
+  /// \param synchronous If true, performs synchronous operation;
+  /// otherwise, performs asynchronous operation.
+  void flush(const bool synchronous = true) {
+    m_kernel.flush(synchronous);
   }
 
   // -------------------- Utility Methods -------------------- //
@@ -291,6 +291,14 @@ class basic_manager {
   /// If succeeded, its get() returns True; other false
   static std::future<bool> remove_async(const char *dir_path) {
     return std::async(std::launch::async, remove, dir_path);
+  }
+
+  /// \brief Check if the backing data store is consistent,
+  /// i.e. it was closed properly.
+  /// \param dir_path
+  /// \return Return true if it is consistent; otherwise, returns false.
+  static bool consistent(const char *dir_path) {
+    return manager_kernel_type::consistent(dir_path);
   }
 
   /// \brief Returns the chunk size

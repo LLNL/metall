@@ -5,7 +5,6 @@
 # sh ../../../bench/adjacency_list/test/test_large.sh
 
 # ----- Default Configuration ----- #
-file_size=$((2**30))
 v=17
 a=0.57
 b=0.19
@@ -14,8 +13,8 @@ seed=123
 e=$((2**$((${v}+4))))
 
 case "$OSTYPE" in
-  darwin*)  out_path="/tmp";;
-  linux*)   out_path="/dev/shm";;
+  darwin*)  out_dir_path="/tmp";;
+  linux*)   out_dir_path="/dev/shm";;
 esac
 # --------------- #
 
@@ -32,15 +31,21 @@ compare() {
   wc -l "${file2}"
 
   echo "Sort the dumped edges"
-  tmp_sorted_file1=${out_path}/tmp_sorted1
-  tmp_sorted_file2=${out_path}/tmp_sorted2
+  tmp_sorted_file1=${out_dir_path}/tmp_sorted1
+  tmp_sorted_file2=${out_dir_path}/tmp_sorted2
+
   sort -k 1,1n -k2,2n < "${file1}" > ${tmp_sorted_file1}
+  check_program_exit_status
+
   sort -k 1,1n -k2,2n < "${file2}" > ${tmp_sorted_file2}
+  check_program_exit_status
 
   echo "Compare the dumped edges"
-  tmp_diff_file="${out_path}/tmp_diff_file"
+  tmp_diff_file="${out_dir_path}/tmp_diff_file"
   # Be careful " " and "\t"
   diff ${tmp_sorted_file1} ${tmp_sorted_file2} > ${tmp_diff_file}
+  check_program_exit_status
+
   num_diff=$(< ${tmp_diff_file} wc -l)
 
   if [[ ${num_diff} -eq 0 ]]; then
@@ -56,11 +61,11 @@ compare() {
 }
 
 check_program_exit_status() {
-  ret=$?
+  local status=$?
 
-  if [[ $ret -ne 0 ]]; then
+  if [[ $status -ne 0 ]]; then
     err "<< The program did not finished correctly!! >>"
-    exit
+    exit $status
   fi
 }
 
@@ -75,6 +80,18 @@ parse_option() {
   done
 }
 
+show_system_info() {
+  echo ""
+  echo "--------------------"
+  echo "System info"
+  echo "--------------------"
+  df -h
+  df -ih
+  free -g
+  uname -r
+  echo ""
+}
+
 main() {
   parse_option "$@"
   mkdir -p ${out_dir_path}
@@ -83,7 +100,7 @@ main() {
   adj_list_dump_file="${out_dir_path}/dumped_edge_list"
   edge_dump_file="${out_dir_path}/ref_edge_list"
 
-  ./run_adj_list_bench_metall -o ${data_store_path} -f ${file_size} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${edge_dump_file}
+  ./run_adj_list_bench_metall -o ${data_store_path} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${edge_dump_file}
   check_program_exit_status
   echo ""
 

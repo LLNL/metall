@@ -4,22 +4,17 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <metall/c_api/metall.h>
-#include <metall/v0/basic_manager.hpp>
+#include <metall/metall.hpp>
 
-using chunk_number_type = uint32_t;
-constexpr std::size_t k_chunk_size = 1 << 21;
-using manager_type = metall::v0::basic_manager<chunk_number_type,// Chunk number type
-                                            k_chunk_size>;    // Chunk size in byte
-
-manager_type *g_manager = nullptr;
+metall::manager *g_manager = nullptr;
 
 int metall_open(const int mode, const char *const path, const uint64_t size) {
   if (mode == METALL_CREATE) {
-    g_manager = new manager_type(metall::create_only, path, size);
+    g_manager = new metall::manager(metall::create_only, path, size);
   } else if (mode == METALL_OPEN) {
-    g_manager = new manager_type(metall::open_only, path);
+    g_manager = new metall::manager(metall::open_only, path);
   } else if (mode == METALL_OPEN_OR_CREATE) {
-    g_manager = new manager_type(metall::open_or_create, path, size);
+    g_manager = new metall::manager(metall::open_or_create, path, size);
   } else {
     g_manager = nullptr;
   }
@@ -35,8 +30,8 @@ void metall_close() {
   delete g_manager;
 }
 
-void metall_sync() {
-  g_manager->sync();
+void metall_flush() {
+  g_manager->flush();
 }
 
 void *metall_malloc(const uint64_t size) {

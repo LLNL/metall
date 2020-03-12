@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     // This function is called after inserting each chunk
     std::size_t snapshot_num = 0;
     auto snapshot_func = [&option, &manager, &snapshot_num]() {
-      manager.sync();
+      manager.flush();
       std::cout << "Original datastore size (GB)\t"
                 << get_directory_size_gb(option.datastore_path_list[0]) << std::endl;
 

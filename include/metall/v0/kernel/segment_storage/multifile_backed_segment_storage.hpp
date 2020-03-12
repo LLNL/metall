@@ -297,8 +297,19 @@ class multifile_backed_segment_storage {
   void priv_sync_segment(const bool sync) {
     if (!priv_inited() || m_read_only) return;
 
-    util::os_msync(m_segment, m_current_segment_size, sync);
-    // util::os_fsync(m_fd);
+    // Protect the region to detect unexpected write by application during msync
+    if (!util::mprotect_read_only(m_segment, m_current_segment_size)) {
+     std::cerr << "Failed to protection the segment with the read only mode" << std::endl;
+     std::abort();
+    }
+    if (!util::os_msync(m_segment, m_current_segment_size, sync)) {
+      std::cerr << "Failed to msync the segment" << std::endl;
+      std::abort();
+    }
+    if (!util::mprotect_read_write(m_segment, m_current_segment_size)) {
+      std::cerr << "Failed to set the segment to readable and writable" << std::endl;
+      std::abort();
+    }
   }
 
   bool priv_free_region(const different_type offset, const size_type nbytes) {

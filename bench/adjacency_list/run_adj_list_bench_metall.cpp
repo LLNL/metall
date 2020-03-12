@@ -33,15 +33,15 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    metall::manager manager(metall::create_only, option.datastore_path_list[0].c_str(), option.segment_size);
+    metall::manager manager(metall::create_only, option.datastore_path_list[0].c_str());
     auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<>());
 
     run_bench(option, adj_list);
 
     const auto start = metall::detail::utility::elapsed_time_sec();
-    manager.sync();
+    manager.flush();
     const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
-    std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
+    std::cout << "flush_time (s)\t" << elapsed_time << std::endl;
 
     // std::cout << "Writing profile" << std::endl;
     // manager.profile(&(std::cout));

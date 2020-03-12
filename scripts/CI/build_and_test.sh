@@ -1,55 +1,126 @@
-#!/bin/bash
+#!/bin/sh
 
-# Used environmental variables
-# BUILD_DIR
-# GTEST_COLOR
-# DO_BUILD
-# DO_TEST
-# IMG
+# Bash script that builds and tests Metall with many compile time configurations
+# 1. Set environmental variables for build
+# Set manually:
+# export CC=gcc
+# export CXX=g++
+# export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/path/to/boost
+#
+# Or, config environmental variables using spack:
+# spack load g++
+# spack load boost
+#
+# 2. Set environmental variables for test
+# (option)
+# export METALL_TEST_DIR=/tmp
+#
+# 3. Run the script
+# sh ./scripts/CI/travis_ci/build_and_test.sh
 
-env
+METALL_ROOT_DIR=${PWD}
 
-function or_die () {
-    "$@"
-    local status=$?
-    if [[ $status != 0 ]] ; then
-        echo ERROR $status command: $@
-        exit $status
-    fi
+or_die () {
+  echo "Command: " "$@"
+  echo ">>>>>>>>>>"
+  "$@"
+  local status=$?
+  if [[ $status != 0 ]] ; then
+      echo ERROR $status command: $@
+      exit $status
+  fi
+  echo "<<<<<<<<<<"
 }
 
-CMAKE_BASIC_FLAGS="-DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=ON"
+exec () {
+  echo "Command: " "$@"
+  echo ">>>>>>>>>>"
+  "$@"
+  echo "<<<<<<<<<<"
+}
 
-cd ${BUILD_DIR}
-# ls ./
-# ls ${BOOST_ROOT}
+# As multiple CI jobs could run on the same machine
+# generate an unique test dir for each CI job
+# MEMO: setup a filesystem in local
+# truncate --size 512m XFSfile
+# mkfs.xfs -m crc=1 -m reflink=1 XFSfile
+# mkdir XFSmountpoint
+# mount -o loop XFSfile XFSmountpoint
+# xfs_info XFSmountpoint
+# cd XFSmountpoint
+setup_test_dir() {
+  if [[ -z "${METALL_TEST_DIR}" ]]; then
+    METALL_TEST_DIR="/tmp/${RANDOM}"
+  fi
 
-BOOST_ROOT="${PWD}/boost_1_${BOOST_VERSION}_0"
+  # mkdir -p ${METALL_TEST_DIR} # Metall creates automatically if the directory does not exist
+  echo "Store test data to ${METALL_TEST_DIR}"
+}
 
-if [[ "$DO_BUILD" == "yes" ]] ; then
-    if [[ $IMG == *"clang"* ]]; then
-        C_COMPILER=clang
-        CXX_COMPILER=clang++
-    else
-        C_COMPILER=gcc
-        CXX_COMPILER=g++
-    fi
+run_buid_and_test_core() {
+  mkdir -p ./build
+  cd build
+  echo "Build and test in ${PWD}"
 
-    for BUILD_TYPE in Debug Release RelWithDebInfo; do
-        for USE_SPACE_AWARE_BIN in On Off; do
-            or_die cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DBOOST_ROOT=${BOOST_ROOT} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DUSE_SPACE_AWARE_BIN=${USE_SPACE_AWARE_BIN} ${CMAKE_BASIC_FLAGS} ../
+  # Build
+  local CMAKE_OPTIONS="$@"
+  local CMAKE_FILE_LOCATION=${METALL_ROOT_DIR}
+  or_die cmake ${CMAKE_FILE_LOCATION} \
+               -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF  -DBUILD_C=ON \
+               -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF \
+               ${CMAKE_OPTIONS}
+  or_die make -j
 
-            or_die make -j 8 # VERBOSE=1
+  # Test 1
+  rm -rf ${METALL_TEST_DIR}
+  or_die ctest --timeout 1000
 
-            if [[ "${DO_TEST}" == "yes" ]] ; then
-                or_die ctest -T test --output-on-failure -V
-                cd bench/adjacency_list
-                or_die bash ../../../bench/adjacency_list/test/test.sh
-                # or_die ../../../bench/adjacency_list/test/test_large.sh
-                cd ../../
-            fi
+  # Test 2
+  rm -rf ${METALL_TEST_DIR}
+  cd bench/adjacency_list
+  or_die bash ${METALL_ROOT_DIR}/bench/adjacency_list/test/test.sh -d${METALL_TEST_DIR}
+  cd ../../
+
+  # Test 3
+  rm -rf ${METALL_TEST_DIR}
+  cd bench/adjacency_list
+  or_die bash ${METALL_ROOT_DIR}/bench/adjacency_list/test/test_large.sh -d${METALL_TEST_DIR}
+  cd ../../
+
+  # TODO: reflink test and C_API test
+
+  rm -rf ${METALL_TEST_DIR}
+  cd ../
+  rm -rf ./build
+}
+
+show_system_info() {
+  exec df -h
+  exec df -ih
+  exec free -g
+  exec uname -r
+}
+
+main() {
+  show_system_info
+
+  echo "Build and test on ${HOSTNAME}"
+
+  setup_test_dir
+  export METALL_TEST_DIR
+
+  for BUILD_TYPE in Debug Release; do
+    for DISABLE_FREE_FILE_SPACE in ON OFF; do
+      for DISABLE_SMALL_OBJECT_CACHE in OFF; do
+        for FREE_SMALL_OBJECT_SIZE_HINT in 0 8192; do
+          run_buid_and_test_core -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+                                 -DDISABLE_FREE_FILE_SPACE=${DISABLE_FREE_FILE_SPACE} \
+                                 -DDISABLE_SMALL_OBJECT_CACHE=${DISABLE_SMALL_OBJECT_CACHE} \
+                                 -DFREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT}
         done
+      done
     done
-fi
+  done
+}
 
-exit 0
+main "$@"

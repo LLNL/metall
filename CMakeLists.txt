@@ -30,7 +30,6 @@ option(BUILD_BENCH "Build the benchmark" ON)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(BUILD_DOC "Build documentation" OFF)
-option(USE_SPACE_AWARE_BIN "Try to fill from lower address" ON)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
@@ -54,7 +53,7 @@ endif ()
 
 # ---------- CPP ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS "-pthread")
+    set(CMAKE_CXX_FLAGS "-w -pthread")
 else()
     set(CMAKE_CXX_FLAGS "-Wall -pthread")
 endif()
@@ -80,7 +79,7 @@ endif ()
 
 # ---------- C ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS "-pthread")
+    set(CMAKE_C_FLAGS "-w -pthread")
 else()
     set(CMAKE_C_FLAGS "-Wall -pthread")
 endif()
@@ -108,11 +107,6 @@ endif ()
 find_package(MPI)
 
 # ---------- Configure Metall ---------- #
-if (USE_SPACE_AWARE_BIN)
-    add_definitions(-DMETALL_USE_SPACE_AWARE_BIN)
-    message(STATUS "Try to fill from lower address.")
-endif ()
-
 if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
     add_definitions(-DMETALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
     message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")

@@ -95,13 +95,49 @@ TEST(ManagerTest, CreateAndOpenModes) {
   }
 }
 
+TEST(ManagerTest, Consistency) {
+  manager_type::remove(dir_path().c_str());
+
+  {
+    manager_type manager(metall::create_only, dir_path().c_str());
+
+    // Must be inconsistent before closing
+    ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
+
+    [[maybe_unused]] int *a = manager.construct<int>("dummy")(10);
+  }
+  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+
+  { // To make sure the consistent mark is cleared even after creating a new data store using an old dir path
+    manager_type manager(metall::create_only, dir_path().c_str());
+
+    ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
+
+    [[maybe_unused]] int *a = manager.construct<int>("dummy")(10);
+  }
+  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+
+  {
+    manager_type manager(metall::open_only, dir_path().c_str());
+    ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
+  }
+  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+
+  {
+    manager_type manager(metall::open_read_only, dir_path().c_str());
+    // Still consistent if it is opened with the read-only mode
+    ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+  }
+  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+}
+
 TEST(ManagerTest, TinyAllocation) {
   manager_type manager(metall::create_only, dir_path().c_str());
 
   const std::size_t alloc_size = k_min_object_size / 2;
 
   // To make sure that there is no duplicated allocation
-  std::unordered_set<void*> set;
+  std::unordered_set<void *> set;
 
   for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
     auto addr = static_cast<char *>(manager.allocate(alloc_size));
@@ -120,7 +156,7 @@ TEST(ManagerTest, SmallAllocation) {
   const std::size_t alloc_size = k_min_object_size;
 
   // To make sure that there is no duplicated allocation
-  std::unordered_set<void*> set;
+  std::unordered_set<void *> set;
 
   for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
     auto addr = static_cast<char *>(manager.allocate(alloc_size));
@@ -169,7 +205,7 @@ TEST(ManagerTest, MixedSmallAllocation) {
       alloc_size3 = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1); // Max small object num_blocks
 
   // To make sure that there is no duplicated allocation
-  std::unordered_set<void*> set;
+  std::unordered_set<void *> set;
 
   for (uint64_t i = 0; i < k_chunk_size / alloc_size1; ++i) {
     {
@@ -232,7 +268,7 @@ TEST(ManagerTest, StlAllocator) {
   allocator_type<uint64_t> stl_allocator_instance(manager.get_allocator<uint64_t>());
 
   // To make sure that there is no duplicated allocation
-  std::unordered_set<uint64_t*> set;
+  std::unordered_set<uint64_t *> set;
 
   for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
     auto addr = stl_allocator_instance.allocate(1).get();
@@ -397,45 +433,17 @@ TEST(ManagerTest, PersistentNestedContainer) {
   }
 }
 
-TEST(ManagerTest, Sync) {
+TEST(ManagerTest, Flush) {
   using element_type = uint64_t;
   using vector_type = boost::interprocess::vector<element_type, typename manager_type::allocator_type<element_type>>;
 
-  manager_type *manager;
-  {
-    manager = new manager_type(metall::create_only, dir_path().c_str());
+  manager_type manager(metall::create_only, dir_path().c_str());
 
-    int *a = manager->construct<int>("int")(10);
-    ASSERT_EQ(*a, 10);
+  int *a = manager.construct<int>("int")(10);
 
-    vector_type *vec = manager->construct<vector_type>("vector_type")(manager->get_allocator<vector_type>());
-    vec->resize(k_chunk_size * 2 / sizeof(element_type)); // Force to use multiple chunks
-    for (uint64_t i = 0; i < vec->size(); ++i) {
-      vec->at(i) = i;
-    }
-    manager->sync();
-    // Do not free (destruct manage object) here on purpose
-  }
+  manager.flush();
 
-  {
-    manager_type manager2(metall::open_only, dir_path().c_str());
-
-    int *a;
-    std::size_t n1;
-    std::tie(a, n1) = manager2.find<int>("int");
-    ASSERT_EQ(*a, 10);
-
-    vector_type *vec;
-    std::size_t n2;
-    std::tie(vec, n2) = manager2.find<vector_type>("vector_type");
-
-    ASSERT_EQ(vec->size(), k_chunk_size * 2 / sizeof(element_type));
-    for (uint64_t i = 0; i < vec->size(); ++i) {
-      ASSERT_EQ(vec->at(i), i);
-    }
-  }
-
-  delete manager;
+  ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
 }
 
 TEST(ManagerTest, AnonymousConstruct) {
