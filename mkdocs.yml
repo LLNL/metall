@@ -1,6 +1,6 @@
 
 site_name: Metall
-site_author: 'Keita Iwabuchi (LLNL)'
+site_author: 'Keita Iwabuchi (LLNL), Roger A Pearce (LLNL), and Maya B Gokhale (LLNL)'
 copyright: Copyright 2020 Lawrence Livermore National Security, LLC
 
 docs_dir: 'docs/readthedocs'
@@ -12,9 +12,7 @@ edit_uri: 'tree/develop/docs/readthedocs'
 nav:
 - Home: 'index.md'
 - 'Getting Started': 'getting_started.md'
+- 'Example': 'example.md'
+- 'Advanced': 'advanced/build_sources.md'
 - 'Publication': 'publication.md'
-- About:
-    - 'Authors': 'authors.md'
-    - 'License': 'license.md'
-    - 'Release': 'release.md'
-#    - 'Release Notes': 'release-notes.md'
+- 'About': 'about.md'

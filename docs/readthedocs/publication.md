@@ -4,6 +4,7 @@
 
 [Available PDF](https://www.osti.gov/servlets/purl/1576900)
 
+A page in IEEE Xplore is [here](https://ieeexplore.ieee.org/document/8945094)
 ```text
 @INPROCEEDINGS{8945094,
 author={K. {Iwabuchi} and L. {Lebanoff} and M. {Gokhale} and R. {Pearce}},

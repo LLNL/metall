@@ -1,2 +1,0 @@
-# Release
-LLNL-CODE-768617
