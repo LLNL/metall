@@ -40,9 +40,6 @@ g++ -std=c++17 -lstdc++fs your_program.cpp
 # Compile-time Options
 There are some compile-time options as follows to configure the behavior of Metall:
 
-* METALL_USE_SPACE_AWARE_BIN
-	* If defined, Metall tries to fill memory from lower addresses.
-
 * METALL_DISABLE_FREE_FILE_SPACE
 	* If defined, Metall does not free file space
 

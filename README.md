@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/LLNL/metall.svg?branch=develop)](https://travis-ci.org/LLNL/metall)
+[![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
 
 Metall (memory allocator for persistent memory)
 ====================
@@ -10,6 +11,7 @@ Metall (memory allocator for persistent memory)
 
 
 # Getting Started
+
 ## Install and Build
 
 Metall consists of only header files and requires some header files in Boost C++ Libraries.
@@ -42,28 +44,30 @@ spack load metall
 g++ -std=c++17 -lstdc++fs your_program.cpp
 ```
 
-### Required
+## Required
 
  - GCC 8.0 or more.
  - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
 
+
+
+# Documentation
+[Full documentation](https://metall.readthedocs.io/) is available.
+
+
+
 # Publication
 
-[Metall: A Persistent Memory Allocator Enabling Graph Processing](https://www.osti.gov/servlets/purl/1576900)
+## Metall: A Persistent Memory Allocator Enabling Graph Processing
+[Paper PDF](https://www.osti.gov/servlets/purl/1576900)
 
-```text
-@INPROCEEDINGS{8945094,
-author={K. {Iwabuchi} and L. {Lebanoff} and M. {Gokhale} and R. {Pearce}},
-booktitle={2019 IEEE/ACM 9th Workshop on Irregular Applications: Architectures and Algorithms (IA3)},
-title={Metall: A Persistent Memory Allocator Enabling Graph Processing},
-year={2019},
-pages={39-44},
-doi={10.1109/IA349570.2019.00012},
-month={Nov},}
-```
+[IEEE Xplore](https://ieeexplore.ieee.org/document/8945094)
 
 
-# Authors
+
+# About
+
+## Authors
 
 * Keita Iwabuchi (kiwabuchi at llnl dot gov)
 * Roger A Pearce (rpearce at llnl dot gov)
@@ -71,7 +75,7 @@ month={Nov},}
 
 
 
-# License
+## License
 
 Metall is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
 Users may choose either license, at their option.
@@ -83,7 +87,6 @@ See [LICENSE-MIT](LICENSE-MIT), [LICENSE-APACHE](LICENSE-APACHE), [NOTICE](NOTIC
 SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
-
-# Release
+## Release
 
 LLNL-CODE-768617
