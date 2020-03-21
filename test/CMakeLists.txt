@@ -72,5 +72,5 @@ endif ()
 include(GoogleTest)
 
 add_subdirectory(utility)
-add_subdirectory(v0)
+add_subdirectory(kernel)
 add_subdirectory(container)

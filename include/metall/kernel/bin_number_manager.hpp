@@ -3,17 +3,16 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_KERNEL_BIN_NUMBER_MANAGER_HPP
-#define METALL_DETAIL_V0_KERNEL_BIN_NUMBER_MANAGER_HPP
+#ifndef METALL_DETAIL_KERNEL_BIN_NUMBER_MANAGER_HPP
+#define METALL_DETAIL_KERNEL_BIN_NUMBER_MANAGER_HPP
 
 #include <cstddef>
 #include <type_traits>
 
-#include <metall/v0/kernel/object_size_manager.hpp>
+#include <metall/kernel/object_size_manager.hpp>
 #include <metall/detail/utility/common.hpp>
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 /// \brief Bin number manager
@@ -60,6 +59,5 @@ class bin_number_manager {
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
-#endif //METALL_DETAIL_V0_KERNEL_BIN_NUMBER_MANAGER_HPP
+#endif //METALL_DETAIL_KERNEL_BIN_NUMBER_MANAGER_HPP

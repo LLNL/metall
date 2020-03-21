@@ -7,16 +7,16 @@
 
 #include <limits>
 
-#include <metall/v0/kernel/bin_number_manager.hpp>
-#include <metall/v0/kernel/object_size_manager.hpp>
+#include <metall/kernel/bin_number_manager.hpp>
+#include <metall/kernel/object_size_manager.hpp>
 #include <metall/metall.hpp>
 
 namespace {
-using namespace metall::v0::kernel::object_size_manager_detail;
+using namespace metall::kernel::object_size_manager_detail;
 
 constexpr std::size_t k_chunk_size = metall::manager::chunk_size();
 constexpr std::size_t k_max_size = 1ULL << 48;
-using bin_no_mngr = metall::v0::kernel::bin_number_manager<k_chunk_size, k_max_size>;
+using bin_no_mngr = metall::kernel::bin_number_manager<k_chunk_size, k_max_size>;
 
 TEST(BinManagerTest, BinNoType) {
   ASSERT_GE(std::numeric_limits<bin_no_mngr::bin_no_type>::max(), bin_no_mngr::to_bin_no(k_max_size));

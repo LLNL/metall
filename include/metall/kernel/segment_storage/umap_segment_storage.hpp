@@ -376,7 +376,7 @@ class umap_segment_storage {
 };
 
 } // namespace kernel
-} // namespace v0
+} // namespace kernel
 } // namespace metall
 
 #endif //METALL_DETAIL_V0_SEGMENT_STORAGE_UMAP_STORAGE_HPP

@@ -11,11 +11,11 @@
 #include <cstddef>
 
 #include <metall/detail/utility/bitset.hpp>
-#include <metall/v0/kernel/multilayer_bitset.hpp>
+#include <metall/kernel/multilayer_bitset.hpp>
 
 namespace {
-using metall::v0::kernel::multilayer_bitset_detail::index_depth;
-using metall::v0::kernel::multilayer_bitset_detail::num_internal_trees;
+using metall::kernel::multilayer_bitset_detail::index_depth;
+using metall::kernel::multilayer_bitset_detail::num_internal_trees;
 
 TEST(MultilayerBitsetTest, NumLayers) {
   for (uint64_t num_local_blocks = 1; num_local_blocks <= 4; num_local_blocks *= 2) {
@@ -60,8 +60,8 @@ TEST(MultilayerBitsetTest, NumInternalTrees) {
 
 TEST(MultilayerBitsetTest, FindAndSet) {
   for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 32); num_bits *= 64) { // Test up to 4 layers,
-    metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
-    auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
+    metall::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
+    auto allocator = typename metall::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
     bitset.allocate(num_bits, allocator);
     for (uint64_t i = 0; i < num_bits; ++i) {
       ASSERT_EQ(bitset.find_and_set(num_bits), i);
@@ -73,8 +73,8 @@ TEST(MultilayerBitsetTest, FindAndSet) {
 
 TEST(MultilayerBitsetTest, Reset) {
   for (uint64_t num_bits = 1; num_bits < (64ULL * 64 * 64 * 32); num_bits *= 64) { // Test up to 4 layers
-    metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
-    auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
+    metall::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
+    auto allocator = typename metall::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
     bitset.allocate(num_bits, allocator);
     for (uint64_t i = 0; i < num_bits; ++i) {
       bitset.find_and_set(num_bits);
@@ -93,8 +93,8 @@ TEST(MultilayerBitsetTest, Reset) {
 void RandomSetHelper(const std::size_t num_bits) {
   SCOPED_TRACE("num_bits = " + std::to_string(num_bits));
 
-  metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
-  auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
+  metall::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
+  auto allocator = typename metall::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
   bitset.allocate(num_bits, allocator);
 
   std::vector<bool> reference(num_bits, false);
@@ -168,8 +168,8 @@ TEST(MultilayerBitsetTest, RandomSet) {
 void RandomSetAndResetHelper(const std::size_t num_bits) {
   SCOPED_TRACE("num_bits = " + std::to_string(num_bits));
 
-  metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
-  auto allocator = typename metall::v0::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
+  metall::kernel::multilayer_bitset<std::allocator<std::byte>> bitset;
+  auto allocator = typename metall::kernel::multilayer_bitset<std::allocator<std::byte>>::rebind_allocator_type();
   bitset.allocate(num_bits, allocator);
 
   std::vector<bool> reference(num_bits, false);
