@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_OBJECT_CACHE_HPP
-#define METALL_DETAIL_V0_OBJECT_CACHE_HPP
+#ifndef METALL_DETAIL_OBJECT_CACHE_HPP
+#define METALL_DETAIL_OBJECT_CACHE_HPP
 
 #include <iostream>
 #include <cassert>
@@ -12,16 +12,15 @@
 #include <vector>
 #include <thread>
 #include <boost/container/vector.hpp>
-#include <metall/v0/kernel/bin_directory.hpp>
+#include <metall/kernel/bin_directory.hpp>
 #include <metall/detail/utility/proc.hpp>
 #include <metall_utility/hash.hpp>
-#define ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE 1
-#if ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE
+#define ENABLE_MUTEX_IN_METALL_OBJECT_CACHE 1
+#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
 #include <metall/detail/utility/mutex.hpp>
 #endif
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 namespace {
@@ -56,7 +55,7 @@ class object_cache {
   static constexpr unsigned int k_max_bin_no = bin_no_mngr::to_bin_no(k_max_cache_object_size);
   static constexpr int k_cpu_core_no_cache_duration = 4;
 
-#if ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE
+#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
   using mutex_type = util::mutex;
   using lock_guard_type = util::mutex_lock_guard;
 #endif
@@ -73,7 +72,7 @@ class object_cache {
   // -------------------------------------------------------------------------------- //
   object_cache(const allocator_type &allocator)
       : m_cache_table(num_cores() * k_num_cache_per_core, allocator)
-#if ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE
+#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
   , m_mutex(m_cache_table.size())
 #endif
   {};
@@ -97,7 +96,7 @@ class object_cache {
     if (bin_no > max_bin_no()) return -1;
 
     const auto cache_no = comp_cache_no();
-#if ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE
+#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
     lock_guard_type guard(m_mutex[cache_no]);
 #endif
     if (m_cache_table[cache_no].empty(bin_no)) {
@@ -122,7 +121,7 @@ class object_cache {
     if (bin_no > max_bin_no()) return false; // Error
 
     const auto cache_no = comp_cache_no();
-#if ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE
+#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
     lock_guard_type guard(m_mutex[cache_no]);
 #endif
     m_cache_table[cache_no].insert(bin_no, object_offset);
@@ -202,12 +201,11 @@ class object_cache {
   // Private fields
   // -------------------------------------------------------------------------------- //
   cache_table_type m_cache_table;
-#if ENABLE_MUTEX_IN_METALL_V0_OBJECT_CACHE
+#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
   std::vector<mutex_type> m_mutex;
 #endif
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
-#endif //METALL_DETAIL_V0_OBJECT_CACHE_HPP
+#endif //METALL_DETAIL_OBJECT_CACHE_HPP

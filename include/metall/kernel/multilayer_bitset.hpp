@@ -22,7 +22,6 @@
 #include <metall/detail/utility/builtin_functions.hpp>
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 namespace {
@@ -360,6 +359,5 @@ class multilayer_bitset {
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
 #endif //METALL_MULTILAYER_BITSET_HPP

@@ -3,13 +3,12 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_KERNEL_MANAGER_KERNEL_IMPL_IPP
-#define METALL_DETAIL_V0_KERNEL_MANAGER_KERNEL_IMPL_IPP
+#ifndef METALL_DETAIL_KERNEL_MANAGER_KERNEL_IMPL_IPP
+#define METALL_DETAIL_KERNEL_MANAGER_KERNEL_IMPL_IPP
 
-#include <metall/v0/kernel/manager_kernel_fwd.hpp>
+#include <metall/kernel/manager_kernel_fwd.hpp>
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 // -------------------------------------------------------------------------------- //
@@ -26,7 +25,7 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
       m_named_object_directory(allocator),
       m_segment_storage(),
       m_segment_memory_allocator(&m_segment_storage, allocator)
-#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
     , m_named_object_directory_mutex()
 #endif
 {}
@@ -183,7 +182,7 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::find(char_ptr_holder_type name) {
     return std::make_pair(nullptr, 0);
   }
 
-#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
   lock_guard_type guard(m_named_object_directory_mutex); // TODO: don't need at here?
 #endif
 
@@ -211,7 +210,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::destroy(char_ptr_holder_type nam
   }
 
   { // Erase from named_object_directory
-#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
     lock_guard_type guard(m_named_object_directory_mutex);
 #endif
 
@@ -440,7 +439,7 @@ priv_generic_named_construct(const char_type *const name,
                              util::in_place_interface &table) {
   void *ptr = nullptr;
   {
-#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
     lock_guard_type guard(m_named_object_directory_mutex); // TODO: implement a better lock strategy
 #endif
 
@@ -542,7 +541,6 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::str
 }
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
 
-#endif //METALL_DETAIL_V0_KERNEL_MANAGER_KERNEL_IMPL_IPP
+#endif //METALL_DETAIL_KERNEL_MANAGER_KERNEL_IMPL_IPP

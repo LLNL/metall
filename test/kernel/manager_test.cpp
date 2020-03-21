@@ -12,7 +12,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <metall/metall.hpp>
-#include <metall/v0/kernel/object_size_manager.hpp>
+#include <metall/kernel/object_size_manager.hpp>
 #include "../test_utility.hpp"
 
 namespace {
@@ -20,11 +20,11 @@ using namespace metall::detail;
 
 using chunk_no_type = uint32_t;
 static constexpr std::size_t k_chunk_size = 1 << 21;
-using manager_type = metall::v0::basic_manager<chunk_no_type, k_chunk_size>;
+using manager_type = metall::basic_manager<chunk_no_type, k_chunk_size>;
 template <typename T>
 using allocator_type = typename manager_type::allocator_type<T>;
 
-using object_size_mngr = metall::v0::kernel::object_size_manager<k_chunk_size, 1ULL << 48>;
+using object_size_mngr = metall::kernel::object_size_manager<k_chunk_size, 1ULL << 48>;
 constexpr std::size_t k_min_object_size = object_size_mngr::at(0);
 
 const std::string &dir_path() {

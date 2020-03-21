@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_V0_BASIC_MANAGER_HPP
-#define METALL_V0_BASIC_MANAGER_HPP
+#ifndef METALL_BASIC_MANAGER_HPP
+#define METALL_BASIC_MANAGER_HPP
 
 #include <cstddef>
 #include <memory>
@@ -12,11 +12,10 @@
 #include <metall/tags.hpp>
 #include <metall/detail/utility/in_place_interface.hpp>
 #include <metall/detail/utility/named_proxy.hpp>
-#include <metall/v0/stl_allocator_v0.hpp>
-#include <metall/v0/kernel/manager_kernel.hpp>
+#include <metall/stl_allocator.hpp>
+#include <metall/kernel/manager_kernel.hpp>
 
 namespace metall {
-namespace v0 {
 
 namespace {
 namespace util = metall::detail::utility;
@@ -46,7 +45,7 @@ class basic_manager {
   using size_type = typename manager_kernel_type::size_type;
   using difference_type = typename manager_kernel_type::difference_type;
   template <typename T>
-  using allocator_type = stl_allocator_v0<T, manager_kernel_type>;
+  using allocator_type = stl_allocator<T, manager_kernel_type>;
   template <typename T>
   using construct_proxy = util::named_proxy<manager_kernel_type, T, false>;
   template <typename T>
@@ -252,8 +251,6 @@ class basic_manager {
     return allocator_type<T>(reinterpret_cast<manager_kernel_type **>(&(m_kernel.get_segment_header()->manager_kernel_address)));
   }
 
-  // ---------------------------------------- v0's unique functions ---------------------------------------- //
-
   /// \brief Snapshot the entire data
   /// \param destination_dir_path The prefix of the snapshot files
   /// \return Returns true on success; other false
@@ -320,7 +317,6 @@ class basic_manager {
   /// -------------------------------------------------------------------------------- ///
   manager_kernel_type m_kernel;
 };
-} // namespace v0
 } // namespace metall
 
-#endif //METALL_V0_BASIC_MANAGER_HPP
+#endif //METALL_BASIC_MANAGER_HPP

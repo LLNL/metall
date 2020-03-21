@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_V0_KERNEL_SEGMENT_ALLOCATOR_HPP
-#define METALL_V0_KERNEL_SEGMENT_ALLOCATOR_HPP
+#ifndef METALL_KERNEL_SEGMENT_ALLOCATOR_HPP
+#define METALL_KERNEL_SEGMENT_ALLOCATOR_HPP
 
 #include <iostream>
 #include <cassert>
@@ -14,23 +14,22 @@
 #include <future>
 #include <iomanip>
 
-#include <metall/v0/kernel/bin_number_manager.hpp>
-#include <metall/v0/kernel/bin_directory.hpp>
-#include <metall/v0/kernel/chunk_directory.hpp>
-#include <metall/v0/kernel/object_size_manager.hpp>
+#include <metall/kernel/bin_number_manager.hpp>
+#include <metall/kernel/bin_directory.hpp>
+#include <metall/kernel/chunk_directory.hpp>
+#include <metall/kernel/object_size_manager.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 
-#define ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR 1
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#define ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR 1
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
 #include <metall/detail/utility/mutex.hpp>
 #endif
 
 #ifndef METALL_DISABLE_OBJECT_CACHE
-#include <metall/v0/kernel/object_cache.hpp>
+#include <metall/kernel/object_cache.hpp>
 #endif
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 namespace {
@@ -78,7 +77,7 @@ class segment_allocator {
                                                internal_data_allocator_type>;
 #endif
 
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
   using mutex_type = util::mutex;
   using lock_guard_type = util::mutex_lock_guard;
 #endif
@@ -95,7 +94,7 @@ class segment_allocator {
 #ifndef METALL_DISABLE_OBJECT_CACHE
       , m_object_cache(allocator)
 #endif
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
       , m_chunk_mutex(),
         m_bin_mutex()
 #endif
@@ -272,7 +271,7 @@ class segment_allocator {
 
   void priv_allocate_small_objects_from_global(const bin_no_type bin_no, const size_type num_allocates,
                                                difference_type *const allocated_offsets) {
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
     lock_guard_type bin_guard(m_bin_mutex[bin_no]);
 #endif
     for (size_type i = 0; i < num_allocates; ++i) {
@@ -286,7 +285,7 @@ class segment_allocator {
     if (m_non_full_chunk_bin.empty(bin_no)) {
       chunk_no_type new_chunk_no;
       {
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
         lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
         new_chunk_no = m_chunk_directory.insert(bin_no);
@@ -310,7 +309,7 @@ class segment_allocator {
   }
 
   difference_type priv_allocate_large_object(const bin_no_type bin_no) {
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
     lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
     const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
@@ -352,7 +351,7 @@ class segment_allocator {
 
   void priv_deallocate_small_objects_from_global(const bin_no_type bin_no, const size_type num_deallocates,
                                                  const difference_type *const offsets) {
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
     lock_guard_type bin_guard(m_bin_mutex[bin_no]);
 #endif
     for (size_type i = 0; i < num_deallocates; ++i) {
@@ -372,7 +371,7 @@ class segment_allocator {
     } else if (m_chunk_directory.all_slots_unmarked(chunk_no)) {
       // All slots in the chunk are not used, deallocate it
       {
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
         lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
         m_chunk_directory.erase(chunk_no);
@@ -444,7 +443,7 @@ class segment_allocator {
   }
 
   void priv_deallocate_large_object(const chunk_no_type chunk_no, const bin_no_type bin_no) {
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
     lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
     m_chunk_directory.erase(chunk_no);
@@ -485,13 +484,12 @@ class segment_allocator {
   small_object_cache_type m_object_cache;
 #endif
 
-#if ENABLE_MUTEX_IN_METALL_V0_SEGMENT_ALLOCATOR
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
   mutex_type m_chunk_mutex;
   std::array<mutex_type, k_num_small_bins> m_bin_mutex;
 #endif
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
-#endif //METALL_V0_KERNEL_SEGMENT_ALLOCATOR_HPP
+#endif //METALL_KERNEL_SEGMENT_ALLOCATOR_HPP

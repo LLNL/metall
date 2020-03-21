@@ -6,8 +6,8 @@
 #include "gtest/gtest.h"
 #include <cstdint>
 #include <memory>
-#include <metall/v0/kernel/chunk_directory.hpp>
-#include <metall/v0/kernel/bin_number_manager.hpp>
+#include <metall/kernel/chunk_directory.hpp>
+#include <metall/kernel/bin_number_manager.hpp>
 #include <metall/metall.hpp>
 #include "../test_utility.hpp"
 
@@ -15,10 +15,10 @@ namespace {
 using chunk_no_type = metall::manager::chunk_number_type;
 constexpr std::size_t k_chunk_size = metall::manager::chunk_size();
 
-using bin_no_mngr = metall::v0::kernel::bin_number_manager<k_chunk_size, 1ULL << 48>;
+using bin_no_mngr = metall::kernel::bin_number_manager<k_chunk_size, 1ULL << 48>;
 constexpr int k_num_small_bins = bin_no_mngr::num_small_bins();
 
-using chunk_directory_type = metall::v0::kernel::chunk_directory<chunk_no_type,
+using chunk_directory_type = metall::kernel::chunk_directory<chunk_no_type,
                                                                  k_chunk_size,
                                                                  1ULL << 48,
                                                                  std::allocator<char>>;

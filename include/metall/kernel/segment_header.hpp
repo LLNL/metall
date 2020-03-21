@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
-#ifndef METALL_V0_KERNEL_SEGMENT_HEADER_HPP
-#define METALL_V0_KERNEL_SEGMENT_HEADER_HPP
+#ifndef METALL_KERNEL_SEGMENT_HEADER_HPP
+#define METALL_KERNEL_SEGMENT_HEADER_HPP
 
 template <std::size_t chunk_size>
 struct segment_header {
@@ -15,4 +15,4 @@ struct segment_header {
   };
 };
 
-#endif //METALL_V0_KERNEL_SEGMENT_HEADER_HPP
+#endif //METALL_KERNEL_SEGMENT_HEADER_HPP

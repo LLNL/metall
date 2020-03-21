@@ -793,7 +793,7 @@ WARN_LOGFILE           =
 
 INPUT                  = ../include/metall \
                          ../include/metall/detail/base_manager.hpp \
-                         ../include/metall/v0/manager.hpp
+                         ../include/metall/manager.hpp
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
 # libiconv (or the iconv built into libc) for the transcoding. See the libiconv
@@ -902,7 +902,7 @@ EXCLUDE_PATTERNS       =
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        = metall::v0::detail
+EXCLUDE_SYMBOLS        = metall::detail
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include

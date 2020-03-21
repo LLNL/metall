@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
-#define METALL_DETAIL_V0_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
+#ifndef METALL_DETAIL_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
+#define METALL_DETAIL_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
 
 #include <string>
 #include <iostream>
@@ -13,7 +13,6 @@
 #include <metall/detail/utility/mmap.hpp>
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 namespace {
@@ -388,6 +387,5 @@ class multifile_backed_segment_storage {
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
-#endif //METALL_DETAIL_V0_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP
+#endif //METALL_DETAIL_SEGMENT_STORAGE_MULTIFILE_BACKED_STORAGE_HPP

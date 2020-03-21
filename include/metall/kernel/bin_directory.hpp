@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_BIN_DIRECTORY_HPP
-#define METALL_DETAIL_V0_BIN_DIRECTORY_HPP
+#ifndef METALL_DETAIL_BIN_DIRECTORY_HPP
+#define METALL_DETAIL_BIN_DIRECTORY_HPP
 
 #include <iostream>
 #include <limits>
@@ -27,7 +27,6 @@
 #include <metall/detail/utility/common.hpp>
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 namespace {
@@ -262,7 +261,6 @@ class bin_directory {
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
 
-#endif //METALL_DETAIL_V0_BIN_DIRECTORY_HPP
+#endif //METALL_DETAIL_BIN_DIRECTORY_HPP

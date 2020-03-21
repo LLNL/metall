@@ -3,11 +3,10 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_V0_KERNEL_MANAGER_KERNEL_FWD_HPP
-#define METALL_V0_KERNEL_MANAGER_KERNEL_FWD_HPP
+#ifndef METALL_KERNEL_MANAGER_KERNEL_FWD_HPP
+#define METALL_KERNEL_MANAGER_KERNEL_FWD_HPP
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 /// \brief Manager kernel class version 0
@@ -18,7 +17,6 @@ template <typename _chunk_no_type, std::size_t _chunk_size, typename _allocator_
 class manager_kernel;
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
 
-#endif //METALL_V0_KERNEL_MANAGER_KERNEL_FWD_HPP
+#endif //METALL_KERNEL_MANAGER_KERNEL_FWD_HPP

@@ -5,13 +5,13 @@
 
 #include "gtest/gtest.h"
 #include <memory>
-#include <metall/v0/kernel/named_object_directory.hpp>
+#include <metall/kernel/named_object_directory.hpp>
 #include <metall/detail/utility/file.hpp>
 #include "../test_utility.hpp"
 
 namespace {
 
-using directory_type = metall::v0::kernel::named_object_directory<ssize_t, std::size_t, std::allocator<char>>;
+using directory_type = metall::kernel::named_object_directory<ssize_t, std::size_t, std::allocator<char>>;
 using key_type = std::string;
 
 TEST(NambedObjectDirectoryTest, UniqueInsert) {

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_NAMED_OBJECT_DIRECTORY_HPP
-#define METALL_DETAIL_V0_NAMED_OBJECT_DIRECTORY_HPP
+#ifndef METALL_DETAIL_NAMED_OBJECT_DIRECTORY_HPP
+#define METALL_DETAIL_NAMED_OBJECT_DIRECTORY_HPP
 
 #include <iostream>
 #include <utility>
@@ -20,7 +20,6 @@
 #include <boost/unordered_map.hpp>
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 /// \brief Directory for namaed objects.
@@ -252,6 +251,5 @@ class named_object_directory {
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
-#endif //METALL_DETAIL_V0_NAMED_OBJECT_DIRECTORY_HPP
+#endif //METALL_DETAIL_NAMED_OBJECT_DIRECTORY_HPP

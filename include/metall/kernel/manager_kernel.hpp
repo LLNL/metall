@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_V0_KERNEL_MANAGER_KERNEL_HPP
-#define METALL_V0_KERNEL_MANAGER_KERNEL_HPP
+#ifndef METALL_KERNEL_MANAGER_KERNEL_HPP
+#define METALL_KERNEL_MANAGER_KERNEL_HPP
 
 #include <iostream>
 #include <cassert>
@@ -16,10 +16,10 @@
 #include <map>
 
 #include <metall/offset_ptr.hpp>
-#include <metall/v0/kernel/manager_kernel_fwd.hpp>
-#include <metall/v0/kernel/segment_header.hpp>
-#include <metall/v0/kernel/segment_allocator.hpp>
-#include <metall/v0/kernel/named_object_directory.hpp>
+#include <metall/kernel/manager_kernel_fwd.hpp>
+#include <metall/kernel/segment_header.hpp>
+#include <metall/kernel/segment_allocator.hpp>
+#include <metall/kernel/named_object_directory.hpp>
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/in_place_interface.hpp>
 #include <metall/detail/utility/array_construct.hpp>
@@ -29,18 +29,17 @@
 #include <metall/detail/utility/soft_dirty_page.hpp>
 
 #ifdef METALL_USE_UMAP
-#include <metall/v0/kernel/segment_storage/umap_segment_storage.hpp>
+#include <metall/kernel/segment_storage/umap_segment_storage.hpp>
 #else
-#include <metall/v0/kernel/segment_storage/multifile_backed_segment_storage.hpp>
+#include <metall/kernel/segment_storage/multifile_backed_segment_storage.hpp>
 #endif
 
-#define ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL 1
-#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
+#define ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL 1
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
 #include <metall/detail/utility/mutex.hpp>
 #endif
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 namespace {
@@ -105,7 +104,7 @@ class manager_kernel {
 
   static constexpr const char *k_properly_closed_mark_file_name = "properly_closed_mark";
 
-#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
   using mutex_type = util::mutex;
   using lock_guard_type = util::mutex_lock_guard;
 #endif
@@ -281,16 +280,15 @@ class manager_kernel {
   segment_storage_type m_segment_storage;
   segment_memory_allocator m_segment_memory_allocator;
 
-#if ENABLE_MUTEX_IN_METALL_V0_MANAGER_KERNEL
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
   mutex_type m_named_object_directory_mutex;
 #endif
 };
 
 } // namespace kernel
-} // namespace v0
 } // namespace metall
 
-#endif //METALL_V0_KERNEL_MANAGER_KERNEL_HPP
+#endif //METALL_KERNEL_MANAGER_KERNEL_HPP
 
-#include <metall/v0/kernel/manager_kernel_impl.ipp>
-#include <metall/v0/kernel/manager_kernel_profile_impl.ipp>
+#include <metall/kernel/manager_kernel_impl.ipp>
+#include <metall/kernel/manager_kernel_profile_impl.ipp>

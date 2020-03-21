@@ -5,15 +5,15 @@
 
 #include "gtest/gtest.h"
 #include <memory>
-#include <metall/v0/kernel/bin_directory.hpp>
-#include <metall/v0/kernel/bin_number_manager.hpp>
+#include <metall/kernel/bin_directory.hpp>
+#include <metall/kernel/bin_number_manager.hpp>
 #include <metall/metall.hpp>
 #include "../test_utility.hpp"
 
 namespace {
-using bin_no_mngr = metall::v0::kernel::bin_number_manager<metall::manager::chunk_size(), 1ULL << 48>;
+using bin_no_mngr = metall::kernel::bin_number_manager<metall::manager::chunk_size(), 1ULL << 48>;
 constexpr int num_small_bins = bin_no_mngr::to_bin_no(metall::manager::chunk_size() / 2) + 1;
-using directory_type = metall::v0::kernel::bin_directory<num_small_bins,
+using directory_type = metall::kernel::bin_directory<num_small_bins,
                                                          metall::manager::chunk_number_type,
                                                          std::allocator<char>>;
 
