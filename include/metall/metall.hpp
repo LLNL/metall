@@ -10,11 +10,7 @@
 
 namespace metall {
 
-/// \brief Basic Metall manager type
-//template <typename chunk_no_type, std::size_t chunk_size, typename kernel_allocator_type>
-//using basic_manager = basic_manager<chunk_no_type, chunk_size, kernel_allocator_type>;
-
-/// \brief Metall manager type
+/// \brief Metall manager type with the default template parameters
 using manager = basic_manager<>;
 
 } // namespace metall

@@ -50,9 +50,8 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path
 
   m_base_dir_path = base_dir_path;
 
-  priv_unmark_properly_closed(m_base_dir_path);
-
-  if (!priv_init_datastore_directory(base_dir_path)) {
+  if (!priv_unmark_properly_closed(m_base_dir_path) || !priv_init_datastore_directory(base_dir_path)) {
+    std::cerr << "Failed to initialize datastore directory under " << base_dir_path << std::endl;
     std::abort();
   }
 
@@ -332,12 +331,15 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const s
     }
   }
 
+  if (!util::remove_file(priv_make_datastore_dir_path(base_dir_path))) {
+    std::cerr << "Failed to remove: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
+    return false;
+  }
+
   // Create the datastore directory if needed
-  if (!util::file_exist(priv_make_datastore_dir_path(base_dir_path))) {
-    if (!util::create_directory(priv_make_datastore_dir_path(base_dir_path))) {
-      std::cerr << "Failed to create directory: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
-      return false;
-    }
+  if (!util::create_directory(priv_make_datastore_dir_path(base_dir_path))) {
+    std::cerr << "Failed to create directory: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
+    return false;
   }
 
   return true;
