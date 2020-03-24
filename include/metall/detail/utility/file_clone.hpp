@@ -62,8 +62,9 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
 #endif
 #endif
 #else
-  std::string rm_command("cp --reflink=auto -R " + source_path + " " + destination_path);
-  std::system(rm_command.c_str());
+  std::string command("cp --reflink=auto -R " + source_path + " " + destination_path);
+  const int status = std::system(command.c_str());
+  return (status != -1) && !!(WIFEXITED(status));
 #endif
   return true;
 }
@@ -79,9 +80,9 @@ inline bool clone_file_macos(const std::string& source_path, const std::string& 
   }
   return true;
 #else
-  std::string rm_command("cp -cR " + source_path + " " + destination_path);
-  std::system(rm_command.c_str());
-  return true;
+  std::string command("cp -cR " + source_path + " " + destination_path);
+  const int status = std::system(command.c_str());
+  return (status != -1) && !!(WIFEXITED(status));
 #endif
 }
 #endif

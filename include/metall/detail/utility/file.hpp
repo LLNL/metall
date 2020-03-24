@@ -232,12 +232,20 @@ inline bool directory_exist(const std::string &dir_path) {
   return (uint64_t)S_IFDIR & (uint64_t)(statbuf.st_mode);
 }
 
-/// FIXME: change to a better way
-/// \brief Remove a fil or directoy
-inline bool remove_file(const std::string &file_name) {
-  std::string rm_command("rm -rf " + file_name);
-  std::system(rm_command.c_str());
-  return true;
+/// \brief Remove a fil or directory
+/// \return Upon successful completion, returns true; otherwise, false is returned.
+/// If p did not exist to begin with, maybe 0 is returned.
+inline bool remove_file(const std::string &path) {
+#ifdef __cpp_lib_filesystem
+  std::filesystem::path p(path);
+  std::error_code ec;
+  [[maybe_unused]] const auto num_removed = std::filesystem::remove_all(p, ec);
+  return !ec;
+#else
+  std::string rm_command("rm -rf " + path);
+  const int status = std::system(rm_command.c_str());
+  return (status != -1) && !!(WIFEXITED(status));
+#endif
 }
 
 inline bool free_file_space([[maybe_unused]] const int fd,
