@@ -1,4 +1,4 @@
-# Install and Build
+## Use Metall with Your Program
 
 Metall consists of only header files and requires some header files in Boost C++ Libraries.
 
@@ -33,11 +33,11 @@ g++ -std=c++17 -lstdc++fs your_program.cpp
 
 ## Required
 
- - GCC 8.0 or more.
+ - GCC 8.1 or more.
  - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
 
 
-# Compile-time Options
+## Compile-time Options
 There are some compile-time options as follows to configure the behavior of Metall:
 
 * METALL_DISABLE_FREE_FILE_SPACE

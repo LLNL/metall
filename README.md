@@ -46,7 +46,7 @@ g++ -std=c++17 -lstdc++fs your_program.cpp
 
 ## Required
 
- - GCC 8.0 or more.
+ - GCC 8.1 or more.
  - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
 
 
