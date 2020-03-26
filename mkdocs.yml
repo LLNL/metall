@@ -12,11 +12,19 @@ repo_url: https://github.com/LLNL/metall
 edit_uri: 'tree/develop/docs/readthedocs'
 
 nav:
-- Home: 'index.md'
-- 'Getting Started': 'getting_started.md'
-- 'Example': 'example.md'
-- 'Advanced':
-  - 'Build Example, Test, and Benchmark': 'advanced/build_sources.md'
-  - 'Use Umap': 'advanced/umap.md'
-- 'Publication': 'publication.md'
-- 'About': 'about.md'
+- Getting Started:
+  - 'Overview': 'index.md'
+  - 'Build and Install': 'getting_started.md'
+  - 'Example': 'example.md'
+- 'Advanced Build':
+  - 'Build Example, Test, and Benchmark': 'advanced_build/exmample_test_bench.md'
+  - 'Use Umap': 'advanced_build/umap.md'
+- 'Deep Dive into Metall':
+  - 'Background': 'detail/introduction.md'
+  - 'API': 'detail/api.md'
+  - 'Pointers in Persistent Memory': 'detail/pointer.md'
+  - 'Persistence Policy': 'detail/persistence_policy.md'
+  - 'Snapshot': 'detail/snapshot.md'
+  - 'Internal Architecture': 'detail/internal_architecture.md'
+- 'About':
+  - 'License and Notice': 'about/license_notice.md'
