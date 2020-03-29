@@ -3,30 +3,46 @@ Although Boost.Interprocess (BIP) has been developed as an interprocess communic
 The APIs allow developers to allocate not only contiguous memory regions like malloc(3) but also complex custom data structures, including the C++ STL
 containers, in persistent memory.
 
-BIP also offers an interface similar to a key-value store so that applications can find already allocated objects when reattaching the previously created application data.
-
-BIP also has an interface that returns an object of the Standard Template Library (STL) style allocator.
+To work with the C++ STL containers, Boost.Interprocess has an allocator class that is compatible with the STL allocator.
+It also offers an interface similar to a key-value store so that applications can find already allocated objects when reattaching the previously created application data.
 
 Some basic APIs in Metall are:
 
 ```C++
+// The main header file
+#include <metall/metall.hpp>
+
+// The main class of Metall
+class metall::manager;
+
 //  Allocates n bytes
-void* allocate(size_t n);
+void* metall::manager.allocate(size_t n);
 
 //  Deallocates the allocated memory
-void deallocate(void *addr)
+void metall::manager.deallocate(void *addr)
 
 // Allocates and constructs an object of T with arguments args.
 // Also stores the allocated memory address with key name
-T* construct<T, Args>(char* name)(Args... args)
+T* metall::manager.construct<T, Args>(char* name)(Args... args)
 
 // Finds an already constructed object with key name
-T* find<T>(char* name)
-    
+T* metall::manager.find<T>(char* name)
+
+// Destroys a previously created unique instance
+bool metall::manager.destroy(char* name)
+      
 // Returns an STL allocator object for type T
-metall_stl_allocator<T> get_allocator<T>()
+allocator_type<T> metall::manager.get_allocator<T>()
+
+// Snapshot the entire data
+bool metall::manager.snapshot(const char *destination_dir_path)
+
+// Check if the backing data store is consistent,
+// i.e. where it was closed properly during the previous execution
+static bool metall::manager.consistent(const char *dir_path)
 ```
 
-Here is a simple example of allocating a STL vector container ([simple.cpp](https://github.com/LLNL/metall/tree/develop/example/simple.cpp)).
+Metall supports multi-thread.
+In multi-process environment, Metall assumes each process allocates its own Metall object.
 
-More examples are listed in [this page](../example.md). 
+Some examples are listed [here](./example.md).

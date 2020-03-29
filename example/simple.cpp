@@ -16,7 +16,7 @@ int main() {
 
   {
     // Construct a manager object
-    // The current version assumes that there is only one manager object per process
+    // A process can allocate multiple manager objects
     metall::manager manager(metall::create_only,  // Create a new one
                   "/tmp/dir");          // The directory to store backing datastore
 
