@@ -2,7 +2,7 @@
 
 Example programs are located in [example](https://github.com/LLNL/metall/tree/develop/example)
 
-To build examples see [build source files in Metall](./advanced/build_sources.md)
+To build examples see [build source files in Metall](../advanced_build/exmample_test_bench.md)
 
 ### Basic examples
 
@@ -13,10 +13,10 @@ To build examples see [build source files in Metall](./advanced/build_sources.md
     * An example of nested (multi-level) containers.
 
 * [offset_pointer.cpp](https://github.com/LLNL/metall/tree/develop/example/offset_pointer.cpp)
-    * An example code using the offset pointer to store pointer persistently.
+    * An example code of using the offset pointer to store pointer persistently.
 
 * [snapshot.cpp](https://github.com/LLNL/metall/tree/develop/example/snapshot.cpp)
-    * An example code that snapshots and copies the snapshot files to a new place.
+    * An example code of taking snapshot
 
 
 ### Graph
