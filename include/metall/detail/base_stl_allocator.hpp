@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+/// \file
+
 #ifndef METALL_DETAIL_BASE_STL_ALLOCATOR_HPP
 #define METALL_DETAIL_BASE_STL_ALLOCATOR_HPP
 
@@ -16,9 +18,9 @@
 
 namespace metall::detail {
 
-/// \brief A STL compatible allocator
-/// \tparam T The type of the object
-/// \tparam manager_kernel_type The type of the manager kernel
+/// \brief A STL compatible allocator designed to act as a base class of CRTP
+/// \tparam impl_type A class of actual implementation
+/// \tparam type_holder An utility class that holds important types
 template <typename impl_type, typename type_holder>
 class base_stl_allocator {
 
@@ -68,6 +70,8 @@ class base_stl_allocator {
     return impl().deallocate_impl(ptr, size);
   }
 
+  /// \brief The size of the theoretical maximum allocation size
+  /// \return The size of the theoretical maximum allocation size
   size_type max_size() const noexcept {
     return impl().max_size_impl();
   }

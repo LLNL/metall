@@ -2,6 +2,8 @@
 // Created by Iwabuchi, Keita on 2019-05-19.
 //
 
+/// \file
+
 #ifndef METALL_STL_ALLOCATOR_HPP
 #define METALL_STL_ALLOCATOR_HPP
 
