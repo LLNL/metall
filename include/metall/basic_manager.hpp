@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+/// \file
+
 #ifndef METALL_BASIC_MANAGER_HPP
 #define METALL_BASIC_MANAGER_HPP
 
@@ -10,31 +12,24 @@
 #include <memory>
 
 #include <metall/tags.hpp>
-#include <metall/detail/utility/in_place_interface.hpp>
-#include <metall/detail/utility/named_proxy.hpp>
 #include <metall/stl_allocator.hpp>
 #include <metall/kernel/manager_kernel.hpp>
+#include <metall/detail/utility/in_place_interface.hpp>
+#include <metall/detail/utility/named_proxy.hpp>
 
 namespace metall {
 
-namespace {
-namespace util = metall::detail::utility;
-}
-
+#if !defined(DOXYGEN_SKIP)
 // Forward declaration
 template <typename chunk_no_type, std::size_t k_chunk_size, typename kernel_allocator_type>
 class basic_manager;
+#endif // DOXYGEN_SKIP
 
-/// \brief Manager class version 0.
+/// \brief A generalized Metall manager class
 /// \tparam chunk_no_type
-/// The type of chunk number such as uint32_t.
 /// \tparam k_chunk_size
-/// The chunk size in byte.
 /// \tparam kernel_allocator_type
-/// The type of the internal allocator
-template <typename chunk_no_type = uint32_t,
-          std::size_t k_chunk_size = 1ULL << 21ULL,
-          typename kernel_allocator_type = std::allocator<std::byte>>
+template <typename chunk_no_type = uint32_t, std::size_t k_chunk_size = (1ULL << 21ULL), typename kernel_allocator_type = std::allocator<std::byte>>
 class basic_manager {
  public:
   // -------------------------------------------------------------------------------- //
@@ -47,9 +42,9 @@ class basic_manager {
   template <typename T>
   using allocator_type = stl_allocator<T, manager_kernel_type>;
   template <typename T>
-  using construct_proxy = util::named_proxy<manager_kernel_type, T, false>;
+  using construct_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, false>;
   template <typename T>
-  using construct_iter_proxy = util::named_proxy<manager_kernel_type, T, true>;
+  using construct_iter_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, true>;
 
   using chunk_number_type = chunk_no_type;
 
@@ -237,8 +232,8 @@ class basic_manager {
   }
 
   // -------------------- Utility Methods -------------------- //
-  /// \brief Returns a pointer to an object of impl_type class
-  /// \return Returns a pointer to an object of impl_type class
+  /// \brief Returns a pointer to an object of manager_kernel_type class
+  /// \return Returns a pointer to an object of manager_kernel_type class
   manager_kernel_type *get_kernel() {
     return &m_kernel;
   }

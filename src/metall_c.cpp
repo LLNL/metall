@@ -8,13 +8,13 @@
 
 metall::manager *g_manager = nullptr;
 
-int metall_open(const int mode, const char *const path, const uint64_t size) {
-  if (mode == METALL_CREATE) {
-    g_manager = new metall::manager(metall::create_only, path, size);
-  } else if (mode == METALL_OPEN) {
+int metall_open(const int mode, const char *const path) {
+  if (mode == METALL_CREATE_ONLY) {
+    g_manager = new metall::manager(metall::create_only, path);
+  } else if (mode == METALL_OPEN_ONLY) {
     g_manager = new metall::manager(metall::open_only, path);
   } else if (mode == METALL_OPEN_OR_CREATE) {
-    g_manager = new metall::manager(metall::open_or_create, path, size);
+    g_manager = new metall::manager(metall::open_or_create, path);
   } else {
     g_manager = nullptr;
   }
@@ -34,16 +34,16 @@ void metall_flush() {
   g_manager->flush();
 }
 
-void *metall_malloc(const uint64_t size) {
-  return g_manager->allocate(size);
+void *metall_malloc(const uint64_t nbytes) {
+  return g_manager->allocate(nbytes);
 }
 
 void metall_free(void *const ptr) {
   g_manager->deallocate(ptr);
 }
 
-void *metall_named_malloc(const char *name, const uint64_t size) {
-  return g_manager->construct<char>(name)[size]();
+void *metall_named_malloc(const char *name, const uint64_t nbytes) {
+  return g_manager->construct<char>(name)[nbytes]();
 }
 
 void *metall_find(char *name) {

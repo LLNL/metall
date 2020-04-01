@@ -22,7 +22,6 @@
 #include <metall/detail/utility/mmap.hpp>
 
 namespace metall {
-namespace v0 {
 namespace kernel {
 
 namespace {
@@ -375,7 +374,6 @@ class umap_segment_storage {
   bool m_free_file_space{true};
 };
 
-} // namespace kernel
 } // namespace kernel
 } // namespace metall
 

@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+/// \file
+
 #ifndef METALL_DETAIL_UTILITY_IN_PLACE_INTERFACE_HPP
 #define METALL_DETAIL_UTILITY_IN_PLACE_INTERFACE_HPP
 
@@ -12,6 +14,7 @@ namespace metall {
 namespace detail {
 namespace utility {
 
+/// \brief Abstract interface for placement construction and destruction
 using in_place_interface = boost::interprocess::ipcdetail::in_place_interface;
 
 } // namespace utility

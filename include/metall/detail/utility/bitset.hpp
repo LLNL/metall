@@ -20,8 +20,8 @@ namespace detail {
 namespace utility {
 namespace bitset_detail {
 
-/// example (sizeof(block_type) is 8 byte)
-/// input 0 ~ 63 -> return 0; input 64 ~ 127 -> return 1;
+// example (sizeof(block_type) is 8 byte)
+// input 0 ~ 63 -> return 0; input 64 ~ 127 -> return 1;
 template <typename block_type>
 inline constexpr uint64_t global_index(const uint64_t idx) noexcept {
   return (idx >> log_cpt(sizeof(block_type) * 8ULL, 2));
@@ -32,12 +32,12 @@ inline constexpr uint64_t local_index(const uint64_t idx) noexcept {
   return idx & (sizeof(block_type) * 8 - 1);
 }
 
-/// \brief select the best underling type for bitset based on the number of bits needed
-/// \example
-/// 0 ~ 8   bits -> uint8_t
-/// 9 ~ 16  bits -> uint16_t
-/// 17 ~ 32 bits -> uint32_t
-/// 33~     bits -> uint64_t
+// \brief select the best underling type for bitset based on the number of bits needed
+// \example
+// 0 ~ 8   bits -> uint8_t
+// 9 ~ 16  bits -> uint16_t
+// 17 ~ 32 bits -> uint32_t
+// 33~     bits -> uint64_t
 template <uint64_t num_bits>
 struct block_type {
   using type  =  typename std::conditional<num_bits <= sizeof(uint8_t) * 8,
@@ -50,8 +50,8 @@ struct block_type {
                                                                          uint64_t>::type>::type>::type;
 };
 
-/// examples: block_type = uint64_t
-/// input 1 ~ 64 -> return 1;  input 65 ~ 128 -> return 2
+// examples: block_type = uint64_t
+// input 1 ~ 64 -> return 1;  input 65 ~ 128 -> return 2
 template <typename block_type>
 inline constexpr uint64_t num_blocks(const uint64_t num_bits) noexcept {
   return (num_bits == 0) ? 0 : (num_bits - 1ULL) / (sizeof(block_type) * 8ULL) + 1ULL;
@@ -87,8 +87,8 @@ fill_bits_local(const uint64_t start_idx, const uint64_t n) noexcept {
   return static_cast<block_type>(x & ~tail_mask);
 }
 
-/// set_mode == true -> set mode
-/// set_mode == false -> reset mode
+// set_mode == true -> set mode
+// set_mode == false -> reset mode
 template <typename block_type>
 inline void update_n_bits(block_type *const bitset,
                    const uint64_t start_idx,

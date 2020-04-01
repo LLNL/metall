@@ -19,8 +19,8 @@ namespace utility {
 
 namespace bitset_detail {
 
-/// example (sizeof(bitset_base_type) is 8 byte)
-/// input 0 ~ 63 -> return 0; input 64 ~ 127 -> return 1;
+// example (sizeof(bitset_base_type) is 8 byte)
+// input 0 ~ 63 -> return 0; input 64 ~ 127 -> return 1;
 template <typename bitset_base_type>
 inline constexpr std::size_t bitset_global_pos(const std::size_t pos) {
   return (pos >> cal_log2(sizeof(bitset_base_type) * 8ULL));
@@ -32,12 +32,12 @@ inline constexpr std::size_t bitset_local_pos(const std::size_t pos) {
 }
 
 
-/// \brief select the best underling type for bitset based on the number of bits needed
-/// \example
-/// 0 ~ 8   bits -> uint8_t
-/// 9 ~ 16  bits -> uint16_t
-/// 17 ~ 32 bits -> uint32_t
-/// 33~     bits -> uint64_t
+// \brief select the best underling type for bitset based on the number of bits needed
+// \example
+// 0 ~ 8   bits -> uint8_t
+// 9 ~ 16  bits -> uint16_t
+// 17 ~ 32 bits -> uint32_t
+// 33~     bits -> uint64_t
 template <std::size_t num_bits>
 using bitset_base_type =
 typename std::conditional<num_bits <= 8,
@@ -51,8 +51,8 @@ typename std::conditional<num_bits <= 8,
                           >::type
 >::type;
 
-/// exapmles: bitset_base_type = uint64_t
-/// input 1 ~ 64 -> return 1;  input 65 ~ 128 -> return 2
+// exapmles: bitset_base_type = uint64_t
+// input 1 ~ 64 -> return 1;  input 65 ~ 128 -> return 2
 template <typename bitset_base_type>
 inline constexpr std::size_t bitset_size(const std::size_t size) {
   return (size == 0) ? 0 : (size - 1ULL) / (sizeof(bitset_base_type) * 8ULL) + 1ULL;
@@ -91,8 +91,8 @@ fill_bits_local(const std::size_t start_pos, const std::size_t n) {
   return static_cast<base_type>(x & ~tail_mask);
 }
 
-/// set_mode == true -> set mode
-/// set_mode == false -> reset mode
+// set_mode == true -> set mode
+// set_mode == false -> reset mode
 template <typename bitset_base_type>
 inline void update_n_bits(bitset_base_type *const bitset,
                    const std::size_t start_pos,
