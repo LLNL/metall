@@ -134,9 +134,9 @@ class multilayer_bitset {
   multilayer_bitset &operator=(const multilayer_bitset &) = default;
   multilayer_bitset &operator=(multilayer_bitset &&other) = default;
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Public methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Public methods
+  // -------------------------------------------------------------------------------- //
   /// \brief Allocates internal space
   void allocate(const std::size_t num_bits, rebind_allocator_type& allocator) {
     const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
@@ -232,9 +232,9 @@ class multilayer_bitset {
   }
 
  private:
-  /// -------------------------------------------------------------------------------- ///
-  /// Private methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private methods
+  // -------------------------------------------------------------------------------- //
   // -------------------- Allocation and free -------------------- //
   void allocate_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
     const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
@@ -352,9 +352,9 @@ class multilayer_bitset {
     return num_blocks;
   }
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private fields
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
   block_holder m_data;
 };
 

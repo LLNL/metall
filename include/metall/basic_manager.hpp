@@ -14,7 +14,6 @@
 #include <metall/tags.hpp>
 #include <metall/stl_allocator.hpp>
 #include <metall/kernel/manager_kernel.hpp>
-#include <metall/detail/utility/in_place_interface.hpp>
 #include <metall/detail/utility/named_proxy.hpp>
 
 namespace metall {
@@ -119,75 +118,123 @@ class basic_manager {
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
+
   // -------------------- Object construction function family -------------------- //
-  // Each function also works with '[ ]' operator to generate an array leveraging the proxy class (construct_proxy)
+  // Each function also works with '[ ]' operator to generate an array, leveraging the proxy class (construct_proxy)
+
+  /// \private
+  /// \class common_doc_const_find
+  /// \brief
+  /// Object construction API developed by Boost.Interprocess
+  /// <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">
+  /// (see details).
+  /// </a>
 
   /// \brief Allocates an object of type T (throwing version).
+  /// \copydoc common_doc_const_find
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// T *ptr = basic_manager.construct<T>("Name")(arg1, arg2...);
+  /// T *ptr = basic_manager.construct<T>("Name")[count](arg1, arg2...);
+  /// \endcode
+  /// Where, 'arg1, arg2...' are the arguments passed to T's constructor via a proxy object.
+  /// One can also construct an array using '[ ]' operator. When an array is constructed, each object receives the same arguments.
+  ///
   /// \tparam T The type of the object.
   /// \param name A unique name of the object.
   /// \return A proxy object that constructs the object on the allocated space.
-  // Example:
-  // MyType *ptr = managed_memory_segment.construct<MyType>("Name") (par1, par2...);
   template <typename T>
   construct_proxy<T> construct(char_ptr_holder_type name) {
     return construct_proxy<T>(&m_kernel, name, false, true);
   }
 
-  /// \brief Finds or constructs an object of type T.
+  /// \brief Tries to find an already constructed object. If not exist, constructs an object of type T (throwing version).
+  /// \copydoc common_doc_const_find
   ///
-  /// Tries to find a previously created object.
-  /// If not exist, allocates and constructs an object of type T (throwing version).
+  /// \details
+  /// Example:
+  /// \code
+  /// T *ptr = basic_manager.find_or_construct<T>("Name")(arg1, arg2...);
+  /// T *ptr = basic_manager.find_or_construct<T>("Name")[count](arg1, arg2...);
+  /// \endcode
+  /// Where, 'arg1, arg2...' are the arguments passed to T's constructor via a proxy object.
+  /// One can also construct an array using '[ ]' operator. When an array is constructed, each object receives the same arguments.
+  ///
   /// \tparam T The type of the object.
   /// \param name The name of the object.
-  /// \return A proxy object that holds a pointer the already constructed object or
-  /// constructs the object on the allocated space/
-  // Example:
-  // MyType *ptr = managed_memory_segment.find_or_construct<MyType>("Name") (par1, par2...);
+  /// \return A proxy object that holds a pointer of an already constructed object or an object newly constructed.
   template <typename T>
   construct_proxy<T> find_or_construct(char_ptr_holder_type name) {
     return construct_proxy<T>(&m_kernel, name, true, true);
   }
 
-  /// \brief Allocates an array of objects of type T (throwing version).
+  /// \brief Allocates an array of objects of type T, receiving arguments from iterators (throwing version).
+  /// \copydoc common_doc_const_find
   ///
+  /// \details
+  /// Example:
+  /// \code
+  /// T *ptr = basic_manager.construct_it<T>("Name")[count](it1, it2...);
+  /// \endcode
   /// Each object receives parameters returned with the expression (*it1++, *it2++,... ).
+  ///
   /// \tparam T The type of the object.
   /// \param name A unique name of the object.
-  /// \return A proxy object that constructs an array of objects.
-  // Example:
-  // MyType *ptr = manager.construct_it<MyType>("Name")[count](it1, it2...);
+  /// \return A proxy object to construct an array of objects.
   template <typename T>
   construct_iter_proxy<T> construct_it(char_ptr_holder_type name) {
     return construct_iter_proxy<T>(&m_kernel, name, false, true);
   }
 
-  /// \brief Allocates and constructs an array of objects of type T (throwing version)
+  /// \brief Tries to find an already constructed object.
+  /// If not exist, constructs an array of objects of type T, receiving arguments from iterators (throwing version).
+  /// \copydoc common_doc_const_find
   ///
+  /// \details
+  /// Example:
+  /// \code
+  /// T *ptr = basic_manager.find_or_construct_it<T>("Name")[count](it1, it2...);
+  /// \endcode
   /// Each object receives parameters returned with the expression (*it1++, *it2++,... ).
+  ///
   /// \tparam T The type of the object.
   /// \param name A unique name of the object.
   /// \return A proxy object that holds a pointer to the already constructed object or
   /// constructs an array of objects or just holds an pointer.
-  // Example:
-  // MyType *ptr = manager.find_or_construct_it<MyType>("Name")[count](it1, it2...);
   template <typename T>
   construct_iter_proxy<T> find_or_construct_it(char_ptr_holder_type name) {
     return construct_iter_proxy<T>(&m_kernel, name, true, true);
   }
 
   /// \brief Tries to find a previously created object.
+  /// \copydoc common_doc_const_find
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// std::pair<T *, std::size_t> ret = basic_manager.find<T>("Name");
+  /// \endcode
+  ///
   /// \tparam T  The type of the object.
   /// \param name The name of the object.
   /// \return Returns a pointer to the object and the count (if it is not an array, returns 1).
-  /// If not present, the returned pointer is nullptr.
-  // Example:
-  // std::pair<MyType *,std::size_t> ret = managed_memory_segment.find<MyType>("Name");
+  /// If not present, nullptr is returned.
   template <typename T>
   std::pair<T *, size_type> find(char_ptr_holder_type name) {
     return m_kernel.template find<T>(name);
   }
 
-  /// \brief Destroys a previously created unique instance.
+  /// \brief Destroys a previously created object.
+  /// \copydoc common_doc_const_find
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// bool destroyed = basic_manager.destroy<T>("Name");
+  /// \endcode
+  ///
   /// \tparam T The type of the object.
   /// \param name The name of the object.
   /// \return Returns false if the object was not present.
@@ -232,12 +279,6 @@ class basic_manager {
   }
 
   // -------------------- Utility Methods -------------------- //
-  /// \brief Returns a pointer to an object of manager_kernel_type class
-  /// \return Returns a pointer to an object of manager_kernel_type class
-  manager_kernel_type *get_kernel() {
-    return &m_kernel;
-  }
-
   /// \brief Returns a STL compatible allocator object
   /// \tparam T Type of the object
   /// \return Returns a STL compatible allocator object
@@ -293,23 +334,33 @@ class basic_manager {
     return manager_kernel_type::consistent(dir_path);
   }
 
-  /// \brief Returns the chunk size
-  /// \return
+  /// \brief Returns the internal chunk size
+  /// \return The size of internal chunk size
   static constexpr size_type chunk_size() {
     return k_chunk_size;
   }
 
-  /// \brief Output profile information
-  /// \param log_out
+  /// \brief Returns a pointer to an object of manager_kernel_type class
+  /// \return Returns a pointer to an object of manager_kernel_type class
+  manager_kernel_type *get_kernel() {
+    return &m_kernel;
+  }
+
+  // -------------------- For profiling and debug -------------------- //
+#if !defined(DOXYGEN_SKIP)
+  /// \brief Prints out profiling information.
+  /// \tparam out_stream_type A type of out stream.
+  /// \param log_out An object of the out stream.
   template <typename out_stream_type>
   void profile(out_stream_type *log_out) const {
     m_kernel.profile(log_out);
   }
+#endif
 
  private:
-  /// -------------------------------------------------------------------------------- ///
-  /// Private fields
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
   manager_kernel_type m_kernel;
 };
 } // namespace metall

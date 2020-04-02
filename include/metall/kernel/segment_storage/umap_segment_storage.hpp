@@ -85,9 +85,9 @@ class umap_segment_storage {
     return (*this);
   }
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Public methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Public methods
+  // -------------------------------------------------------------------------------- //
   /// \brief Check if there is a file that can be opened
   static bool openable(const std::string &base_path) {
     const auto file_name = priv_make_file_name(base_path, 0);
@@ -334,7 +334,7 @@ class umap_segment_storage {
     }
   }
 
-  /// TODO: implement
+  // TODO: implement
   bool priv_free_region(const different_type offset, const size_type nbytes) {
     if (!priv_inited() || m_read_only) return false;
 
@@ -361,9 +361,9 @@ class umap_segment_storage {
     return;
   }
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private fields
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
   ssize_t m_umap_page_size{0};
   size_type m_num_blocks{0};
   size_type m_vm_region_size{0};

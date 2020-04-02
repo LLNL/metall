@@ -122,7 +122,7 @@ inline bool extend_file_size_manually(const int fd, const ssize_t file_size) {
 }
 
 inline bool extend_file_size(const int fd, const size_t file_size) {
-  /// -----  extend the file if its size is smaller than that of mapped area ----- ///
+  // -----  extend the file if its size is smaller than that of mapped area ----- //
   struct stat statbuf;
   if (::fstat(fd, &statbuf) == -1) {
     ::perror("fstat");

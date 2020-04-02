@@ -1,4 +1,4 @@
-# Build Example, Test, and Benchmark Programs
+# Build API document, Example, Test, and Benchmark Programs
 Metall's repository contains some example, test, and benchmark programs.
 
 ```bash
@@ -8,7 +8,8 @@ mkdir build
 cd build
 cmake .. -DBOOST_ROOT=/path/to/boost/root/
 make
-make test    # option; BUILD_TEST must be ON
+make test  # option; BUILD_TEST must be ON when running cmake
+cmake build_doc  # option; BUILD_DOC must be ON when running cmake
 ```
 
 ## Required
@@ -21,6 +22,10 @@ make test    # option; BUILD_TEST must be ON
 ## Additional CMake Options
 
 In addition to the standard CMake options, we have two additional options:
+
+* BUILD_DOC
+  * Build API document using Doxygen
+  * One can also build the document by using doxygen directly; see README.md in the repository of Metall.
 
 * BUILD_BENCH
     * Builds subdirectory bench/

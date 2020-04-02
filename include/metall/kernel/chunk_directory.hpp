@@ -91,9 +91,9 @@ class chunk_directory {
   chunk_directory(chunk_directory &&) = default;
   chunk_directory &operator=(chunk_directory &&) = default;
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Public methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Public methods
+  // -------------------------------------------------------------------------------- //
   /// \brief Reserves chunk directory.
   /// It allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
   /// \param num_chunks
