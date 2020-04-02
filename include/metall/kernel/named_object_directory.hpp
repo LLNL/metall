@@ -63,9 +63,9 @@ class named_object_directory {
   named_object_directory &operator=(const named_object_directory &) = default;
   named_object_directory &operator=(named_object_directory &&) = default;
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Public methods
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Public methods
+  // -------------------------------------------------------------------------------- //
   /// \brief
   /// \param name
   /// \param offset

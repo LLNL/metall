@@ -26,9 +26,9 @@ namespace {
 
 namespace omp = metall::utility::omp;
 
-/// -------------------------------------------------------------------------------- ///
-/// Manage Type
-/// -------------------------------------------------------------------------------- ///
+// -------------------------------------------------------------------------------- //
+// Manage Type
+// -------------------------------------------------------------------------------- //
 using chunk_no_type = uint32_t;
 static constexpr std::size_t k_chunk_size = 1ULL << 21;
 constexpr std::size_t k_min_object_size = 8; // TODO: take from the file
@@ -37,9 +37,9 @@ template <typename T>
 using allocator_type = typename manager_type::allocator_type<T>;
 
 
-/// -------------------------------------------------------------------------------- ///
-/// TEST utility functions
-/// -------------------------------------------------------------------------------- ///
+// -------------------------------------------------------------------------------- //
+// TEST utility functions
+// -------------------------------------------------------------------------------- //
 
 /// \brief Check if there is no overlap among given allocation lists
 template <typename addr_list_type>
@@ -171,9 +171,9 @@ void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_si
   }
 }
 
-/// -------------------------------------------------------------------------------- ///
-/// TEST main functions
-/// -------------------------------------------------------------------------------- ///
+// -------------------------------------------------------------------------------- //
+// TEST main functions
+// -------------------------------------------------------------------------------- //
 TEST(ManagerMultithreadsTest, CheckOpenMP) {
   EXPECT_TRUE(  // Expect Open MP is available
 #ifdef _OPENMP

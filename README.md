@@ -54,6 +54,16 @@ g++ -std=c++17 -lstdc++fs your_program.cpp
 # Documentation
 [Full documentation](https://metall.readthedocs.io/) is available.
 
+## Generate API document using Doxygen
+A Doxygen configuration file is [here](docs/Doxyfile.in).
+
+To generate API document:
+```bash
+cd metall
+mkdir build_doc
+cd build_doc
+doxygen ../docs/Doxyfile.in
+```
 
 
 # Publication

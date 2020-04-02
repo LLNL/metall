@@ -119,9 +119,9 @@ class stl_allocator
   }
 
  private:
-  /// -------------------------------------------------------------------------------- ///
-  /// Private methods (required by the base class)
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private methods (required by the base class)
+  // -------------------------------------------------------------------------------- //
   template <typename T2>
   struct rebind_impl {
     using other = stl_allocator<T2, manager_kernel_type>;
@@ -173,9 +173,9 @@ class stl_allocator
     return std::false_type();
   }
 
-  /// -------------------------------------------------------------------------------- ///
-  /// Private fields
-  /// -------------------------------------------------------------------------------- ///
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
  private:
   // (offset)pointer to a raw pointer that points the address of the manager kernel allocated in DRAM
   typename std::pointer_traits<typename manager_kernel_type::void_pointer>::template rebind<manager_kernel_type *>

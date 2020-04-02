@@ -16,6 +16,8 @@
 
 #include <metall/offset_ptr.hpp>
 
+/// \namespace metall::detail
+/// \brief A namespace to hide internal implemenation
 namespace metall::detail {
 
 /// \brief A STL compatible allocator designed to act as a base class of CRTP

@@ -14,7 +14,7 @@ Metall incorporates state-of-the-art allocation algorithms in [SuperMalloc](http
 the rich C++ interface developed by [Boost.Interprocess](https://www.boost.org/doc/libs/release/doc/html/interprocess.html),
 and provides persistent memory snapshotting (versioning) capabilities.
 
-Example programs that use Metall are listed [here](getting_started/example.md).
+Example programs that use Metall are listed [here](detail/example.md).
 
 ![Metall Overview](./img/metall_overview.png)
 

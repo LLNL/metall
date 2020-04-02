@@ -10,6 +10,8 @@
 
 #include <metall/basic_manager.hpp>
 
+/// \namespace metall
+/// \brief The top level of namespace of Metall
 namespace metall {
 
 /// \brief Default Metall manager class which is an alias of basic_manager with the default template parameters.
