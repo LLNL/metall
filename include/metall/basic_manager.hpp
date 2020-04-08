@@ -34,17 +34,32 @@ class basic_manager {
   // -------------------------------------------------------------------------------- //
   // Public types and static values
   // -------------------------------------------------------------------------------- //
+
+  /// \brief Manager kernel type
   using manager_kernel_type = kernel::manager_kernel<chunk_no_type, k_chunk_size, kernel_allocator_type>;
+
+  /// \brief Void pointer type
   using void_pointer = typename manager_kernel_type::void_pointer;
+
+  /// \brief Size type
   using size_type = typename manager_kernel_type::size_type;
+
+  /// \brief Difference type
   using difference_type = typename manager_kernel_type::difference_type;
+
+  /// \brief Allocator type
   template <typename T>
   using allocator_type = stl_allocator<T, manager_kernel_type>;
+
+  /// \brief Construct proxy
   template <typename T>
   using construct_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, false>;
+
+  /// \brief Construct iterator proxy
   template <typename T>
   using construct_iter_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, true>;
 
+  /// \brief Chunk number type (= chunk_no_type)
   using chunk_number_type = chunk_no_type;
 
  private:
@@ -58,6 +73,10 @@ class basic_manager {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
+
+  /// \brief Opens an existing data store.
+  /// \param base_path Path to a data store.
+  /// \param allocator Allocator to allocate management data.
   basic_manager(open_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
@@ -68,6 +87,10 @@ class basic_manager {
     }
   }
 
+  /// \brief Opens an existing data store with the read only mode.
+  /// Write accesses will cause segmentation fault.
+  /// \param base_path Path to a data store.
+  /// \param allocator Allocator to allocate management data.
   basic_manager(open_read_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
@@ -78,27 +101,30 @@ class basic_manager {
     }
   }
 
+  /// \brief Creats a new data store (an existing data store will be overwritten).
+  /// \param base_path Path to create a data store.
+  /// \param allocator Allocator to allocate management data.
   basic_manager(create_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
     m_kernel.create(base_path);
   }
 
+  /// \brief Creats a new data store (an existing data store will be overwritten).
+  /// \param base_path Path to create a data store.
+  /// \param capacity Maximum total allocation size.
+  /// \param allocator Allocator to allocate management data.
   basic_manager(create_only_t, const char *base_path, const size_type capacity,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
     m_kernel.create(base_path, capacity);
   }
 
-  basic_manager(open_or_create_t, const char *base_path, const size_type capacity,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
-    const bool read_only = false;
-    if (!m_kernel.open(base_path, read_only)) {
-      m_kernel.create(base_path, capacity);
-    }
-  }
-
+  /// \brief Opens an existing data store if exist.
+  /// Otherwise, creates a new one.
+  /// \param base_path Path to create a data store.
+  /// \param capacity  Maximum total allocation size.
+  /// \param allocator Allocator to allocate management data.
   basic_manager(open_or_create_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
@@ -108,11 +134,38 @@ class basic_manager {
     }
   }
 
+  /// \brief Opens an existing data store if exist.
+  /// Otherwise, creates a new one.
+  /// \param base_path Path to create a data store.
+  /// \param capacity  Maximum total allocation size.
+  /// \param allocator Allocator to allocate management data.
+  basic_manager(open_or_create_t, const char *base_path, const size_type capacity,
+                const kernel_allocator_type &allocator = kernel_allocator_type())
+      : m_kernel(allocator) {
+    const bool read_only = false;
+    if (!m_kernel.open(base_path, read_only)) {
+      m_kernel.create(base_path, capacity);
+    }
+  }
+
+  /// \brief Deleted.
   basic_manager() = delete;
+
+  /// \brief Destructor.
   ~basic_manager() = default;
+
+  /// \brief Deleted.
   basic_manager(const basic_manager &) = delete;
+
+  /// \brief Move constructor.
   basic_manager(basic_manager &&) = default;
+
+  /// \brief Deleted.
+  /// \return N/A.
   basic_manager &operator=(const basic_manager &) = delete;
+
+  /// \brief Move assignment operator.
+  /// \return An reference to the object.
   basic_manager &operator=(basic_manager &&) = default;
 
   // -------------------------------------------------------------------------------- //

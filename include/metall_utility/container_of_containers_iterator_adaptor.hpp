@@ -12,8 +12,8 @@ namespace metall::utility {
 
 /// \brief Utility class that provides an iterator for a contaner of containers, e.g., map of vectors
 /// This is an experimental implementation and only support forward iterator for now
-/// \tparam outer_iterator_type
-/// \tparam inner_iterator_type
+/// \tparam outer_iterator_type An outer iterator class
+/// \tparam inner_iterator_type An inner iterator class
 template <typename outer_iterator_type, typename inner_iterator_type>
 class container_of_containers_iterator_adaptor {
  public:

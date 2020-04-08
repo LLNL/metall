@@ -21,7 +21,7 @@ The promise of persistent memory is that, once constructed, data structures can 
 	* Some key ideas from [SuperMalloc](https://dl.acm.org/doi/10.1145/2887746.2754178) 
 
 * Provides the API developed by Boost.Interprocess
-	* Boost.Interprocess is an interprocess communication library
-Useful for allocating C++ custom data structures in persistent memory
+  * Boost.Interprocess is an interprocess communication library
+  * Useful for allocating C++ custom data structures in persistent memory
 
 * Employs a coarse-grained consistency model, allowing the application to determine when it is appropriate to create durable snapshots of the persistent heap
