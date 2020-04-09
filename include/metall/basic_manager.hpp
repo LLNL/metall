@@ -123,7 +123,6 @@ class basic_manager {
   /// \brief Opens an existing data store if exist.
   /// Otherwise, creates a new one.
   /// \param base_path Path to create a data store.
-  /// \param capacity  Maximum total allocation size.
   /// \param allocator Allocator to allocate management data.
   basic_manager(open_or_create_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
@@ -305,8 +304,9 @@ class basic_manager {
   }
 
   /// \brief Allocates nbytes bytes. The address of the allocated memory will be a multiple of alignment.
-  /// \param nbytes Number of bytes to allocate
-  /// \param alignment Alignment size
+  /// \param nbytes Number of bytes to allocate. Must be a multiple alignment.
+  /// \param alignment Alignment size.
+  /// Alignment must be a power of two and satisfy [min allocation size, chunk size].
   /// \return Returns a pointer to the allocated memory
   void *allocate_aligned(size_type nbytes,
                          size_type alignment) {

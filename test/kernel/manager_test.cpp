@@ -36,11 +36,11 @@ TEST(ManagerTest, CreateAndOpenModes) {
   {
     manager_type::remove(dir_path().c_str());
     {
-      manager_type manager(metall::create_only, dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
       [[maybe_unused]] int *a = manager.construct<int>("int")(10);
     }
     {
-      manager_type manager(metall::create_only, dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
       auto ret = manager.find<int>("int");
       ASSERT_EQ(ret.first, nullptr);
     }
@@ -49,7 +49,7 @@ TEST(ManagerTest, CreateAndOpenModes) {
   {
     manager_type::remove(dir_path().c_str());
     {
-      manager_type manager(metall::create_only, dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
       [[maybe_unused]] int *a = manager.construct<int>("int")(10);
     }
     {
@@ -77,7 +77,7 @@ TEST(ManagerTest, CreateAndOpenModes) {
   {
     manager_type::remove(dir_path().c_str());
     {
-      manager_type manager(metall::create_only, dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
       [[maybe_unused]] int *a = manager.construct<int>("int")(10);
     }
     {
@@ -99,7 +99,7 @@ TEST(ManagerTest, Consistency) {
   manager_type::remove(dir_path().c_str());
 
   {
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
     // Must be inconsistent before closing
     ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
@@ -109,7 +109,7 @@ TEST(ManagerTest, Consistency) {
   ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
 
   { // To make sure the consistent mark is cleared even after creating a new data store using an old dir path
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
     ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
 
@@ -132,165 +132,226 @@ TEST(ManagerTest, Consistency) {
 }
 
 TEST(ManagerTest, TinyAllocation) {
-  manager_type manager(metall::create_only, dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
-  const std::size_t alloc_size = k_min_object_size / 2;
+    const std::size_t alloc_size = k_min_object_size / 2;
 
-  // To make sure that there is no duplicated allocation
-  std::unordered_set<void *> set;
+    // To make sure that there is no duplicated allocation
+    std::unordered_set<void *> set;
 
-  for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
-    auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    ASSERT_EQ(set.count(addr), 0);
-    set.insert(addr);
-  }
+    for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
+      auto addr = static_cast<char *>(manager.allocate(alloc_size));
+      ASSERT_EQ(set.count(addr), 0);
+      set.insert(addr);
+    }
 
-  for (auto add : set) {
-    manager.deallocate(add);
+    for (auto add : set) {
+      manager.deallocate(add);
+    }
   }
 }
 
 TEST(ManagerTest, SmallAllocation) {
-  manager_type manager(metall::create_only, dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
-  const std::size_t alloc_size = k_min_object_size;
+    const std::size_t alloc_size = k_min_object_size;
 
-  // To make sure that there is no duplicated allocation
-  std::unordered_set<void *> set;
+    // To make sure that there is no duplicated allocation
+    std::unordered_set<void *> set;
 
-  for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
-    auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    ASSERT_EQ(set.count(addr), 0);
-    set.insert(addr);
-  }
+    for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
+      auto addr = static_cast<char *>(manager.allocate(alloc_size));
+      ASSERT_EQ(set.count(addr), 0);
+      set.insert(addr);
+    }
 
-  for (auto add : set) {
-    manager.deallocate(add);
+    for (auto add : set) {
+      manager.deallocate(add);
+    }
   }
 }
 
 TEST(ManagerTest, MaxSmallAllocation) {
-  manager_type manager(metall::create_only, dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
-  // Max small allocation size
-  const std::size_t alloc_size = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1);
+    // Max small allocation size
+    const std::size_t alloc_size = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1);
 
-  // This test will fail if the ojbect cache is enabled to cache alloc_size
-  char *base_addr = nullptr;
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
-    auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    if (i == 0) {
-      base_addr = addr;
+    // This test will fail if the ojbect cache is enabled to cache alloc_size
+    char *base_addr = nullptr;
+    for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
+      auto addr = static_cast<char *>(manager.allocate(alloc_size));
+      if (i == 0) {
+        base_addr = addr;
+      }
+      ASSERT_EQ((addr - base_addr) % k_chunk_size, i * alloc_size);
     }
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i * alloc_size);
-  }
 
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
-    char *addr = base_addr + i * alloc_size;
-    manager.deallocate(addr);
-  }
+    for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
+      char *addr = base_addr + i * alloc_size;
+      manager.deallocate(addr);
+    }
 
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
-    auto addr = static_cast<char *>(manager.allocate(alloc_size));
-    ASSERT_EQ((addr - base_addr) % k_chunk_size, i * alloc_size);
+    for (uint64_t i = 0; i < k_chunk_size / alloc_size; ++i) {
+      auto addr = static_cast<char *>(manager.allocate(alloc_size));
+      ASSERT_EQ((addr - base_addr) % k_chunk_size, i * alloc_size);
+    }
   }
 }
 
 TEST(ManagerTest, MixedSmallAllocation) {
-  manager_type manager(metall::create_only, dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str());
 
-  const std::size_t alloc_size1 = k_min_object_size * 2;
-  const std::size_t alloc_size2 = k_min_object_size * 4;
-  const std::size_t
-      alloc_size3 = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1); // Max small object num_blocks
+    const std::size_t alloc_size1 = k_min_object_size * 2;
+    const std::size_t alloc_size2 = k_min_object_size * 4;
+    const std::size_t
+        alloc_size3 = object_size_mngr::at(object_size_mngr::num_small_sizes() - 1); // Max small object num_blocks
 
-  // To make sure that there is no duplicated allocation
-  std::unordered_set<void *> set;
+    // To make sure that there is no duplicated allocation
+    std::unordered_set<void *> set;
 
-  for (uint64_t i = 0; i < k_chunk_size / alloc_size1; ++i) {
-    {
-      auto addr = static_cast<char *>(manager.allocate(alloc_size1));
-      ASSERT_EQ(set.count(addr), 0);
-      set.insert(addr);
+    for (uint64_t i = 0; i < k_chunk_size / alloc_size1; ++i) {
+      {
+        auto addr = static_cast<char *>(manager.allocate(alloc_size1));
+        ASSERT_EQ(set.count(addr), 0);
+        set.insert(addr);
+      }
+      {
+        auto addr = static_cast<char *>(manager.allocate(alloc_size2));
+        ASSERT_EQ(set.count(addr), 0);
+        set.insert(addr);
+      }
+      {
+        auto addr = static_cast<char *>(manager.allocate(alloc_size3));
+        ASSERT_EQ(set.count(addr), 0);
+        set.insert(addr);
+      }
     }
-    {
-      auto addr = static_cast<char *>(manager.allocate(alloc_size2));
-      ASSERT_EQ(set.count(addr), 0);
-      set.insert(addr);
-    }
-    {
-      auto addr = static_cast<char *>(manager.allocate(alloc_size3));
-      ASSERT_EQ(set.count(addr), 0);
-      set.insert(addr);
-    }
-  }
 
-  for (auto add : set) {
-    manager.deallocate(add);
+    for (auto add : set) {
+      manager.deallocate(add);
+    }
   }
 }
 
 TEST(ManagerTest, LargeAllocation) {
-  manager_type manager(metall::create_only, dir_path().c_str());
-
-  // Assume the object cache is not used for large allocation
-  char *base_addr = nullptr;
   {
-    auto addr1 = static_cast<char *>(manager.allocate(k_chunk_size));
-    base_addr = addr1;
+    manager_type manager(metall::create_only, dir_path().c_str());
 
-    auto addr2 = static_cast<char *>(manager.allocate(k_chunk_size * 2));
-    ASSERT_EQ((addr2 - base_addr), 1 * k_chunk_size);
+    // Assume that the object cache is not used for large allocation
+    char *base_addr = nullptr;
+    {
+      auto addr1 = static_cast<char *>(manager.allocate(k_chunk_size));
+      base_addr = addr1;
 
-    auto addr3 = static_cast<char *>(manager.allocate(k_chunk_size));
-    ASSERT_EQ((addr3 - base_addr), 3 * k_chunk_size);
+      auto addr2 = static_cast<char *>(manager.allocate(k_chunk_size * 2));
+      ASSERT_EQ((addr2 - base_addr), 1 * k_chunk_size);
 
-    manager.deallocate(base_addr);
-    manager.deallocate(base_addr + k_chunk_size);
-    manager.deallocate(base_addr + k_chunk_size * 3);
+      auto addr3 = static_cast<char *>(manager.allocate(k_chunk_size));
+      ASSERT_EQ((addr3 - base_addr), 3 * k_chunk_size);
+
+      manager.deallocate(base_addr);
+      manager.deallocate(base_addr + k_chunk_size);
+      manager.deallocate(base_addr + k_chunk_size * 3);
+    }
+
+    {
+      auto addr1 = static_cast<char *>(manager.allocate(k_chunk_size));
+      ASSERT_EQ((addr1 - base_addr), 0);
+
+      auto addr2 = static_cast<char *>(manager.allocate(k_chunk_size * 2));
+      ASSERT_EQ((addr2 - base_addr), 1 * k_chunk_size);
+
+      auto addr3 = static_cast<char *>(manager.allocate(k_chunk_size));
+      ASSERT_EQ((addr3 - base_addr), 3 * k_chunk_size);
+    }
   }
+}
 
+TEST(ManagerTest, AlignedAllocation) {
   {
-    auto addr1 = static_cast<char *>(manager.allocate(k_chunk_size));
-    ASSERT_EQ((addr1 - base_addr), 0);
+    manager_type manager(metall::create_only, dir_path().c_str());
 
-    auto addr2 = static_cast<char *>(manager.allocate(k_chunk_size * 2));
-    ASSERT_EQ((addr2 - base_addr), 1 * k_chunk_size);
+    for (std::size_t alignment = k_min_object_size; alignment <= k_chunk_size; alignment *= 2) {
+      for (std::size_t sz = alignment; sz <= k_chunk_size * 2; sz += alignment) {
+        auto addr1 = static_cast<char *>(manager.allocate_aligned(sz, alignment));
+        ASSERT_EQ(reinterpret_cast<uint64_t>(addr1) % alignment, 0);
 
-    auto addr3 = static_cast<char *>(manager.allocate(k_chunk_size));
-    ASSERT_EQ((addr3 - base_addr), 3 * k_chunk_size);
+        auto addr2 = static_cast<char *>(manager.allocate_aligned(sz, alignment));
+        ASSERT_EQ(reinterpret_cast<uint64_t>(addr2) % alignment, 0);
+
+        auto addr3 = static_cast<char *>(manager.allocate_aligned(sz, alignment));
+        ASSERT_EQ(reinterpret_cast<uint64_t>(addr3) % alignment, 0);
+
+        manager.deallocate(addr1);
+        manager.deallocate(addr2);
+        manager.deallocate(addr3);
+      }
+
+      {
+        // Invalid argument
+        // Alignment is not a power of 2
+        auto addr1 = static_cast<char *>(manager.allocate_aligned(alignment + 1, alignment + 1));
+        ASSERT_EQ(addr1, nullptr);
+
+        // Invalid arguments
+        // Size is not a multiple of alignment
+        auto addr2 = static_cast<char *>(manager.allocate_aligned(alignment + 1, alignment));
+        ASSERT_EQ(addr2, nullptr);
+      }
+    }
+
+    {
+      // Invalid argument
+      // Alignment is smaller than k_min_object_size
+      auto addr1 = static_cast<char *>(manager.allocate_aligned(8, 1));
+      ASSERT_EQ(addr1, nullptr);
+
+      // Invalid arguments
+      // Alignment is larger than k_chunk_size
+      auto addr2 = static_cast<char *>(manager.allocate_aligned(k_chunk_size * 2, k_chunk_size * 2));
+      ASSERT_EQ(addr2, nullptr);
+    }
   }
 }
 
 TEST(ManagerTest, StlAllocator) {
-  manager_type manager(metall::create_only, dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
-  allocator_type<uint64_t> stl_allocator_instance(manager.get_allocator<uint64_t>());
+    allocator_type<uint64_t> stl_allocator_instance(manager.get_allocator<uint64_t>());
 
-  // To make sure that there is no duplicated allocation
-  std::unordered_set<uint64_t *> set;
+    // To make sure that there is no duplicated allocation
+    std::unordered_set<uint64_t *> set;
 
-  for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
-    auto addr = stl_allocator_instance.allocate(1).get();
-    ASSERT_EQ(set.count(addr), 0);
-    set.insert(addr);
-  }
+    for (uint64_t i = 0; i < k_chunk_size / k_min_object_size; ++i) {
+      auto addr = stl_allocator_instance.allocate(1).get();
+      ASSERT_EQ(set.count(addr), 0);
+      set.insert(addr);
+    }
 
-  for (auto add : set) {
-    stl_allocator_instance.deallocate(add, 1);
+    for (auto add : set) {
+      stl_allocator_instance.deallocate(add, 1);
+    }
   }
 }
 
 TEST(ManagerTest, Container) {
-  manager_type manager(metall::create_only, dir_path().c_str());
-  using element_type = std::pair<uint64_t, uint64_t>;
+  {
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    using element_type = std::pair<uint64_t, uint64_t>;
 
-  boost::interprocess::vector<element_type, allocator_type<element_type>> vector(manager.get_allocator<>());
-  for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
-    vector.emplace_back(element_type(i, i * 2));
-  }
-  for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
-    ASSERT_EQ(vector[i], element_type(i, i * 2));
+    boost::interprocess::vector<element_type, allocator_type<element_type>> vector(manager.get_allocator<>());
+    for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
+      vector.emplace_back(element_type(i, i * 2));
+    }
+    for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
+      ASSERT_EQ(vector[i], element_type(i, i * 2));
+    }
   }
 }
 
@@ -304,15 +365,17 @@ TEST(ManagerTest, NestedContainer) {
                                         boost::container::scoped_allocator_adaptor<allocator_type<std::pair<const element_type,
                                                                                                             vector_type>>>>;
 
-  manager_type manager(metall::create_only, dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
-  map_type map(manager.get_allocator<>());
-  for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
-    map[i % 8].push_back(i);
-  }
+    map_type map(manager.get_allocator<>());
+    for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
+      map[i % 8].push_back(i);
+    }
 
-  for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
-    ASSERT_EQ(map[i % 8][i / 8], i);
+    for (uint64_t i = 0; i < k_chunk_size / sizeof(element_type); ++i) {
+      ASSERT_EQ(map[i % 8][i / 8], i);
+    }
   }
 }
 
@@ -321,7 +384,7 @@ TEST(ManagerTest, PersistentConstructFind) {
   using vector_type = boost::interprocess::vector<element_type, typename manager_type::allocator_type<element_type>>;
 
   {
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
     int *a = manager.construct<int>("int")(10);
     ASSERT_EQ(*a, 10);
@@ -363,7 +426,7 @@ TEST(ManagerTest, PersistentConstructOrFind) {
   using vector_type = boost::interprocess::vector<element_type, typename manager_type::allocator_type<element_type>>;
 
   {
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
     int *a = manager.find_or_construct<int>("int")(10);
     ASSERT_EQ(*a, 10);
 
@@ -404,7 +467,7 @@ TEST(ManagerTest, PersistentNestedContainer) {
                                                                                                             vector_type>>>>;
 
   {
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
     map_type *map = manager.construct<map_type>("map")(manager.get_allocator<>());
     (*map)[0].emplace_back(1);
     (*map)[0].emplace_back(2);
@@ -434,12 +497,9 @@ TEST(ManagerTest, PersistentNestedContainer) {
 }
 
 TEST(ManagerTest, Flush) {
-  using element_type = uint64_t;
-  using vector_type = boost::interprocess::vector<element_type, typename manager_type::allocator_type<element_type>>;
-
   manager_type manager(metall::create_only, dir_path().c_str());
 
-  int *a = manager.construct<int>("int")(10);
+  [[maybe_unused]] auto a = manager.construct<int>("int")(10);
 
   manager.flush();
 
@@ -448,7 +508,7 @@ TEST(ManagerTest, Flush) {
 
 TEST(ManagerTest, AnonymousConstruct) {
   manager_type *manager;
-  manager = new manager_type(metall::create_only, dir_path().c_str());
+  manager = new manager_type(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
   int *const a = manager->construct<int>(metall::anonymous_instance)();
   ASSERT_NE(a, nullptr);
@@ -467,7 +527,7 @@ TEST(ManagerTest, AnonymousConstruct) {
 
 TEST(ManagerTest, UniqueConstruct) {
   manager_type *manager;
-  manager = new manager_type(metall::create_only, dir_path().c_str());
+  manager = new manager_type(metall::create_only, dir_path().c_str(), 1UL << 30UL);
 
   int *const a = manager->construct<int>(metall::unique_instance)();
   ASSERT_NE(a, nullptr);

@@ -28,7 +28,12 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
     , m_named_object_directory_mutex()
 #endif
-{}
+{
+  if (m_segment_storage.page_size() > k_chunk_size) {
+    std::cerr << "The page size of the segment storage must be equal or smaller than the chunk size" << std::endl;
+    std::abort();
+  }
+}
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
@@ -156,10 +161,20 @@ allocate_aligned(const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type nbyt
                  const manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type alignment) {
   assert(priv_initialized());
   if (m_segment_storage.read_only()) return nullptr;
+
+  // This requirement could be removed, but it would need some work to do
+  if (alignment > k_chunk_size) return nullptr;
+
   const auto offset = m_segment_memory_allocator.allocate_aligned(nbytes, alignment);
+  if (offset == m_segment_memory_allocator.k_null_offset) {
+    return nullptr;
+  }
   assert(offset >= 0);
   assert(offset + nbytes <= m_segment_storage.size());
-  return static_cast<char *>(m_segment_storage.get_segment()) + offset;
+
+  const auto addr = static_cast<char *>(m_segment_storage.get_segment()) + offset;
+  assert((uint64_t)addr % alignment == 0);
+  return addr;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -370,8 +385,10 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_unmark_properly_closed(cons
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_reserve_vm_region(const size_type nbytes) {
-  // Align to the page size of the mmap implementation, which could be different from the system page size 
-  const auto alignment = m_segment_storage.page_size();
+  // Align the VM region to the page size to decrease the implementation cost of some features, such as
+  // supporting Umap and aligned allocation
+  const auto alignment = k_chunk_size;
+
   assert(alignment > 0);
   m_vm_region_size = util::round_up(nbytes, alignment);
   m_vm_region = util::reserve_aligned_vm_region(alignment, m_vm_region_size);
@@ -388,10 +405,15 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_reserve_vm_region(const size_typ
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_release_vm_region() {
-  const auto ret = util::munmap(m_vm_region, m_vm_region_size, false);
+
+  if (!util::munmap(m_vm_region, m_vm_region_size, false)) {
+    std::cerr << "Cannot release a VM region " << m_vm_region << ", " << m_vm_region_size << " bytes." << std::endl;
+    return false;
+  }
   m_vm_region = nullptr;
   m_vm_region_size = 0;
-  return ret;
+
+  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>

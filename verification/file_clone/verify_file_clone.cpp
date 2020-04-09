@@ -78,7 +78,7 @@ void validate_file(const std::string &file_path,
 }
 
 // FIXME: check sparse copy
-int main(int argc, char *argv[]) {
+int main([[maybe_unused]] int argc, char *argv[]) {
 
   const std::string source_file_path(argv[1]);
   const std::size_t file_size = std::stoll(argv[2]);

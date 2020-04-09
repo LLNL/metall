@@ -258,7 +258,7 @@ void run_bench(T *array, const std::size_t size) {
 }
 
 // ./a.out [mode] [file prefix] [total size] [each_file_size] [round_robin_chunk_size]
-int main(int argc, char *argv[]) {
+int main([[maybe_unused]] int argc, char *argv[]) {
 
   const int mode = std::stoul(argv[1]);
 

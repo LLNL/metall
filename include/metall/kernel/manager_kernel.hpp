@@ -149,7 +149,12 @@ class manager_kernel {
   /// \return
   void *allocate(size_type nbytes);
 
-  // \TODO: implement
+  /// \brief Allocate nbytes bytes of uninitialized storage whose alignment is specified by alignment.
+  /// \param nbytes A size to allocate. Must be a multiple of alignment.
+  /// \param alignment An alignment requirement.
+  /// Alignment must be a power of two and satisfy [min allocation size, chunk size].
+  /// \return On success, returns the pointer to the beginning of newly allocated memory.
+  /// Returns nullptr, if the given arguments do not satisfy the requirements above.
   void *allocate_aligned(size_type nbytes, size_type alignment);
 
   /// \brief Deallocates

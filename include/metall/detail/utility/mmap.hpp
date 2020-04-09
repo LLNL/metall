@@ -148,7 +148,7 @@ inline bool os_msync(void *const addr, const size_t length, const bool sync) {
 }
 
 inline bool os_munmap(void *const addr, const size_t length) {
-  if (::munmap(addr, length) != 0) {
+  if (::munmap(addr, length) == -1) {
     ::perror("munmap");
     std::cerr << "errno: " << errno << std::endl;
     return false;

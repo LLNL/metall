@@ -13,12 +13,14 @@
 #include <memory>
 #include <future>
 #include <iomanip>
+#include <limits>
 
 #include <metall/kernel/bin_number_manager.hpp>
 #include <metall/kernel/bin_directory.hpp>
 #include <metall/kernel/chunk_directory.hpp>
 #include <metall/kernel/object_size_manager.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
+#include <metall/detail/utility/common.hpp>
 
 #define ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR 1
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
@@ -37,7 +39,7 @@ namespace util = metall::detail::utility;
 }
 
 template <typename _chunk_no_type, typename size_type, typename difference_type,
-    std::size_t _chunk_size, std::size_t _max_size, typename _segment_storage_type,
+          std::size_t _chunk_size, std::size_t _max_size, typename _segment_storage_type,
           typename _internal_data_allocator_type>
 class segment_allocator {
  public:
@@ -45,8 +47,9 @@ class segment_allocator {
   // Public types and static values
   // -------------------------------------------------------------------------------- //
   using chunk_no_type = _chunk_no_type;
-  static constexpr std::size_t k_chunk_size = _chunk_size;
-  static constexpr std::size_t k_max_size = _max_size;
+  static constexpr size_type k_chunk_size = _chunk_size;
+  static constexpr size_type k_max_size = _max_size;
+  static constexpr difference_type k_null_offset = std::numeric_limits<difference_type>::max();
   using segment_storage_type = _segment_storage_type;
   using internal_data_allocator_type = _internal_data_allocator_type;
 
@@ -54,6 +57,8 @@ class segment_allocator {
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
+  static_assert(k_max_size < std::numeric_limits<size_type>::max(), "Max allocation size is too big");
+
   // For bin
   using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
   using bin_no_type = typename bin_no_mngr::bin_no_type;
@@ -129,10 +134,35 @@ class segment_allocator {
     return offset;
   }
 
-  // \TODO: implement
-  difference_type allocate_aligned([[maybe_unused]] const size_type nbytes, [[maybe_unused]] const size_type alignment) {
-    assert(false);
-    return nullptr;
+  /// \brief Allocate nbytes bytes of uninitialized storage whose alignment is specified by alignment.
+  /// Note that this function adjusts an alignment only within this segment,
+  /// i.e., this function does not know the address this segment is mapped to.
+  /// \param nbytes A size to allocate. Must be a multiple of alignment.
+  /// \param alignment An alignment requirement.
+  /// Alignment must be a power of two and satisfy [min allocation size, chunk size].
+  /// \return On success, returns the pointer to the beginning of newly allocated memory.
+  /// Returns k_null_offset, if the given arguments do not satisfy the requirements above.
+  difference_type allocate_aligned(const size_type nbytes, const size_type alignment) {
+    // This aligned allocation algorithm assumes that all power of 2 numbers
+    // from the minimum allocation size (i.e., 8 bytes) to maximum allocation size exist in the object size table
+
+    // alignment must be equal to or large than the min allocation size
+    if (alignment < bin_no_mngr::to_object_size(0)) { return k_null_offset; }
+
+    // alignment must be a power of 2
+    if ((alignment != 0) && ((alignment & (alignment - 1)) != 0)) { return k_null_offset; }
+
+    // This requirement could be removed, but it would need some work to do
+    if (alignment > k_chunk_size) { return k_null_offset; }
+
+    // nbytes must be a multiple of alignment
+    if (nbytes % alignment != 0) { return k_null_offset; }
+
+    // As long as the above requirements are satisfied, just calling the normal allocate function is enough
+    const auto offset = allocate(nbytes);
+    assert(offset % alignment == 0);
+
+    return offset;
   }
 
   /// \brief Deallocates
@@ -157,6 +187,9 @@ class segment_allocator {
     return m_chunk_directory.size() * k_chunk_size;
   }
 
+  /// \brief
+  /// \param base_path
+  /// \return
   bool serialize(const std::string &base_path) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     priv_clear_object_cache();
@@ -173,6 +206,9 @@ class segment_allocator {
     return true;
   }
 
+  /// \brief
+  /// \param base_path
+  /// \return
   bool deserialize(const std::string &base_path) {
     if (!m_non_full_chunk_bin.deserialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
       std::cerr << "Failed to deserialize bin directory" << std::endl;
@@ -185,13 +221,16 @@ class segment_allocator {
     return true;
   }
 
+  /// \brief
+  /// \tparam out_stream_type
+  /// \param log_out
   template <typename out_stream_type>
   void profile(out_stream_type *log_out) const {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     priv_clear_object_cache();
 #endif
 
-    std::vector<std::size_t> num_used_chunks_per_bin(bin_no_mngr::num_bins(), 0);
+    std::vector<size_type> num_used_chunks_per_bin(bin_no_mngr::num_bins(), 0);
 
     (*log_out) << std::fixed;
     (*log_out) << std::setprecision(2);
@@ -209,8 +248,8 @@ class segment_allocator {
         const size_type object_size = bin_no_mngr::to_object_size(bin_no);
 
         if (bin_no < k_num_small_bins) {
-          const std::size_t num_slots = m_chunk_directory.slots(chunk_no);
-          const std::size_t num_occupied_slots = m_chunk_directory.occupied_slots(chunk_no);
+          const size_type num_slots = m_chunk_directory.slots(chunk_no);
+          const size_type num_occupied_slots = m_chunk_directory.occupied_slots(chunk_no);
           (*log_out) << chunk_no << "\t" << object_size
                      << "\t" << static_cast<double>(num_occupied_slots) / num_slots * 100 << "\n";
         } else {
@@ -222,7 +261,7 @@ class segment_allocator {
     (*log_out) << "\nThe distribution of the sizes of being used chunks\n";
     (*log_out) << "(the number of used chunks at each object size)\n";
     (*log_out) << "[bin no]\t[obj size]\t[#of chunks (both full and non-full chunks)]\n";
-    for (std::size_t bin_no = 0; bin_no < num_used_chunks_per_bin.size(); ++bin_no) {
+    for (size_type bin_no = 0; bin_no < num_used_chunks_per_bin.size(); ++bin_no) {
       (*log_out) << bin_no << "\t" << bin_no_mngr::to_object_size(bin_no)
                  << "\t" << num_used_chunks_per_bin[bin_no] << "\n";
     }
@@ -230,8 +269,8 @@ class segment_allocator {
     (*log_out) << "\nThe distribution of the sizes of non-full chunks\n";
     (*log_out) << "NOTE: only chunks used for small objects are in the bin directory\n";
     (*log_out) << "[bin no]\t[obj size]\t[#of non-full chunks]" << "\n";
-    for (std::size_t bin_no = 0; bin_no < bin_no_mngr::num_small_bins(); ++bin_no) {
-      std::size_t
+    for (size_type bin_no = 0; bin_no < bin_no_mngr::num_small_bins(); ++bin_no) {
+      size_type
           num_non_full_chunks = std::distance(m_non_full_chunk_bin.begin(bin_no), m_non_full_chunk_bin.end(bin_no));
       (*log_out) << bin_no << "\t" << bin_no_mngr::to_object_size(bin_no) << "\t" << num_non_full_chunks << "\n";
     }
@@ -313,7 +352,7 @@ class segment_allocator {
     lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
     const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
-    const std::size_t num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
+    const size_type num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
     priv_extend_segment(new_chunk_no, num_chunks);
     const difference_type offset = k_chunk_size * new_chunk_no;
     return offset;
@@ -447,7 +486,7 @@ class segment_allocator {
     lock_guard_type chunk_guard(m_chunk_mutex);
 #endif
     m_chunk_directory.erase(chunk_no);
-    const std::size_t num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
+    const size_type num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
     priv_free_chunk(chunk_no, num_chunks);
   }
 
