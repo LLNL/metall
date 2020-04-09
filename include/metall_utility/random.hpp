@@ -11,6 +11,10 @@
 #include <cassert>
 
 namespace metall::utility {
+
+#if !defined(DOXYGEN_SKIP)
+namespace detail {
+
 // -----------------------------------------------------------------------------
 // This also contains public domain code from <http://prng.di.unimi.it/>.
 // From  splitmix64.c:
@@ -276,7 +280,6 @@ class xoshiro1024pp {
   uint64_t m_s[16];
 };
 
-namespace detail {
 template <typename xoshiro_type>
 class base_rand_xoshiro {
  public:
@@ -331,12 +334,15 @@ inline bool operator!=(const base_rand_xoshiro<xoshiro_type> &lhs, const base_ra
 }
 } // namespace detail
 
+#endif // DOXYGEN_SKIP
+
 /// \brief pseudo-random number generator that has a similar interface as the ones in STL
 /// The actual algorithm is uses xoshiro512++ whose period is 2^(512-1)
-using rand_512 = detail::base_rand_xoshiro<xoshiro512pp>;
+using rand_512 = detail::base_rand_xoshiro<detail::xoshiro512pp>;
+
 /// \brief pseudo-random number generator that has a similar interface as the ones in STL
 /// The actual algorithm is uses xoshiro1024++ whose period is 2^(1024-1)
-using rand_1024 = detail::base_rand_xoshiro<xoshiro1024pp>;
+using rand_1024 = detail::base_rand_xoshiro<detail::xoshiro1024pp>;
 }
 
 #endif //METALL_UTILITY_RANDOM_HPP

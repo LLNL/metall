@@ -12,14 +12,21 @@ The figure below is the internal architecture of Metall
 ![metall_architecture](../img/metall_architecture.png "Metall's Internal Architecture")
 
 
+### Backing Data Store
+Metall uses multiple files to store application data.
+We found that breaking application data into multiple backing files increase parallel I/O performance, e.g., we achieved an around 5X improvement in our preliminary evaluation (multi-threaded out-of-core sort) on a PCIe NVMe SSD device.
+To efficiently use persistent memory resources, Metall creates and maps new files on demand.
+
 ### Segment and Chunk
 Metall *reserves* a large contiguous virtual memory (VM) space (e.g., a few TB) to map backing file(s) when its manager class is constructed.
 Metall divides the reserved VM space into *chunks* (the default chunk size is 2 MB).
 Each chunk can hold multiple *small objects* (8B–half chunk size) of the same allocation size.
 Objects larger than the half chunk size (*large objects*) use a single or multiple contiguous chunks.
 
-Metall frees DRAM and file space by chunk, that is,
+By default, Metall frees DRAM and file space by chunk, that is,
 small object deallocations do not free physical memory immediately, whereas large object deallocations do.
+Metall also has a mode that tries to free the corresponding space when an object equal or larger than *N* bytes is deallocated,
+where N is set by the compile time option *METALL_FREE_SMALL_OBJECT_SIZE_HINT=N* (see [Build and Install](../getting_started/build_and_install.md)).
 
 ### Internal Allocation Size
 Same as other major heap memory allocators, Metall rounds up a small object to the nearest internal allocation size.
@@ -42,4 +49,3 @@ Metall utilizes a compact multi-layer bitset table and built-in bit operation fu
 Because updating the management data causes fine-grained random memory accesses,
 Metall constructs them in DRAM to increase data locality; hence, Metall does not touch persistent memory when allocates memory.
 Metall deserializes/serializes the management data from/to files when its constructor/destructor is called.
-

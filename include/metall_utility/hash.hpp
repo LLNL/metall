@@ -68,6 +68,9 @@ struct hash {
   }
 };
 
+/// \brief Hash string data
+/// \tparam string_type A string class
+/// \tparam seed A seed value used for hashing
 template <typename string_type, unsigned int seed = 123>
 struct string_hash {
   uint64_t operator()(const string_type& key) const {
