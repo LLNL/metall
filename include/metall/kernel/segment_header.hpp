@@ -7,12 +7,12 @@
 #ifndef METALL_KERNEL_SEGMENT_HEADER_HPP
 #define METALL_KERNEL_SEGMENT_HEADER_HPP
 
-template <std::size_t chunk_size>
+namespace metall::kernel {
+
 struct segment_header {
-  union {
-    void* manager_kernel_address{nullptr};
-    char raw_buffer[chunk_size];
-  };
+  void *manager_kernel_address;
 };
+
+} // metall::kernel
 
 #endif //METALL_KERNEL_SEGMENT_HEADER_HPP

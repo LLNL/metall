@@ -29,8 +29,7 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
     , m_named_object_directory_mutex()
 #endif
 {
-  if (m_segment_storage.page_size() > k_chunk_size) {
-    std::cerr << "The page size of the segment storage must be equal or smaller than the chunk size" << std::endl;
+  if (!priv_validate_runtime_configuration()) {
     std::abort();
   }
 }
@@ -48,6 +47,10 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path, const size_type vm_reserve_size) {
+  if (!priv_validate_runtime_configuration()) {
+    std::abort();
+  }
+
   if (vm_reserve_size > k_max_segment_size) {
     std::cerr << "Too large VM region size is requested " << vm_reserve_size << " byte." << std::endl;
     std::abort();
@@ -83,6 +86,10 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                                                      const bool read_only,
                                                      const size_type vm_reserve_size) {
+  if (!priv_validate_runtime_configuration()) {
+    std::abort();
+  }
+
   if (!m_segment_storage.openable(priv_make_file_name(base_dir_path, k_segment_prefix))) {
     return false; // This is not an fatal error due to the open_or_create mode
   }
@@ -368,6 +375,32 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_initialized() const {
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_validate_runtime_configuration() const {
+  const auto system_page_size = util::get_page_size();
+  if (system_page_size <= 0) {
+    std::cerr << "Failed to get the system page size" << std::endl;
+    return false;
+  }
+
+  if (k_chunk_size % system_page_size != 0) {
+    std::cerr << "The chunk size must be a multiple of the system page size" << std::endl;
+    return false;
+  }
+
+  if (m_segment_storage.page_size() > k_chunk_size) {
+    std::cerr << "The page size of the segment storage must be equal or smaller than the chunk size" << std::endl;
+    return false;
+  }
+
+  if (m_segment_storage.page_size() % system_page_size != 0) {
+    std::cerr << "The page size of the segment storage must be a multiple of the system page size" << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_properly_closed(const std::string &base_dir_path) {
   return util::file_exist(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
 }
@@ -423,13 +456,8 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_allocate_segment_header(void *co
   if (!addr) {
     return false;
   }
-  const auto page_size = util::get_page_size();
-  if (page_size <= 0) {
-    std::cerr << "Failed to get system page size" << std::endl;
-    return false;
-  }
 
-  m_segment_header_size = util::round_up(sizeof(segment_header_type), page_size);
+  m_segment_header_size = util::round_up(sizeof(segment_header_type), k_chunk_size);
   if (util::map_anonymous_write_mode(addr, m_segment_header_size, MAP_FIXED) != addr) {
     std::cerr << "Cannot allocate segment header" << std::endl;
     return false;

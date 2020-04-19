@@ -81,7 +81,7 @@ class manager_kernel {
 #endif
   static constexpr size_type k_max_segment_size = 1ULL << 48ULL; // TODO: get from somewhere else
   static_assert(k_default_vm_reserve_size <= k_max_segment_size, "k_default_vm_reserve_size must be <= k_max_segment_size");
-  using segment_header_type = segment_header<k_chunk_size>;
+  using segment_header_type = segment_header;
   static constexpr size_type k_initial_segment_size = 1ULL << 28ULL; // TODO: get from somewhere else
   static constexpr const char *k_segment_prefix = "segment";
   using segment_storage_type =
@@ -244,6 +244,7 @@ class manager_kernel {
   static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   bool priv_initialized() const;
+  bool priv_validate_runtime_configuration() const;
 
   static bool priv_properly_closed(const std::string &base_dir_path);
   static bool priv_mark_properly_closed(const std::string &base_dir_path);
