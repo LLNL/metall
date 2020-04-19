@@ -32,6 +32,8 @@ To build examples see [build source files in Metall](../advanced_build/exmample_
 
 * [mpi_create.cpp](https://github.com/LLNL/metall/tree/develop/example/mpi_create.cpp) and [mpi_open.cpp](https://github.com/LLNL/metall/tree/develop/example/mpi_open.cpp)
 
-* Use Metall with MPI program (each process creates its own Metall object)
+* Use Metall with MPI program (each process creates its own Metall object).
 
 * Metall does not support multi-process, i.e., there is no inter-process synchronization mechanism in Metall. Metall assumes that each process access a different memory region. The examples above shows how to use Metall with MPI.
+
+* One can set a MPI CXX compiler to use by using 'MPI_CXX_COMPILE' CMake option.
