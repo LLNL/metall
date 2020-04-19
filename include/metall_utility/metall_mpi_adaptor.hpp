@@ -18,6 +18,12 @@ namespace metall::utility {
 class metall_mpi_adaptor {
  public:
   // -------------------------------------------------------------------------------- //
+  // Public types and static values
+  // -------------------------------------------------------------------------------- //
+  /// \brief Local Metall manager type
+  using manager_type = metall::manager;
+
+  // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
   metall_mpi_adaptor(metall::open_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
@@ -25,7 +31,7 @@ class metall_mpi_adaptor {
         m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     const auto ret = make_local_dir_path(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_only, m_local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<manager_type>(metall::open_only, m_local_dir_path.c_str());
   }
 
   metall_mpi_adaptor(metall::open_read_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
@@ -33,7 +39,7 @@ class metall_mpi_adaptor {
         m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     const auto local_dir_path = make_local_dir_path(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_read_only, m_local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<manager_type>(metall::open_read_only, m_local_dir_path.c_str());
   }
 
   metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
@@ -41,7 +47,7 @@ class metall_mpi_adaptor {
         m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     find_or_create_top_level_dir(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::create_only, m_local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<manager_type>(metall::create_only, m_local_dir_path.c_str());
   }
 
   metall_mpi_adaptor(metall::open_or_create_t,
@@ -51,7 +57,7 @@ class metall_mpi_adaptor {
         m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager_pointer(nullptr) {
     find_or_create_top_level_dir(data_store_dir, comm);
-    m_local_metall_manager_pointer = std::make_unique<metall::manager>(metall::open_or_create, m_local_dir_path.c_str());
+    m_local_metall_manager_pointer = std::make_unique<manager_type>(metall::open_or_create, m_local_dir_path.c_str());
   }
 
   ~metall_mpi_adaptor() {
@@ -62,16 +68,26 @@ class metall_mpi_adaptor {
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
-  metall::manager &get_local_manager() {
+  manager_type &get_local_manager() {
     return *m_local_metall_manager_pointer;
   }
 
-  const metall::manager &get_local_manager() const {
+  const manager_type &get_local_manager() const {
     return *m_local_metall_manager_pointer;
   }
 
   std::string local_dir_path() const {
     return m_local_dir_path;
+  }
+
+  static void copy(const char *source_dir_path, const char *destination_dir_path, const MPI_Comm &comm = MPI_COMM_WORLD) {
+    const auto success = manager_type::copy(make_local_dir_path(source_dir_path, comm).c_str(),
+                                            make_local_dir_path(destination_dir_path, comm).c_str());
+    if (!success) {
+      std::cerr << "Failed to copy: " << source_dir_path << " -> " << destination_dir_path << std::endl;
+      ::MPI_Abort(comm, -1);
+    }
+    mpi_barrier(comm);
   }
 
  private:
@@ -88,7 +104,7 @@ class metall_mpi_adaptor {
         const std::string full_path = base_dir_path + "/" + k_datastore_top_level_dir_name;
         if (!metall::detail::utility::file_exist(full_path) && !metall::detail::utility::create_directory(full_path)) {
           std::cerr << "Failed to create directory: " << full_path << std::endl;
-          MPI_Abort(comm, -1);
+          ::MPI_Abort(comm, -1);
         }
       }
       mpi_barrier(comm);
@@ -104,7 +120,7 @@ class metall_mpi_adaptor {
     int rank;
     if (::MPI_Comm_rank(comm, &rank) != MPI_SUCCESS) {
       std::cerr << __FILE__ << " : " << __func__ << " Failed MPI_Comm_rank" << std::endl;
-      MPI_Abort(comm, -1);
+      ::MPI_Abort(comm, -1);
     }
     return rank;
   }
@@ -113,21 +129,21 @@ class metall_mpi_adaptor {
     int num_ranks;
     if (::MPI_Comm_size(comm, &num_ranks) != MPI_SUCCESS) {
       std::cerr << __FILE__ << " : " << __func__ << " Failed MPI_Comm_size" << std::endl;
-      MPI_Abort(comm, -1);
+      ::MPI_Abort(comm, -1);
     }
     return num_ranks;
   }
 
   static void mpi_barrier(const MPI_Comm &comm) {
-    if (MPI_Barrier(comm) != MPI_SUCCESS) {
+    if (::MPI_Barrier(comm) != MPI_SUCCESS) {
       std::cerr << __FILE__ << " : " << __func__ << " Failed MPI_Barrier" << std::endl;
-      MPI_Abort(comm, -1);
+      ::MPI_Abort(comm, -1);
     }
   }
 
   MPI_Comm m_mpi_comm;
   std::string m_local_dir_path;
-  std::unique_ptr<metall::manager> m_local_metall_manager_pointer;
+  std::unique_ptr<manager_type> m_local_metall_manager_pointer;
 };
 
 } // namespace metall_utility
