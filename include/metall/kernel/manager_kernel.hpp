@@ -27,6 +27,7 @@
 #include <metall/detail/utility/file_clone.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
+#include <metall/detail/utility/uuid.hpp>
 
 #ifdef METALL_USE_UMAP
 #include <metall/kernel/segment_storage/umap_segment_storage.hpp>
@@ -90,6 +91,7 @@ class manager_kernel {
 #else
   multifile_backed_segment_storage<difference_type, size_type>;
 #endif
+  static constexpr const char *k_uuid_file_name = "uuid";
 
   // Actual memory allocation layer
   static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";
@@ -229,6 +231,10 @@ class manager_kernel {
   /// \return Return true if it is consistent; otherwise, returns false.
   static bool consistent(const char *dir_path);
 
+  /// \brief Returns the UUID of the backing data store.
+  /// \return UUID in std::string; returns an empty string on error.
+  static std::string get_uuid(const char *dir_path);
+
   /// \brief Show some profile infromation
   /// \tparam out_stream_type
   /// \param log_out
@@ -262,6 +268,9 @@ class manager_kernel {
   bool priv_release_vm_region();
   bool priv_allocate_segment_header(void *addr);
   bool priv_deallocate_segment_header();
+
+  static bool priv_store_uuid(const std::string &base_dir_path);
+  static std::string  priv_restore_uuid(const std::string &base_dir_path);
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();

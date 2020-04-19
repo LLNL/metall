@@ -80,6 +80,10 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path
     std::cerr << "Cannot create application data segment" << std::endl;
     std::abort();
   }
+
+  if (!priv_store_uuid(m_base_dir_path)) {
+    std::abort();
+  }
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -326,6 +330,11 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::consistent(const char *dir_path)
   return priv_properly_closed(dir_path);
 }
 
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid(const char *dir_path) {
+ return priv_restore_uuid(dir_path);
+}
+
 // -------------------------------------------------------------------------------- //
 // Private methods
 // -------------------------------------------------------------------------------- //
@@ -478,6 +487,43 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_segment_header() {
   m_segment_header = nullptr;
   m_segment_header_size = 0;
   return ret;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_store_uuid(const std::string &base_dir_path) {
+  std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
+  std::ofstream ofs(file_name);
+  if (!ofs) {
+    std::cerr << "Failed to create a file: " << file_name << std::endl;
+    return false;
+  }
+  ofs << util::uuid(util::uuid_random_generator{}());
+  if (!ofs) {
+    std::cerr << "Cannot write A UUID to a file: " << file_name << std::endl;
+    return false;
+  }
+  ofs.close();
+
+  return true;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_restore_uuid(const std::string &base_dir_path) {
+  std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
+  std::ifstream ifs(file_name);
+
+  if (!ifs.is_open()) {
+    std::cerr << "Failed to open a file: " << file_name << std::endl;
+    return "";
+  }
+
+  std::string uuid_string;
+  if (!(ifs >> uuid_string)) {
+    std::cerr << "Failed to read a file: " << file_name << std::endl;
+    return "";
+  }
+
+  return uuid_string;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
