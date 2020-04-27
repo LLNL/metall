@@ -14,6 +14,7 @@
 # 2. Set environmental variables for test
 # (option)
 # export METALL_TEST_DIR=/tmp
+# export METALL_LIMIT_MAKE_PARALLELS=n
 #
 # 3. Run the script
 # sh ./scripts/CI/travis_ci/build_and_test.sh
@@ -69,7 +70,11 @@ run_buid_and_test_core() {
                -DBUILD_BENCH=ON -DBUILD_TEST=ON -DRUN_LARGE_SCALE_TEST=ON -DBUILD_DOC=OFF  -DBUILD_C=ON \
                -DRUN_BUILD_AND_TEST_WITH_CI=ON -DBUILD_VERIFICATION=OFF -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF \
                ${CMAKE_OPTIONS}
-  or_die make -j
+  if [[ -z "${METALL_LIMIT_MAKE_PARALLELS}" ]]; then
+    or_die make -j
+  else
+    or_die make -j${METALL_LIMIT_MAKE_PARALLELS}
+  fi
 
   # Test 1
   rm -rf ${METALL_TEST_DIR}
@@ -109,7 +114,7 @@ main() {
   setup_test_dir
   export METALL_TEST_DIR
 
-  for BUILD_TYPE in Debug Release; do
+  for BUILD_TYPE in Debug; do
     for DISABLE_FREE_FILE_SPACE in ON OFF; do
       for DISABLE_SMALL_OBJECT_CACHE in OFF; do
         for FREE_SMALL_OBJECT_SIZE_HINT in 0 8192; do
