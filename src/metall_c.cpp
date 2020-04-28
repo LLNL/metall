@@ -13,8 +13,10 @@ int metall_open(const int mode, const char *const path) {
     g_manager = new metall::manager(metall::create_only, path);
   } else if (mode == METALL_OPEN_ONLY) {
     g_manager = new metall::manager(metall::open_only, path);
+  } else if (mode == METALL_OPEN_READ_ONLY) {
+    g_manager = new metall::manager(metall::open_read_only, path);
   } else if (mode == METALL_OPEN_OR_CREATE) {
-    g_manager = new metall::manager(metall::open_or_create, path);
+      g_manager = new metall::manager(metall::open_or_create, path);
   } else {
     g_manager = nullptr;
   }
@@ -52,4 +54,19 @@ void *metall_find(char *name) {
 
 void metall_named_free(const char *name) {
   g_manager->destroy<char>(name);
+}
+
+int snapshot(const char *destination_path) {
+  if (g_manager->snapshot(destination_path)) return 0;
+  return -1; // Error
+}
+
+int copy(const char *source_path, const char *destination_path) {
+  if (metall::manager::copy(source_path, destination_path)) return 0;
+  return -1; // Error
+}
+
+int consistent(const char *path) {
+  if (metall::manager::consistent(path)) return 1;
+  return 0;
 }
