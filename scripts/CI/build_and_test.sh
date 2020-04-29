@@ -15,6 +15,7 @@
 # (option)
 # export METALL_TEST_DIR=/tmp
 # export METALL_LIMIT_MAKE_PARALLELS=n
+# export METALL_BUILD_TYPE="Debug;Release;RelWithDebInfo"
 #
 # 3. Run the script
 # sh ./scripts/CI/travis_ci/build_and_test.sh
@@ -27,13 +28,13 @@ or_die () {
   "$@"
   local status=$?
   if [[ $status != 0 ]] ; then
-      echo ERROR $status command: $@
+      echo ERROR $status command: "$@"
       exit $status
   fi
   echo "<<<<<<<<<<"
 }
 
-exec () {
+exec_cmd () {
   echo "Command: " "$@"
   echo ">>>>>>>>>>"
   "$@"
@@ -100,10 +101,10 @@ run_buid_and_test_core() {
 }
 
 show_system_info() {
-  exec df -h
-  exec df -ih
-  exec free -g
-  exec uname -r
+  exec_cmd df -h
+  exec_cmd df -ih
+  exec_cmd free -g
+  exec_cmd uname -r
 }
 
 main() {
@@ -114,7 +115,12 @@ main() {
   setup_test_dir
   export METALL_TEST_DIR
 
-  for BUILD_TYPE in Debug; do
+  local BUILD_TYPES=(Debug)
+  if [[ -n "${METALL_BUILD_TYPE}" ]]; then
+    BUILD_TYPES=($(echo $METALL_BUILD_TYPE | tr ";" "\n"))
+  fi
+
+  for BUILD_TYPE in "${BUILD_TYPES[@]}"; do
     for DISABLE_FREE_FILE_SPACE in ON OFF; do
       for DISABLE_SMALL_OBJECT_CACHE in OFF; do
         for FREE_SMALL_OBJECT_SIZE_HINT in 0 8192; do
