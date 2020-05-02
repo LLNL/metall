@@ -193,37 +193,37 @@ class manager_kernel {
                        util::in_place_interface &table);
 
   /// \brief Get the address of the segment header
-  /// \return Returns the adress of the segment header
+  /// \return Returns the address of the segment header
   segment_header_type *get_segment_header() const;
 
-  /// \brief
-  /// \param destination_dir_path
-  /// \return
+  /// \brief Takes a snapshot. The snapshot has a different UUID.
+  /// \param destination_dir_path Destination path
+  /// \return If succeeded, returns True; other false
   bool snapshot(const char *destination_dir_path);
 
-  /// \brief Copies backing files synchronously
-  /// \param source_dir_path
+  /// \brief Copies a data store synchronously, keeping the same UUID.
+  /// \param source_dir_path Destination path
   /// \param destination_dir_path
   /// \return If succeeded, returns True; other false
   static bool copy(const char *source_dir_path, const char *destination_dir_path);
 
-  /// \brief Copies backing files asynchronously
-  /// \param source_dir_path
+  /// \brief Copies a data store asynchronously, keeping the same UUID.
+  /// \param source_dir_path Destination path
   /// \param destination_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
   static std::future<bool> copy_async(const char *source_dir_path, const char *destination_dir_path);
 
-  /// \brief Remove backing files synchronously
-  /// \param dir_path
+  /// \brief Remove a data store synchronously
+  /// \param base_dir_path
   /// \return If succeeded, returns True; other false
-  static bool remove(const char *dir_path);
+  static bool remove(const char *base_dir_path);
 
-  /// \brief Remove backing files asynchronously
-  /// \param dir_path
+  /// \brief Remove a data store asynchronously
+  /// \param base_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
-  static std::future<bool> remove_async(const char *dir_path);
+  static std::future<bool> remove_async(const char *base_dir_path);
 
   /// \brief Check if the backing data store is consistent,
   /// i.e. it was closed properly.

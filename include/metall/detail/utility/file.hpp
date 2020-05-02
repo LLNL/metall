@@ -232,9 +232,9 @@ inline bool directory_exist(const std::string &dir_path) {
   return (uint64_t)S_IFDIR & (uint64_t)(statbuf.st_mode);
 }
 
-/// \brief Remove a fil or directory
+/// \brief Remove a file or directory
 /// \return Upon successful completion, returns true; otherwise, false is returned.
-/// If p did not exist to begin with, maybe 0 is returned.
+/// If the file or directory does not exist, true is returned.
 inline bool remove_file(const std::string &path) {
 #ifdef __cpp_lib_filesystem
   std::filesystem::path p(path);

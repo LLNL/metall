@@ -293,12 +293,19 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination
   assert(priv_initialized());
   m_segment_storage.sync(true);
   priv_serialize_management_data();
+
   if (!priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true)) {
     return false;
   }
+
+  if (!priv_store_uuid(destination_base_dir_path)) {
+    return false;
+  }
+
   if (!priv_mark_properly_closed(destination_base_dir_path)) {
     return false;
   }
+
   return true;
 }
 
@@ -316,13 +323,13 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::copy_async(const char *source_dir_pat
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::remove(const char *dir_path) {
-  return priv_remove_data_store(dir_path);
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::remove(const char *base_dir_path) {
+  return priv_remove_data_store(base_dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const char *dir_path) {
-  return std::async(std::launch::async, remove, dir_path);
+std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const char *base_dir_path) {
+  return std::async(std::launch::async, remove, base_dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -362,12 +369,12 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const s
     }
   }
 
-  if (!util::remove_file(priv_make_datastore_dir_path(base_dir_path))) {
-    std::cerr << "Failed to remove: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
+  if (!remove(base_dir_path.c_str())) {
+    std::cerr << "Failed to remove an existing data store: " << base_dir_path << std::endl;
     return false;
   }
 
-  // Create the datastore directory if needed
+  // Create the data store directory if needed
   if (!util::create_directory(priv_make_datastore_dir_path(base_dir_path))) {
     std::cerr << "Failed to create directory: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
     return false;
@@ -631,11 +638,8 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::strin
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::string &dir_path) {
-  if (!util::directory_exist(dir_path)) {
-    return false;
-  }
-  return util::remove_file(dir_path);
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::string &base_dir_path) {
+  return util::remove_file(priv_make_datastore_dir_path(base_dir_path));
 }
 
 } // namespace kernel
