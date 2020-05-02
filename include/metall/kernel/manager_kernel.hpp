@@ -201,29 +201,29 @@ class manager_kernel {
   /// \return
   bool snapshot(const char *destination_dir_path);
 
-  /// \brief Copies backing files synchronously
+  /// \brief Copies a data store synchronously
   /// \param source_dir_path
   /// \param destination_dir_path
   /// \return If succeeded, returns True; other false
   static bool copy(const char *source_dir_path, const char *destination_dir_path);
 
-  /// \brief Copies backing files asynchronously
+  /// \brief Copies a data store asynchronously
   /// \param source_dir_path
   /// \param destination_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
   static std::future<bool> copy_async(const char *source_dir_path, const char *destination_dir_path);
 
-  /// \brief Remove backing files synchronously
-  /// \param dir_path
+  /// \brief Remove a data store synchronously
+  /// \param base_dir_path
   /// \return If succeeded, returns True; other false
-  static bool remove(const char *dir_path);
+  static bool remove(const char *base_dir_path);
 
-  /// \brief Remove backing files asynchronously
-  /// \param dir_path
+  /// \brief Remove a data store asynchronously
+  /// \param base_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
-  static std::future<bool> remove_async(const char *dir_path);
+  static std::future<bool> remove_async(const char *base_dir_path);
 
   /// \brief Check if the backing data store is consistent,
   /// i.e. it was closed properly.
