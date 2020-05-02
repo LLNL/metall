@@ -340,24 +340,24 @@ class basic_manager {
     return allocator_type<T>(reinterpret_cast<manager_kernel_type **>(&(m_kernel.get_segment_header()->manager_kernel_address)));
   }
 
-  /// \brief Snapshot the entire data.
-  /// \param destination_dir_path The prefix of the snapshot files.
+  /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
+  /// \param destination_dir_path Path to store a snapshot.
   /// \return Returns true on success; other false.
   bool snapshot(const char *destination_dir_path) {
     return m_kernel.snapshot(destination_dir_path);
   }
 
   /// \brief Copies backing files synchronously.
-  /// \param source_dir_path Source datastore path.
-  /// \param destination_dir_path Destination datastore path.
+  /// \param source_dir_path Source data store path.
+  /// \param destination_dir_path Destination data store path.
   /// \return If succeeded, returns True; other false.
   static bool copy(const char *source_dir_path, const char *destination_dir_path) {
     return manager_kernel_type::copy(source_dir_path, destination_dir_path);
   }
 
   /// \brief Copies backing files asynchronously.
-  /// \param source_dir_path Source datastore path.
-  /// \param destination_dir_path Destination datastore path.
+  /// \param source_dir_path Source data store path.
+  /// \param destination_dir_path Destination data store path.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns True; other false.
   static auto copy_async(const char *source_dir_path, const char *destination_dir_path) {
@@ -365,14 +365,14 @@ class basic_manager {
   }
 
   /// \brief Remove backing files synchronously.
-  /// \param dir_path Datastore path to remove.
+  /// \param dir_path Data store path to remove.
   /// \return If succeeded, returns True; other false.
   static bool remove(const char *dir_path) {
     return manager_kernel_type::remove(dir_path);
   }
 
   /// \brief Remove backing files asynchronously.
-  /// \param dir_path Datastore path to remove.
+  /// \param dir_path Data store path to remove.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns True; other false
   static std::future<bool> remove_async(const char *dir_path) {
@@ -381,7 +381,7 @@ class basic_manager {
 
   /// \brief Check if the backing data store is consistent,
   /// i.e. it was closed properly.
-  /// \param dir_path Datastore path.
+  /// \param dir_path Data store path.
   /// \return Return true if it is consistent; otherwise, returns false.
   static bool consistent(const char *dir_path) {
     return manager_kernel_type::consistent(dir_path);
@@ -400,7 +400,7 @@ class basic_manager {
   }
 
   /// \brief Returns a UUID of the data store.
-  /// \param dir_path Datastore path.
+  /// \param dir_path Data store path.
   /// \return UUID in the std::string format; returns an empty string on error.
   static std::string get_uuid(const char *dir_path) {
     return manager_kernel_type::get_uuid(dir_path);

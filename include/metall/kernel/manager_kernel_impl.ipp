@@ -293,12 +293,19 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination
   assert(priv_initialized());
   m_segment_storage.sync(true);
   priv_serialize_management_data();
+
   if (!priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true)) {
     return false;
   }
+
+  if (!priv_store_uuid(destination_base_dir_path)) {
+    return false;
+  }
+
   if (!priv_mark_properly_closed(destination_base_dir_path)) {
     return false;
   }
+
   return true;
 }
 

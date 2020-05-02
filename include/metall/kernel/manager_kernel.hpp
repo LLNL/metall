@@ -193,22 +193,22 @@ class manager_kernel {
                        util::in_place_interface &table);
 
   /// \brief Get the address of the segment header
-  /// \return Returns the adress of the segment header
+  /// \return Returns the address of the segment header
   segment_header_type *get_segment_header() const;
 
-  /// \brief
-  /// \param destination_dir_path
-  /// \return
+  /// \brief Takes a snapshot. The snapshot has a different UUID.
+  /// \param destination_dir_path Destination path
+  /// \return If succeeded, returns True; other false
   bool snapshot(const char *destination_dir_path);
 
-  /// \brief Copies a data store synchronously
-  /// \param source_dir_path
+  /// \brief Copies a data store synchronously, keeping the same UUID.
+  /// \param source_dir_path Destination path
   /// \param destination_dir_path
   /// \return If succeeded, returns True; other false
   static bool copy(const char *source_dir_path, const char *destination_dir_path);
 
-  /// \brief Copies a data store asynchronously
-  /// \param source_dir_path
+  /// \brief Copies a data store asynchronously, keeping the same UUID.
+  /// \param source_dir_path Destination path
   /// \param destination_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
