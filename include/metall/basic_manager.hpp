@@ -80,11 +80,8 @@ class basic_manager {
   basic_manager(open_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    const bool read_only = false;
-    if (!m_kernel.open(base_path, read_only)) {
-      std::cerr << "Cannot open " << base_path << std::endl;
-      std::abort();
-    }
+    constexpr bool read_only = false;
+    m_kernel.open(base_path, read_only);
   }
 
   /// \brief Opens an existing data store with the read only mode.
@@ -94,14 +91,11 @@ class basic_manager {
   basic_manager(open_read_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    const bool read_only = true;
-    if (!m_kernel.open(base_path, read_only)) {
-      std::cerr << "Cannot open " << base_path << std::endl;
-      std::abort();
-    }
+    constexpr bool read_only = true;
+    m_kernel.open(base_path, read_only);
   }
 
-  /// \brief Creats a new data store (an existing data store will be overwritten).
+  /// \brief Creates a new data store (an existing data store will be overwritten).
   /// \param base_path Path to create a data store.
   /// \param allocator Allocator to allocate management data.
   basic_manager(create_only_t, const char *base_path,
@@ -110,7 +104,7 @@ class basic_manager {
     m_kernel.create(base_path);
   }
 
-  /// \brief Creats a new data store (an existing data store will be overwritten).
+  /// \brief Creates a new data store (an existing data store will be overwritten).
   /// \param base_path Path to create a data store.
   /// \param capacity Maximum total allocation size.
   /// \param allocator Allocator to allocate management data.
@@ -118,33 +112,6 @@ class basic_manager {
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
     m_kernel.create(base_path, capacity);
-  }
-
-  /// \brief Opens an existing data store if exist.
-  /// Otherwise, creates a new one.
-  /// \param base_path Path to create a data store.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(open_or_create_t, const char *base_path,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
-    const bool read_only = false;
-    if (!m_kernel.open(base_path, read_only)) {
-      m_kernel.create(base_path);
-    }
-  }
-
-  /// \brief Opens an existing data store if exist.
-  /// Otherwise, creates a new one.
-  /// \param base_path Path to create a data store.
-  /// \param capacity  Maximum total allocation size.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(open_or_create_t, const char *base_path, const size_type capacity,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
-    const bool read_only = false;
-    if (!m_kernel.open(base_path, read_only)) {
-      m_kernel.create(base_path, capacity);
-    }
   }
 
   /// \brief Deleted.
@@ -365,14 +332,14 @@ class basic_manager {
   }
 
   /// \brief Remove backing files synchronously.
-  /// \param dir_path Data store path to remove.
+  /// \param dir_path Path to a data store to remove.
   /// \return If succeeded, returns True; other false.
   static bool remove(const char *dir_path) {
     return manager_kernel_type::remove(dir_path);
   }
 
   /// \brief Remove backing files asynchronously.
-  /// \param dir_path Data store path to remove.
+  /// \param dir_path Path to a data store to remove.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns True; other false
   static std::future<bool> remove_async(const char *dir_path) {
@@ -381,7 +348,7 @@ class basic_manager {
 
   /// \brief Check if the backing data store is consistent,
   /// i.e. it was closed properly.
-  /// \param dir_path Data store path.
+  /// \param dir_path Path to a data store.
   /// \return Return true if it is consistent; otherwise, returns false.
   static bool consistent(const char *dir_path) {
     return manager_kernel_type::consistent(dir_path);
@@ -400,7 +367,7 @@ class basic_manager {
   }
 
   /// \brief Returns a UUID of the data store.
-  /// \param dir_path Data store path.
+  /// \param dir_path Path to a data store.
   /// \return UUID in the std::string format; returns an empty string on error.
   static std::string get_uuid(const char *dir_path) {
     return manager_kernel_type::get_uuid(dir_path);

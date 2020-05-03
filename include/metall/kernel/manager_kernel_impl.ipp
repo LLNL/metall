@@ -87,19 +87,15 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                                                      const bool read_only,
                                                      const size_type vm_reserve_size) {
   if (!priv_validate_runtime_configuration()) {
     std::abort();
   }
 
-  if (!m_segment_storage.openable(priv_make_file_name(base_dir_path, k_segment_prefix))) {
-    return false; // This is not an fatal error due to the open_or_create mode
-  }
-
-  if (!priv_properly_closed(base_dir_path)) {
-    std::cerr << "Backing data store was not closed properly. The data might have been collapsed." << std::endl;
+  if (!consistent(base_dir_path)) {
+    std::cerr << "Inconsistent data store — it was not closed properly and might have been collapsed." << std::endl;
     std::abort();
   }
 
@@ -131,8 +127,6 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
   if (!priv_deserialize_management_data()) {
     std::abort();
   }
-
-  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>

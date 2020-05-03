@@ -15,8 +15,6 @@ int metall_open(const int mode, const char *const path) {
     g_manager = new metall::manager(metall::open_only, path);
   } else if (mode == METALL_OPEN_READ_ONLY) {
     g_manager = new metall::manager(metall::open_read_only, path);
-  } else if (mode == METALL_OPEN_OR_CREATE) {
-      g_manager = new metall::manager(metall::open_or_create, path);
   } else {
     g_manager = nullptr;
   }

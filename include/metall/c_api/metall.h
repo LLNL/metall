@@ -21,12 +21,8 @@ extern "C" {
 /// \brief Tag to open an already created segment.
 #define METALL_OPEN_ONLY 2
 
-/// \brief Tag to open a segment if it exists.
-/// If it does not exist, creates a new one
-#define METALL_OPEN_OR_CREATE 3
-
 /// \brief Tag to open an already created segment as read only.
-#define METALL_OPEN_READ_ONLY 4
+#define METALL_OPEN_READ_ONLY 3
 
 /// \brief Constructs a Metall manager object
 /// \param mode Open mode
