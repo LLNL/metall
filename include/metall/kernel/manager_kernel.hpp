@@ -135,8 +135,7 @@ class manager_kernel {
 
   /// \brief Expect to be called by a single thread
   /// \param base_dir_path
-  /// \return
-  bool open(const char *base_dir_path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
+  void open(const char *base_dir_path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Expect to be called by a single thread
   void close();

@@ -22,7 +22,7 @@ int main(void) {
 
   // Allocate named object
   {
-    metall_open(METALL_OPEN_OR_CREATE, "/tmp/metall2");
+    metall_open(METALL_CREATE_ONLY, "/tmp/metall2");
 
     uint64_t *array = metall_named_malloc("array", sizeof(uint64_t) * 10);
 

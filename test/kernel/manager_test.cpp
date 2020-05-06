@@ -63,20 +63,6 @@ TEST(ManagerTest, CreateAndOpenModes) {
   {
     manager_type::remove(dir_path().c_str());
     {
-      manager_type manager(metall::open_or_create, dir_path().c_str());
-      [[maybe_unused]] int *a = manager.construct<int>("int")(10);
-    }
-    {
-      manager_type manager(metall::open_or_create, dir_path().c_str());
-      auto ret = manager.find<int>("int");
-      ASSERT_NE(ret.first, nullptr);
-      ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
-    }
-  }
-
-  {
-    manager_type::remove(dir_path().c_str());
-    {
       manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
       [[maybe_unused]] int *a = manager.construct<int>("int")(10);
     }
