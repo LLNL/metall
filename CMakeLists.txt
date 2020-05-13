@@ -15,7 +15,7 @@ endif()
 # Configuration for building test, benchmark, example, etc.
 # -------------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
-project(Metall VERSION 0.1)
+project(Metall VERSION 0.3)
 
 configure_file(MetallConfig.h.in MetallConfig.h)
 include_directories(${PROJECT_BINARY_DIR})
