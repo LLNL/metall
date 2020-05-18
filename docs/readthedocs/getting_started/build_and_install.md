@@ -16,25 +16,36 @@ g++ -std=c++17 -lstdc++fs your_program.cpp -I/path/to/metall/include -I/path/to/
 Note GCC requires linking stdc++fs to use the Filesystem library in C++17.
 
 
-## Insall Using Spack
+## Install Using Spack
+
 Metall package is also available on [Spack](https://spack.io/).
 
-To install Metall using Spack, just type ```spack install metall```.
+To install Metall using Spack, type ```spack install metall```.
 
-As Metall requires Boost C++ Libraries, Spack also install a proper (latest) version of Boost C++ Libraries automatically.
+As Metall requires Boost C++ Libraries, Spack also installs a proper
+(latest) version of Boost C++ Libraries automatically, if needed.
 
-As Spack configure environmental values properly, you can avoid specifying include paths to build your program. 
-For instance,
+As Spack's load command configures environmental values properly, one
+can avoid specifying include paths to build a program with Metall.
+For instance:
+
 ```bash
 spack load metall
 g++ -std=c++17 -lstdc++fs your_program.cpp
 ```
 
 
-## Required
+## Required to Build Metall
 
- - GCC 8.1 or more.
- - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
+- GCC 8.1 or more.
+- Boost C++ Libraries 1.64 or more (build is not required; needs only
+  their header files).
+
+### Unofficial Support For Clang
+Clang can be used instead of GCC to build Metall.
+However, we haven't tested it intensively.
+Also, Boost C++ Libraries 1.69 or more may be required
+if one wants to build Metall with Clang + CUDA.
 
 
 ## Compile-time Options
