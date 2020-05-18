@@ -21,12 +21,8 @@ extern "C" {
 /// \brief Tag to open an already created segment.
 #define METALL_OPEN_ONLY 2
 
-/// \brief Tag to open a segment if it exists.
-/// If it does not exist, creates a new one
-#define METALL_OPEN_OR_CREATE 3
-
 /// \brief Tag to open an already created segment as read only.
-#define METALL_OPEN_READ_ONLY 4
+#define METALL_OPEN_READ_ONLY 3
 
 /// \brief Constructs a Metall manager object
 /// \param mode Open mode
@@ -63,6 +59,24 @@ extern void* metall_find(char *name);
 /// \brief Frees memory with the name
 /// \param name A name of the allocated memory to free
 extern void metall_named_free(const char *name);
+
+/// \brief Snapshot the entire data.
+/// \param destination_path The path to store a snapshot.
+/// \return On success, returns 0. On error, returns -1.
+extern int snapshot(const char *destination_path);
+
+/// \brief Copies backing files synchronously.
+/// \param source_path Source data store path.
+/// \param destination_path Destination data store path.
+/// \return On success, returns 0. On error, returns -1.
+extern int copy(const char *source_path, const char *destination_path);
+
+/// \brief Check if the backing data store is consistent,
+/// i.e. it was closed properly.
+/// \param path A path to the backing data store.
+/// \return Returns a oon-zero integer if the data store is consistent;
+/// otherwise, returns 0.
+extern int consistent(const char *path);
 
 #ifdef __cplusplus
 }

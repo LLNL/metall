@@ -27,6 +27,7 @@
 #include <metall/detail/utility/file_clone.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
+#include <metall/detail/utility/uuid.hpp>
 
 #ifdef METALL_USE_UMAP
 #include <metall/kernel/segment_storage/umap_segment_storage.hpp>
@@ -81,7 +82,7 @@ class manager_kernel {
 #endif
   static constexpr size_type k_max_segment_size = 1ULL << 48ULL; // TODO: get from somewhere else
   static_assert(k_default_vm_reserve_size <= k_max_segment_size, "k_default_vm_reserve_size must be <= k_max_segment_size");
-  using segment_header_type = segment_header<k_chunk_size>;
+  using segment_header_type = segment_header;
   static constexpr size_type k_initial_segment_size = 1ULL << 28ULL; // TODO: get from somewhere else
   static constexpr const char *k_segment_prefix = "segment";
   using segment_storage_type =
@@ -90,6 +91,7 @@ class manager_kernel {
 #else
   multifile_backed_segment_storage<difference_type, size_type>;
 #endif
+  static constexpr const char *k_uuid_file_name = "uuid";
 
   // Actual memory allocation layer
   static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";
@@ -133,8 +135,7 @@ class manager_kernel {
 
   /// \brief Expect to be called by a single thread
   /// \param base_dir_path
-  /// \return
-  bool open(const char *base_dir_path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
+  void open(const char *base_dir_path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Expect to be called by a single thread
   void close();
@@ -191,43 +192,47 @@ class manager_kernel {
                        util::in_place_interface &table);
 
   /// \brief Get the address of the segment header
-  /// \return Returns the adress of the segment header
+  /// \return Returns the address of the segment header
   segment_header_type *get_segment_header() const;
 
-  /// \brief
-  /// \param destination_dir_path
-  /// \return
+  /// \brief Takes a snapshot. The snapshot has a different UUID.
+  /// \param destination_dir_path Destination path
+  /// \return If succeeded, returns True; other false
   bool snapshot(const char *destination_dir_path);
 
-  /// \brief Copies backing files synchronously
-  /// \param source_dir_path
+  /// \brief Copies a data store synchronously, keeping the same UUID.
+  /// \param source_dir_path Destination path
   /// \param destination_dir_path
   /// \return If succeeded, returns True; other false
   static bool copy(const char *source_dir_path, const char *destination_dir_path);
 
-  /// \brief Copies backing files asynchronously
-  /// \param source_dir_path
+  /// \brief Copies a data store asynchronously, keeping the same UUID.
+  /// \param source_dir_path Destination path
   /// \param destination_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
   static std::future<bool> copy_async(const char *source_dir_path, const char *destination_dir_path);
 
-  /// \brief Remove backing files synchronously
-  /// \param dir_path
+  /// \brief Remove a data store synchronously
+  /// \param base_dir_path
   /// \return If succeeded, returns True; other false
-  static bool remove(const char *dir_path);
+  static bool remove(const char *base_dir_path);
 
-  /// \brief Remove backing files asynchronously
-  /// \param dir_path
+  /// \brief Remove a data store asynchronously
+  /// \param base_dir_path
   /// \return Returns an object of std::future
   /// If succeeded, its get() returns True; other false
-  static std::future<bool> remove_async(const char *dir_path);
+  static std::future<bool> remove_async(const char *base_dir_path);
 
   /// \brief Check if the backing data store is consistent,
   /// i.e. it was closed properly.
   /// \param dir_path
   /// \return Return true if it is consistent; otherwise, returns false.
   static bool consistent(const char *dir_path);
+
+  /// \brief Returns the UUID of the backing data store.
+  /// \return UUID in std::string; returns an empty string on error.
+  static std::string get_uuid(const char *dir_path);
 
   /// \brief Show some profile infromation
   /// \tparam out_stream_type
@@ -244,6 +249,7 @@ class manager_kernel {
   static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   bool priv_initialized() const;
+  bool priv_validate_runtime_configuration() const;
 
   static bool priv_properly_closed(const std::string &base_dir_path);
   static bool priv_mark_properly_closed(const std::string &base_dir_path);
@@ -261,6 +267,9 @@ class manager_kernel {
   bool priv_release_vm_region();
   bool priv_allocate_segment_header(void *addr);
   bool priv_deallocate_segment_header();
+
+  static bool priv_store_uuid(const std::string &base_dir_path);
+  static std::string  priv_restore_uuid(const std::string &base_dir_path);
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();

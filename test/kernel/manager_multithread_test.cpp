@@ -189,10 +189,8 @@ TEST(ManagerMultithreadsTest, CheckOpenMP) {
 TEST(ManagerMultithreadsTest, SmallAllocDeallocSeparated) {
 
   std::vector<std::size_t> allocation_size_list;
-  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 2, k_min_object_size * 1);
-  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 1, k_min_object_size * 2);
-  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size / 4, k_min_object_size * 4);
-  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 8);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size * 1);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size * 2);
 
   shuffle_list(&allocation_size_list);
 
@@ -219,17 +217,13 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 #ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocSeparated) {
 
-  const std::size_t num_allocations_per_large_size = 1024;
-
   std::vector<std::size_t> allocation_size_list;
-  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 2, k_min_object_size * 1);
-  allocation_size_list.insert(allocation_size_list.end(), k_chunk_size / k_min_object_size * 1, k_min_object_size * 2);
-  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 4);
-  // allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 8);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 2);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 8);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size * 1);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size * 2);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size * 2);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size * 4);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size * 8);
 
   shuffle_list(&allocation_size_list);
 
@@ -239,13 +233,9 @@ TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocSeparated) {
 
 TEST(ManagerMultithreadsTest, SmallAllocDeallocMixed) {
 
-  const std::size_t num_allocations_per_size = k_chunk_size / k_min_object_size;
-
   std::vector<std::size_t> allocation_size_list;
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 2);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_size, k_min_object_size * 8);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size * 2);
 
   shuffle_list(&allocation_size_list);
 
@@ -271,14 +261,11 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
 #ifdef METALL_RUN_LARGE_SCALE_TEST
 TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
 
-  const std::size_t num_allocations_per_small_size = k_chunk_size / k_min_object_size;
-  const std::size_t num_allocations_per_large_size = 1024;
-
   std::vector<std::size_t> allocation_size_list;
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_small_size, k_min_object_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size);
-  allocation_size_list.insert(allocation_size_list.end(), num_allocations_per_large_size, k_chunk_size * 4);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_min_object_size * 4);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size * 4);
   shuffle_list(&allocation_size_list);
 
   run_alloc_dealloc_mixed_and_write_value_test(allocation_size_list);

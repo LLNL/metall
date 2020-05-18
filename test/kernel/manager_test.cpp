@@ -63,20 +63,6 @@ TEST(ManagerTest, CreateAndOpenModes) {
   {
     manager_type::remove(dir_path().c_str());
     {
-      manager_type manager(metall::open_or_create, dir_path().c_str());
-      [[maybe_unused]] int *a = manager.construct<int>("int")(10);
-    }
-    {
-      manager_type manager(metall::open_or_create, dir_path().c_str());
-      auto ret = manager.find<int>("int");
-      ASSERT_NE(ret.first, nullptr);
-      ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
-    }
-  }
-
-  {
-    manager_type::remove(dir_path().c_str());
-    {
       manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
       [[maybe_unused]] int *a = manager.construct<int>("int")(10);
     }
@@ -549,5 +535,25 @@ TEST(ManagerTest, UniqueConstruct) {
   delete manager;
 }
 
+TEST(ManagerTest, UUID) {
+  manager_type::remove(dir_path().c_str());
+  std::string uuid;
+  {
+    manager_type manager(metall::create_only, dir_path().c_str());
+
+    uuid = manager_type::get_uuid(dir_path().c_str());
+    ASSERT_FALSE(uuid.empty());
+  }
+
+  { // Returns the same UUID?
+    manager_type manager(metall::open_only, dir_path().c_str());
+    ASSERT_EQ(manager_type::get_uuid(dir_path().c_str()), uuid);
+  }
+
+  { // Returns a new UUID?
+    manager_type manager(metall::create_only, dir_path().c_str());
+    ASSERT_NE(manager_type::get_uuid(dir_path().c_str()), uuid);
+  }
+}
 }
 

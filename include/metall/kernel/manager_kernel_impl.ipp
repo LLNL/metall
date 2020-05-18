@@ -29,8 +29,7 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
     , m_named_object_directory_mutex()
 #endif
 {
-  if (m_segment_storage.page_size() > k_chunk_size) {
-    std::cerr << "The page size of the segment storage must be equal or smaller than the chunk size" << std::endl;
+  if (!priv_validate_runtime_configuration()) {
     std::abort();
   }
 }
@@ -48,6 +47,10 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path, const size_type vm_reserve_size) {
+  if (!priv_validate_runtime_configuration()) {
+    std::abort();
+  }
+
   if (vm_reserve_size > k_max_segment_size) {
     std::cerr << "Too large VM region size is requested " << vm_reserve_size << " byte." << std::endl;
     std::abort();
@@ -77,18 +80,22 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path
     std::cerr << "Cannot create application data segment" << std::endl;
     std::abort();
   }
+
+  if (!priv_store_uuid(m_base_dir_path)) {
+    std::abort();
+  }
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                                                      const bool read_only,
                                                      const size_type vm_reserve_size) {
-  if (!m_segment_storage.openable(priv_make_file_name(base_dir_path, k_segment_prefix))) {
-    return false; // This is not an fatal error due to the open_or_create mode
+  if (!priv_validate_runtime_configuration()) {
+    std::abort();
   }
 
-  if (!priv_properly_closed(base_dir_path)) {
-    std::cerr << "Backing data store was not closed properly. The data might have been collapsed." << std::endl;
+  if (!consistent(base_dir_path)) {
+    std::cerr << "Inconsistent data store — it was not closed properly and might have been collapsed." << std::endl;
     std::abort();
   }
 
@@ -120,8 +127,6 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
   if (!priv_deserialize_management_data()) {
     std::abort();
   }
-
-  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -282,12 +287,19 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination
   assert(priv_initialized());
   m_segment_storage.sync(true);
   priv_serialize_management_data();
+
   if (!priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true)) {
     return false;
   }
+
+  if (!priv_store_uuid(destination_base_dir_path)) {
+    return false;
+  }
+
   if (!priv_mark_properly_closed(destination_base_dir_path)) {
     return false;
   }
+
   return true;
 }
 
@@ -305,18 +317,23 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::copy_async(const char *source_dir_pat
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::remove(const char *dir_path) {
-  return priv_remove_data_store(dir_path);
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::remove(const char *base_dir_path) {
+  return priv_remove_data_store(base_dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const char *dir_path) {
-  return std::async(std::launch::async, remove, dir_path);
+std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const char *base_dir_path) {
+  return std::async(std::launch::async, remove, base_dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::consistent(const char *dir_path) {
   return priv_properly_closed(dir_path);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid(const char *dir_path) {
+ return priv_restore_uuid(dir_path);
 }
 
 // -------------------------------------------------------------------------------- //
@@ -346,12 +363,12 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const s
     }
   }
 
-  if (!util::remove_file(priv_make_datastore_dir_path(base_dir_path))) {
-    std::cerr << "Failed to remove: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
+  if (!remove(base_dir_path.c_str())) {
+    std::cerr << "Failed to remove an existing data store: " << base_dir_path << std::endl;
     return false;
   }
 
-  // Create the datastore directory if needed
+  // Create the data store directory if needed
   if (!util::create_directory(priv_make_datastore_dir_path(base_dir_path))) {
     std::cerr << "Failed to create directory: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
     return false;
@@ -365,6 +382,32 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_initialized() const {
   assert(!m_base_dir_path.empty());
   assert(m_segment_storage.get_segment());
   return (m_vm_region && m_vm_region_size > 0 && m_segment_header && m_segment_storage.size() > 0);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_validate_runtime_configuration() const {
+  const auto system_page_size = util::get_page_size();
+  if (system_page_size <= 0) {
+    std::cerr << "Failed to get the system page size" << std::endl;
+    return false;
+  }
+
+  if (k_chunk_size % system_page_size != 0) {
+    std::cerr << "The chunk size must be a multiple of the system page size" << std::endl;
+    return false;
+  }
+
+  if (m_segment_storage.page_size() > k_chunk_size) {
+    std::cerr << "The page size of the segment storage must be equal or smaller than the chunk size" << std::endl;
+    return false;
+  }
+
+  if (m_segment_storage.page_size() % system_page_size != 0) {
+    std::cerr << "The page size of the segment storage must be a multiple of the system page size" << std::endl;
+    return false;
+  }
+
+  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -423,13 +466,8 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_allocate_segment_header(void *co
   if (!addr) {
     return false;
   }
-  const auto page_size = util::get_page_size();
-  if (page_size <= 0) {
-    std::cerr << "Failed to get system page size" << std::endl;
-    return false;
-  }
 
-  m_segment_header_size = util::round_up(sizeof(segment_header_type), page_size);
+  m_segment_header_size = util::round_up(sizeof(segment_header_type), k_chunk_size);
   if (util::map_anonymous_write_mode(addr, m_segment_header_size, MAP_FIXED) != addr) {
     std::cerr << "Cannot allocate segment header" << std::endl;
     return false;
@@ -450,6 +488,43 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_segment_header() {
   m_segment_header = nullptr;
   m_segment_header_size = 0;
   return ret;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_store_uuid(const std::string &base_dir_path) {
+  std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
+  std::ofstream ofs(file_name);
+  if (!ofs) {
+    std::cerr << "Failed to create a file: " << file_name << std::endl;
+    return false;
+  }
+  ofs << util::uuid(util::uuid_random_generator{}());
+  if (!ofs) {
+    std::cerr << "Cannot write A UUID to a file: " << file_name << std::endl;
+    return false;
+  }
+  ofs.close();
+
+  return true;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_restore_uuid(const std::string &base_dir_path) {
+  std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
+  std::ifstream ifs(file_name);
+
+  if (!ifs.is_open()) {
+    std::cerr << "Failed to open a file: " << file_name << std::endl;
+    return "";
+  }
+
+  std::string uuid_string;
+  if (!(ifs >> uuid_string)) {
+    std::cerr << "Failed to read a file: " << file_name << std::endl;
+    return "";
+  }
+
+  return uuid_string;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -557,11 +632,8 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::strin
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::string &dir_path) {
-  if (!util::directory_exist(dir_path)) {
-    return false;
-  }
-  return util::remove_file(dir_path);
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::string &base_dir_path) {
+  return util::remove_file(priv_make_datastore_dir_path(base_dir_path));
 }
 
 } // namespace kernel

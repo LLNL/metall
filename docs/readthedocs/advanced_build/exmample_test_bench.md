@@ -24,8 +24,8 @@ cmake build_doc  # option; BUILD_DOC must be ON when running cmake
 In addition to the standard CMake options, we have two additional options:
 
 * BUILD_DOC
-  * Build API document using Doxygen
-  * One can also build the document by using doxygen directly; see README.md in the repository of Metall.
+    * Build API document using Doxygen
+    * One can also build the document by using doxygen directly; see README.md in the repository of Metall.
 
 * BUILD_BENCH
     * Builds subdirectory bench/

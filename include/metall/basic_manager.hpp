@@ -80,11 +80,8 @@ class basic_manager {
   basic_manager(open_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    const bool read_only = false;
-    if (!m_kernel.open(base_path, read_only)) {
-      std::cerr << "Cannot open " << base_path << std::endl;
-      std::abort();
-    }
+    constexpr bool read_only = false;
+    m_kernel.open(base_path, read_only);
   }
 
   /// \brief Opens an existing data store with the read only mode.
@@ -94,14 +91,11 @@ class basic_manager {
   basic_manager(open_read_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    const bool read_only = true;
-    if (!m_kernel.open(base_path, read_only)) {
-      std::cerr << "Cannot open " << base_path << std::endl;
-      std::abort();
-    }
+    constexpr bool read_only = true;
+    m_kernel.open(base_path, read_only);
   }
 
-  /// \brief Creats a new data store (an existing data store will be overwritten).
+  /// \brief Creates a new data store (an existing data store will be overwritten).
   /// \param base_path Path to create a data store.
   /// \param allocator Allocator to allocate management data.
   basic_manager(create_only_t, const char *base_path,
@@ -110,7 +104,7 @@ class basic_manager {
     m_kernel.create(base_path);
   }
 
-  /// \brief Creats a new data store (an existing data store will be overwritten).
+  /// \brief Creates a new data store (an existing data store will be overwritten).
   /// \param base_path Path to create a data store.
   /// \param capacity Maximum total allocation size.
   /// \param allocator Allocator to allocate management data.
@@ -118,33 +112,6 @@ class basic_manager {
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
     m_kernel.create(base_path, capacity);
-  }
-
-  /// \brief Opens an existing data store if exist.
-  /// Otherwise, creates a new one.
-  /// \param base_path Path to create a data store.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(open_or_create_t, const char *base_path,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
-    const bool read_only = false;
-    if (!m_kernel.open(base_path, read_only)) {
-      m_kernel.create(base_path);
-    }
-  }
-
-  /// \brief Opens an existing data store if exist.
-  /// Otherwise, creates a new one.
-  /// \param base_path Path to create a data store.
-  /// \param capacity  Maximum total allocation size.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(open_or_create_t, const char *base_path, const size_type capacity,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
-    const bool read_only = false;
-    if (!m_kernel.open(base_path, read_only)) {
-      m_kernel.create(base_path, capacity);
-    }
   }
 
   /// \brief Deleted.
@@ -297,8 +264,8 @@ class basic_manager {
 
   // -------------------- Allocate memory by size -------------------- //
   /// \brief Allocates nbytes bytes.
-  /// \param nbytes Number of bytes to allocate
-  /// \return Returns a pointer to the allocated memory
+  /// \param nbytes Number of bytes to allocate.
+  /// \return Returns a pointer to the allocated memory.
   void *allocate(size_type nbytes) {
     return m_kernel.allocate(nbytes);
   }
@@ -307,7 +274,7 @@ class basic_manager {
   /// \param nbytes Number of bytes to allocate. Must be a multiple alignment.
   /// \param alignment Alignment size.
   /// Alignment must be a power of two and satisfy [min allocation size, chunk size].
-  /// \return Returns a pointer to the allocated memory
+  /// \return Returns a pointer to the allocated memory.
   void *allocate_aligned(size_type nbytes,
                          size_type alignment) {
     return m_kernel.allocate_aligned(nbytes, alignment);
@@ -315,8 +282,8 @@ class basic_manager {
 
   // void allocate_many(const std::nothrow_t &tag, size_type elem_bytes, size_type n_elements, multiallocation_chain &chain);
 
-  /// \brief Deallocates the allocated memory
-  /// \param addr A pointer to the allocated memory to be deallocated
+  /// \brief Deallocates the allocated memory.
+  /// \param addr A pointer to the allocated memory to be deallocated.
   void deallocate(void *addr) {
     return m_kernel.deallocate(addr);
   }
@@ -324,7 +291,7 @@ class basic_manager {
   // void deallocate_many(multiallocation_chain &chain);
 
   // -------------------- Flush -------------------- //
-  /// \brief Flush data to persistent memory
+  /// \brief Flush data to persistent memory.
   /// \param synchronous If true, performs synchronous operation;
   /// otherwise, performs asynchronous operation.
   void flush(const bool synchronous = true) {
@@ -332,48 +299,48 @@ class basic_manager {
   }
 
   // -------------------- Utility Methods -------------------- //
-  /// \brief Returns a STL compatible allocator object
-  /// \tparam T Type of the object
-  /// \return Returns a STL compatible allocator object
+  /// \brief Returns a STL compatible allocator object.
+  /// \tparam T Type of the object.
+  /// \return Returns a STL compatible allocator object.
   template <typename T = std::byte>
   allocator_type<T> get_allocator() {
     return allocator_type<T>(reinterpret_cast<manager_kernel_type **>(&(m_kernel.get_segment_header()->manager_kernel_address)));
   }
 
-  /// \brief Snapshot the entire data
-  /// \param destination_dir_path The prefix of the snapshot files
-  /// \return Returns true on success; other false
+  /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
+  /// \param destination_dir_path Path to store a snapshot.
+  /// \return Returns true on success; other false.
   bool snapshot(const char *destination_dir_path) {
     return m_kernel.snapshot(destination_dir_path);
   }
 
-  /// \brief Copies backing files synchronously
-  /// \param source_dir_path
-  /// \param destination_dir_path
-  /// \return If succeeded, returns True; other false
+  /// \brief Copies backing files synchronously.
+  /// \param source_dir_path Source data store path.
+  /// \param destination_dir_path Destination data store path.
+  /// \return If succeeded, returns True; other false.
   static bool copy(const char *source_dir_path, const char *destination_dir_path) {
     return manager_kernel_type::copy(source_dir_path, destination_dir_path);
   }
 
-  /// \brief Copies backing files asynchronously
-  /// \param source_dir_path
-  /// \param destination_dir_path
-  /// \return Returns an object of std::future
-  /// If succeeded, its get() returns True; other false
+  /// \brief Copies backing files asynchronously.
+  /// \param source_dir_path Source data store path.
+  /// \param destination_dir_path Destination data store path.
+  /// \return Returns an object of std::future.
+  /// If succeeded, its get() returns True; other false.
   static auto copy_async(const char *source_dir_path, const char *destination_dir_path) {
     return manager_kernel_type::copy_async(source_dir_path, destination_dir_path);
   }
 
-  /// \brief Remove backing files synchronously
-  /// \param dir_path
-  /// \return If succeeded, returns True; other false
+  /// \brief Remove backing files synchronously.
+  /// \param dir_path Path to a data store to remove.
+  /// \return If succeeded, returns True; other false.
   static bool remove(const char *dir_path) {
     return manager_kernel_type::remove(dir_path);
   }
 
-  /// \brief Remove backing files asynchronously
-  /// \param dir_path
-  /// \return Returns an object of std::future
+  /// \brief Remove backing files asynchronously.
+  /// \param dir_path Path to a data store to remove.
+  /// \return Returns an object of std::future.
   /// If succeeded, its get() returns True; other false
   static std::future<bool> remove_async(const char *dir_path) {
     return std::async(std::launch::async, remove, dir_path);
@@ -381,22 +348,29 @@ class basic_manager {
 
   /// \brief Check if the backing data store is consistent,
   /// i.e. it was closed properly.
-  /// \param dir_path
+  /// \param dir_path Path to a data store.
   /// \return Return true if it is consistent; otherwise, returns false.
   static bool consistent(const char *dir_path) {
     return manager_kernel_type::consistent(dir_path);
   }
 
-  /// \brief Returns the internal chunk size
-  /// \return The size of internal chunk size
+  /// \brief Returns the internal chunk size.
+  /// \return The size of internal chunk size.
   static constexpr size_type chunk_size() {
     return k_chunk_size;
   }
 
-  /// \brief Returns a pointer to an object of manager_kernel_type class
-  /// \return Returns a pointer to an object of manager_kernel_type class
+  /// \brief Returns a pointer to an object of manager_kernel_type class.
+  /// \return Returns a pointer to an object of manager_kernel_type class.
   manager_kernel_type *get_kernel() {
     return &m_kernel;
+  }
+
+  /// \brief Returns a UUID of the data store.
+  /// \param dir_path Path to a data store.
+  /// \return UUID in the std::string format; returns an empty string on error.
+  static std::string get_uuid(const char *dir_path) {
+    return manager_kernel_type::get_uuid(dir_path);
   }
 
   // -------------------- For profiling and debug -------------------- //
