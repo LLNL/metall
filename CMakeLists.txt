@@ -31,7 +31,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(BUILD_BENCH "Build the benchmark" ON)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
-option(BUILD_DOC "Build documentation" OFF)
+option(BUILD_DOC "Build API documentation" OFF)
+option(BUILD_DOC_ONLY "Only build API documentation" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
@@ -133,21 +134,11 @@ endif ()
 # Document (Doxygen)
 # -------------------------------------------------------------------------------- #
 if (BUILD_DOC)
-    find_package(Doxygen)
-    if (DOXYGEN_FOUND)
-        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
-        set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-
-        configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-
-        add_custom_target(build_doc ALL
-                COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                COMMENT "Generating API documentation with Doxygen"
-                VERBATIM)
-    else ()
-        message(FATAL_ERROR "Can not find Doxygen")
-    endif ()
+    include(build_doc)
+    build_doc()
+    if(BUILD_DOC_ONLY)
+        return()
+    endif()
 endif ()
 
 
