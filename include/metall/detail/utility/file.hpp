@@ -22,26 +22,30 @@
 #include <fstream>
 
 #ifdef __has_include
-// ----- __has_include(<filesystem>) ----- //
-#if __has_include(<filesystem>)
+
+// Check if the Filesystem library is available
+// METALL_NOT_USE_CXX17_FILESYSTEM_LIB could be set by the CMake configuration file
+#if __has_include(<filesystem>) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
 #include <filesystem>
 #else
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "Cannot find the Filesystem library"
+#warning "The Filesystem library is not available."
 #endif
 #endif
-// ----- End of __has_include(<filesystem>) ----- //
-#else
+
+#else // __has_include is not defined
+
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "__has_include is not defined, consequently disable the Filesystem library"
+#warning "__has_include is not defined, consequently disable the Filesystem library."
 #endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#endif
+
+#endif // #ifdef __has_include
 
 namespace metall {
 namespace detail {
 namespace utility {
 
-#ifdef __cpp_lib_filesystem
+#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
 namespace {
 namespace fs = std::filesystem;
 }
@@ -81,7 +85,7 @@ inline bool fsync(const std::string &path) {
 }
 
 inline bool fsync_recursive(const std::string &path) {
-#ifdef __cpp_lib_filesystem
+#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
   fs::path p(path);
   p = fs::canonical(p);
   while (true) {
@@ -172,7 +176,7 @@ inline bool create_file(const std::string &file_name) {
   return fsync_recursive(file_name);
 }
 
-#ifdef __cpp_lib_filesystem
+#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
 inline bool create_directory(const std::string &dir_path) {
   bool success = true;
   try {
@@ -236,7 +240,7 @@ inline bool directory_exist(const std::string &dir_path) {
 /// \return Upon successful completion, returns true; otherwise, false is returned.
 /// If the file or directory does not exist, true is returned.
 inline bool remove_file(const std::string &path) {
-#ifdef __cpp_lib_filesystem
+#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
   std::filesystem::path p(path);
   std::error_code ec;
   [[maybe_unused]] const auto num_removed = std::filesystem::remove_all(p, ec);
@@ -268,7 +272,7 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 #endif
 }
 
-#ifdef __cpp_lib_filesystem
+#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
 inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
   bool success = true;
   try {
