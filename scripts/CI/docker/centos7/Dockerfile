@@ -19,6 +19,8 @@ WORKDIR /
 # Install GCC
 RUN export PATH=/var/spack/bin:$PATH && \
     . /var/spack/share/spack/setup-env.sh && \
+    spack --insecure install gcc@10.1.0 languages=c,c++ && \
+    spack --insecure install gcc@9.3.0 languages=c,c++ && \
     spack --insecure install gcc@9.2.0 languages=c,c++ && \
     spack --insecure install gcc@9.1.0 languages=c,c++ && \
     spack --insecure install gcc@8.3.0 languages=c,c++ && \
@@ -29,6 +31,7 @@ RUN export PATH=/var/spack/bin:$PATH && \
 # Install Boost
 RUN export PATH=/var/spack/bin:$PATH && \
     . /var/spack/share/spack/setup-env.sh && \
+    spack --insecure install boost@1.73.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
     spack --insecure install boost@1.72.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
     spack --insecure install boost@1.71.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
     spack --insecure install boost@1.70.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
