@@ -270,10 +270,10 @@ T *manager_kernel<chnk_no, chnk_sz, alloc_t>::generic_construct(char_ptr_holder_
     void *const ptr = allocate(num * sizeof(T));
     util::array_construct(ptr, num, table);
     return static_cast<T *>(ptr);
-  } else {
-    const char *const raw_name = (name.is_unique()) ? typeid(T).name() : name.get();
-    return priv_generic_named_construct<T>(raw_name, num, try2find, dothrow, table);
   }
+
+  const char *const raw_name = (name.is_unique()) ? typeid(T).name() : name.get();
+  return priv_generic_named_construct<T>(raw_name, num, try2find, dothrow, table);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>

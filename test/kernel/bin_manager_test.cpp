@@ -15,7 +15,7 @@ namespace {
 using namespace metall::kernel::object_size_manager_detail;
 
 constexpr std::size_t k_chunk_size = metall::manager::chunk_size();
-constexpr std::size_t k_max_size = 1ULL << 48;
+constexpr std::size_t k_max_size = 1ULL << 48ULL;
 using bin_no_mngr = metall::kernel::bin_number_manager<k_chunk_size, k_max_size>;
 
 TEST(BinManagerTest, BinNoType) {
