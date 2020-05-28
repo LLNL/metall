@@ -27,6 +27,10 @@ In addition to the standard CMake options, we have two additional options:
     * Build API document using Doxygen
     * One can also build the document by using doxygen directly; see README.md in the repository of Metall.
 
+* BUILD_DOC_ONLY
+    * Only builds API document
+    * ON or OFF (default is OFF)
+
 * BUILD_BENCH
     * Builds subdirectory bench/
     * ON or OFF (default is ON).

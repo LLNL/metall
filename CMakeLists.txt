@@ -1,3 +1,5 @@
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+
 # -------------------------------------------------------------------------------- #
 # Configuration for installing header file
 # -------------------------------------------------------------------------------- #
@@ -8,7 +10,7 @@ install(DIRECTORY include/metall_utility DESTINATION include)
 option(INSTALL_HEADER_ONLY "Only installing header files" OFF)
 if (INSTALL_HEADER_ONLY)
     return()
-endif()
+endif ()
 # -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
@@ -16,8 +18,8 @@ endif()
 # -------------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
 project(Metall VERSION 0.3)
-
 configure_file(MetallConfig.h.in MetallConfig.h)
+
 include_directories(${PROJECT_BINARY_DIR})
 
 set(CMAKE_CXX_STANDARD 17)
@@ -29,7 +31,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(BUILD_BENCH "Build the benchmark" ON)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
-option(BUILD_DOC "Build documentation" OFF)
+option(BUILD_DOC "Build API documentation" OFF)
+option(BUILD_DOC_ONLY "Only build API documentation" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
@@ -42,8 +45,8 @@ option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(FREE_SMALL_OBJECT_SIZE_HINT
-       "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
-       0)
+        "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
+        0)
 # -------------------------------------------------------------------------------- #
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -54,9 +57,9 @@ endif ()
 # ---------- CPP ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
     set(CMAKE_CXX_FLAGS "-w -pthread")
-else()
+else ()
     set(CMAKE_CXX_FLAGS "-Wall -pthread")
-endif()
+endif ()
 
 # Debug
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
@@ -67,7 +70,7 @@ endif ()
 # Release
 if (RUN_BUILD_AND_TEST_WITH_CI)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-else()
+else ()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 endif ()
 
@@ -80,9 +83,9 @@ endif ()
 # ---------- C ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
     set(CMAKE_C_FLAGS "-w -pthread")
-else()
+else ()
     set(CMAKE_C_FLAGS "-Wall -pthread")
-endif()
+endif ()
 
 # Debug
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
@@ -93,7 +96,7 @@ endif ()
 # Release
 if (RUN_BUILD_AND_TEST_WITH_CI)
     set(CMAKE_C_FLAGS_RELEASE "-O3")
-else()
+else ()
     set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 endif ()
 
@@ -110,42 +113,32 @@ find_package(MPI)
 if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
     add_definitions(-DMETALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
     message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
-endif()
+endif ()
 
 if (VERBOSE_SYSTEM_SUPPORT_WARNING)
     add_definitions(-DMETALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
     message(STATUS "Show compile time warning regarding system support")
-endif()
+endif ()
 
 if (DISABLE_FREE_FILE_SPACE)
     add_definitions(-DMETALL_DISABLE_FREE_FILE_SPACE)
     message(STATUS "Disable freeing file space in Metall")
-endif()
+endif ()
 
 if (DISABLE_SMALL_OBJECT_CACHE)
     add_definitions(-DMETALL_DISABLE_OBJECT_CACHE)
     message(STATUS "Disable small object cache")
-endif()
+endif ()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
 # -------------------------------------------------------------------------------- #
 if (BUILD_DOC)
-    find_package(Doxygen)
-    if (DOXYGEN_FOUND)
-        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
-        set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-
-        configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-
-        add_custom_target(build_doc ALL
-                COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                COMMENT "Generating API documentation with Doxygen"
-                VERBATIM)
-    else ()
-        message(FATAL_ERROR "Can not find Doxygen")
-    endif ()
+    include(build_doc)
+    build_doc()
+    if(BUILD_DOC_ONLY)
+        return()
+    endif()
 endif ()
 
 
@@ -166,24 +159,12 @@ endif ()
 if (ONLY_DOWNLOAD_GTEST)
     add_subdirectory(test)
     return()
-endif()
+endif ()
 
 
 # ---------- filesystem ---------- #
-include(CheckIncludeFileCXX)
-CHECK_INCLUDE_FILE_CXX(filesystem FILESYSTEM_INCLUDE_FILE)
-if (FILESYSTEM_INCLUDE_FILE)
-    # GCC
-    if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-        link_libraries(stdc++fs)
-    endif ()
-    # Clang or AppleClang
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        link_libraries(c++fs)
-    endif ()
-else ()
-    message(NOTICE "Cannot find the filesystem library (C++17). Use own implementation.")
-endif ()
+include(include_cxx_filesystem_library)
+include_cxx_filesystem_library()
 
 # Xcode 11 Beta Release Notes
 # Clang now supports the C++17 <filesystem> library for iOS 13, macOS 10.15, watchOS 6, and tvOS 13. (50988273)
@@ -193,16 +174,16 @@ endif ()
 # ---------- UMap ---------- #
 if (UMAP_ROOT)
     include_directories(${UMAP_ROOT}/include)
-    if(UNIX AND NOT APPLE)
+    if (UNIX AND NOT APPLE)
         find_library(LIBUMAP NAMES umap PATHS ${UMAP_ROOT}/lib)
         if (LIBUMAP)
             link_libraries(${LIBUMAP})
             add_definitions(-DMETALL_USE_UMAP)
-        else()
+        else ()
             message(FATAL_ERROR "Cannot find umap library")
         endif ()
-    endif()
-endif()
+    endif ()
+endif ()
 
 
 # ---------- Boost ---------- #
