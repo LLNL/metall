@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/LLNL/metall.svg?branch=develop)](https://travis-ci.com/LLNL/metall)
+[![pipeline status](https://lc.llnl.gov/gitlab/metall/metall/badges/develop/pipeline.svg)](https://lc.llnl.gov/gitlab/metall/metall/-/commits/develop)
 [![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
 
 Metall (memory allocator for persistent memory)
