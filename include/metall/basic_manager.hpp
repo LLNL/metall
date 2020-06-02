@@ -80,8 +80,7 @@ class basic_manager {
   basic_manager(open_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    constexpr bool read_only = false;
-    m_kernel.open(base_path, read_only);
+    m_kernel.open(base_path);
   }
 
   /// \brief Opens an existing data store with the read only mode.
@@ -91,8 +90,7 @@ class basic_manager {
   basic_manager(open_read_only_t, const char *base_path,
                 const kernel_allocator_type &allocator = kernel_allocator_type())
       : m_kernel(allocator) {
-    constexpr bool read_only = true;
-    m_kernel.open(base_path, read_only);
+    m_kernel.open_read_only(base_path);
   }
 
   /// \brief Creates a new data store (an existing data store will be overwritten).

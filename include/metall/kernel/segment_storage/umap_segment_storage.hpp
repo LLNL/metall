@@ -94,6 +94,21 @@ class umap_segment_storage {
     return util::file_exist(file_name);
   }
 
+  /// \brief Gets the size of an existing segment
+  static size_type get_size(const std::string &base_path) {
+    int block_no = 0;
+    size_type total_file_size = 0;
+    while (true) {
+      const auto file_name = priv_make_file_name(base_path, block_no);
+      if (!util::file_exist(file_name)) {
+        break;
+      }
+      total_file_size += util::get_file_size(file_name);
+      ++block_no;
+    }
+    return total_file_size;
+  }
+
   bool create(const std::string &base_path,
               const size_type vm_region_size,
               void *const vm_region,

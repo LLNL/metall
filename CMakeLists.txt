@@ -28,25 +28,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # -------------------------------------------------------------------------------- #
 # User configurable options
 # -------------------------------------------------------------------------------- #
+option(BUILD_DOC "Build API documentation" OFF)
+option(BUILD_DOC_ONLY "Only build API documentation" OFF)
+option(BUILD_C "Build C examples and libraries" ON)
+option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
+option(DISABLE_FREE_FILE_SPACE "Disable freeing file space" OFF)
+option(DISABLE_SMALL_OBJECT_CACHE "Disable small object cache" OFF)
 option(BUILD_BENCH "Build the benchmark" ON)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
-option(BUILD_DOC "Build API documentation" OFF)
-option(BUILD_DOC_ONLY "Only build API documentation" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
-option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
-option(BUILD_C "Build C examples and libraries" ON)
-option(DISABLE_FREE_FILE_SPACE "Disable freeing file space" OFF)
-option(DISABLE_SMALL_OBJECT_CACHE "Disable small object cache" OFF)
+option(UMAP_ROOT "UMap installed root directory" "")
+
+option(DEFAULT_VM_RESERVE_SIZE
+        "Set the default VM reserve size (use the internally defined value if 0 is specified)" 0)
+option(MAX_SEGMENT_SIZE "Set the max segment size (use the internally defined value if 0 is specified)" 0)
+option(INITIAL_SEGMENT_SIZE "Set the initial segment size (use the internally defined value if 0 is specified)" 0)
 
 # ---------- Experimental options ---------- #
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 option(FREE_SMALL_OBJECT_SIZE_HINT
-        "Free the associated pages and backing file space when objects equal to or larger than this size is deallocated."
-        0)
+        "Try to free the associated pages and file space when objects equal to or larger than that is deallocated" 0)
 # -------------------------------------------------------------------------------- #
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -130,15 +135,30 @@ if (DISABLE_SMALL_OBJECT_CACHE)
     message(STATUS "Disable small object cache")
 endif ()
 
+if (DEFAULT_VM_RESERVE_SIZE GREATER 0)
+    add_definitions(-DMETALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE})
+    message(STATUS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
+endif ()
+
+if (MAX_SEGMENT_SIZE GREATER 0)
+    add_definitions(-DMETALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE})
+    message(STATUS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
+endif ()
+
+if (INITIAL_SEGMENT_SIZE GREATER 0)
+    add_definitions(-DMETALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE})
+    message(STATUS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
+endif ()
+
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
 # -------------------------------------------------------------------------------- #
 if (BUILD_DOC)
     include(build_doc)
     build_doc()
-    if(BUILD_DOC_ONLY)
+    if (BUILD_DOC_ONLY)
         return()
-    endif()
+    endif ()
 endif ()
 
 
@@ -180,7 +200,7 @@ if (UMAP_ROOT)
             link_libraries(${LIBUMAP})
             add_definitions(-DMETALL_USE_UMAP)
         else ()
-            message(FATAL_ERROR "Cannot find umap library")
+            message(FATAL_ERROR "Cannot find UMap library")
         endif ()
     endif ()
 endif ()
