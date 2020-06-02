@@ -17,6 +17,7 @@
 
 #include <metall/offset_ptr.hpp>
 #include <metall/kernel/manager_kernel_fwd.hpp>
+#include <metall/kernel/manager_kernel_defs.hpp>
 #include <metall/kernel/segment_header.hpp>
 #include <metall/kernel/segment_allocator.hpp>
 #include <metall/kernel/named_object_directory.hpp>
@@ -73,27 +74,31 @@ class manager_kernel {
   static constexpr const char *k_datastore_dir_name = "metall_datastore";
 
   // For segment
-  // TODO: get from somewhere else
-  static constexpr size_type k_default_vm_reserve_size =
-#if defined(__linux__)
-      1ULL << 43ULL;
-#elif defined(__APPLE__)
-      1ULL << 42ULL;
-#endif
-  static constexpr size_type k_max_segment_size = 1ULL << 48ULL; // TODO: get from somewhere else
-  static_assert(k_default_vm_reserve_size <= k_max_segment_size, "k_default_vm_reserve_size must be <= k_max_segment_size");
-  using segment_header_type = segment_header;
-  static constexpr size_type k_initial_segment_size = 1ULL << 28ULL; // TODO: get from somewhere else
+  static constexpr size_type k_default_vm_reserve_size = METALL_DEFAULT_VM_RESERVE_SIZE;
+  static_assert(k_chunk_size <= k_default_vm_reserve_size, "Chunk size must be <= k_default_vm_reserve_size");
+
+  static constexpr size_type k_max_segment_size = METALL_MAX_SEGMENT_SIZE;
+  static_assert(k_default_vm_reserve_size <= k_max_segment_size,
+                "k_default_vm_reserve_size must be <= k_max_segment_size");
+
+  static constexpr size_type k_initial_segment_size = METALL_INITIAL_SEGMENT_SIZE;
+  static_assert(k_initial_segment_size <= k_default_vm_reserve_size,
+                "k_initial_segment_size must be <= k_default_vm_reserve_size");
+  static_assert(k_chunk_size <= k_initial_segment_size, "Chunk size must be <= k_initial_segment_size");
+
   static constexpr const char *k_segment_prefix = "segment";
+
+  using segment_header_type = segment_header;
   using segment_storage_type =
 #ifdef METALL_USE_UMAP
   umap_segment_storage<difference_type, size_type>;
 #else
   multifile_backed_segment_storage<difference_type, size_type>;
 #endif
+
   static constexpr const char *k_uuid_file_name = "uuid";
 
-  // Actual memory allocation layer
+  // For actual memory allocation layer
   static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";
   using segment_memory_allocator = segment_allocator<chunk_no_type, size_type, difference_type,
                                                      k_chunk_size, k_max_segment_size,
@@ -128,14 +133,22 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
-  /// \brief Expect to be called by a single thread
+  /// \brief Creates a new datastore
+  /// Expect to be called by a single thread
   /// \param base_dir_path
   /// \param vm_reserve_size
   void create(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
 
-  /// \brief Expect to be called by a single thread
+  /// \brief Opens an existing datastore
+  /// Expect to be called by a single thread
   /// \param base_dir_path
-  void open(const char *base_dir_path, bool read_only, size_type vm_reserve_size = k_default_vm_reserve_size);
+  /// \param vm_reserve_size
+  void open(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
+
+  /// \brief Opens an existing datastore with read only
+  /// Expect to be called by a single thread
+  /// \param base_dir_path
+  void open_read_only(const char *base_dir_path);
 
   /// \brief Expect to be called by a single thread
   void close();
@@ -269,7 +282,9 @@ class manager_kernel {
   bool priv_deallocate_segment_header();
 
   static bool priv_store_uuid(const std::string &base_dir_path);
-  static std::string  priv_restore_uuid(const std::string &base_dir_path);
+  static std::string priv_restore_uuid(const std::string &base_dir_path);
+
+  void priv_open(const char *base_dir_path, const bool read_only, const size_type vm_reserve_size_request = 0);
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();

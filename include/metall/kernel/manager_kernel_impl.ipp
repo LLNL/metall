@@ -87,46 +87,14 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::open_read_only(const char *base_dir_path) {
+  priv_open(base_dir_path, true, 0);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
-                                                     const bool read_only,
-                                                     const size_type vm_reserve_size) {
-  if (!priv_validate_runtime_configuration()) {
-    std::abort();
-  }
-
-  if (!consistent(base_dir_path)) {
-    std::cerr << "Inconsistent data store — it was not closed properly and might have been collapsed." << std::endl;
-    std::abort();
-  }
-
-  m_base_dir_path = base_dir_path;
-
-  if (!priv_reserve_vm_region(vm_reserve_size)) {
-    std::abort();
-  }
-
-  if (!priv_allocate_segment_header(m_vm_region)) {
-    std::abort();
-  }
-
-  // Clear the consistent mark before opening with the write mode
-  if (!read_only && !priv_unmark_properly_closed(m_base_dir_path)) {
-    std::cerr << "Failed to erase the properly close mark before opening" << std::endl;
-    std::abort();
-  }
-
-  const size_type offset = m_segment_header_size
-      + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
-  if (!m_segment_storage.open(priv_make_file_name(m_base_dir_path, k_segment_prefix),
-                              m_vm_region_size - offset,
-                              static_cast<char *>(m_vm_region) + offset,
-                              read_only)) {
-    std::abort();
-  }
-
-  if (!priv_deserialize_management_data()) {
-    std::abort();
-  }
+                                                     const size_type vm_reserve_size_request) {
+  priv_open(base_dir_path, false, vm_reserve_size_request);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -333,7 +301,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::consistent(const char *dir_path)
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid(const char *dir_path) {
- return priv_restore_uuid(dir_path);
+  return priv_restore_uuid(dir_path);
 }
 
 // -------------------------------------------------------------------------------- //
@@ -568,6 +536,54 @@ priv_generic_named_construct(const char_type *const name,
   }
 
   return static_cast<T *>(ptr);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_path,
+                                                          const bool read_only,
+                                                          const size_type vm_reserve_size_request) {
+  if (!priv_validate_runtime_configuration()) {
+    std::abort();
+  }
+
+  if (!consistent(base_dir_path)) {
+    std::cerr << "Inconsistent data store — it was not closed properly and might have been collapsed." << std::endl;
+    std::abort();
+  }
+
+  m_base_dir_path = base_dir_path;
+
+  const size_type existing_segment_size = segment_storage_type::get_size(priv_make_file_name(m_base_dir_path,
+                                                                                             k_segment_prefix));
+  const size_type vm_reserve_size = (read_only) ? existing_segment_size
+                                                : std::max(existing_segment_size, vm_reserve_size_request);
+
+  if (!priv_reserve_vm_region(vm_reserve_size)) {
+    std::abort();
+  }
+
+  if (!priv_allocate_segment_header(m_vm_region)) {
+    std::abort();
+  }
+
+  // Clear the consistent mark before opening with the write mode
+  if (!read_only && !priv_unmark_properly_closed(m_base_dir_path)) {
+    std::cerr << "Failed to erase the properly close mark before opening" << std::endl;
+    std::abort();
+  }
+
+  const size_type offset = m_segment_header_size
+      + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
+  if (!m_segment_storage.open(priv_make_file_name(m_base_dir_path, k_segment_prefix),
+                              m_vm_region_size - offset,
+                              static_cast<char *>(m_vm_region) + offset,
+                              read_only)) {
+    std::abort();
+  }
+
+  if (!priv_deserialize_management_data()) {
+    std::abort();
+  }
 }
 
 // ---------------------------------------- For serializing/deserializing ---------------------------------------- //

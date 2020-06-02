@@ -80,12 +80,28 @@ class multifile_backed_segment_storage {
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
-  /// \brief Check if there is a file that can be opened
+  /// \brief Checks if there is a file that can be opened
   static bool openable(const std::string &base_path) {
     const auto file_name = priv_make_file_name(base_path, 0);
     return util::file_exist(file_name);
   }
 
+  /// \brief Gets the size of an existing segment
+  static size_type get_size(const std::string &base_path) {
+    int block_no = 0;
+    size_type total_file_size = 0;
+    while (true) {
+      const auto file_name = priv_make_file_name(base_path, block_no);
+      if (!util::file_exist(file_name)) {
+        break;
+      }
+      total_file_size += util::get_file_size(file_name);
+      ++block_no;
+    }
+    return total_file_size;
+  }
+
+  /// \brief Creates a new segment
   bool create(const std::string &base_path,
               const size_type vm_region_size,
               void *const vm_region,
@@ -118,6 +134,7 @@ class multifile_backed_segment_storage {
     return true;
   }
 
+  /// \brief Opens an existing segment
   bool open(const std::string &base_path, const size_type vm_region_size, void *const vm_region, const bool read_only) {
     assert(!priv_inited());
 
@@ -155,6 +172,7 @@ class multifile_backed_segment_storage {
     return m_num_blocks > 0;
   }
 
+  /// Extends the currently opened segment if necesarry
   bool extend(const size_type new_segment_size) {
     assert(priv_inited());
 
