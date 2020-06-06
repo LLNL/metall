@@ -172,7 +172,7 @@ class multifile_backed_segment_storage {
     return m_num_blocks > 0;
   }
 
-  /// Extends the currently opened segment if necesarry
+  /// Extends the currently opened segment if necessary
   bool extend(const size_type new_segment_size) {
     assert(priv_inited());
 
@@ -316,7 +316,7 @@ class multifile_backed_segment_storage {
 
     // Protect the region to detect unexpected write by application during msync
     if (!util::mprotect_read_only(m_segment, m_current_segment_size)) {
-     std::cerr << "Failed to protection the segment with the read only mode" << std::endl;
+     std::cerr << "Failed to protect the segment with the read only mode" << std::endl;
      std::abort();
     }
     if (!util::os_msync(m_segment, m_current_segment_size, sync)) {

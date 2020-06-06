@@ -113,8 +113,8 @@ inline std::pair<int, void *> map_file_read_mode(const std::string &file_name, v
 
 /// \brief Map a file with write mode
 /// \param file_name The name of file to be mapped
-/// \param addr Normaly nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
-/// \param length The lenght of the map
+/// \param addr Normally nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
+/// \param length The length of the map
 /// \param offset The offset in the file
 /// \return A pair of the file descriptor of the file and the starting address for the map
 inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, void *const addr,
