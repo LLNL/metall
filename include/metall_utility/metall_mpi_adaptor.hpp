@@ -40,12 +40,22 @@ class metall_mpi_adaptor {
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_read_only, m_local_dir_path.c_str());
   }
 
-  metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
+  metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir,
+                     const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
         m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager(nullptr) {
     setup_inter_level_dir(data_store_dir, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only, m_local_dir_path.c_str());
+  }
+
+  metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir, const std::size_t capacity,
+                     const MPI_Comm &comm = MPI_COMM_WORLD)
+      : m_mpi_comm(comm),
+        m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
+        m_local_metall_manager(nullptr) {
+    setup_inter_level_dir(data_store_dir, comm);
+    m_local_metall_manager = std::make_unique<manager_type>(metall::create_only, m_local_dir_path.c_str(), capacity);
   }
 
   ~metall_mpi_adaptor() {
