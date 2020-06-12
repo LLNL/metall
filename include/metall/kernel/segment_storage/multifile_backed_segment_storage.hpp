@@ -11,6 +11,7 @@
 #include <cassert>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/mmap.hpp>
+#include <metall/detail/utility/common.hpp>
 
 namespace metall {
 namespace kernel {
@@ -172,32 +173,34 @@ class multifile_backed_segment_storage {
     return m_num_blocks > 0;
   }
 
-  /// Extends the currently opened segment if necesarry
-  bool extend(const size_type new_segment_size) {
+  /// Extends the currently opened segment if necessary
+  bool extend(const size_type request_size) {
     assert(priv_inited());
 
     if (m_read_only) {
       return false;
     }
 
-    if (new_segment_size > m_vm_region_size) {
-      std::cerr << "Requested segment size is too big" << std::endl;
+    if (request_size > m_vm_region_size) {
+      std::cerr << "Requested segment size is bigger than the reserved VM size" << std::endl;
       return false;
     }
 
-    if (new_segment_size <= m_current_segment_size) {
-      return true; // Already enough segment size
+    if (request_size <= m_current_segment_size) {
+      return true; // Already has enough segment size
     }
+
+    const auto new_size = std::max((size_type)util::next_power_of_2(request_size), m_current_segment_size * 2);
 
     if (!priv_create_and_map_file(m_base_path,
                                   m_num_blocks,
-                                  new_segment_size - m_current_segment_size,
+                                  new_size - m_current_segment_size,
                                   static_cast<char *>(m_segment) + m_current_segment_size)) {
       priv_reset();
       return false;
     }
     ++m_num_blocks;
-    m_current_segment_size = new_segment_size;
+    m_current_segment_size = new_size;
 
     return true;
   }
@@ -316,7 +319,7 @@ class multifile_backed_segment_storage {
 
     // Protect the region to detect unexpected write by application during msync
     if (!util::mprotect_read_only(m_segment, m_current_segment_size)) {
-     std::cerr << "Failed to protection the segment with the read only mode" << std::endl;
+     std::cerr << "Failed to protect the segment with the read only mode" << std::endl;
      std::abort();
     }
     if (!util::os_msync(m_segment, m_current_segment_size, sync)) {

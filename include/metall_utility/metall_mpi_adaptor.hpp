@@ -40,12 +40,22 @@ class metall_mpi_adaptor {
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_read_only, m_local_dir_path.c_str());
   }
 
-  metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
+  metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir,
+                     const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
         m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
         m_local_metall_manager(nullptr) {
     setup_inter_level_dir(data_store_dir, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only, m_local_dir_path.c_str());
+  }
+
+  metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir, const std::size_t capacity,
+                     const MPI_Comm &comm = MPI_COMM_WORLD)
+      : m_mpi_comm(comm),
+        m_local_dir_path(make_local_dir_path(data_store_dir, comm)),
+        m_local_metall_manager(nullptr) {
+    setup_inter_level_dir(data_store_dir, comm);
+    m_local_metall_manager = std::make_unique<manager_type>(metall::create_only, m_local_dir_path.c_str(), capacity);
   }
 
   ~metall_mpi_adaptor() {
@@ -68,27 +78,20 @@ class metall_mpi_adaptor {
     return m_local_dir_path;
   }
 
-  static bool copy(const char *source_dir_path, const char *destination_dir_path, const MPI_Comm &comm = MPI_COMM_WORLD) {
-    const auto success = manager_type::copy(make_local_dir_path(source_dir_path, comm).c_str(),
-                                            make_local_dir_path(destination_dir_path, comm).c_str());
-    const char local = success ? 1 : 0;
-    char global = 0;
-    if (::MPI_Allreduce(&local, &global, 1, MPI_CHAR, MPI_LAND, comm) != MPI_SUCCESS) {
-      return false;
-    }
-    return global;
+  static bool copy(const char *source_dir_path,
+                   const char *destination_dir_path,
+                   const MPI_Comm &comm = MPI_COMM_WORLD) {
+    return global_or(manager_type::copy(make_local_dir_path(source_dir_path, comm).c_str(),
+                                        make_local_dir_path(destination_dir_path, comm).c_str()), comm);
   }
 
   bool snapshot(const char *destination_dir_path) {
-    const auto success =
-        m_local_metall_manager->snapshot(make_local_dir_path(destination_dir_path, m_mpi_comm).c_str());
+    return global_or(m_local_metall_manager->snapshot(make_local_dir_path(destination_dir_path, m_mpi_comm).c_str()),
+                     m_mpi_comm);
+  }
 
-    const char local = success ? 1 : 0;
-    char global = 0;
-    if (::MPI_Allreduce(&local, &global, 1, MPI_CHAR, MPI_LAND, m_mpi_comm) != MPI_SUCCESS) {
-      return false;
-    }
-    return global;
+  static bool remove(const char *dir_path, const MPI_Comm &comm = MPI_COMM_WORLD) {
+    return manager_type::remove(make_local_dir_path(dir_path, comm).c_str());
   }
 
  private:
@@ -144,6 +147,14 @@ class metall_mpi_adaptor {
       std::cerr << __FILE__ << " : " << __func__ << " Failed MPI_Barrier" << std::endl;
       ::MPI_Abort(comm, -1);
     }
+  }
+
+  static bool global_or(const bool local_result, const MPI_Comm &comm) {
+    char global_result = 0;
+    if (::MPI_Allreduce(&local_result, &global_result, 1, MPI_CHAR, MPI_LAND, comm) != MPI_SUCCESS) {
+      return false;
+    }
+    return global_result;
   }
 
   MPI_Comm m_mpi_comm;
