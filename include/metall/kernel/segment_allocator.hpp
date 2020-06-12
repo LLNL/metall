@@ -359,14 +359,12 @@ class segment_allocator {
   }
 
   void priv_extend_segment(const chunk_no_type head_chunk_no, const size_type num_chunks) {
-    // TODO: implement more sophisticated algorithm
     const size_type required_segment_size = (head_chunk_no + num_chunks) * k_chunk_size;
     if (required_segment_size <= m_segment_storage->size()) {
       return;
     }
-    const auto size = std::max((size_type)required_segment_size, (size_type)(m_segment_storage->size() * 2));
-    if (!m_segment_storage->extend(size)) {
-      std::cerr << "Failed to extend application data segment to " << size << " bytes" << std::endl;
+    if (!m_segment_storage->extend(required_segment_size)) {
+      std::cerr << "Failed to extend application data segment to " << required_segment_size << " bytes" << std::endl;
       std::abort();
     }
   }

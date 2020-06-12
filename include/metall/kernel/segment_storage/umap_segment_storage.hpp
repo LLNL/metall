@@ -20,6 +20,7 @@
 #include <cassert>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/mmap.hpp>
+#include <metall/detail/utility/common.hpp>
 
 namespace metall {
 namespace kernel {
