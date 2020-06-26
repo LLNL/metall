@@ -47,7 +47,7 @@ std::size_t get_system_page_size() {
   return static_cast<std::size_t>(page_size);
 }
 
-inline void os_fsync(const int fd) {
+void os_fsync(const int fd) {
   if (::fsync(fd) != 0) {
     ::perror("fsync");
     std::cerr << "errno: " << errno << std::endl;
@@ -66,12 +66,13 @@ void *map_file_read_mode(const std::string &file_name, const std::size_t size) {
     std::cerr << "errno: " << errno << std::endl;
     std::abort();
   }
+  os_fsync(fd);
 
   void *mapped_addr = ::mmap(nullptr, size, PROT_READ, MAP_SHARED, fd, 0);
+  ::close(fd); // It is ok to close descriptor after mapping
   if (mapped_addr == nullptr) {
     ::perror("mmap");
     std::cerr << "errno: " << errno << std::endl;
-    close(fd);
     std::abort();
   }
   std::cout << "Mapped to address " << (uint64_t)mapped_addr << std::endl;
@@ -95,17 +96,20 @@ void *map_file_write_mode(const std::string &file_name, const std::size_t size) 
   os_fsync(fd);
 
   // Extent the file
+  // This command makes a sparse file, i.e.,
+  // physical memory space won't be used until the corresponding pages are accessed
   if (::ftruncate(fd, size) == -1) {
     ::perror("ftruncate");
     std::cerr << "errno: " << errno << std::endl;
     std::abort();
   }
 
+  // Map the file with read and write mode
   void *mapped_addr = ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  ::close(fd); // It is ok to close descriptor after mapping
   if (mapped_addr == nullptr) {
     ::perror("mmap");
     std::cerr << "errno: " << errno << std::endl;
-    close(fd);
     std::abort();
   }
   std::cout << "Mapped to address " << (uint64_t)mapped_addr << std::endl;
