@@ -37,6 +37,10 @@ class base_stl_allocator {
   using value_type = typename type_holder::value_type;
   using size_type = typename type_holder::size_type;
   using difference_type = typename type_holder::difference_type;
+  using propagate_on_container_copy_assignment = typename type_holder::propagate_on_container_copy_assignment;
+  using propagate_on_container_move_assignment = typename type_holder::propagate_on_container_move_assignment;
+  using propagate_on_container_swap = typename type_holder::propagate_on_container_swap;
+  using is_always_equal = typename type_holder::is_always_equal;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -68,7 +72,7 @@ class base_stl_allocator {
   /// \brief Deallocates the storage reference by the pointer ptr
   /// \param ptr A pointer to the storage
   /// \param size The size of the storage
-  void deallocate(pointer ptr, const size_type size) const noexcept {
+  void deallocate(pointer ptr, const size_type size) const {
     return impl().deallocate_impl(ptr, size);
   }
 
@@ -92,25 +96,11 @@ class base_stl_allocator {
   void destroy(const pointer &ptr) const {
     impl().destroy_impl(ptr);
   }
-
-  base_stl_allocator select_on_container_copy_construction() const {
-    return impl().select_on_container_copy_construction_impl();
-  }
-
-  bool propagate_on_container_copy_assignment() const noexcept {
-    return impl().propagate_on_container_copy_assignment_impl();
-  }
-
-  bool propagate_on_container_move_assignment() const noexcept {
-    return impl().propagate_on_container_move_assignment_impl();
-  }
-
-  bool propagate_on_container_swap() const noexcept {
-    return impl().propagate_on_container_swap_impl();
-  }
-
-  bool is_always_equal() const noexcept {
-    return impl().is_always_equal_impl();
+  /// \brief Obtains the copy-constructed version of the allocator a.
+  /// \param a Allocator used by a standard container passed as an argument to a container copy constructor.
+  /// \return The allocator to use by the copy-constructed standard containers.
+  impl_type select_on_container_copy_construction(const impl_type& a) {
+    return impl().select_on_container_copy_construction_impl(a);
   }
 
  private:
