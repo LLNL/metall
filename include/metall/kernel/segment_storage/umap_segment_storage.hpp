@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_V0_SEGMENT_STORAGE_UMAP_STORAGE_HPP
-#define METALL_DETAIL_V0_SEGMENT_STORAGE_UMAP_STORAGE_HPP
+#ifndef METALL_DETAIL_SEGMENT_STORAGE_UMAP_STORAGE_HPP
+#define METALL_DETAIL_SEGMENT_STORAGE_UMAP_STORAGE_HPP
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -95,7 +95,8 @@ class umap_segment_storage {
     return util::file_exist(file_name);
   }
 
-  /// \brief Gets the size of an existing segment
+  /// \brief Gets the size of an existing segment.
+  /// This is a static version of size() method.
   static size_type get_size(const std::string &base_path) {
     int block_no = 0;
     size_type total_file_size = 0;
@@ -116,8 +117,7 @@ class umap_segment_storage {
               const size_type initial_segment_size) {
     assert(!priv_inited());
 
-
-    // TODO: align those values to pge size
+    // TODO: align those values to the page size instead of aborting
     if (initial_segment_size % page_size() != 0 || vm_region_size % page_size() != 0
         || (uint64_t)vm_region % page_size() != 0) {
       std::cerr << "Invalid argument to crete application data segment" << std::endl;
@@ -145,7 +145,7 @@ class umap_segment_storage {
   bool open(const std::string &base_path, const size_type vm_region_size, void *const vm_region, const bool read_only) {
     assert(!priv_inited());
 
-    // TODO: align those values to pge size
+    // TODO: align those values to the page size instead of aborting
     if (vm_region_size % page_size() != 0 || (uint64_t)vm_region % page_size() != 0) {
       std::cerr << "Invalid argument to open segment" << std::endl;
       std::abort(); // Fatal error
@@ -350,15 +350,11 @@ class umap_segment_storage {
     }
   }
 
-  // TODO: implement
+  // MEMO: Umap cannot free file region
   bool priv_free_region(const different_type offset, const size_type nbytes) {
     if (!priv_inited() || m_read_only) return false;
 
     if (offset + nbytes > m_current_segment_size) return false;
-
-//   if (m_free_file_space) {
-//     util::free_mmap_region();
-//   }
 
     return true;
   }
@@ -374,7 +370,6 @@ class umap_segment_storage {
 
   void priv_test_file_space_free(const std::string &) {
     m_free_file_space = false;
-    return;
   }
 
   // -------------------------------------------------------------------------------- //
@@ -393,4 +388,4 @@ class umap_segment_storage {
 } // namespace kernel
 } // namespace metall
 
-#endif //METALL_DETAIL_V0_SEGMENT_STORAGE_UMAP_STORAGE_HPP
+#endif //METALL_DETAIL_SEGMENT_STORAGE_UMAP_STORAGE_HPP
