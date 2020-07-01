@@ -1,3 +1,7 @@
 add_executable(concurrent_map_test concurrent_map_test.cpp)
 target_link_libraries(concurrent_map_test gtest_main)
 gtest_discover_tests(concurrent_map_test)
+
+add_executable(stl_allocator_test stl_allocator_test.cpp)
+target_link_libraries(stl_allocator_test gtest_main)
+gtest_discover_tests(stl_allocator_test)

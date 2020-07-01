@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <cassert>
 #include <limits>
+#include <new>
 
 #include <metall/detail/base_stl_allocator.hpp>
 #include <metall/offset_ptr.hpp>
@@ -29,6 +30,10 @@ struct stl_allocator_type_holder {
   using const_void_pointer = typename std::pointer_traits<pointer>::template rebind<const void>;
   using difference_type = typename std::pointer_traits<pointer>::difference_type;
   using size_type = typename std::make_unsigned<difference_type>::type;
+  using propagate_on_container_copy_assignment = std::true_type;
+  using propagate_on_container_move_assignment = std::true_type;
+  using propagate_on_container_swap = std::true_type;
+  using is_always_equal = std::false_type;
 };
 
 } // namespace metall::detail
@@ -64,6 +69,10 @@ class stl_allocator
   using value_type = typename type_holder::value_type;
   using size_type = typename type_holder::size_type;
   using difference_type = typename type_holder::difference_type;
+  using propagate_on_container_copy_assignment = typename type_holder::propagate_on_container_copy_assignment;
+  using propagate_on_container_move_assignment = typename type_holder::propagate_on_container_move_assignment;
+  using propagate_on_container_swap = typename type_holder::propagate_on_container_swap;
+  using is_always_equal = typename type_holder::is_always_equal;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -128,9 +137,21 @@ class stl_allocator
   };
 
   pointer allocate_impl(const size_type n) const {
+    if (max_size_impl() < n) {
+      throw std::bad_array_new_length();
+    }
+
     auto manager_kernel = *get_pointer_to_manager_kernel();
-    assert(manager_kernel);
-    return pointer(static_cast<value_type *>(manager_kernel->allocate(n * sizeof(T))));
+    if (!manager_kernel) {
+      throw std::bad_alloc();
+    }
+
+    auto addr = pointer(static_cast<value_type *>(manager_kernel->allocate(n * sizeof(T))));
+    if (!addr) {
+      throw std::bad_alloc();
+    }
+
+    return addr;
   }
 
   void deallocate_impl(pointer ptr, [[maybe_unused]] const size_type size) const noexcept {
@@ -140,7 +161,7 @@ class stl_allocator
   }
 
   size_type max_size_impl() const noexcept {
-    return std::numeric_limits<size_type>::max();
+    return std::numeric_limits<size_type>::max() / sizeof(value_type);
   }
 
   template <class... Args>
@@ -153,24 +174,8 @@ class stl_allocator
     (*ptr).~value_type();
   }
 
-  stl_allocator<T, manager_kernel_type> select_on_container_copy_construction_impl() const {
-    return stl_allocator<T, manager_kernel_type>(*this);
-  }
-
-  bool propagate_on_container_copy_assignment_impl() const noexcept {
-    return std::true_type();
-  }
-
-  bool propagate_on_container_move_assignment_impl() const noexcept {
-    return std::true_type();
-  }
-
-  bool propagate_on_container_swap_impl() const noexcept {
-    return std::true_type();
-  }
-
-  bool is_always_equal_impl() const noexcept {
-    return std::false_type();
+  stl_allocator select_on_container_copy_construction_impl(const stl_allocator<T, manager_kernel_type>& a) {
+    return stl_allocator<T, manager_kernel_type>(a);
   }
 
   // -------------------------------------------------------------------------------- //
