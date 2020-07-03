@@ -16,8 +16,9 @@ nav:
 - Getting Started:
   - 'Build and Install': 'getting_started/build_and_install.md'
 - 'Advanced Build':
-  - 'Build API doc, Example, Test, and Benchmark': 'advanced_build/exmample_test_bench.md'
+  - 'Build API doc, Example, Test, and Benchmark': 'advanced_build/example_test_bench.md'
   - 'Use Umap': 'advanced_build/umap.md'
+  - 'Test Metall': 'advanced_build/test.md'
 - 'Metall 101':
   - 'Introduction': 'detail/introduction.md'
   - 'API': 'detail/api.md'

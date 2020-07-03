@@ -12,6 +12,8 @@ c=0.19
 seed=123
 e=$((2**$((${v}+4))))
 
+# The default path to store data.
+# This value is overwritten if '-d' option is specified
 case "$OSTYPE" in
   darwin*)  out_dir_path="/tmp";;
   linux*)   out_dir_path="/dev/shm";;
