@@ -2,7 +2,7 @@
 
 Example programs are located in [example](https://github.com/LLNL/metall/tree/develop/example)
 
-To build examples see [build source files in Metall](../advanced_build/exmample_test_bench.md)
+To build examples see [build source files in Metall](../advanced_build/example_test_bench.md)
 
 ### Basic examples
 

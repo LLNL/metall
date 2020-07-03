@@ -11,6 +11,8 @@ g++ -std=c++17 -lstdc++fs your_program.cpp \
 -I/path/to/umap/include -L/path/to/umap/lib -lumap -DMETALL_USE_UMAP
 ```
 
+In addition,  
+our CMake file has an option `UMAP_ROOT=/umap/install/root/path` to use Umap instead of the system mmap.
 
 
 ### Restriction with Umap
