@@ -47,7 +47,7 @@ check_program_exit_status() {
   local status=$?
 
   if [[ $status -ne 0 ]]; then
-    err "<< The program did not finished correctly!! >>"
+    err "<< The program did not finish correctly!! >>"
     exit $status
   fi
 }

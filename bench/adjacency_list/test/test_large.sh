@@ -28,45 +28,16 @@ compare() {
   file1=$1
   file2=$2
 
-  echo "Number of dumped edges"
-  wc -l "${file1}"
-  wc -l "${file2}"
-
-  echo "Sort the dumped edges"
-  tmp_sorted_file1=${out_dir_path}/tmp_sorted1
-  tmp_sorted_file2=${out_dir_path}/tmp_sorted2
-
-  sort -k 1,1n -k2,2n < "${file1}" > ${tmp_sorted_file1}
-  check_program_exit_status
-
-  sort -k 1,1n -k2,2n < "${file2}" > ${tmp_sorted_file2}
-  check_program_exit_status
-
   echo "Compare the dumped edges"
-  tmp_diff_file="${out_dir_path}/tmp_diff_file"
-  # Be careful " " and "\t"
-  diff ${tmp_sorted_file1} ${tmp_sorted_file2} > ${tmp_diff_file}
+  ./test/compare_key_value_lists ${file1} ${file2}
   check_program_exit_status
-
-  num_diff=$(< ${tmp_diff_file} wc -l)
-
-  if [[ ${num_diff} -eq 0 ]]; then
-    echo "<< Passed the test!! >>"
-  else
-    err "<< Failed the test!! >>"
-    exit
-  fi
-  echo ""
-
-  /bin/rm -f ${tmp_sorted_file1} ${tmp_sorted_file2} ${tmp_diff_file}
-  echo ""
 }
 
 check_program_exit_status() {
   local status=$?
 
   if [[ $status -ne 0 ]]; then
-    err "<< The program did not finished correctly!! >>"
+    err "<< The program did not finish correctly!! >>"
     exit $status
   fi
 }
@@ -100,24 +71,40 @@ main() {
 
   data_store_path="${out_dir_path}/metall_test_dir"
   adj_list_dump_file="${out_dir_path}/dumped_edge_list"
-  edge_dump_file="${out_dir_path}/ref_edge_list"
 
-  ./run_adj_list_bench_metall -o ${data_store_path} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${edge_dump_file}
+  # Contains edges generated directly from the edge generator
+  ref_edge_dump_file1="${out_dir_path}/ref_edge_list1"
+  ref_edge_dump_file2="${out_dir_path}/ref_edge_list2"
+
+  ./run_adj_list_bench_metall -o ${data_store_path} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${ref_edge_dump_file1}
   check_program_exit_status
   echo ""
 
-  compare ${adj_list_dump_file} ${edge_dump_file}
+  compare ${adj_list_dump_file} ${ref_edge_dump_file1}
 
   /bin/rm -rf ${adj_list_dump_file}
 
-  # ----- Reopen the file for persistence test----- #
+  # ---------- Reopen the file for persistence test ---------- #
+  # Open and add another edge list
+  ./test/extend_metall -o ${data_store_path} -d ${adj_list_dump_file} -s $(($seed+1024)) -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${ref_edge_dump_file2}
+  check_program_exit_status
+  echo ""
+
+  # As the adjacency list contains the two edge lists, combine them
+  cat ${ref_edge_dump_file1} >> ${ref_edge_dump_file2}
+
+  compare ${adj_list_dump_file} ${ref_edge_dump_file2}
+
+  /bin/rm -rf ${adj_list_dump_file}
+
+  # Open the datastore as the read only mode
   ./test/open_metall -o ${data_store_path} -d ${adj_list_dump_file}
   check_program_exit_status
   echo ""
 
-  compare ${adj_list_dump_file} ${edge_dump_file}
+  compare ${adj_list_dump_file} ${ref_edge_dump_file2}
 
-  /bin/rm -f ${adj_list_dump_file} ${edge_dump_file}
+  /bin/rm -f ${adj_list_dump_file} ${ref_edge_dump_file1}  ${ref_edge_dump_file2}
   /bin/rm -rf ${data_store_path}
 }
 

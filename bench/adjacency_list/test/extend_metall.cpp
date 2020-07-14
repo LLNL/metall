@@ -31,14 +31,17 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    metall::manager manager(metall::open_read_only, option.datastore_path_list[0].c_str());
-    const auto ret = manager.find<adjacency_list_type>(option.adj_list_key_name.c_str());
+    metall::manager manager(metall::open_only, option.datastore_path_list[0].c_str());
+    auto ret = manager.find<adjacency_list_type>(option.adj_list_key_name.c_str());
     if (ret.second != 1) {
       std::cerr << "Its length is not correct" << std::endl;
       std::abort();
     }
 
-    const adjacency_list_type *const adj_list = ret.first;
+    adjacency_list_type *const adj_list = ret.first;
+
+    run_bench(option, adj_list);
+
     if (!option.adj_list_dump_file_name.empty()) {
       dump_adj_list(*adj_list, option.adj_list_dump_file_name);
     }
