@@ -19,6 +19,8 @@ void log() {
 }
 
 int main() {
+  logger::enable_abort(false);
+
   std::cerr << "--- Log level : unset ---" << std::endl;
   log();
 
