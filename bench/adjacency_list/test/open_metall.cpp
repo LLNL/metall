@@ -37,11 +37,11 @@ int main(int argc, char *argv[]) {
       std::cerr << "Cannot find an object " << option.adj_list_key_name << std::endl;
       std::abort();
     }
-
     if (ret.second != 1) {
       std::cerr << "Its length is not correct" << std::endl;
       std::abort();
     }
+
     const adjacency_list_type *const adj_list = ret.first;
     if (!option.adj_list_dump_file_name.empty()) {
       dump_adj_list(*adj_list, option.adj_list_dump_file_name);
