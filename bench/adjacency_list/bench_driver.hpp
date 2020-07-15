@@ -150,6 +150,7 @@ inline auto parse_options(int argc, char **argv, bench_options *option) {
 template <typename adjacency_list_type>
 inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
                               const std::size_t chunk_size,
+                              closing_function_type closing_function,
                               adjacency_list_type *adj_list,
                               std::ofstream *const ofs_save_edge) {
 
@@ -175,7 +176,7 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
 
     if (count_read == 0) break;
 
-    total_elapsed_time += ingest_key_values(input_storage, adj_list);
+    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list);
 
     if (ofs_save_edge) {
       for (const auto &list : input_storage) {
@@ -197,6 +198,7 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
 template <typename adjacency_list_type>
 inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
                                 const std::size_t chunk_size,
+                                closing_function_type closing_function,
                                 adjacency_list_type *adj_list,
                                 std::ofstream *const ofs_save_edge) {
 
@@ -242,7 +244,7 @@ inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
       }
     }
 
-    total_elapsed_time += ingest_key_values(input_storage, adj_list);
+    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list);
 
     if (ofs_save_edge) {
       for (const auto &list : input_storage) {
@@ -286,7 +288,7 @@ inline void dump_adj_list(const adjacency_list_type &adj_list, const std::string
 };
 
 template <typename adjacency_list_type>
-void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
+void run_bench(const bench_options &options, closing_function_type closing_function, adjacency_list_type *adj_list) {
 
   std::ofstream ofs_save_edge;
   if (!options.edge_list_dump_file_name.empty()) {
@@ -301,10 +303,10 @@ void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
   double elapsed_time_sec;
   if (options.input_file_name_list.empty()) {
     std::cout << "Get inputs from the RMAT edge generator" << std::endl;
-    elapsed_time_sec = run_bench_rmat_edge(options.rmat, options.chunk_size, adj_list, &ofs_save_edge);
+    elapsed_time_sec = run_bench_rmat_edge(options.rmat, options.chunk_size, closing_function, adj_list, &ofs_save_edge);
   } else {
     std::cout << "Get inputs from key-value files" << std::endl;
-    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list, options.chunk_size, adj_list, &ofs_save_edge);
+    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list, options.chunk_size, closing_function, adj_list, &ofs_save_edge);
   }
   std::cout << "\nFinished adj_list (s)\t" << elapsed_time_sec << std::endl;
 
@@ -319,6 +321,11 @@ void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
   if (!options.adj_list_dump_file_name.empty()) {
     dump_adj_list(*adj_list, options.adj_list_dump_file_name);
   }
+}
+
+template <typename adjacency_list_type>
+void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
+  run_bench(options, closing_function_type(), adj_list);
 }
 
 }

@@ -55,8 +55,11 @@ inline auto allocate_key_value_input_storage() {
   return key_value_input_storage_t<adjacency_list_type>(num_threads);
 }
 
+using closing_function_type = std::function<void()>;
+
 template <typename adjacency_list_type>
 inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_type> &input,
+                              closing_function_type closing_function,
                               adjacency_list_type *const adj_list) {
   print_current_num_page_faults();
 
@@ -71,7 +74,9 @@ inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_typ
     }
     num_inserted += key_value_list.size();
   }
-  adj_list->sync();
+  if (closing_function) {
+    closing_function();
+  }
   const auto elapsed_time = util::elapsed_time_sec(start);
 
   std::cout << "#of inserted elements\t" << num_inserted << std::endl;

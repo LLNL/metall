@@ -11,7 +11,6 @@
 #include <cassert>
 #include <mutex>
 #include <algorithm>
-#include <functional>
 #include <cstddef>
 
 #include <boost/interprocess/containers/vector.hpp>
@@ -52,8 +51,6 @@ class multithread_adjacency_list {
   using bank_table_allocator_type = bct::scoped_allocator_adaptor<other_allocator_type<key_table_type>>;
   using bank_table_t = std::vector<key_table_type, bank_table_allocator_type>;
 
-  using sync_function_type = std::function<void()>;
-
   // Forward declaration
   class impl_const_key_iterator;
 
@@ -65,13 +62,7 @@ class multithread_adjacency_list {
   using const_local_key_iterator = typename key_table_type::const_iterator;
 
   explicit multithread_adjacency_list(const _base_allocator_type &allocator = _base_allocator_type())
-      : m_bank_table(k_num_banks, allocator),
-        m_sync_function() {}
-
-  explicit multithread_adjacency_list(sync_function_type sync_function,
-                                      const _base_allocator_type &allocator = _base_allocator_type())
-      : m_bank_table(k_num_banks, allocator),
-        m_sync_function(sync_function) {}
+      : m_bank_table(k_num_banks, allocator) {}
 
   ~multithread_adjacency_list() = default;
 
@@ -136,20 +127,12 @@ class multithread_adjacency_list {
     return m_bank_table.size();
   }
 
-  /// \brief Call user defined sync function if it is given
-  void sync() const {
-    if (m_sync_function) {
-      m_sync_function();
-    }
-  }
-
  private:
   std::size_t bank_index(const std::size_t i) const {
     return i % m_bank_table.size();
   }
 
   bank_table_t m_bank_table;
-  sync_function_type m_sync_function;
 };
 
 template <typename _key_type, typename _value_type, typename _base_allocator_type>

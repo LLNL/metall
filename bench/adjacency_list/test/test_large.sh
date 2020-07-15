@@ -15,8 +15,8 @@ e=$((2**$((${v}+4))))
 # The default path to store data.
 # This value is overwritten if '-d' option is specified
 case "$OSTYPE" in
-  darwin*)  out_dir_path="/tmp";;
-  linux*)   out_dir_path="/dev/shm";;
+  darwin*)  out_dir_path="/tmp/metall_adj_test";;
+  linux*)   out_dir_path="/dev/shm/metall_adj_test";;
 esac
 # --------------- #
 
