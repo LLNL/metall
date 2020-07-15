@@ -284,6 +284,7 @@ class multifile_backed_segment_storage {
     assert(!path.empty());
     assert(file_size > 0);
     assert(addr);
+    assert(reinterpret_cast<char*>(addr) + file_size <= reinterpret_cast<char*>(m_segment) + m_vm_region_size);
 
     static constexpr int map_nosync =
 #ifdef MAP_NOSYNC

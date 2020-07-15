@@ -89,6 +89,8 @@ class manager_kernel {
   static constexpr const char *k_segment_prefix = "segment";
 
   using segment_header_type = segment_header;
+  static constexpr size_type k_segment_header_size = util::round_up(sizeof(segment_header_type), k_chunk_size);
+
   using segment_storage_type =
 #ifdef METALL_USE_UMAP
   umap_segment_storage<difference_type, size_type>;
@@ -303,7 +305,6 @@ class manager_kernel {
   std::string m_base_dir_path;
   size_type m_vm_region_size;
   void *m_vm_region;
-  size_type m_segment_header_size;
   segment_header_type *m_segment_header;
   named_object_directory_type m_named_object_directory;
   segment_storage_type m_segment_storage;
