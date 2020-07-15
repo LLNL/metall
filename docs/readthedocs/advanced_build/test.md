@@ -44,7 +44,9 @@ sh ../../../bench/adjacency_list/test/test.sh -d/path/to/store/data/store
 Here is how to run the test with large data.
 ```bash
 cd metall/build/bench/adjacency_list/
-sh ../../../bench/adjacency_list/test/test_large.sh -d/path/to/store/data/store
+sh ../../../bench/adjacency_list/test/test_large.sh -d/path/to/store/data/store -v17
 ```
 
-Please edit the script directly to change data size.
+In test_large.sh, the input data is generated on the fly using an R-MAT graph generator.
+`-vN` option controls the size of the graph to generate, where N is a int number called SCALE.
+The number of vertices in a generated R-MAT graph is `2^N` and that of edges (undirected) is `16 x 2^N`.

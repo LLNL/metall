@@ -5,12 +5,13 @@
 # sh ../../../bench/adjacency_list/test/test_large.sh
 
 # ----- Default Configuration ----- #
-v=17
+# Parameters to generate R-MAT graph
+v=17 # The number of vertices in the graph is 2^SCALE
 a=0.57
 b=0.19
 c=0.19
 seed=123
-e=$((2**$((${v}+4))))
+e=$((2**$((${v}+4)))) # The number of edges to generate
 
 # The default path to store data.
 # This value is overwritten if '-d' option is specified
@@ -43,10 +44,11 @@ check_program_exit_status() {
 }
 
 parse_option() {
-  while getopts "d:" OPT
+  while getopts "d:v:" OPT
   do
     case $OPT in
       d) out_dir_path=$OPTARG;;
+      v) v=$OPTARG;;
       :) echo  "[ERROR] Option argument is undefined.";;
       \?) echo "[ERROR] Undefined options.";;
     esac

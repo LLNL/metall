@@ -302,7 +302,7 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
 
   double elapsed_time_sec;
   if (options.input_file_name_list.empty()) {
-    std::cout << "Get inputs from the RMAT edge generator" << std::endl;
+    std::cout << "Get inputs from an R-MAT edge generator" << std::endl;
     elapsed_time_sec = run_bench_rmat_edge(options.rmat, options.chunk_size, closing_function, adj_list, &ofs_save_edge);
   } else {
     std::cout << "Get inputs from key-value files" << std::endl;
