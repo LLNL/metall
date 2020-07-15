@@ -83,6 +83,7 @@ main() {
   echo ""
 
   compare ${adj_list_dump_file} ${ref_edge_dump_file1}
+  echo ""
 
   /bin/rm -rf ${adj_list_dump_file}
 
@@ -96,6 +97,7 @@ main() {
   cat ${ref_edge_dump_file1} >> ${ref_edge_dump_file2}
 
   compare ${adj_list_dump_file} ${ref_edge_dump_file2}
+  echo ""
 
   /bin/rm -rf ${adj_list_dump_file}
 
@@ -105,6 +107,7 @@ main() {
   echo ""
 
   compare ${adj_list_dump_file} ${ref_edge_dump_file2}
+  echo ""
 
   /bin/rm -f ${adj_list_dump_file} ${ref_edge_dump_file1}  ${ref_edge_dump_file2}
   /bin/rm -rf ${data_store_path}
