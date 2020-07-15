@@ -5,18 +5,19 @@
 # sh ../../../bench/adjacency_list/test/test_large.sh
 
 # ----- Default Configuration ----- #
-v=17
+# Parameters to generate R-MAT graph
+v=17 # The number of vertices in the graph is 2^SCALE
 a=0.57
 b=0.19
 c=0.19
 seed=123
-e=$((2**$((${v}+4))))
+e=$((2**$((${v}+4)))) # The number of edges to generate
 
 # The default path to store data.
 # This value is overwritten if '-d' option is specified
 case "$OSTYPE" in
-  darwin*)  out_dir_path="/tmp";;
-  linux*)   out_dir_path="/dev/shm";;
+  darwin*)  out_dir_path="/tmp/metall_adj_test";;
+  linux*)   out_dir_path="/dev/shm/metall_adj_test";;
 esac
 # --------------- #
 
@@ -28,54 +29,26 @@ compare() {
   file1=$1
   file2=$2
 
-  echo "Number of dumped edges"
-  wc -l "${file1}"
-  wc -l "${file2}"
-
-  echo "Sort the dumped edges"
-  tmp_sorted_file1=${out_dir_path}/tmp_sorted1
-  tmp_sorted_file2=${out_dir_path}/tmp_sorted2
-
-  sort -k 1,1n -k2,2n < "${file1}" > ${tmp_sorted_file1}
-  check_program_exit_status
-
-  sort -k 1,1n -k2,2n < "${file2}" > ${tmp_sorted_file2}
-  check_program_exit_status
-
   echo "Compare the dumped edges"
-  tmp_diff_file="${out_dir_path}/tmp_diff_file"
-  # Be careful " " and "\t"
-  diff ${tmp_sorted_file1} ${tmp_sorted_file2} > ${tmp_diff_file}
+  ./test/compare_key_value_lists ${file1} ${file2}
   check_program_exit_status
-
-  num_diff=$(< ${tmp_diff_file} wc -l)
-
-  if [[ ${num_diff} -eq 0 ]]; then
-    echo "<< Passed the test!! >>"
-  else
-    err "<< Failed the test!! >>"
-    exit
-  fi
-  echo ""
-
-  /bin/rm -f ${tmp_sorted_file1} ${tmp_sorted_file2} ${tmp_diff_file}
-  echo ""
 }
 
 check_program_exit_status() {
   local status=$?
 
   if [[ $status -ne 0 ]]; then
-    err "<< The program did not finished correctly!! >>"
+    err "<< The program did not finish correctly!! >>"
     exit $status
   fi
 }
 
 parse_option() {
-  while getopts "d:" OPT
+  while getopts "d:v:" OPT
   do
     case $OPT in
       d) out_dir_path=$OPTARG;;
+      v) v=$OPTARG;;
       :) echo  "[ERROR] Option argument is undefined.";;
       \?) echo "[ERROR] Undefined options.";;
     esac
@@ -100,24 +73,43 @@ main() {
 
   data_store_path="${out_dir_path}/metall_test_dir"
   adj_list_dump_file="${out_dir_path}/dumped_edge_list"
-  edge_dump_file="${out_dir_path}/ref_edge_list"
 
-  ./run_adj_list_bench_metall -o ${data_store_path} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${edge_dump_file}
+  # Contains edges generated directly from the edge generator
+  ref_edge_dump_file1="${out_dir_path}/ref_edge_list1"
+  ref_edge_dump_file2="${out_dir_path}/ref_edge_list2"
+
+  ./run_adj_list_bench_metall -o ${data_store_path} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${ref_edge_dump_file1}
   check_program_exit_status
   echo ""
 
-  compare ${adj_list_dump_file} ${edge_dump_file}
+  compare ${adj_list_dump_file} ${ref_edge_dump_file1}
+  echo ""
 
   /bin/rm -rf ${adj_list_dump_file}
 
-  # ----- Reopen the file for persistence test----- #
+  # ---------- Reopen the file for persistence test ---------- #
+  # Open and add another edge list
+  ./test/extend_metall -o ${data_store_path} -d ${adj_list_dump_file} -s $(($seed+1024)) -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${ref_edge_dump_file2}
+  check_program_exit_status
+  echo ""
+
+  # As the adjacency list contains the two edge lists, combine them
+  cat ${ref_edge_dump_file1} >> ${ref_edge_dump_file2}
+
+  compare ${adj_list_dump_file} ${ref_edge_dump_file2}
+  echo ""
+
+  /bin/rm -rf ${adj_list_dump_file}
+
+  # Open the datastore as the read only mode
   ./test/open_metall -o ${data_store_path} -d ${adj_list_dump_file}
   check_program_exit_status
   echo ""
 
-  compare ${adj_list_dump_file} ${edge_dump_file}
+  compare ${adj_list_dump_file} ${ref_edge_dump_file2}
+  echo ""
 
-  /bin/rm -f ${adj_list_dump_file} ${edge_dump_file}
+  /bin/rm -f ${adj_list_dump_file} ${ref_edge_dump_file1}  ${ref_edge_dump_file2}
   /bin/rm -rf ${data_store_path}
 }
 

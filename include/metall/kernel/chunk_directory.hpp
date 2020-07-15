@@ -101,8 +101,8 @@ class chunk_directory {
     assert(!m_table);
     m_max_num_chunks = max_num_chunks;
     /// CAUTION: Assumes that mmap + MAP_ANONYMOUS returns zero-initialized region
-    m_table = static_cast<entry_type *>(util::os_mmap(nullptr, m_max_num_chunks * sizeof(entry_type),
-                                                      PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+    m_table = static_cast<entry_type *>(util::map_anonymous_write_mode(nullptr, m_max_num_chunks * sizeof(entry_type)));
+
     if (!m_table) {
       std::cerr << "Cannot allocate chunk table" << std::endl;
       std::abort();

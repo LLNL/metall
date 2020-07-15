@@ -20,7 +20,6 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
     : m_base_dir_path(),
       m_vm_region_size(0),
       m_vm_region(nullptr),
-      m_segment_header_size(0),
       m_segment_header(nullptr),
       m_named_object_directory(allocator),
       m_segment_storage(),
@@ -71,11 +70,9 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path
     std::abort();
   }
 
-  const size_type size_for_header = m_segment_header_size
-      + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
   if (!m_segment_storage.create(priv_make_file_name(m_base_dir_path, k_segment_prefix),
-                                m_vm_region_size - size_for_header,
-                                static_cast<char *>(m_vm_region) + size_for_header,
+                                m_vm_region_size - k_segment_header_size,
+                                static_cast<char *>(m_vm_region) + k_segment_header_size,
                                 k_initial_segment_size)) {
     std::cerr << "Cannot create application data segment" << std::endl;
     std::abort();
@@ -435,8 +432,7 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_allocate_segment_header(void *co
     return false;
   }
 
-  m_segment_header_size = util::round_up(sizeof(segment_header_type), k_chunk_size);
-  if (util::map_anonymous_write_mode(addr, m_segment_header_size, MAP_FIXED) != addr) {
+  if (util::map_anonymous_write_mode(addr, k_segment_header_size, MAP_FIXED) != addr) {
     std::cerr << "Cannot allocate segment header" << std::endl;
     return false;
   }
@@ -452,9 +448,8 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_segment_header() {
   m_segment_header->~segment_header_type();
-  const auto ret = util::munmap(m_segment_header, m_segment_header_size, false);
+  const auto ret = util::munmap(m_segment_header, k_segment_header_size, false);
   m_segment_header = nullptr;
-  m_segment_header_size = 0;
   return ret;
 }
 
@@ -555,8 +550,8 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
 
   const size_type existing_segment_size = segment_storage_type::get_size(priv_make_file_name(m_base_dir_path,
                                                                                              k_segment_prefix));
-  const size_type vm_reserve_size = (read_only) ? existing_segment_size
-                                                : std::max(existing_segment_size, vm_reserve_size_request);
+  const size_type vm_reserve_size = (read_only) ? existing_segment_size + k_segment_header_size
+                                                : std::max(existing_segment_size + k_segment_header_size, vm_reserve_size_request);
 
   if (!priv_reserve_vm_region(vm_reserve_size)) {
     std::abort();
@@ -572,11 +567,9 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
     std::abort();
   }
 
-  const size_type offset = m_segment_header_size
-      + (reinterpret_cast<char *>(m_segment_header) - reinterpret_cast<char *>(m_vm_region));
   if (!m_segment_storage.open(priv_make_file_name(m_base_dir_path, k_segment_prefix),
-                              m_vm_region_size - offset,
-                              static_cast<char *>(m_vm_region) + offset,
+                              m_vm_region_size - k_segment_header_size,
+                              static_cast<char *>(m_vm_region) + k_segment_header_size,
                               read_only)) {
     std::abort();
   }
@@ -592,7 +585,7 @@ bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
   assert(priv_initialized());
 
-  if (m_segment_storage.read_only()) return false;
+  if (m_segment_storage.read_only()) return true;
 
   if (!m_named_object_directory.serialize(priv_make_file_name(m_base_dir_path,
                                                               k_named_object_directory_prefix).c_str())) {

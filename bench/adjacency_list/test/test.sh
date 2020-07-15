@@ -5,7 +5,7 @@
 # sh ../../../bench/adjacency_list/test/test.sh
 
 DATA=../../../bench/adjacency_list/test/data/edge_list_rmat_s10_
-DATASTORE_DIR_ROOT="/tmp"
+DATASTORE_DIR_ROOT="/tmp/metall_adj_test"
 
 err() {
   echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
@@ -47,7 +47,7 @@ check_program_exit_status() {
   local status=$?
 
   if [[ $status -ne 0 ]]; then
-    err "<< The program did not finished correctly!! >>"
+    err "<< The program did not finish correctly!! >>"
     exit $status
   fi
 }
@@ -68,21 +68,30 @@ main() {
 
   mkdir -p ${DATASTORE_DIR_ROOT}
 
-  echo "CreateTest"
-  ./run_adj_list_bench_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir -f $((2**26)) -d ${DATASTORE_DIR_ROOT}/adj_out ${DATA}*
+  echo "Create Test"
+  ./run_adj_list_bench_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir -d ${DATASTORE_DIR_ROOT}/adj_out ${DATA}*
   check_program_exit_status
   cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
   compare "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
   /bin/rm -f "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
 
+  # Open the adj-list with the open mode and add more edges
   echo ""
-  echo "OpenTest"
-  ./test/open_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir -d ${DATASTORE_DIR_ROOT}/adj_out_reopen
+  echo "Extend Test"
+  ./test/extend_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir -d ${DATASTORE_DIR_ROOT}/adj_out_extend ${DATA}*
   check_program_exit_status
   cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
-  compare "${DATASTORE_DIR_ROOT}/adj_out_reopen" "${DATASTORE_DIR_ROOT}/adj_ref"
+  compare "${DATASTORE_DIR_ROOT}/adj_out_extend" "${DATASTORE_DIR_ROOT}/adj_ref"
 
-  /bin/rm -rf ${DATASTORE_DIR_ROOT}
+   # Open the adj-list with the read only open mode
+  echo ""
+  echo "Open Test"
+  ./test/open_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir -d ${DATASTORE_DIR_ROOT}/adj_out_open
+  check_program_exit_status
+  cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
+  compare "${DATASTORE_DIR_ROOT}/adj_out_open" "${DATASTORE_DIR_ROOT}/adj_ref"
+
+  #/bin/rm -rf ${DATASTORE_DIR_ROOT}
 }
 
 main "$@"

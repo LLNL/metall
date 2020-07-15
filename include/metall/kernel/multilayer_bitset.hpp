@@ -239,12 +239,11 @@ class multilayer_bitset {
   void allocate_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
     const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
     m_data.array = std::allocator_traits<rebind_allocator_type>::allocate(allocator, num_blocks);
-    std::fill(&m_data.array[0], &m_data.array[num_blocks], 0);
-
     if (!m_data.array) {
       std::cerr << "Cannot allocate multi-layer bitset" << std::endl;
       std::abort();
     }
+    std::fill(&m_data.array[0], &m_data.array[num_blocks], 0);
   }
 
   void free_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
