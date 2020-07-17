@@ -179,31 +179,33 @@ class umap_segment_storage {
     return (m_num_blocks > 0);
   }
 
-  bool extend(const size_type new_segment_size) {
+  bool extend(const size_type request_size) {
     assert(priv_inited());
 
     if (m_read_only) {
       return false;
     }
 
-    if (new_segment_size > m_vm_region_size) {
+    if (request_size > m_vm_region_size) {
       std::cerr << "Requested segment size is too big" << std::endl;
       return false;
     }
 
-    if (new_segment_size <= m_current_segment_size) {
+    if (request_size <= m_current_segment_size) {
       return true; // Already enough segment size
     }
 
+    const auto new_size = std::max((size_type)util::next_power_of_2(request_size), m_current_segment_size * 2);
+
     if (!priv_create_and_map_file(m_base_path,
                                   m_num_blocks,
-                                  new_segment_size - m_current_segment_size,
+                                  new_size - m_current_segment_size,
                                   static_cast<char *>(m_segment) + m_current_segment_size)) {
       priv_reset();
       return false;
     }
     ++m_num_blocks;
-    m_current_segment_size = new_segment_size;
+    m_current_segment_size = new_size;
 
     return true;
   }
