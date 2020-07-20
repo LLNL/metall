@@ -2,12 +2,12 @@ CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
 .swp
-$GIT_DIR/build*/
+build*/
 .cobaltlog
 .error
 .autosave
 .DS_Store
-$GIT_DIR/cmake-build-*/
+cmake-build-*/
 .idea
 *~
 ~*
