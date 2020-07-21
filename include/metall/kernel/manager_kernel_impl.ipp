@@ -7,6 +7,7 @@
 #define METALL_DETAIL_KERNEL_MANAGER_KERNEL_IMPL_IPP
 
 #include <metall/kernel/manager_kernel_fwd.hpp>
+#include <metall/detail/utility/logger.hpp>
 
 namespace metall {
 namespace kernel {
@@ -28,9 +29,7 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
     , m_named_object_directory_mutex()
 #endif
 {
-  if (!priv_validate_runtime_configuration()) {
-    std::abort();
-  }
+  priv_validate_runtime_configuration();
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -47,39 +46,45 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path, const size_type vm_reserve_size) {
   if (!priv_validate_runtime_configuration()) {
-    std::abort();
+    return;
   }
 
   if (vm_reserve_size > k_max_segment_size) {
-    std::cerr << "Too large VM region size is requested " << vm_reserve_size << " byte." << std::endl;
-    std::abort();
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "Too large VM region size is requested " + std::to_string(vm_reserve_size) + " byte.");
+    return;
   }
 
   m_base_dir_path = base_dir_path;
 
   if (!priv_unmark_properly_closed(m_base_dir_path) || !priv_init_datastore_directory(base_dir_path)) {
-    std::cerr << "Failed to initialize datastore directory under " << base_dir_path << std::endl;
-    std::abort();
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "Failed to initialize datastore directory under " + std::string(base_dir_path));
+    return;
   }
 
   if (!priv_reserve_vm_region(vm_reserve_size)) {
-    std::abort();
+    return;
   }
 
   if (!priv_allocate_segment_header(m_vm_region)) {
-    std::abort();
+    return;
   }
 
   if (!m_segment_storage.create(priv_make_file_name(m_base_dir_path, k_segment_prefix),
                                 m_vm_region_size - k_segment_header_size,
                                 static_cast<char *>(m_vm_region) + k_segment_header_size,
                                 k_initial_segment_size)) {
-    std::cerr << "Cannot create application data segment" << std::endl;
-    std::abort();
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Cannot create application data segment");
+    return;
   }
 
   if (!priv_store_uuid(m_base_dir_path)) {
-    std::abort();
+    return;
   }
 }
 
@@ -323,19 +328,28 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const s
   // Create the base directory if needed
   if (!util::file_exist(base_dir_path)) {
     if (!util::create_directory(base_dir_path)) {
-      std::cerr << "Failed to create directory: " << base_dir_path << std::endl;
+      util::log::out(util::log::level::critical,
+                     __FILE__,
+                     __LINE__,
+                     "Failed to create directory: " + std::string(base_dir_path));
       return false;
     }
   }
 
   if (!remove(base_dir_path.c_str())) {
-    std::cerr << "Failed to remove an existing data store: " << base_dir_path << std::endl;
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "Failed to remove an existing data store: " + std::string(base_dir_path));
     return false;
   }
 
   // Create the data store directory if needed
   if (!util::create_directory(priv_make_datastore_dir_path(base_dir_path))) {
-    std::cerr << "Failed to create directory: " << priv_make_datastore_dir_path(base_dir_path) << std::endl;
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "Failed to create directory: " + priv_make_datastore_dir_path(base_dir_path));
     return false;
   }
 
@@ -353,22 +367,31 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_validate_runtime_configuration() const {
   const auto system_page_size = util::get_page_size();
   if (system_page_size <= 0) {
-    std::cerr << "Failed to get the system page size" << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to get the system page size");
     return false;
   }
 
   if (k_chunk_size % system_page_size != 0) {
-    std::cerr << "The chunk size must be a multiple of the system page size" << std::endl;
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "The chunk size must be a multiple of the system page size");
     return false;
   }
 
   if (m_segment_storage.page_size() > k_chunk_size) {
-    std::cerr << "The page size of the segment storage must be equal or smaller than the chunk size" << std::endl;
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "The page size of the segment storage must be equal or smaller than the chunk size");
     return false;
   }
 
   if (m_segment_storage.page_size() % system_page_size != 0) {
-    std::cerr << "The page size of the segment storage must be a multiple of the system page size" << std::endl;
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "The page size of the segment storage must be a multiple of the system page size");
     return false;
   }
 
@@ -401,7 +424,10 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_reserve_vm_region(const size_typ
   m_vm_region_size = util::round_up(nbytes, alignment);
   m_vm_region = util::reserve_aligned_vm_region(alignment, m_vm_region_size);
   if (!m_vm_region) {
-    std::cerr << "Cannot reserve a VM region " << nbytes << " bytes" << std::endl;
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "Cannot reserve a VM region " + std::to_string(nbytes) + " bytes");
     m_vm_region_size = 0;
     return false;
   }
@@ -415,7 +441,11 @@ bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_release_vm_region() {
 
   if (!util::munmap(m_vm_region, m_vm_region_size, false)) {
-    std::cerr << "Cannot release a VM region " << m_vm_region << ", " << m_vm_region_size << " bytes." << std::endl;
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "Cannot release a VM region " + std::to_string((uint64_t)m_vm_region) + ", "
+                       + std::to_string(m_vm_region_size) + " bytes.");
     return false;
   }
   m_vm_region = nullptr;
@@ -433,7 +463,7 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_allocate_segment_header(void *co
   }
 
   if (util::map_anonymous_write_mode(addr, k_segment_header_size, MAP_FIXED) != addr) {
-    std::cerr << "Cannot allocate segment header" << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Cannot allocate segment header");
     return false;
   }
   m_segment_header = reinterpret_cast<segment_header_type *>(addr);
@@ -458,12 +488,12 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_store_uuid(const std::strin
   std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
   std::ofstream ofs(file_name);
   if (!ofs) {
-    std::cerr << "Failed to create a file: " << file_name << std::endl;
+    util::log::out(util::log::level::error, __FILE__, __LINE__, "Failed to create a file: " + file_name);
     return false;
   }
   ofs << util::uuid(util::uuid_random_generator{}());
   if (!ofs) {
-    std::cerr << "Cannot write A UUID to a file: " << file_name << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Cannot write A UUID to a file: " + file_name);
     return false;
   }
   ofs.close();
@@ -477,13 +507,13 @@ std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_restore_uuid(const s
   std::ifstream ifs(file_name);
 
   if (!ifs.is_open()) {
-    std::cerr << "Failed to open a file: " << file_name << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to open a file: " + file_name);
     return "";
   }
 
   std::string uuid_string;
   if (!(ifs >> uuid_string)) {
-    std::cerr << "Failed to read a file: " << file_name << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to read a file: " + file_name);
     return "";
   }
 
@@ -523,7 +553,10 @@ priv_generic_named_construct(const char_type *const name,
                                                                 - static_cast<char *>(m_segment_storage.get_segment()),
                                                             num);
     if (!insert_ret) {
-      std::cerr << "Failed to insert a new name: " << name << std::endl;
+      util::log::out(util::log::level::critical,
+                     __FILE__,
+                     __LINE__,
+                     "Failed to insert a new name: " + std::string(name));
       return nullptr;
     }
 
@@ -538,12 +571,13 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
                                                           const bool read_only,
                                                           const size_type vm_reserve_size_request) {
   if (!priv_validate_runtime_configuration()) {
-    std::abort();
+    return;
   }
 
   if (!consistent(base_dir_path)) {
-    std::cerr << "Inconsistent data store — it was not closed properly and might have been collapsed." << std::endl;
-    std::abort();
+    util::log::out(util::log::level::critical, __FILE__, __LINE__,
+                   "Inconsistent data store — it was not closed properly and might have been collapsed.");
+    return;
   }
 
   m_base_dir_path = base_dir_path;
@@ -551,31 +585,35 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
   const size_type existing_segment_size = segment_storage_type::get_size(priv_make_file_name(m_base_dir_path,
                                                                                              k_segment_prefix));
   const size_type vm_reserve_size = (read_only) ? existing_segment_size + k_segment_header_size
-                                                : std::max(existing_segment_size + k_segment_header_size, vm_reserve_size_request);
+                                                : std::max(existing_segment_size + k_segment_header_size,
+                                                           vm_reserve_size_request);
 
   if (!priv_reserve_vm_region(vm_reserve_size)) {
-    std::abort();
+    return;
   }
 
   if (!priv_allocate_segment_header(m_vm_region)) {
-    std::abort();
+    return;
   }
 
   // Clear the consistent mark before opening with the write mode
   if (!read_only && !priv_unmark_properly_closed(m_base_dir_path)) {
-    std::cerr << "Failed to erase the properly close mark before opening" << std::endl;
-    std::abort();
+    util::log::out(util::log::level::critical,
+                   __FILE__,
+                   __LINE__,
+                   "Failed to erase the properly close mark before opening");
+    return;
   }
 
   if (!m_segment_storage.open(priv_make_file_name(m_base_dir_path, k_segment_prefix),
                               m_vm_region_size - k_segment_header_size,
                               static_cast<char *>(m_vm_region) + k_segment_header_size,
                               read_only)) {
-    std::abort();
+    return;
   }
 
   if (!priv_deserialize_management_data()) {
-    std::abort();
+    return;
   }
 }
 
@@ -589,7 +627,7 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
 
   if (!m_named_object_directory.serialize(priv_make_file_name(m_base_dir_path,
                                                               k_named_object_directory_prefix).c_str())) {
-    std::cerr << "Failed to serialize named object directory" << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to serialize named object directory");
     return false;
   }
   if (!m_segment_memory_allocator.serialize(priv_make_file_name(m_base_dir_path, k_segment_memory_allocator_prefix))) {
@@ -604,7 +642,7 @@ bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deserialize_management_data() {
   if (!m_named_object_directory.deserialize(priv_make_file_name(m_base_dir_path,
                                                                 k_named_object_directory_prefix).c_str())) {
-    std::cerr << "Failed to deserialize named object directory" << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to deserialize named object directory");
     return false;
   }
   if (!m_segment_memory_allocator.deserialize(priv_make_file_name(m_base_dir_path,
@@ -622,13 +660,15 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::strin
                                                                 [[maybe_unused]] const bool overwrite) {
   const std::string src_datastore_dir_path = priv_make_datastore_dir_path(src_base_dir_path);
   if (!util::directory_exist(src_datastore_dir_path)) {
-    std::cerr << "Source directory does not exist: " << src_datastore_dir_path << std::endl;
+    util::log::out(util::log::level::critical, __FILE__, __LINE__,
+                   "Source directory does not exist: " + src_datastore_dir_path);
     return false;
   }
 
   if (!util::file_exist(dst_base_dir_path)) {
     if (!util::create_directory(dst_base_dir_path)) {
-      std::cerr << "Failed to create directory: " << dst_base_dir_path << std::endl;
+      util::log::out(util::log::level::critical, __FILE__, __LINE__,
+                     "Failed to create directory: " + dst_base_dir_path);
       return false;
     }
   }

@@ -6,10 +6,6 @@
 #ifndef METALL_DETAIL_UTILITY_MMAP_HPP
 #define METALL_DETAIL_UTILITY_MMAP_HPP
 
-#include <string>
-
-#include <cstdio>
-#include <cerrno>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -19,9 +15,15 @@
 #include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
 #endif
 
+#include <string>
+#include <cstdio>
+#include <cerrno>
+#include <sstream>
+
 #include <metall/detail/utility/memory.hpp>
 #include <metall/detail/utility/file.hpp>
 #include <metall/detail/utility/common.hpp>
+#include <metall/detail/utility/logger.hpp>
 
 namespace metall {
 namespace detail {
@@ -44,28 +46,30 @@ inline void *os_mmap(void *const addr, const size_t length, const int protection
   }
 
   if ((ptrdiff_t)addr % page_size != 0) {
-    std::cerr << "address (" << addr << ") is not page aligned ("
-              << ::sysconf(_SC_PAGE_SIZE) << ")" << std::endl;
+    std::stringstream ss;
+    ss << "address (" << addr << ") is not page aligned (" << ::sysconf(_SC_PAGE_SIZE) << ")";
+    log::out(log::level::error, __FILE__, __LINE__, ss.str());
     return nullptr;
   }
 
   if (offset % page_size != 0) {
-    std::cerr << "offset (" << offset << ") is not a multiple of the page size (" << ::sysconf(_SC_PAGE_SIZE) << ")"
-              << std::endl;
+    std::stringstream ss;
+    ss << "offset (" << offset << ") is not a multiple of the page size (" << ::sysconf(_SC_PAGE_SIZE) << ")";
+    log::out(log::level::error, __FILE__, __LINE__, ss.str());
     return nullptr;
   }
 
   // ----- Map the file ----- //
   void *mapped_addr = ::mmap(addr, length, protection, flags, fd, offset);
   if (mapped_addr == MAP_FAILED) {
-    ::perror("mmap");
-    std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::error, __FILE__, __LINE__, "mmap");
     return nullptr;
   }
 
   if ((ptrdiff_t)mapped_addr % page_size != 0) {
-    std::cerr << "mapped address (" << mapped_addr << ") is not page aligned ("
-              << ::sysconf(_SC_PAGE_SIZE) << ")" << std::endl;
+    std::stringstream ss;
+    ss << "mapped address (" << mapped_addr << ") is not page aligned (" << ::sysconf(_SC_PAGE_SIZE) << ")";
+    log::out(log::level::error, __FILE__, __LINE__, ss.str());
     return nullptr;
   }
 
@@ -96,8 +100,7 @@ inline std::pair<int, void *> map_file_read_mode(const std::string &file_name, v
   // ----- Open the file ----- //
   const int fd = ::open(file_name.c_str(), O_RDONLY);
   if (fd == -1) {
-    ::perror("open");
-    std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::error, __FILE__, __LINE__, "open");
     return std::make_pair(-1, nullptr);
   }
 
@@ -123,8 +126,7 @@ inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, 
   // ----- Open the file ----- //
   const int fd = ::open(file_name.c_str(), O_RDWR);
   if (fd == -1) {
-    ::perror("open");
-    std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::error, __FILE__, __LINE__, "open");
     return std::make_pair(-1, nullptr);
   }
 
@@ -140,8 +142,7 @@ inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, 
 
 inline bool os_msync(void *const addr, const size_t length, const bool sync) {
   if (::msync(addr, length, sync ? MS_SYNC : MS_ASYNC) != 0) {
-    // ::perror("msync");
-    // std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::error, __FILE__, __LINE__, "msync");
     return false;
   }
   return true;
@@ -149,8 +150,7 @@ inline bool os_msync(void *const addr, const size_t length, const bool sync) {
 
 inline bool os_munmap(void *const addr, const size_t length) {
   if (::munmap(addr, length) == -1) {
-    ::perror("munmap");
-    std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::error, __FILE__, __LINE__, "munmap");
     return false;
   }
   return true;
@@ -173,9 +173,8 @@ inline bool map_with_prot_none(void *const addr, const size_t length) {
 }
 
 inline bool os_mprotect(void *const addr, const size_t length, const int prot) {
-  if(::mprotect(addr, length, prot) == -1) {
-    ::perror("mprotect");
-    std::cerr << "errno: " << errno << std::endl;
+  if (::mprotect(addr, length, prot) == -1) {
+    log::perror(log::level::error, __FILE__, __LINE__, "mprotect");
     return false;
   }
   return true;
@@ -193,8 +192,7 @@ inline bool mprotect_read_write(void *const addr, const size_t length) {
 inline bool uncommit_private_pages(void *const addr, const size_t length) {
 #ifdef MADV_FREE
   if (::madvise(addr, length, MADV_FREE) != 0) {
-    // ::perror("madvise MADV_FREE");
-    // std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::warning, __FILE__, __LINE__, "madvise MADV_FREE");
     return false;
   }
 #else
@@ -202,8 +200,7 @@ inline bool uncommit_private_pages(void *const addr, const size_t length) {
 #warning "MADV_FREE is not defined. Metall uses MADV_DONTNEED instead."
 #endif
   if (::madvise(addr, length, MADV_DONTNEED) != 0) {
-    // ::perror("madvise MADV_DONTNEED");
-    // std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::warning, __FILE__, __LINE__, "madvise MADV_DONTNEED");
     return false;
   }
 #endif
@@ -212,8 +209,7 @@ inline bool uncommit_private_pages(void *const addr, const size_t length) {
 
 inline bool uncommit_shared_pages(void *const addr, const size_t length) {
   if (::madvise(addr, length, MADV_DONTNEED) != 0) {
-    // ::perror("madvise MADV_DONTNEED");
-    // std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::warning, __FILE__, __LINE__, "madvise MADV_DONTNEED");
     return false;
   }
   return true;
@@ -223,8 +219,7 @@ inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
                                        [[maybe_unused]] const size_t length) {
 #if !defined(METALL_DISABLE_FREE_FILE_SPACE) && defined(__linux__) && defined(MADV_REMOVE)
   if (::madvise(addr, length, MADV_REMOVE) != 0) {
-    // ::perror("madvise MADV_REMOVE");
-    // std::cerr << "errno: " << errno << std::endl;
+    log::perror(log::level::warning, __FILE__, __LINE__, "madvise MADV_REMOVE");
     return false;
   }
   return true;
@@ -258,15 +253,16 @@ inline void *reserve_aligned_vm_region(const size_t alignment, const size_t leng
   }
 
   if (alignment % page_size != 0) {
-    std::cerr << "alignment (" << alignment << ") is not a multiple of the page size (" << ::sysconf(_SC_PAGE_SIZE)
-              << ")"
-              << std::endl;
+    std::stringstream ss;
+    ss << "alignment (" << alignment << ") is not a multiple of the page size (" << ::sysconf(_SC_PAGE_SIZE) << ")";
+    log::out(log::level::error, __FILE__, __LINE__, ss.str());
     return nullptr;
   }
 
   if (length % alignment != 0) {
-    std::cerr << "length (" << length << ") is not a multiple of alignment (" << ::sysconf(_SC_PAGE_SIZE) << ")"
-              << std::endl;
+    std::stringstream ss;
+    ss << "length (" << length << ") is not a multiple of alignment (" << ::sysconf(_SC_PAGE_SIZE) << ")";
+    log::out(log::level::error, __FILE__, __LINE__, ss.str());
     return nullptr;
   }
 
@@ -285,13 +281,13 @@ inline void *reserve_aligned_vm_region(const size_t alignment, const size_t leng
   // Trim the tail
   const size_t surplus_tail_length = alignment - surplus_head_length;
   assert(surplus_tail_length % page_size == 0);
-  if (surplus_tail_length > 0 && !os_munmap(reinterpret_cast<char*>(aligned_map_addr) + length, surplus_tail_length)) {
+  if (surplus_tail_length > 0 && !os_munmap(reinterpret_cast<char *>(aligned_map_addr) + length, surplus_tail_length)) {
     return nullptr;
   }
 
   // The final check, just in case
   assert(reinterpret_cast<uint64_t>(aligned_map_addr) % alignment == 0);
-  
+
   return aligned_map_addr;
 }
 
@@ -303,8 +299,8 @@ class pagemap_reader {
       : m_fd(-1) {
     m_fd = ::open("/proc/self/pagemap", O_RDONLY);
     if (m_fd < 0) {
-      ::perror("open");
-      std::cerr << "Cannot open /proc/self/pagemap" << std::endl;
+      log::out(log::level::error, __FILE__, __LINE__, "Cannot open /proc/self/pagemap\n");
+      log::perror(log::level::error, __FILE__, __LINE__, "open");
     }
   }
 
@@ -328,12 +324,12 @@ class pagemap_reader {
 
     uint64_t buf;
     if (::pread(m_fd, &buf, sizeof(buf), page_no * sizeof(uint64_t)) == -1) {
-      // ::perror("pread");
+      log::perror(log::level::error, __FILE__, __LINE__, "pread");
       return error_value;
     }
 
     if (buf & 0x1E00000000000000ULL) { // Sanity check; 57-60 bits are must be 0.
-      // std::cerr << "57-60 bits of the pagemap are not 0" << std::endl;
+      log::out(log::level::error, __FILE__, __LINE__, "57-60 bits of the pagemap are not 0\n");
       return error_value;
     }
 

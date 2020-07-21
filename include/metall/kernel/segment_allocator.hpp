@@ -21,6 +21,7 @@
 #include <metall/kernel/object_size_manager.hpp>
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/common.hpp>
+#include <metall/detail/utility/logger.hpp>
 
 #define ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR 1
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
@@ -39,7 +40,7 @@ namespace util = metall::detail::utility;
 }
 
 template <typename _chunk_no_type, typename size_type, typename difference_type,
-          std::size_t _chunk_size, std::size_t _max_size, typename _segment_storage_type,
+    std::size_t _chunk_size, std::size_t _max_size, typename _segment_storage_type,
           typename _internal_data_allocator_type>
 class segment_allocator {
  public:
@@ -94,7 +95,7 @@ class segment_allocator {
   explicit segment_allocator(segment_storage_type *segment_storage,
                              const internal_data_allocator_type &allocator = internal_data_allocator_type())
       : m_non_full_chunk_bin(allocator),
-        m_chunk_directory(allocator),
+        m_chunk_directory(k_max_size / k_chunk_size, allocator),
         m_segment_storage(segment_storage)
 #ifndef METALL_DISABLE_OBJECT_CACHE
       , m_object_cache(allocator)
@@ -103,9 +104,7 @@ class segment_allocator {
       , m_chunk_mutex(),
         m_bin_mutex()
 #endif
-  {
-    m_chunk_directory.allocate(k_max_size / k_chunk_size); // TODO: make a function returns #chunks
-  }
+  {}
 
   ~segment_allocator() = default;
 
@@ -196,11 +195,11 @@ class segment_allocator {
 #endif
 
     if (!m_non_full_chunk_bin.serialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
-      std::cerr << "Failed to serialize bin directory" << std::endl;
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to serialize bin directory");
       return false;
     }
     if (!m_chunk_directory.serialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str())) {
-      std::cerr << "Failed to serialize chunk directory" << std::endl;
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to serialize chunk directory");
       return false;
     }
     return true;
@@ -211,11 +210,11 @@ class segment_allocator {
   /// \return
   bool deserialize(const std::string &base_path) {
     if (!m_non_full_chunk_bin.deserialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
-      std::cerr << "Failed to deserialize bin directory" << std::endl;
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to deserialize bin directory");
       return false;
     }
     if (!m_chunk_directory.deserialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str())) {
-      std::cerr << "Failed to deserialize chunk directory" << std::endl;
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to deserialize chunk directory");
       return false;
     }
     return true;
@@ -364,7 +363,10 @@ class segment_allocator {
       return;
     }
     if (!m_segment_storage->extend(required_segment_size)) {
-      std::cerr << "Failed to extend application data segment to " << required_segment_size << " bytes" << std::endl;
+      util::log::out(util::log::level::critical,
+                     __FILE__,
+                     __LINE__,
+                     "Failed to extend the segment to " + std::to_string(required_segment_size) + " bytes");
       std::abort();
     }
   }
