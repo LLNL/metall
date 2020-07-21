@@ -4,53 +4,71 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
-#include <metall_utility/logger.hpp>
+#include <metall/detail/utility/logger.hpp>
 
-using namespace metall::utility;
+using namespace metall::detail::utility;
 
-void log() {
-  logger::log(log_level::silent, "silent log");
-  logger::log(log_level::critical, "critical log");
-  logger::log(log_level::error, "error log");
-  logger::log(log_level::warning, "warning log");
-  logger::log(log_level::info, "info log");
-  logger::log(log_level::debug, "debug log");
-  logger::log(log_level::verbose, "verbose log");
+void log_cerr() {
+  log::out(log::level::silent, __FILE__, __LINE__, "silent log");
+  log::out(log::level::critical, __FILE__, __LINE__, "critical log");
+  log::out(log::level::error, __FILE__, __LINE__, "error log");
+  log::out(log::level::warning, __FILE__, __LINE__, "warning log");
+  log::out(log::level::info, __FILE__, __LINE__, "info log");
+  log::out(log::level::debug, __FILE__, __LINE__, "debug log");
+  log::out(log::level::verbose, __FILE__, __LINE__, "verbose log");
+}
+
+void log_perror() {
+  log::perror(log::level::silent, __FILE__, __LINE__, "silent log");
+  log::perror(log::level::critical, __FILE__, __LINE__, "critical log");
+  log::perror(log::level::error, __FILE__, __LINE__, "error log");
+  log::perror(log::level::warning, __FILE__, __LINE__, "warning log");
+  log::perror(log::level::info, __FILE__, __LINE__, "info log");
+  log::perror(log::level::debug, __FILE__, __LINE__, "debug log");
+  log::perror(log::level::verbose, __FILE__, __LINE__, "verbose log");
 }
 
 int main() {
-  logger::enable_abort(false);
+  log::enable_abort(false);
 
   std::cerr << "--- Log level : unset ---" << std::endl;
-  log();
+  log_cerr();
+  log_perror();
 
   std::cerr << "\n--- Log level : silent ---" << std::endl;
-  logger::set_log_level(log_level::silent);
-  log();
+  log::set_log_level(log::level::silent);
+  log_cerr();
+  log_perror();
 
   std::cerr << "\n--- Log level : critical ---" << std::endl;
-  logger::set_log_level(log_level::critical);
-  log();
+  log::set_log_level(log::level::critical);
+  log_cerr();
+  log_perror();
 
   std::cerr << "\n--- Log level : error ---" << std::endl;
-  logger::set_log_level(log_level::error);
-  log();
+  log::set_log_level(log::level::error);
+  log_cerr();
+  log_perror();
 
   std::cerr << "\n--- Log level : warning ---" << std::endl;
-  logger::set_log_level(log_level::warning);
-  log();
+  log::set_log_level(log::level::warning);
+  log_cerr();
+  log_perror();
 
   std::cerr << "\n--- Log level : info ---" << std::endl;
-  logger::set_log_level(log_level::info);
-  log();
+  log::set_log_level(log::level::info);
+  log_cerr();
+  log_perror();
 
   std::cerr << "\n--- Log level : debug ---" << std::endl;
-  logger::set_log_level(log_level::debug);
-  log();
+  log::set_log_level(log::level::debug);
+  log_cerr();
+  log_perror();
 
   std::cerr << "\n--- Log level : verbose ---" << std::endl;
-  logger::set_log_level(log_level::verbose);
-  log();
+  log::set_log_level(log::level::verbose);
+  log_cerr();
+  log_perror();
 
   return 0;
 }
