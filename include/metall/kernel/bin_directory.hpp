@@ -10,6 +10,7 @@
 #include <limits>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <cassert>
 #include <functional>
 #include <memory>
@@ -25,6 +26,7 @@
 #endif
 
 #include <metall/detail/utility/common.hpp>
+#include <metall/detail/utility/logger.hpp>
 
 namespace metall {
 namespace kernel {
@@ -191,7 +193,9 @@ class bin_directory {
   bool serialize(const char *path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
-      std::cerr << "Cannot open: " << path << std::endl;
+      std::stringstream ss;
+      ss << "Cannot open: " << path;
+      util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 
@@ -199,7 +203,9 @@ class bin_directory {
       for (const auto value : m_table[i]) {
         ofs << static_cast<uint64_t>(i) << " " << static_cast<uint64_t>(value) << "\n";
         if (!ofs) {
-          std::cerr << "Something happened in the ofstream: " << path << std::endl;
+          std::stringstream ss;
+          ss << "Something happened in the ofstream: " << path;
+          util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
           return false;
         }
       }
@@ -214,7 +220,9 @@ class bin_directory {
   bool deserialize(const char *path) {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
-      std::cerr << "Cannot open: " << path << std::endl;
+      std::stringstream ss;
+      ss << "Cannot open: " << path;
+      util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 
@@ -225,7 +233,9 @@ class bin_directory {
       const auto value = static_cast<value_type>(buf2);
 
       if (m_table.size() <= bin_no) {
-        std::cerr << "Too large bin number is found: " << bin_no << std::endl;
+        std::stringstream ss;
+        ss << "Too large bin number is found: " << bin_no;
+        util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
         return false;
       }
 #ifdef METALL_USE_SPACE_AWARE_BIN
@@ -236,7 +246,9 @@ class bin_directory {
     }
 
     if (!ifs.eof()) {
-      std::cerr << "Something happened in the ifstream: " << path << std::endl;
+      std::stringstream ss;
+      ss << "Something happened in the ifstream: " << path;
+      util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 

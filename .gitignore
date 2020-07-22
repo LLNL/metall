@@ -7,9 +7,7 @@ build*/
 .error
 .autosave
 .DS_Store
-cmake-build-*
+cmake-build-*/
 .idea
 *~
 ~*
-*.xls
-*.xlsx

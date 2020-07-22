@@ -20,6 +20,7 @@
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/bitset.hpp>
 #include <metall/detail/utility/builtin_functions.hpp>
+#include <metall/detail/utility/logger.hpp>
 
 namespace metall {
 namespace kernel {
@@ -240,8 +241,8 @@ class multilayer_bitset {
     const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
     m_data.array = std::allocator_traits<rebind_allocator_type>::allocate(allocator, num_blocks);
     if (!m_data.array) {
-      std::cerr << "Cannot allocate multi-layer bitset" << std::endl;
-      std::abort();
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Cannot allocate multi-layer bitset");
+      return;
     }
     std::fill(&m_data.array[0], &m_data.array[num_blocks], 0);
   }

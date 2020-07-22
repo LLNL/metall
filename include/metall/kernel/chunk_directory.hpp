@@ -18,6 +18,7 @@
 #include <metall/kernel/multilayer_bitset.hpp>
 #include <metall/kernel/bin_number_manager.hpp>
 #include <metall/kernel/object_size_manager.hpp>
+#include <metall/detail/utility/logger.hpp>
 
 namespace metall {
 namespace kernel {
@@ -75,14 +76,17 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit chunk_directory(const allocator_type& allocator)
+  explicit chunk_directory(const std::size_t max_num_chunks,
+                           const allocator_type &allocator)
       : m_table(nullptr),
         m_max_num_chunks(0),
         m_end_chunk_no(0),
-        m_multilayer_bitset_allocator(allocator) {}
+        m_multilayer_bitset_allocator(allocator) {
+    priv_allocate(max_num_chunks);
+  }
 
   ~chunk_directory() {
-    destroy();
+    priv_destroy();
   }
 
   chunk_directory(const chunk_directory &) = delete;
@@ -94,33 +98,6 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
-  /// \brief Reserves chunk directory.
-  /// It allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
-  /// \param num_chunks
-  void allocate(const std::size_t max_num_chunks) {
-    assert(!m_table);
-    m_max_num_chunks = max_num_chunks;
-    /// CAUTION: Assumes that mmap + MAP_ANONYMOUS returns zero-initialized region
-    m_table = static_cast<entry_type *>(util::map_anonymous_write_mode(nullptr, m_max_num_chunks * sizeof(entry_type)));
-
-    if (!m_table) {
-      std::cerr << "Cannot allocate chunk table" << std::endl;
-      std::abort();
-    }
-    m_end_chunk_no = 0;
-  }
-
-  /// \brief
-  void destroy() {
-    for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
-      erase(chunk_no);
-    }
-    util::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
-    m_table = nullptr;
-    m_max_num_chunks = 0;
-    m_end_chunk_no = 0;
-  }
-
   /// \brief
   /// \param bin_no
   /// \return
@@ -207,7 +184,7 @@ class chunk_directory {
   /// \brief
   /// \param chunk_no
   /// \return
-    bool all_slots_marked(const chunk_no_type chunk_no) const {
+  bool all_slots_marked(const chunk_no_type chunk_no) const {
     assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
@@ -285,7 +262,7 @@ class chunk_directory {
   bool serialize(const char *path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
-      std::cerr << "Cannot open: " << path << std::endl;
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, std::string("Cannot open: ") + path);
       return false;
     }
 
@@ -297,22 +274,40 @@ class chunk_directory {
       ofs << static_cast<uint64_t>(chunk_no)
           << " " << static_cast<uint64_t>(m_table[chunk_no].bin_no)
           << " " << static_cast<uint64_t>(m_table[chunk_no].type);
-      if (!ofs) std::cerr << "Something happened in the ofstream: " << path << std::endl;
+      if (!ofs) {
+        util::log::out(util::log::level::critical,
+                       __FILE__,
+                       __LINE__,
+                       std::string("Something happened in the ofstream: ") + path);
+        return false;
+      }
 
       if (m_table[chunk_no].type == chunk_type::small_chunk) {
         const slot_count_type num_slots = slots(chunk_no);
         ofs << " " << static_cast<uint64_t>(m_table[chunk_no].num_occupied_slots)
             << " " << m_table[chunk_no].slot_occupancy.serialize(num_slots) << "\n";
-        if (!ofs) std::cerr << "Something happened in the ofstream: " << path << std::endl;
+        if (!ofs) {
+          util::log::out(util::log::level::critical,
+                         __FILE__,
+                         __LINE__,
+                         std::string("Something happened in the ofstream: ") + path);
+          return false;
+        }
 
       } else if (m_table[chunk_no].type == chunk_type::large_chunk_head
           || m_table[chunk_no].type == chunk_type::large_chunk_tail) {
         ofs << "\n";
-        if (!ofs) std::cerr << "Something happened in the ofstream: " << path << std::endl;
+        if (!ofs) {
+          util::log::out(util::log::level::critical,
+                         __FILE__,
+                         __LINE__,
+                         std::string("Something happened in the ofstream: ") + path);
+          return false;
+        }
 
       } else {
-        std::cerr << "Unexpected chunk status " << std::endl;
-        std::abort();
+        util::log::out(util::log::level::critical, __FILE__, __LINE__, "Unexpected chunk status");
+        return false;
       }
     }
 
@@ -327,7 +322,7 @@ class chunk_directory {
   bool deserialize(const char *path) {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
-      std::cerr << "Cannot open: " << path << std::endl;
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, std::string("Cannot open: ") + path);
       return false;
     }
 
@@ -348,34 +343,43 @@ class chunk_directory {
       } else if (type == static_cast<status_underlying_type>(chunk_type::large_chunk_tail)) {
         m_table[chunk_no].type = chunk_type::large_chunk_tail;
       } else {
-        std::cerr << "Invalid chunk type" << std::endl;
+        util::log::out(util::log::level::critical, __FILE__, __LINE__, "Invalid chunk type");
         return false;
       }
 
       if (m_table[chunk_no].type == chunk_type::small_chunk) {
         const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no));
         if (!(ifs >> buf1)) {
-          std::cerr << "Cannot read a file: " << path << std::endl;
-          std::abort();
+          util::log::out(util::log::level::critical, __FILE__, __LINE__, std::string("Cannot read a file: ") + path);
+          return false;
         }
         if (num_slots < buf1) {
-          std::cerr << "Invalid num_occupied_slots: " << buf1 << std::endl;
-          std::abort();
+          util::log::out(util::log::level::critical,
+                         __FILE__,
+                         __LINE__,
+                         std::string("Invalid num_occupied_slots: ") + std::to_string(buf1));
+          return false;
         }
         m_table[chunk_no].num_occupied_slots = buf1;
 
         std::string bitset_buf;
         std::getline(ifs, bitset_buf);
         if (bitset_buf.empty() || bitset_buf[0] != ' ') {
-          std::cerr << "Invalid input for slot_occupancy: " << bitset_buf << std::endl;
-          std::abort();
+          util::log::out(util::log::level::critical,
+                         __FILE__,
+                         __LINE__,
+                         "Invalid input for slot_occupancy: " + bitset_buf);
+          return false;
         }
         bitset_buf.erase(0, 1);
 
         m_table[chunk_no].slot_occupancy.allocate(num_slots, m_multilayer_bitset_allocator);
         if (!m_table[chunk_no].slot_occupancy.deserialize(num_slots, bitset_buf)) {
-          std::cerr << "Invalid input for slot_occupancy: " << bitset_buf << std::endl;
-          std::abort();
+          util::log::out(util::log::level::critical,
+                         __FILE__,
+                         __LINE__,
+                         "Invalid input for slot_occupancy: " + bitset_buf);
+          return false;
         }
       }
 
@@ -383,7 +387,10 @@ class chunk_directory {
     }
 
     if (!ifs.eof()) {
-      std::cerr << "Something happened in the ifstream: " << path << std::endl;
+      util::log::out(util::log::level::critical,
+                     __FILE__,
+                     __LINE__,
+                     std::string("Something happened in the ifstream: ") + path);
       return false;
     }
 
@@ -403,6 +410,34 @@ class chunk_directory {
   constexpr slot_count_type calc_num_slots(const std::size_t object_size) const {
     assert(k_chunk_size >= object_size);
     return k_chunk_size / object_size;
+  }
+
+  /// \brief Reserves chunk directory.
+  /// It allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
+  /// \param max_num_chunks
+  bool priv_allocate(const std::size_t max_num_chunks) {
+    assert(!m_table);
+    m_max_num_chunks = max_num_chunks;
+    /// CAUTION: Assumes that mmap + MAP_ANONYMOUS returns zero-initialized region
+    m_table = static_cast<entry_type *>(util::map_anonymous_write_mode(nullptr, m_max_num_chunks * sizeof(entry_type)));
+
+    if (!m_table) {
+      m_max_num_chunks = 0;
+      util::log::perror(util::log::level::critical, __FILE__, __LINE__, "Cannot allocate chunk table");
+      return false;
+    }
+    m_end_chunk_no = 0;
+    return true;
+  }
+
+  void priv_destroy() {
+    for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
+      erase(chunk_no);
+    }
+    util::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
+    m_table = nullptr;
+    m_max_num_chunks = 0;
+    m_end_chunk_no = 0;
   }
 
   /// \brief
@@ -425,8 +460,8 @@ class chunk_directory {
         return chunk_no;
       }
     }
-    std::cerr << "No empty chunk for small allocation" << std::endl;
-    std::abort();
+    util::log::out(util::log::level::critical, __FILE__, __LINE__, "No empty chunk for small allocation");
+    return m_max_num_chunks;
   }
 
   /// \brief
@@ -459,8 +494,9 @@ class chunk_directory {
       }
     }
 
-    std::cerr << "No available space for large allocation, which requires multiple contiguous chunks" << std::endl;
-    std::abort();
+    util::log::out(util::log::level::critical, __FILE__, __LINE__,
+                   "No available space for large allocation, which requires multiple contiguous chunks");
+    return m_max_num_chunks;
   }
 
   chunk_no_type find_next_used_chunk_backward(const chunk_no_type start_chunk_no) const {
