@@ -119,7 +119,7 @@ class umap_segment_storage {
     // TODO: align those values to the page size instead of aborting
     if (initial_segment_size % page_size() != 0 || vm_region_size % page_size() != 0
         || (uint64_t)vm_region % page_size() != 0) {
-      util::log::cerr(util::log::level::critical,
+      util::log::out(util::log::level::critical,
                       __FILE__,
                       __LINE__,
                       "Invalid argument to crete application data segment");
@@ -149,7 +149,7 @@ class umap_segment_storage {
 
     // TODO: align those values to the page size instead of aborting
     if (vm_region_size % page_size() != 0 || (uint64_t)vm_region % page_size() != 0) {
-      util::log::cerr(util::log::level::critical, __FILE__, __LINE__, "Invalid argument to open segment");
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Invalid argument to open segment");
       return false;
     }
 
@@ -168,7 +168,7 @@ class umap_segment_storage {
       const auto file_size = util::get_file_size(file_name);
       assert(file_size % page_size() == 0);
       if (!priv_map_file(file_name, file_size, static_cast<char *>(m_segment) + m_current_segment_size, read_only)) {
-        util::log::cerr(util::log::level::critical, __FILE__, __LINE__, "Failed to map a file " + file_name);
+        util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to map a file " + file_name);
         return false;
       }
       m_current_segment_size += file_size;
@@ -190,7 +190,7 @@ class umap_segment_storage {
     }
 
     if (request_size > m_vm_region_size) {
-      util::log::cerr(util::log::level::critical, __FILE__, __LINE__, "Requested segment size is too big");
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Requested segment size is too big");
       return false;
     }
 
@@ -277,7 +277,7 @@ class umap_segment_storage {
     if (!util::create_file(file_name)) return false;
     if (!util::extend_file_size(file_name, file_size)) return false;
     if (static_cast<size_type>(util::get_file_size(file_name)) < file_size) {
-      util::log::cerr(util::log::level::critical, __FILE__, __LINE__,
+      util::log::out(util::log::level::critical, __FILE__, __LINE__,
                       "Failed to create and extend file: " + file_name + " with " + std::to_string(file_size)
                           + " bytes.");
       return false;
@@ -327,7 +327,7 @@ class umap_segment_storage {
       assert(file_size % page_size() == 0);
 
       if (::uunmap(static_cast<char *>(m_segment) + offset, file_size) != 0) {
-        util::log::cerr(util::log::level::critical, __FILE__, __LINE__,
+        util::log::out(util::log::level::critical, __FILE__, __LINE__,
                         "Failed to unmap a Umap region\n block number " + std::to_string(n) + "\n offset "
                             + std::string(offset));
         return;
@@ -352,7 +352,7 @@ class umap_segment_storage {
     if (!priv_inited() || m_read_only) return;
 
     if (::umap_flush() != 0) {
-      util::log::cerr(util::log::level::critical, __FILE__, __LINE__, "Failed umap_flush()");
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed umap_flush()");
     }
   }
 
@@ -368,7 +368,7 @@ class umap_segment_storage {
   bool priv_load_umap_page_size() {
     m_umap_page_size = ::umapcfg_get_umap_page_size();
     if (m_umap_page_size == -1) {
-      util::log::cerr(util::log::level::critical, __FILE__, __LINE__, "Failed to get system pagesize");
+      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to get system pagesize");
       return false;
     }
     return true;

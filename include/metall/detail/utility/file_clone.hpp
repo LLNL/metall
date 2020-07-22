@@ -31,18 +31,18 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
  #ifdef FICLONE
   const int source_fd = ::open(source_path.c_str(), O_RDONLY);
   if (source_fd == -1) {
-    log::cerr(log::level::error, __FILE__, __LINE__, "open " + source_path);
+    log::out(log::level::error, __FILE__, __LINE__, "open " + source_path);
     return false;
   }
 
   const int destination_fd = ::open(destination_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (destination_fd == -1) {
-    log::cerr(log::level::error, __FILE__, __LINE__, "open " + destination_path);
+    log::out(log::level::error, __FILE__, __LINE__, "open " + destination_path);
     return false;
   }
 
   if (::ioctl(destination_fd, FICLONE, source_fd) == -1) {
-    log::cerr(log::level::error, __FILE__, __LINE__, "ioctl + FICLONE");
+    log::out(log::level::error, __FILE__, __LINE__, "ioctl + FICLONE");
     return false;
   }
 
@@ -70,7 +70,7 @@ inline bool clone_file_linux(const std::string& source_path, const std::string& 
 inline bool clone_file_macos(const std::string& source_path, const std::string& destination_path) {
 #if 0
   if (::clonefile(source_path.c_str(), destination_path.c_str(), 0) == -1) {
-    log::cerr(log::level::error, __FILE__, __LINE__, "clonefile");
+    log::out(log::level::error, __FILE__, __LINE__, "clonefile");
     return false;
   }
   return true;
@@ -92,7 +92,7 @@ inline bool clone_file(const std::string& source_path, const std::string& destin
 #if defined(__linux__)
   ret = detail::clone_file_linux(source_path, destination_path);
   if (!ret)
-      log::cerr(log::level::error, __FILE__, __LINE__, "On Linux, Failed to clone " + source_path + " to " + destination_path);
+      log::out(log::level::error, __FILE__, __LINE__, "On Linux, Failed to clone " + source_path + " to " + destination_path);
 #elif defined(__APPLE__)
   ret = detail::clone_file_macos(source_path, destination_path);
   if (!ret)
@@ -104,10 +104,10 @@ inline bool clone_file(const std::string& source_path, const std::string& destin
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "Copy file normally instead of cloning"
 #endif
-  log::cerr(log::level::warning, __FILE__, __LINE__, "Use normal copy instead of clone");
+  log::out(log::level::warning, __FILE__, __LINE__, "Use normal copy instead of clone");
   ret = copy_file(source_path, destination_path); // Copy normally
   if (!ret)
-    log::cerr(log::level::error, __FILE__, __LINE__, "Failed to copy " + source_path + " to " + destination_path);
+    log::out(log::level::error, __FILE__, __LINE__, "Failed to copy " + source_path + " to " + destination_path);
 #endif
 
   if(ret && sync) {

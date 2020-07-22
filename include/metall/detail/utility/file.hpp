@@ -179,7 +179,7 @@ inline bool create_directory(const std::string &dir_path) {
       success = false;
     }
   } catch (fs::filesystem_error &e) {
-    log::cerr(log::level::info, __FILE__, __LINE__, e.what());
+    log::out(log::level::info, __FILE__, __LINE__, e.what());
     success = false;
   }
   return success;
@@ -273,11 +273,11 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!fs::copy_file(source_path, destination_path, fs::copy_options::overwrite_existing)) {
       std::stringstream ss;
       ss << "Failed copying file: " << source_path << " -> " << destination_path;
-      log::cerr(log::level::error, __FILE__, __LINE__, ss.str());
+      log::out(log::level::error, __FILE__, __LINE__, ss.str());
       success = false;
     }
   } catch (fs::filesystem_error &e) {
-    log::cerr(log::level::error, __FILE__, __LINE__, e.what());
+    log::out(log::level::error, __FILE__, __LINE__, e.what());
     success = false;
   }
   return success;
