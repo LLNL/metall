@@ -1,1 +1,1 @@
-add_executable(log log)
+add_executable(logger logger)

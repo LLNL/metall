@@ -26,7 +26,7 @@
 #endif
 
 #include <metall/detail/utility/common.hpp>
-#include <metall/detail/utility/logger.hpp>
+#include <metall/logger.hpp>
 
 namespace metall {
 namespace kernel {
@@ -195,7 +195,7 @@ class bin_directory {
     if (!ofs.is_open()) {
       std::stringstream ss;
       ss << "Cannot open: " << path;
-      util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 
@@ -205,7 +205,7 @@ class bin_directory {
         if (!ofs) {
           std::stringstream ss;
           ss << "Something happened in the ofstream: " << path;
-          util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
+          logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
           return false;
         }
       }
@@ -222,7 +222,7 @@ class bin_directory {
     if (!ifs.is_open()) {
       std::stringstream ss;
       ss << "Cannot open: " << path;
-      util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 
@@ -235,7 +235,7 @@ class bin_directory {
       if (m_table.size() <= bin_no) {
         std::stringstream ss;
         ss << "Too large bin number is found: " << bin_no;
-        util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
+        logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
         return false;
       }
 #ifdef METALL_USE_SPACE_AWARE_BIN
@@ -248,7 +248,7 @@ class bin_directory {
     if (!ifs.eof()) {
       std::stringstream ss;
       ss << "Something happened in the ifstream: " << path;
-      util::log::out(util::log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 

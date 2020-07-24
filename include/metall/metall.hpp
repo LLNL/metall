@@ -9,6 +9,7 @@
 #define METALL_METALL_HPP
 
 #include <metall/basic_manager.hpp>
+#include <metall/logger.hpp>
 
 /// \namespace metall
 /// \brief The top level of namespace of Metall

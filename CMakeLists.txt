@@ -39,6 +39,7 @@ option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
+option(ENABLE_LOGGING "Enable logging" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
 set(DEFAULT_VM_RESERVE_SIZE "0" CACHE STRING
@@ -151,6 +152,11 @@ if (INITIAL_SEGMENT_SIZE GREATER 0)
     add_definitions(-DMETALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE})
     message(STATUS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
 endif ()
+
+if (ENABLE_LOGGING)
+    add_definitions(-DMETALL_ENABLE_LOGGING)
+    message(STATUS "Enable logging")
+endif()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
