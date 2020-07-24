@@ -19,14 +19,10 @@
 #include <boost/container/string.hpp>
 #include <boost/unordered_map.hpp>
 
-#include <metall/detail/utility/logger.hpp>
+#include <metall/logger.hpp>
 
 namespace metall {
 namespace kernel {
-
-namespace {
-namespace util = metall::detail::utility;
-}
 
 /// \brief Directory for namaed objects.
 /// \tparam offset_type
@@ -133,7 +129,7 @@ class named_object_directory {
   bool serialize(const char *const path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
-      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Cannot open: " + std::string(path));
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot open: " + std::string(path));
       return false;
     }
 
@@ -153,10 +149,10 @@ class named_object_directory {
 
       ofs << ss.str() << "\n";
       if (!ofs) {
-        util::log::out(util::log::level::critical,
-                       __FILE__,
-                       __LINE__,
-                       "Something happened in the ofstream: " + std::string(path));
+        logger::out(logger::level::critical,
+                    __FILE__,
+                    __LINE__,
+                    "Something happened in the ofstream: " + std::string(path));
         return false;
       }
     }
@@ -170,7 +166,7 @@ class named_object_directory {
   bool deserialize(const char *const path) {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
-      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Cannot open: " + std::string(path));
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot open: " + std::string(path));
       return false;
     }
 
@@ -194,13 +190,13 @@ class named_object_directory {
 
         const std::string name = deserialize_string(serialized_name);
         if (key != hash_string(name)) {
-          util::log::out(util::log::level::critical, __FILE__, __LINE__, "Something is wrong in the read data");
+          logger::out(logger::level::critical, __FILE__, __LINE__, "Something is wrong in the read data");
           return false;
         }
 
         const bool ret = insert(name, offset, length);
         if (!ret) {
-          util::log::out(util::log::level::critical, __FILE__, __LINE__, "Failed to insert");
+          logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to insert");
           return false;
         }
       } else {
@@ -212,10 +208,10 @@ class named_object_directory {
     }
 
     if (!ifs.eof()) {
-      util::log::out(util::log::level::critical,
-                     __FILE__,
-                     __LINE__,
-                     "Something happened in the ifstream: " + std::string(path));
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Something happened in the ifstream: " + std::string(path));
       return false;
     }
 
@@ -238,7 +234,7 @@ class named_object_directory {
 
   bool serialize_string(const std::string &name, serialized_string_type *out) const {
     if (name.size() > std::tuple_size<serialized_string_type>::value) {
-      util::log::out(util::log::level::critical, __FILE__, __LINE__, "Too long name: " + name);
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Too long name: " + name);
       return false;
     }
     out->fill('\0');

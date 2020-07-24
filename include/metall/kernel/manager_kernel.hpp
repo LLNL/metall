@@ -29,7 +29,7 @@
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
 #include <metall/detail/utility/uuid.hpp>
-#include <metall/detail/utility/logger.hpp>
+#include <metall/logger.hpp>
 
 #ifdef METALL_USE_UMAP
 #include <metall/kernel/segment_storage/umap_segment_storage.hpp>

@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <fstream>
-#include <metall/detail/utility/logger.hpp>
+#include <metall/logger.hpp>
 
 namespace metall {
 namespace detail {
@@ -20,7 +20,7 @@ namespace utility {
 inline ssize_t get_page_size() noexcept {
   const ssize_t page_size = ::sysconf(_SC_PAGE_SIZE);
   if (page_size == -1) {
-    log::perror(log::level::error, __FILE__, __LINE__, "Failed to get the page size");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "Failed to get the page size");
   }
 
   return page_size;
@@ -122,7 +122,7 @@ inline std::pair<std::size_t, std::size_t> get_num_page_faults()
     // 0:pid 1:comm 2:state 3:ppid 4:pgrp 5:session 6:tty_nr 7:tpgid 8:flags 9:minflt 10:cminflt 11:majflt
     int ret;
     if ((ret = ::fscanf(f,"%*d %*s %*c %*d %*d %*d %*d %*d %*u %lu %*u %lu", &minflt, &majflt)) != 2) {
-      log::out(log::level::error, __FILE__, __LINE__, "Failed to reading #of page faults " + std::to_string(ret));
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to reading #of page faults " + std::to_string(ret));
       minflt = majflt = 0;
     }
   }

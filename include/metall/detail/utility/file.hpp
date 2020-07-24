@@ -41,7 +41,7 @@
 
 #endif // #ifdef __has_include
 
-#include <metall/detail/utility/logger.hpp>
+#include <metall/logger.hpp>
 
 namespace metall {
 namespace detail {
@@ -55,7 +55,7 @@ namespace fs = std::filesystem;
 
 inline bool os_close(const int fd) {
   if (::close(fd) == -1) {
-    log::perror(log::level::error, __FILE__, __LINE__, "close");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "close");
     return false;
   }
   return true;
@@ -63,7 +63,7 @@ inline bool os_close(const int fd) {
 
 inline bool os_fsync(const int fd) {
   if (::fsync(fd) != 0) {
-    log::perror(log::level::error, __FILE__, __LINE__, "fsync");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "fsync");
     return false;
   }
   return true;
@@ -72,7 +72,7 @@ inline bool os_fsync(const int fd) {
 inline bool fsync(const std::string &path) {
   const int fd = ::open(path.c_str(), O_RDONLY);
   if (fd == -1) {
-    log::perror(log::level::error, __FILE__, __LINE__, "open");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
   }
 
@@ -128,12 +128,12 @@ inline bool extend_file_size(const int fd, const size_t file_size) {
   // -----  extend the file if its size is smaller than that of mapped area ----- //
   struct stat statbuf;
   if (::fstat(fd, &statbuf) == -1) {
-    log::perror(log::level::error, __FILE__, __LINE__, "fstat");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
     return false;
   }
   if (::llabs(statbuf.st_size) < static_cast<ssize_t>(file_size)) {
     if (::ftruncate(fd, file_size) == -1) {
-      log::perror(log::level::error, __FILE__, __LINE__, "ftruncate");
+      logger::perror(logger::level::error, __FILE__, __LINE__, "ftruncate");
       return false;
     }
   }
@@ -148,7 +148,7 @@ inline bool extend_file_size(const int fd, const size_t file_size) {
 inline bool extend_file_size(const std::string &file_name, const size_t file_size) {
   const int fd = ::open(file_name.c_str(), O_RDWR);
   if (fd == -1) {
-    log::perror(log::level::error, __FILE__, __LINE__, "open");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
   }
 
@@ -161,7 +161,7 @@ inline bool create_file(const std::string &file_name) {
 
   const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
-    log::perror(log::level::error, __FILE__, __LINE__, "open");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
   }
 
@@ -179,7 +179,7 @@ inline bool create_directory(const std::string &dir_path) {
       success = false;
     }
   } catch (fs::filesystem_error &e) {
-    log::out(log::level::info, __FILE__, __LINE__, e.what());
+    logger::out(logger::level::info, __FILE__, __LINE__, e.what());
     success = false;
   }
   return success;
@@ -199,7 +199,7 @@ inline ssize_t get_file_size(const std::string &file_name) {
   if (size == -1) {
     std::stringstream ss;
     ss << "Failed to get file size: " << file_name;
-    log::out(log::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
   }
 
   return size;
@@ -211,7 +211,7 @@ inline ssize_t get_file_size(const std::string &file_name) {
 inline ssize_t get_actual_file_size(const std::string &file_name) {
   struct stat statbuf;
   if (::stat(file_name.c_str(), &statbuf) != 0) {
-    log::perror(log::level::error, __FILE__, __LINE__, "stat");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "stat");
     return -1;
   }
   return statbuf.st_blocks * 512LL;
@@ -253,7 +253,7 @@ inline bool free_file_space([[maybe_unused]] const int fd,
                             [[maybe_unused]] const off_t len) {
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
   if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, off, len) == -1) {
-    log::perror(log::level::warning, __FILE__, __LINE__, "fallocate");
+    logger::perror(logger::level::warning, __FILE__, __LINE__, "fallocate");
     return false;
   }
   return true;
@@ -273,11 +273,11 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!fs::copy_file(source_path, destination_path, fs::copy_options::overwrite_existing)) {
       std::stringstream ss;
       ss << "Failed copying file: " << source_path << " -> " << destination_path;
-      log::out(log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       success = false;
     }
   } catch (fs::filesystem_error &e) {
-    log::out(log::level::error, __FILE__, __LINE__, e.what());
+    logger::out(logger::level::error, __FILE__, __LINE__, e.what());
     success = false;
   }
   return success;
@@ -305,7 +305,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!source.is_open()) {
       std::stringstream ss;
       ss << "Cannot open: " << source_path;
-      log::out(log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 
@@ -313,7 +313,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!destination.is_open()) {
       std::stringstream ss;
       ss << "Cannot open: " << destination_path;
-      log::out(log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 
@@ -321,7 +321,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!destination) {
       std::stringstream ss;
       ss << "Something happened in the ofstream: " << destination_path;
-      log::out(log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
 
@@ -335,7 +335,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (s1 < 0 || s1 != s2) {
       std::stringstream ss;
       ss << "Something wrong in file sizes: " << s1 << " " << s2;
-      log::out(log::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
       return false;
     }
   }

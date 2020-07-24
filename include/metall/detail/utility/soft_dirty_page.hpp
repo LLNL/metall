@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <metall/detail/utility/memory.hpp>
-#include <metall/detail/utility/logger.hpp>
+#include <metall/logger.hpp>
 
 namespace metall {
 namespace detail {
@@ -18,7 +18,7 @@ namespace utility {
 inline bool reset_soft_dirty_bit() {
   std::ofstream ofs("/proc/self/clear_refs");
   if (!ofs.is_open()) {
-    log::out(log::level::error, __FILE__, __LINE__, "Cannot open file clear_refs");
+    logger::out(logger::level::error, __FILE__, __LINE__, "Cannot open file clear_refs");
     return false;
   }
 
@@ -26,7 +26,7 @@ inline bool reset_soft_dirty_bit() {
   ofs.close();
 
   if (!ofs) {
-    log::out(log::level::error, __FILE__, __LINE__, "Cannot write to /proc/self/clear_refs");
+    logger::out(logger::level::error, __FILE__, __LINE__, "Cannot write to /proc/self/clear_refs");
     return false;
   }
 

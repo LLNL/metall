@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_UTILITY_LOGGER_HPP
-#define METALL_DETAIL_UTILITY_LOGGER_HPP
+#ifndef METALL_LOGGER_HPP
+#define METALL_LOGGER_HPP
 
 #include <iostream>
 #include <string>
@@ -12,46 +12,44 @@
 #include <cstdio>
 
 namespace metall {
-namespace detail {
-namespace utility {
 
-class log {
+class logger {
  public:
 
   /// \brief Log message level
   enum struct level {
-    silent = 10, /// Silent log message — never show log message
-    critical = 5, /// Critical log message — abort the execution unless disabled
-    error = 4,  /// Error log message
-    warning = 3, /// Warning log message
-    info = 2, /// Info log message
-    debug = 1, /// Debug log message
-    verbose = 0, /// Verbose (lowest priority) log message
+    silent = 10, /// Silent logger message — never show logger message
+    critical = 5, /// Critical logger message — abort the execution unless disabled
+    error = 4,  /// Error logger message
+    warning = 3, /// Warning logger message
+    info = 2, /// Info logger message
+    debug = 1, /// Debug logger message
+    verbose = 0, /// Verbose (lowest priority) logger message
   };
 
-  /// \brief Set the minimum log level to show message
+  /// \brief Set the minimum logger level to show message
   static void set_log_level(const level lvl) {
     log_message_out_level = lvl;
   }
 
-  /// \brief If true is specified, enable an abort at a critical log message
-  static void enable_abort(const bool enable) {
-    abort_at_critical = enable;
+  /// \brief If true is specified, enable an abort at a critical logger message
+  static void abort_on_critical_error(const bool enable) {
+    abort_on_critical = enable;
   }
 
-  /// \brief Log a message to std::cerr if the specified log level is equal to or higher than the pre-set log level.
+  /// \brief Log a message to std::cerr if the specified logger level is equal to or higher than the pre-set logger level.
   static void out(const level lvl, const std::string &file_name, const int line_no, const std::string &message) {
     if (log_message_out_level == level::silent || lvl == level::silent || lvl < log_message_out_level)
       return;
 
     std::cerr << file_name << " at line " << line_no << " --- " << message << std::endl;
 
-    if (lvl == level::critical && abort_at_critical) {
+    if (lvl == level::critical && abort_on_critical) {
       std::abort();
     }
   }
 
-  /// \brief Log a message about errno if the specified log level is equal to or higher than the pre-set log level.
+  /// \brief Log a message about errno if the specified logger level is equal to or higher than the pre-set logger level.
   static void perror(const level lvl, const std::string &file_name, const int line_no, const std::string &message) {
     if (log_message_out_level == level::silent || lvl == level::silent || lvl < log_message_out_level)
       return;
@@ -60,21 +58,19 @@ class log {
     std::perror(message.c_str());
     // std::out << "errno is " << errno << std::endl;
 
-    if (lvl == level::critical && abort_at_critical) {
+    if (lvl == level::critical && abort_on_critical) {
       std::abort();
     }
   }
 
  private:
   static level log_message_out_level;
-  static bool abort_at_critical;
+  static bool abort_on_critical;
 };
 
-log::level log::log_message_out_level = log::level::error;
-bool log::abort_at_critical = true;
+logger::level logger::log_message_out_level = logger::level::error;
+bool logger::abort_on_critical = true;
 
-} // namespace utility
-} // namespace detail
 } // namespace metall
 
-#endif //METALL_DETAIL_UTILITY_LOGGER_HPP
+#endif //METALL_LOGGER_HPP
