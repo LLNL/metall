@@ -180,7 +180,10 @@ class multifile_backed_segment_storage {
     return m_num_blocks > 0;
   }
 
-  /// Extends the currently opened segment if necessary
+  /// \brief Extends the currently opened segment if necessary
+  /// \param request_size A segment size to extend to
+  /// \return Returns true if the segment is extended to or already larger than the requested size.
+  /// Returns false on failure.
   bool extend(const size_type request_size) {
     assert(priv_inited());
 
@@ -215,18 +218,27 @@ class multifile_backed_segment_storage {
     return true;
   }
 
+  /// \brief Destroys the segment --- the data will be lost.
+  /// To save data to files, sync() must be called beforehand.
   void destroy() {
     priv_destroy_segment();
   }
 
+  /// \brief Syncs the segment with backing files.
+  /// \param sync If false is specified, this function returns before finishing the sync operation.
   void sync(const bool sync) {
     priv_sync_segment(sync);
   }
 
+  /// \brief Tries to free the specified region in DRAM and storage layers.
+  /// The actual behavior depends on the system running on.
+  /// \param offset An offset to the region from the beginning of the segment.
+  /// \param nbytes The size of the region.
   void free_region(const different_type offset, const size_type nbytes) {
     priv_free_region(offset, nbytes);
   }
 
+  /// \brief Returns the beginning address of the segment.
   void *get_segment() const {
     return m_segment;
   }
@@ -326,6 +338,8 @@ class multifile_backed_segment_storage {
   void priv_destroy_segment() {
     if (!priv_inited()) return;
 
+    // Destroy the mapping region by calling mmap with PROT_NONE over the region.
+    // As the unmap system call syncs the data first, this approach is significantly fast.
     util::map_with_prot_none(m_segment, m_current_segment_size);
     // NOTE: the VM region will be unmapped by manager_kernel
 
