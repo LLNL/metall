@@ -81,11 +81,13 @@ class metall_mpi_adaptor {
   static bool copy(const char *source_dir_path,
                    const char *destination_dir_path,
                    const MPI_Comm &comm = MPI_COMM_WORLD) {
+    setup_inter_level_dir(destination_dir_path, comm);
     return global_or(manager_type::copy(make_local_dir_path(source_dir_path, comm).c_str(),
                                         make_local_dir_path(destination_dir_path, comm).c_str()), comm);
   }
 
   bool snapshot(const char *destination_dir_path) {
+    setup_inter_level_dir(destination_dir_path, m_mpi_comm);
     return global_or(m_local_metall_manager->snapshot(make_local_dir_path(destination_dir_path, m_mpi_comm).c_str()),
                      m_mpi_comm);
   }
