@@ -59,9 +59,9 @@ TEST(BitsetTest, BitsetSize) {
   ASSERT_EQ(128, num_blocks<block_type<128>>(128) * sizeof(block_type<128>) * 8);
   ASSERT_LE(129, num_blocks<block_type<129>>(129) * sizeof(block_type<129>) * 8);
 
-  ASSERT_EQ(1ULL << 10, num_blocks<block_type<1ULL << 10>>(1ULL << 10) * sizeof(block_type<1ULL << 10>) * 8);
-  ASSERT_EQ(1ULL << 20, num_blocks<block_type<1ULL << 20>>(1ULL << 20) * sizeof(block_type<1ULL << 20>) * 8);
-  ASSERT_EQ(1ULL << 30, num_blocks<block_type<1ULL << 30>>(1ULL << 30) * sizeof(block_type<1ULL << 30>) * 8);
+  ASSERT_EQ(1ULL << 10ULL, num_blocks<block_type<1ULL << 10ULL>>(1ULL << 10ULL) * sizeof(block_type<1ULL << 10ULL>) * 8);
+  ASSERT_EQ(1ULL << 20ULL, num_blocks<block_type<1ULL << 20ULL>>(1ULL << 20ULL) * sizeof(block_type<1ULL << 20ULL>) * 8);
+  ASSERT_EQ(1ULL << 30ULL, num_blocks<block_type<1ULL << 30ULL>>(1ULL << 30ULL) * sizeof(block_type<1ULL << 30ULL>) * 8);
 }
 
 template <std::size_t num_bits>
@@ -69,7 +69,7 @@ void RandomAccessHelper()  {
   std::bitset<num_bits> reference;
   auto bitset = new block_type<num_bits>[num_blocks<block_type<num_bits>>(num_bits)](); // () is for zero initialization
 
-  std::mt19937 mt;
+  std::mt19937_64 mt;
   std::uniform_int_distribution<uint64_t> rand_dist(0, num_bits * 2);
 
   for (uint64_t i = 0; i < num_bits * 8; ++i) { // 8 is just a random number

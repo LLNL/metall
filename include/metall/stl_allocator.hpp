@@ -1,45 +1,28 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
 //
-// SPDX-License-Identifier: (Apache-2.0 OR MIT)
+// Created by Iwabuchi, Keita on 2019-05-19.
+//
+
+/// \file
+
 #ifndef METALL_STL_ALLOCATOR_HPP
 #define METALL_STL_ALLOCATOR_HPP
 
 #include <memory>
 #include <type_traits>
 #include <cassert>
-#include <array>
 #include <limits>
+#include <new>
 
+#include <metall/detail/base_stl_allocator.hpp>
 #include <metall/offset_ptr.hpp>
 
-namespace metall {
-namespace detail {
-std::size_t g_max_manager_kernel_id;
+namespace metall::detail {
 
-template <typename manager_kernel_type>
-manager_kernel_type** manager_kernel_table(typename manager_kernel_type::id_type id) {
-  static std::array<manager_kernel_type*, 1024> table;
-  assert(id < 1024);
-  assert(id <= g_max_manager_kernel_id);
-  return &(table[id]);
-}
-
-} // namespace detail
-} // namespace metall
-
-namespace metall {
-
-/// \brief A STL compatible allocator
+/// \brief This is a utility structure that declare and holds some impormant types used in stl_allocator
 /// \tparam T The type of the object
 /// \tparam manager_kernel_type The type of the manager kernel
 template <typename T, typename manager_kernel_type>
-class stl_allocator {
- private:
-  using kernel_id_type = typename manager_kernel_type::id_type;
-
- public:
-  // -------------------- Types -------------------- //
+struct stl_allocator_type_holder {
   using value_type = T;
   using pointer = typename std::pointer_traits<typename manager_kernel_type::void_pointer>::template rebind<value_type>;
   using const_pointer = typename std::pointer_traits<pointer>::template rebind<const value_type>;
@@ -47,117 +30,174 @@ class stl_allocator {
   using const_void_pointer = typename std::pointer_traits<pointer>::template rebind<const void>;
   using difference_type = typename std::pointer_traits<pointer>::difference_type;
   using size_type = typename std::make_unsigned<difference_type>::type;
+  using propagate_on_container_copy_assignment = std::true_type;
+  using propagate_on_container_move_assignment = std::true_type;
+  using propagate_on_container_swap = std::true_type;
+  using is_always_equal = std::false_type;
+};
 
-  // -------------------- Constructor -------------------- //
-  // Note: same as manager.hpp in Boost.interprocess,
-  // 'explicit' keyword is not used on purpose to enable to call this constructor w/o arguments
-  stl_allocator(kernel_id_type kernel_id)
-      : m_kernel_id(kernel_id) {}
+} // namespace metall::detail
+
+
+namespace metall {
+
+/// \brief A STL compatible allocator
+/// \tparam T The type of the object
+/// \tparam manager_kernel_type The type of the manager kernel
+template <typename T, typename manager_kernel_type>
+class stl_allocator
+    : public metall::detail::base_stl_allocator<stl_allocator<T, manager_kernel_type>,
+                                                detail::stl_allocator_type_holder<T, manager_kernel_type>> {
+
+ private:
+  // -------------------------------------------------------------------------------- //
+  // Private types and static values
+  // -------------------------------------------------------------------------------- //
+  using self_type = stl_allocator<T, manager_kernel_type>;
+  using type_holder = detail::stl_allocator_type_holder<T, manager_kernel_type>;
+  using base_type = metall::detail::base_stl_allocator<self_type, type_holder>;
+  friend base_type;
+
+ public:
+  // -------------------------------------------------------------------------------- //
+  // Public types and static values
+  // -------------------------------------------------------------------------------- //
+  using pointer = typename type_holder::pointer;
+  using const_pointer = typename type_holder::const_pointer;
+  using void_pointer = typename type_holder::void_pointer;
+  using const_void_pointer = typename type_holder::const_void_pointer;
+  using value_type = typename type_holder::value_type;
+  using size_type = typename type_holder::size_type;
+  using difference_type = typename type_holder::difference_type;
+  using propagate_on_container_copy_assignment = typename type_holder::propagate_on_container_copy_assignment;
+  using propagate_on_container_move_assignment = typename type_holder::propagate_on_container_move_assignment;
+  using propagate_on_container_swap = typename type_holder::propagate_on_container_swap;
+  using is_always_equal = typename type_holder::is_always_equal;
+
+ public:
+  // -------------------------------------------------------------------------------- //
+  // Constructor & assign operator
+  // -------------------------------------------------------------------------------- //
+  // Note: following manager.hpp in Boost.interprocess, 'explicit' keyword is not used on purpose
+  // although this allocator won't work correctly w/o a valid manager_kernel_address
+  stl_allocator(manager_kernel_type **const pointer_manager_kernel_address)
+      : m_ptr_manager_kernel_address(pointer_manager_kernel_address) {
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
+  }
 
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
   stl_allocator(const stl_allocator<T2, manager_kernel_type> &allocator_instance)
-    : m_kernel_id(allocator_instance.get_kernel_id()) {}
+      : m_ptr_manager_kernel_address(allocator_instance.get_pointer_to_manager_kernel()) {
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
+  }
 
-  // -------------------- Copy and move constructor -------------------- //
   stl_allocator(const stl_allocator<T, manager_kernel_type> &other) = default;
-  stl_allocator(stl_allocator<T, manager_kernel_type> &&other) noexcept = default;
+  stl_allocator(stl_allocator<T, manager_kernel_type> &&other) = default;
 
-  // -------------------- Copy and move assignments -------------------- //
   stl_allocator &operator=(const stl_allocator<T, manager_kernel_type> &) = default;
-  stl_allocator &operator=(stl_allocator<T, manager_kernel_type> &&other) noexcept  = default;
+  stl_allocator &operator=(stl_allocator<T, manager_kernel_type> &&other) = default;
 
+  /// \brief Copy assign operator for another T
   template <typename T2>
   stl_allocator &operator=(const stl_allocator<T2, manager_kernel_type> &other) {
-    m_kernel_id = other.m_kernel_id;
+    m_ptr_manager_kernel_address = other.m_ptr_manager_kernel_address;
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
     return *this;
   }
 
+  /// \brief Move assign operator for another T
   template <typename T2>
   stl_allocator &operator=(stl_allocator<T2, manager_kernel_type> &&other) noexcept {
-    m_kernel_id = other.m_kernel_id;
+    m_ptr_manager_kernel_address = other.m_ptr_manager_kernel_address;
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
     return *this;
   }
 
-  /// \brief Makes another allocator type for type T2
-  /// \tparam T2 The type of the object
+  // ----------------------------------- This class's unique public functions ----------------------------------- //
+  /// \brief Returns a pointer that points to manager kernel
+  /// \return A pointer that points to manager kernel
+  manager_kernel_type **get_pointer_to_manager_kernel() const {
+    assert(m_ptr_manager_kernel_address);
+    assert(*m_ptr_manager_kernel_address);
+    return metall::to_raw_pointer(m_ptr_manager_kernel_address);
+  }
+
+ private:
+  // -------------------------------------------------------------------------------- //
+  // Private methods (required by the base class)
+  // -------------------------------------------------------------------------------- //
   template <typename T2>
-  struct rebind {
+  struct rebind_impl {
     using other = stl_allocator<T2, manager_kernel_type>;
   };
 
-  /// \brief Allocates n * sizeof(T) bytes of storage
-  /// \param n The size to allocation
-  /// \return Returns a pointer
-  pointer allocate(const size_type n) const {
-    manager_kernel_type *const kernel = *(detail::manager_kernel_table<manager_kernel_type>(m_kernel_id));
-    return pointer(static_cast<value_type*>(kernel->allocate(n * sizeof(T))));
+  pointer allocate_impl(const size_type n) const {
+    if (max_size_impl() < n) {
+      throw std::bad_array_new_length();
+    }
+
+    auto manager_kernel = *get_pointer_to_manager_kernel();
+    if (!manager_kernel) {
+      throw std::bad_alloc();
+    }
+
+    auto addr = pointer(static_cast<value_type *>(manager_kernel->allocate(n * sizeof(T))));
+    if (!addr) {
+      throw std::bad_alloc();
+    }
+
+    return addr;
   }
 
-  /// \brief Deallocates the storage reference by the pointer ptr
-  /// \param ptr A pointer to the storage
-  /// \param size The size of the storage
-  void deallocate(pointer ptr, const size_type size) const noexcept {
-    manager_kernel_type *const kernel = *(detail::manager_kernel_table<manager_kernel_type>(m_kernel_id));
-    kernel->deallocate(to_raw_pointer(ptr));
+  void deallocate_impl(pointer ptr, [[maybe_unused]] const size_type size) const noexcept {
+    auto manager_kernel = *get_pointer_to_manager_kernel();
+    assert(manager_kernel);
+    manager_kernel->deallocate(to_raw_pointer(ptr));
   }
 
-  // TODO: Implement
-  // size_type max_size() const noexcept {
-  // }
+  size_type max_size_impl() const noexcept {
+    return std::numeric_limits<size_type>::max() / sizeof(value_type);
+  }
 
-  /// \brief Constructs an object of T
-  /// \tparam Args The types of the constructor arguments
-  /// \param ptr A pointer to allocated storage
-  /// \param args The constructor arguments to use
   template <class... Args>
-  void construct(const pointer &ptr, Args &&... args) const {
+  void construct_impl(const pointer &ptr, Args &&... args) const {
     ::new((void *)to_raw_pointer(ptr)) value_type(std::forward<Args>(args)...);
   }
 
-  /// \brief Deconstruct an object of T
-  /// \param ptr A pointer to the object
-  void destroy(const pointer &ptr) const {
+  void destroy_impl(const pointer &ptr) const {
     assert(ptr != 0);
     (*ptr).~value_type();
   }
 
-  stl_allocator<T, manager_kernel_type> select_on_container_copy_construction() const {
-    return stl_allocator<T, manager_kernel_type>(*this);
+  stl_allocator select_on_container_copy_construction_impl(const stl_allocator<T, manager_kernel_type>& a) {
+    return stl_allocator<T, manager_kernel_type>(a);
   }
 
-  bool propagate_on_container_copy_assignment() const noexcept {
-    return std::true_type();
-  }
-
-  bool propagate_on_container_move_assignment() const noexcept {
-    return std::true_type();
-  }
-
-  bool propagate_on_container_swap() const noexcept {
-    return std::true_type();
-  }
-
-  kernel_id_type get_kernel_id() const {
-    return m_kernel_id;
-  }
-
+  // -------------------------------------------------------------------------------- //
+  // Private fields
+  // -------------------------------------------------------------------------------- //
  private:
-  // Initialize with a large value to detect uninitialized situations
-  kernel_id_type m_kernel_id {std::numeric_limits<kernel_id_type>::max()};
-
+  // (offset)pointer to a raw pointer that points the address of the manager kernel allocated in DRAM
+  typename std::pointer_traits<typename manager_kernel_type::void_pointer>::template rebind<manager_kernel_type *>
+      m_ptr_manager_kernel_address;
 };
 
 template <typename T, typename kernel>
-bool operator==(const stl_allocator<T, kernel> &rhd, const stl_allocator<T, kernel> &lhd) {
-  return rhd.get_kernel_id() == lhd.get_kernel_id();
+inline bool operator==(const stl_allocator<T, kernel> &rhd, const stl_allocator<T, kernel> &lhd) {
+  // Return true if they point to the same manager kernel
+  return *(rhd.get_pointer_to_manager_kernel()) == *(lhd.get_pointer_to_manager_kernel());
 }
 
 template <typename T, typename kernel>
-bool operator!=(const stl_allocator<T, kernel> &rhd, const stl_allocator<T, kernel> &lhd) {
+inline bool operator!=(const stl_allocator<T, kernel> &rhd, const stl_allocator<T, kernel> &lhd) {
   return !(rhd == lhd);
 }
 
-} // namespace metall
+}
 
 #endif //METALL_STL_ALLOCATOR_HPP

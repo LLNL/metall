@@ -8,7 +8,7 @@
 #include <iostream>
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/container/vector.hpp>
-#include <metall/manager.hpp>
+#include <metall/metall.hpp>
 
 namespace bc = boost::container;
 
@@ -20,13 +20,13 @@ using inner_vector_type = bc::vector<int, inner_vector_allocator_type>;
 // In multi-level containers, you have to use scoped_allocator_adaptor in the most outer container
 // so that the inner containers obtain their allocator arguments from the outer containers's scoped_allocator_adaptor
 // See: https://en.cppreference.com/w/cpp/memory/scoped_allocator_adaptor
-using map_allocator_type = bc::scoped_allocator_adaptor<metall::manager::allocator_type<inner_vector_type>>;
-using outer_vector_type = bc::vector<inner_vector_type, map_allocator_type>;
+using outer_vector_allocator_type = bc::scoped_allocator_adaptor<metall::manager::allocator_type<inner_vector_type>>;
+using outer_vector_type = bc::vector<inner_vector_type, outer_vector_allocator_type>;
 
 int main() {
 
   {
-    metall::manager manager(metall::create_only, "/tmp/metall_segment", 1 << 25);
+    metall::manager manager(metall::create_only, "/tmp/datastore");
     auto pvec = manager.construct<outer_vector_type>("vec-of-vecs")(manager.get_allocator<>());
 
     // In the following examples
@@ -46,7 +46,7 @@ int main() {
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/metall_segment");
+    metall::manager manager(metall::open_only, "/tmp/datastore");
     auto pvec = manager.find<outer_vector_type>("vec-of-vecs").first;
 
     // Check the result of pattern 1

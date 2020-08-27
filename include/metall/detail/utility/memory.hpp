@@ -11,16 +11,16 @@
 #include <cstdio>
 #include <algorithm>
 #include <fstream>
+#include <metall/logger.hpp>
 
 namespace metall {
 namespace detail {
 namespace utility {
 
-ssize_t get_page_size() {
+inline ssize_t get_page_size() noexcept {
   const ssize_t page_size = ::sysconf(_SC_PAGE_SIZE);
   if (page_size == -1) {
-    ::perror("sysconf(_SC_PAGE_SIZE)");
-    std::cerr << "errno: " << errno << std::endl;
+    logger::perror(logger::level::error, __FILE__, __LINE__, "Failed to get the page size");
   }
 
   return page_size;
@@ -29,7 +29,7 @@ ssize_t get_page_size() {
 /// \brief Reads a value from /proc/meminfo
 /// \param key Target token looking for
 /// \return On success, returns read value. On error, returns -1.
-ssize_t read_meminfo(const std::string &key) {
+inline ssize_t read_meminfo(const std::string &key) {
   std::ifstream fin("/proc/meminfo");
   if (!fin.is_open()) {
     return -1;
@@ -65,7 +65,7 @@ ssize_t read_meminfo(const std::string &key) {
 
 /// \brief Returns the size of the total ram size
 /// \return On success, returns the total ram size of the system. On error, returns -1.
-ssize_t get_total_ram_size() {
+inline ssize_t get_total_ram_size() {
   const ssize_t mem_total = read_meminfo("MemTotal:");
   if (mem_total == -1) {
     return -1; // something wrong;
@@ -75,7 +75,7 @@ ssize_t get_total_ram_size() {
 
 /// \brief Returns the size of used ram size from /proc/meminfo
 /// \return On success, returns the used ram size. On error, returns -1.
-ssize_t get_used_ram_size() {
+inline ssize_t get_used_ram_size() {
   const ssize_t mem_total = read_meminfo("MemTotal:");
   const ssize_t mem_free = read_meminfo("MemFree:");
   const ssize_t buffers = read_meminfo("Buffers:");
@@ -90,7 +90,7 @@ ssize_t get_used_ram_size() {
 
 /// \brief Returns the size of free ram size from /proc/meminfo
 /// \return On success, returns the free ram size. On error, returns -1.
-ssize_t get_free_ram_size() {
+inline ssize_t get_free_ram_size() {
   const ssize_t mem_free = read_meminfo("MemFree:");
   if (mem_free == -1) {
     return -1; // something wrong;
@@ -100,7 +100,7 @@ ssize_t get_free_ram_size() {
 
 /// \brief Returns the size of the 'cached' ram size
 /// \return On success, returns the 'cached' ram size of the system. On error, returns -1.
-ssize_t get_page_cache_size() {
+inline ssize_t get_page_cache_size() {
   const ssize_t cached_size = read_meminfo("Cached:");
   if (cached_size == -1) {
     return -1; // something wrong;
@@ -111,7 +111,7 @@ ssize_t get_page_cache_size() {
 
 /// \brief Returns the number of page faults caused by the process
 /// \return A pair of #of minor and major page faults
-std::pair<std::size_t, std::size_t> get_num_page_faults()
+inline std::pair<std::size_t, std::size_t> get_num_page_faults()
 {
   std::size_t minflt = 0;
   std::size_t majflt = 0;
@@ -122,13 +122,15 @@ std::pair<std::size_t, std::size_t> get_num_page_faults()
     // 0:pid 1:comm 2:state 3:ppid 4:pgrp 5:session 6:tty_nr 7:tpgid 8:flags 9:minflt 10:cminflt 11:majflt
     int ret;
     if ((ret = ::fscanf(f,"%*d %*s %*c %*d %*d %*d %*d %*d %*u %lu %*u %lu", &minflt, &majflt)) != 2) {
-      std::cerr << "Failed to reading #of page faults " << ret << std::endl;
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to reading #of page faults " + std::to_string(ret));
       minflt = majflt = 0;
     }
   }
   fclose(f);
 #else
+#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "get_num_page_faults() is not supported in this environment"
+#endif
 #endif
   return std::make_pair(minflt, majflt);
 }

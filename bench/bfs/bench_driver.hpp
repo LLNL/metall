@@ -6,18 +6,23 @@
 #ifndef METALL_BENCH_BFS_DRIVER_HPP
 #define METALL_BENCH_BFS_DRIVER_HPP
 
+#include <vector>
 #include <string>
 #include <unistd.h>
+#include <boost/algorithm/string.hpp>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
+#include <metall/detail/utility/time.hpp>
+#include <metall/detail/utility/memory.hpp>
 
 #include "kernel.hpp"
-#include "../utility/time.hpp"
-#include "../utility/memory.hpp"
+#include <metall_utility/open_mp.hpp>
 
 namespace bfs_bench {
+
+namespace {
+namespace util = metall::detail::utility;
+namespace omp = metall::utility::omp;
+}
 
 // ---------------------------------------- //
 // Option
@@ -26,7 +31,7 @@ template <typename _vertex_id_type>
 struct bench_options {
   using vertex_id_type = _vertex_id_type;
 
-  std::string graph_file_name;
+  std::vector<std::string> graph_file_name_list;
   std::string graph_key_name{"adj_list"};
   vertex_id_type root_vertex_id{0};
   vertex_id_type max_vertex_id{0};
@@ -37,8 +42,11 @@ bool parse_options(int argc, char **argv, bench_options<vertex_id_type> *option)
   int p;
   while ((p = ::getopt(argc, argv, "g:k:r:m:")) != -1) {
     switch (p) {
-      case 'g':option->graph_file_name = optarg;
+      case 'g': {
+        option->graph_file_name_list.clear();
+        boost::split(option->graph_file_name_list, optarg, boost::is_any_of(":"));
         break;
+      }
 
       case 'k':option->graph_key_name = optarg;
         break;
@@ -54,7 +62,7 @@ bool parse_options(int argc, char **argv, bench_options<vertex_id_type> *option)
     }
   }
 
-  if (option->graph_file_name.empty()) {
+  if (option->graph_file_name_list.empty()) {
     std::cerr << "graph_file_name is required" << std::endl;
     return false;
   }
@@ -64,10 +72,13 @@ bool parse_options(int argc, char **argv, bench_options<vertex_id_type> *option)
     return false;
   }
 
-  std::cout << "graph_file_name: " << option->graph_file_name
-            << "\ngraph_key_name: " << option->graph_key_name
+  std::cout << "graph_key_name: " << option->graph_key_name
             << "\nroot_vertex_id: " << option->root_vertex_id
             << "\nmax_vertex_id: " << option->max_vertex_id << std::endl;
+  std::cout << "graph_file_name: " << std::endl;
+  for (const auto& name : option->graph_file_name_list) {
+    std::cout << " " << name << std::endl;
+  }
 
   return true;
 }
@@ -106,27 +117,22 @@ typename graph_type::key_type find_root(const graph_type &graph) {
 // Utility
 // ---------------------------------------- //
 void print_current_num_page_faults() {
-  const auto page_faults = utility::get_num_page_faults();
+  const auto page_faults = util::get_num_page_faults();
   std::cout << "#of page faults (minflt majflt) " << page_faults.first << " " << page_faults.second << std::endl;
 }
 
 
 /// \brief Print out Open MP's configuration
 void print_omp_configuration() {
-#ifdef _OPENMP
-#pragma omp parallel
+  OMP_DIRECTIVE(parallel)
   {
-    if (::omp_get_thread_num() == 0)
-      std::cout << "Run with " << ::omp_get_num_threads() << " threads" << std::endl;
+    if (omp::get_thread_num() == 0) {
+      std::cout << "Run with " << omp::get_num_threads() << " threads" << std::endl;
+      const auto ret = omp::get_schedule();
+      std::cout << "kind " << omp::schedule_kind_name(ret.first)
+                << ", chunk_size " << ret.second << std::endl;
+    }
   }
-  omp_sched_t kind;
-  int chunk_size;
-  ::omp_get_schedule(&kind, &chunk_size);
-  std::cout << "kind " << utility::omp_schedule_kind_name(kind)
-            << ", chunk_size " << chunk_size << std::endl;
-#else
-  std::cout << "Run with a single thread" << std::endl;
-#endif
 }
 
 // ---------------------------------------- //
@@ -147,9 +153,9 @@ void run_bench(const graph_type &graph, const bench_options<vertex_id_type> &opt
   vertex_id_type max_id = option.max_vertex_id;
   if (max_id == 0) {
     std::cout << "\nFind the max vertex ID" << std::endl;
-    const auto start = utility::elapsed_time_sec();
+    const auto start = util::elapsed_time_sec();
     max_id = find_max_id(graph);
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = util::elapsed_time_sec(start);
     std::cout << "Finished finding the max ID (s)\t" << elapsed_time << std::endl;
     print_current_num_page_faults();
   }
@@ -157,9 +163,9 @@ void run_bench(const graph_type &graph, const bench_options<vertex_id_type> &opt
   bfs_data data;
   {
     std::cout << "\nInitialize bfs" << std::endl;
-    const auto start = utility::elapsed_time_sec();
+    const auto start = util::elapsed_time_sec();
     initialize(max_id, new_root, &data);
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = util::elapsed_time_sec(start);
     std::cout << "Finished initialization (s)\t" << elapsed_time << std::endl;
     print_current_num_page_faults();
   }
@@ -168,9 +174,9 @@ void run_bench(const graph_type &graph, const bench_options<vertex_id_type> &opt
     std::cout << "\nStart BFS" << std::endl;
     print_omp_configuration();
     print_current_num_page_faults();
-    const auto start = utility::elapsed_time_sec();
+    const auto start = util::elapsed_time_sec();
     kernel(graph, &data);
-    const auto elapsed_time = utility::elapsed_time_sec(start);
+    const auto elapsed_time = util::elapsed_time_sec(start);
     std::cout << "Finished BFS (s)\t" << elapsed_time << std::endl;
     print_current_num_page_faults();
   }

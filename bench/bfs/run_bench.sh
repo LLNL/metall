@@ -2,7 +2,7 @@
 
 # Usage
 # cd metall/build/bench/bfs
-# sh ../../../bench/bfs/run_bench.sh -v 31 -f $((2**40)) -t 24 -s static[dynamic,10000] -d /dev/shm
+# sh ../../../bench/bfs/run_bench.sh -v 31 -f $((2**40)) -t 24 -s static[dynamic,10000] -g /dev/shm
 
 # ----- Options----- #
 V=17
@@ -15,8 +15,10 @@ case "$OSTYPE" in
   darwin*)  GRAPH_DIR_ROOT="/tmp";;
   linux*)   GRAPH_DIR_ROOT="/dev/shm";;
 esac
+CHUNK_SIZE=$((2**20))
+NO_CLEANING_FILES_AT_END=false
 
-while getopts "v:f:r:l:m:t:d:s:" OPT
+while getopts "v:f:r:l:m:t:s:g:n:c" OPT
 do
   case $OPT in
     v) V=$OPTARG;;
@@ -25,7 +27,9 @@ do
     l) LOG_FILE_PREFIX=$OPTARG;;
     t) NUM_THREADS="env OMP_NUM_THREADS=${OPTARG}";;
     s) SCHEDULE="env OMP_SCHEDULE=${OPTARG}";;
-    d) GRAPH_DIR_ROOT=$OPTARG;;
+    g) GRAPH_DIR_ROOT=$OPTARG;;
+    n) CHUNK_SIZE=$OPTARG;;
+    c) NO_CLEANING_FILES_AT_END=true;;
     :) echo  "[ERROR] Option argument is undefined.";;   #
     \?) echo "[ERROR] Undefined options.";;
   esac
@@ -47,9 +51,8 @@ case "$OSTYPE" in
     INIT_COMMAND=""
     ;;
   linux*)
-    PRE_COMMAND_ADJ_LIST_BENCH="taskset -c 1 " # !!! Not using this anymore !!! #
     case $HOSTNAME in
-        dst-*)
+        dst-* | bertha* | altus*)
             INIT_COMMAND="/home/perma/drop_buffer_cache "
             ;;
         *) # Expect other LC machines
@@ -62,39 +65,64 @@ if [[ $MAX_VERTEX_ID -eq 0 ]]; then
     MAX_VERTEX_ID=$((2**${V}))
 fi
 
-function make_dir() {
+make_dir() {
     if [ ! -d "$1" ]; then
-        mkdir $1
+        mkdir -p $1
     fi
 }
 
 LOG_FILE=""
 
-function try_to_get_compiler_ver() {
+try_to_get_compiler_ver() {
     strings $1 | grep "GCC" | tee -a ${LOG_FILE}
 }
 
-function execute() {
+execute() {
     echo "Command: " "$@" | tee -a ${LOG_FILE}
     echo ">>>>>" | tee -a ${LOG_FILE}
     time "$@" | tee -a ${LOG_FILE}
     echo "<<<<<" | tee -a ${LOG_FILE}
 }
 
-function run() {
+get_system_info() {
+    echo "" | tee -a ${LOG_FILE}
+
+    echo "/proc/sys/vm/dirty_expire_centisecs" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_expire_centisecs | tee -a ${LOG_FILE}
+    echo "/proc/sys/vm/dirty_ratio" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_ratio | tee -a ${LOG_FILE}
+    echo "/proc/sys/vm/dirty_background_ratio" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_background_ratio | tee -a ${LOG_FILE}
+    echo "/proc/sys/vm/dirty_writeback_centisecs" | tee -a ${LOG_FILE}
+    cat /proc/sys/vm/dirty_writeback_centisecs | tee -a ${LOG_FILE}
+
+    df -lh | tee -a ${LOG_FILE}
+    mount | tee -a ${LOG_FILE}
+
+    echo "" | tee -a ${LOG_FILE}
+}
+
+run() {
+    # ------------------------- #
+    # Configure
+    # ------------------------- #
     EXEC_NAME=$1
-
-    echo ""
-    echo "----------------------------------------"
-    echo "Dynamic Graph Construction with" ${EXEC_NAME}
-    echo "----------------------------------------"
-
     LOG_FILE=${LOG_FILE_PREFIX}"_"${EXEC_NAME}".log"
     echo "" > ${LOG_FILE}
-    GRAPH_DIR=${GRAPH_DIR_ROOT}/${EXEC_NAME}
 
+    GRAPH_DIR=${GRAPH_DIR_ROOT}/${EXEC_NAME}
     make_dir ${GRAPH_DIR}
-    rm -f "${GRAPH_DIR}/${GRAPH_NAME}*"
+    rm -f "${GRAPH_DIR}/*"
+
+    # ------------------------- #
+    # Start benchmark
+    # ------------------------- #
+    get_system_info
+
+    echo "" | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
+    echo "Dynamic Graph Construction with" ${EXEC_NAME} | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
 
     ${INIT_COMMAND}
 
@@ -102,16 +130,20 @@ function run() {
         free -g  | tee -a ${LOG_FILE}
     fi
 
-    exec_file_name="../adjacency_lsit/run_adj_list_bench_${EXEC_NAME}"
+    exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
     execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -o "${GRAPH_DIR}/${GRAPH_NAME}" -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1
 
-    ls -lsth ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
+    ls -Rlsth ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
 
-    echo ""
-    echo "----------------------------------------"
-    echo "BFS with" ${EXEC_NAME}
-    echo "----------------------------------------"
+    df ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
+
+    du -h ${GRAPH_DIR}"/" | tee -a ${LOG_FILE}
+
+    echo "" | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
+    echo "BFS with" ${EXEC_NAME} | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
 
     ${INIT_COMMAND}
     if [[ $OSTYPE = "linux"* ]]; then
@@ -120,7 +152,20 @@ function run() {
     exec_file_name="./run_bfs_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
     execute ${NUM_THREADS} ${SCHEDULE} ${exec_file_name} -g "${GRAPH_DIR}/${GRAPH_NAME}" -k ${ADJ_LIST_KEY_NAME} -r ${BFS_ROOT} -m ${MAX_VERTEX_ID}
+
+
+    if ${NO_CLEANING_FILES_AT_END}; then
+        echo "Do not delete the used directory"
+    else
+        echo "Delete the used directory"
+        rm -rf ${GRAPH_DIR}
+    fi
 }
 
-run bip
-run metall
+main() {
+    run bip
+    run metall
+    #run metall_numa
+}
+
+main "$@"

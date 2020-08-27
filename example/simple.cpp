@@ -6,7 +6,7 @@
 #include <iostream>
 #include <boost/container/vector.hpp>
 
-#include <metall/manager.hpp> // Only one header file is required to be included
+#include <metall/metall.hpp> // Only one header file is required to be included
 
 // Type alias
 // This is a standard way to give a custom allocator to a container
@@ -16,34 +16,33 @@ int main() {
 
   {
     // Construct a manager object
-    // The current version assumes that there is only one manager object per process
+    // A process can allocate multiple manager objects
     metall::manager manager(metall::create_only,  // Create a new one
-                             "/tmp/file_path",    // The prefix of backing files
-                             1ULL << 25);         // The size of the maximum total allocation size.
-                                                  // Metall reserves a contiguous region in virtual memory space with this size;
-                                                  // however, it does not consume actual memory spaces in DRAM and file until
-                                                  // the corresponding pages are touched.
+                  "/tmp/dir");          // The directory to store backing datastore
 
     // Allocate and construct a vector object in the persistent memory with a name "vec"
-    auto pvec = manager.construct<vector_t>        // Allocate and construct an object of vector_t
-                        ("vec")                    // Name of the allocated object
-                        (manager.get_allocator()); // Arguments passed to vector_t's constructor
+    auto pvec = manager.construct<vector_t>                 // Allocate and construct an object of vector_t
+                                    ("vec")              // Name of the allocated object
+                                    (manager.get_allocator()); // Arguments passed to vector_t's constructor
 
     pvec->push_back(5); // Can use containers normally
 
-    manager.sync(); // Explicitly sync with files
+  } // Implicitly sync with backing files, i.e., sync() is called in metall::manager's destructor
 
-  } // Implicitly sync with files
+  // ---------- Assume exit and restart the program at this point ---------- //
 
   {
-    // Reload the manager object
-    metall::manager manager(metall::open_only, "/tmp/file_path");
+    // Reattach the manager object
+    metall::manager manager(metall::open_only, "/tmp/dir");
 
     // Find the previously constructed object
     // Please do not forget to use ".first" at the end
     auto pvec = manager.find<vector_t>("vec").first;
 
+    pvec->push_back(10); // Can restart to use containers normally
+
     std::cout << (*pvec)[0] << std::endl; // Will print "5"
+    std::cout << (*pvec)[1] << std::endl; // Will print "10"
 
     manager.destroy<vector_t>("vec"); // Destroy the object
   }

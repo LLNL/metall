@@ -11,7 +11,7 @@
 #include <vector>
 #include <numeric>
 
-#include "../utility/open_mp.hpp"
+#include <metall_utility/open_mp.hpp>
 
 namespace bfs_bench {
 
@@ -56,9 +56,7 @@ bfs_data::level_type kernel(const graph_type &graph, bfs_data *data) {
 
     /// BFS loop for a single level
     /// We assume that the cost of generating threads at every level is negligible
-#ifdef _OPENMP
-#pragma omp parallel for schedule (runtime)
-#endif
+    OMP_DIRECTIVE(parallel for schedule (runtime))
     for (typename graph_type::key_type source = 0; source < num_vertices; ++source) {
       if (graph.num_values(source) == 0) continue;
       if (data->level.at(source) != current_level) continue;

@@ -7,4 +7,5 @@ else()
 endif()
 
 add_executable(run_bfs_bench_metall run_bfs_bench_metall.cpp)
+add_executable(run_bfs_bench_metall_multiple run_bfs_bench_metall_multiple.cpp)
 add_executable(run_bfs_bench_bip run_bfs_bench_bip.cpp)

@@ -3,16 +3,14 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <stdlib.h>
 #include <assert.h>
-
 #include <metall/c_api/metall.h>
 
 int main(void) {
 
   // Basic allocation
   {
-    metall_open(METALL_CREATE, "/tmp/metall1", 1 << 22);
+    metall_open(METALL_CREATE_ONLY, "/tmp/metall1");
 
     uint64_t *x = metall_malloc(sizeof(uint64_t));
     x[0] = 1;
@@ -24,13 +22,13 @@ int main(void) {
 
   // Allocate named object
   {
-    metall_open(METALL_OPEN_OR_CREATE, "/tmp/metall2", 1 << 22);
+    metall_open(METALL_CREATE_ONLY, "/tmp/metall2");
 
     uint64_t *array = metall_named_malloc("array", sizeof(uint64_t) * 10);
 
     array[0] = 0;
 
-    metall_sync();
+    metall_flush();
 
     array[1] = 1;
 
@@ -39,7 +37,7 @@ int main(void) {
 
   // Retrieve named object
   {
-    metall_open(METALL_OPEN, "/tmp/metall2", 1 << 22);
+    metall_open(METALL_OPEN_ONLY, "/tmp/metall2");
 
     uint64_t *array = metall_find("array");
 

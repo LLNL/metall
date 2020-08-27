@@ -1,0 +1,31 @@
+
+site_name: Metall
+site_author: 'Keita Iwabuchi (LLNL), Roger A Pearce (LLNL), and Maya B Gokhale (LLNL)'
+copyright: Copyright 2020 Lawrence Livermore National Security, LLC
+
+docs_dir: 'docs/readthedocs'
+theme: 'readthedocs'
+extra_css:
+  - ./css/custom.css
+
+repo_url: https://github.com/LLNL/metall
+edit_uri: 'tree/develop/docs/readthedocs'
+
+nav:
+- 'Home': 'index.md'
+- Getting Started:
+  - 'Build and Install': 'getting_started/build_and_install.md'
+- 'Advanced Build':
+  - 'Build API doc, Example, Test, and Benchmark': 'advanced_build/example_test_bench.md'
+  - 'Use Umap': 'advanced_build/umap.md'
+  - 'Test Metall': 'advanced_build/test.md'
+- 'Metall 101':
+  - 'Introduction': 'detail/introduction.md'
+  - 'API': 'detail/api.md'
+  - 'Pointers in Persistent Memory': 'detail/pointer.md'
+  - 'Persistence Policy': 'detail/persistence_policy.md'
+  - 'Snapshot': 'detail/snapshot.md'
+  - 'Example': 'detail/example.md'
+  - 'Internal Architecture': 'detail/internal_architecture.md'
+- 'About':
+  - 'License and Notice': 'about/license_notice.md'
