@@ -4,8 +4,8 @@ MAINTAINER Keita Iwabuchi <kiwabuchi@llnl.gov>
 # Install required packages
 RUN yum -y install bzip2 diffutils flex git openssl-devel make tar wget gcc gcc-c++ texinfo patch&& \
     yum clean all --enablerepo=\* && \
-    wget -q --no-check-certificate https://github.com/Kitware/CMake/releases/download/v3.16.4/cmake-3.16.4.tar.gz -O /tmp/cmake_src.tar.gz && \
-    tar xf /tmp/cmake_src.tar.gz -C /tmp && cd /tmp/cmake-3.16.4 && \
+    wget -q --no-check-certificate https://github.com/Kitware/CMake/releases/download/v3.18.2/cmake-3.18.2.tar.gz -O /tmp/cmake_src.tar.gz && \
+    tar xf /tmp/cmake_src.tar.gz -C /tmp && cd /tmp/cmake-3.18.2 && \
     ./bootstrap > /dev/null && make -j8 > /dev/null && make install && \
     /bin/rm -rf /tmp/cmake*
 
@@ -19,6 +19,7 @@ WORKDIR /
 # Install GCC
 RUN export PATH=/var/spack/bin:$PATH && \
     . /var/spack/share/spack/setup-env.sh && \
+    spack --insecure install gcc@10.2.0 languages=c,c++ && \
     spack --insecure install gcc@10.1.0 languages=c,c++ && \
     spack --insecure install gcc@9.3.0 languages=c,c++ && \
     spack --insecure install gcc@9.2.0 languages=c,c++ && \
@@ -31,6 +32,7 @@ RUN export PATH=/var/spack/bin:$PATH && \
 # Install Boost
 RUN export PATH=/var/spack/bin:$PATH && \
     . /var/spack/share/spack/setup-env.sh && \
+    spack --insecure install boost@1.74.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
     spack --insecure install boost@1.73.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
     spack --insecure install boost@1.72.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
     spack --insecure install boost@1.71.0 ~atomic ~chrono ~clanglibcpp ~context ~coroutine ~date_time ~debug ~exception ~fiber ~filesystem ~graph ~icu ~iostreams ~locale ~log ~math ~mpi ~multithreaded ~numpy ~pic ~program_options ~python ~random ~regex ~serialization ~shared ~signals ~singlethreaded ~system ~taggedlayout ~test ~thread ~timer ~versionedlayout ~wave && \
