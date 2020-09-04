@@ -2,9 +2,9 @@
 
 # USAGE
 # cd metall/build/bench/adjacency_list/
-# sh ../../../bench/adjacency_list/test/test.sh
+# sh ./test/test.sh
 
-DATA=../../../bench/adjacency_list/test/data/edge_list_rmat_s10_
+DATA=./test/data/edge_list_rmat_s10_
 DATASTORE_DIR_ROOT="/tmp/metall_adj_test"
 
 err() {

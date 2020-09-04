@@ -50,11 +50,14 @@ struct bench_options {
 
   std::string adj_list_dump_file_name;
   std::string edge_list_dump_file_name;
+
+  bool verbose{false};
 };
 
 inline void disp_options(const bench_options &option) {
   std::cout << "adj_list_key_name: " << option.adj_list_key_name << std::endl;
   std::cout << "chunk_size: " << option.chunk_size << std::endl;
+  std::cout << "VERBOSE: " << option.verbose << std::endl;
 
   if (!option.datastore_path_list.empty()) {
     std::cout << "datastore_path_list: " << std::endl;
@@ -83,7 +86,7 @@ inline void disp_options(const bench_options &option) {
 
 inline auto parse_options(int argc, char **argv, bench_options *option) {
   int p;
-  while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:D:")) != -1) {
+  while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:D:V")) != -1) {
     switch (p) {
       case 'o':option->datastore_path_list.clear();
         boost::split(option->datastore_path_list, optarg, boost::is_any_of(":"));
@@ -130,6 +133,9 @@ inline auto parse_options(int argc, char **argv, bench_options *option) {
         option->edge_list_dump_file_name = optarg;
         break;
 
+      case 'V':option->verbose = true;
+        break;
+
       default:std::cerr << "Invalid option" << std::endl;
         return false;
     }
@@ -150,9 +156,10 @@ inline auto parse_options(int argc, char **argv, bench_options *option) {
 template <typename adjacency_list_type>
 inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
                               const std::size_t chunk_size,
-                              closing_function_type closing_function,
+                              const closing_function_type &closing_function,
                               adjacency_list_type *adj_list,
-                              std::ofstream *const ofs_save_edge) {
+                              std::ofstream *const ofs_save_edge,
+                              const bool verbose = false) {
 
   using reader_type = utility::pair_reader<typename adjacency_list_type::key_type,
                                            typename adjacency_list_type::value_type>;
@@ -163,7 +170,7 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
   std::size_t count_loop = 0;
   double total_elapsed_time = 0;
   for (auto itr = reader.begin(), end = reader.end(); itr != end;) {
-    std::cout << "\n[ " << count_loop << " ]" << std::endl;
+    if (verbose) std::cout << "\n[ " << count_loop << " ]" << std::endl;
 
     for (auto &input_list : input_storage) input_list.clear();
 
@@ -176,7 +183,7 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
 
     if (count_read == 0) break;
 
-    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list);
+    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list, verbose);
 
     if (ofs_save_edge) {
       for (const auto &list : input_storage) {
@@ -198,9 +205,10 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
 template <typename adjacency_list_type>
 inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
                                 const std::size_t chunk_size,
-                                closing_function_type closing_function,
+                                const closing_function_type &closing_function,
                                 adjacency_list_type *adj_list,
-                                std::ofstream *const ofs_save_edge) {
+                                std::ofstream *const ofs_save_edge,
+                                const bool verbose = false) {
 
   // -- Initialize rmat edge generators -- //
   using rmat_generator = edge_generator::rmat_edge_generator;
@@ -227,8 +235,7 @@ inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
   while (true) {
     const ssize_t num_generate = std::min((ssize_t)chunk_size, (ssize_t)(total_edges - count_loop * chunk_size));
     if (num_generate <= 0) break;
-
-    std::cout << "\n[ " << count_loop << " ]" << std::endl;
+    if (verbose) std::cout << "\n[ " << count_loop << " ]" << std::endl;
 
     // -- Generate rmat edges -- //
     OMP_DIRECTIVE(parallel)
@@ -244,7 +251,7 @@ inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
       }
     }
 
-    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list);
+    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list, verbose);
 
     if (ofs_save_edge) {
       for (const auto &list : input_storage) {
@@ -303,10 +310,20 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
   double elapsed_time_sec;
   if (options.input_file_name_list.empty()) {
     std::cout << "Get inputs from an R-MAT edge generator" << std::endl;
-    elapsed_time_sec = run_bench_rmat_edge(options.rmat, options.chunk_size, closing_function, adj_list, &ofs_save_edge);
+    elapsed_time_sec = run_bench_rmat_edge(options.rmat,
+                                           options.chunk_size,
+                                           closing_function,
+                                           adj_list,
+                                           &ofs_save_edge,
+                                           options.verbose);
   } else {
     std::cout << "Get inputs from key-value files" << std::endl;
-    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list, options.chunk_size, closing_function, adj_list, &ofs_save_edge);
+    elapsed_time_sec = run_bench_kv_file(options.input_file_name_list,
+                                         options.chunk_size,
+                                         closing_function,
+                                         adj_list,
+                                         &ofs_save_edge,
+                                         options.verbose);
   }
   std::cout << "\nFinished adj_list (s)\t" << elapsed_time_sec << std::endl;
 

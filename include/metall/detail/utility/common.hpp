@@ -103,24 +103,24 @@ struct unsigned_variable_type {
                                                                                       void>::type>::type>::type>::type;
 };
 
-/// \brief
-/// \param length
-/// \param my_no
-/// \param num_sub_groups
-/// \return The begin and end index of the sub-group. Note that [begin, end)
+/// \brief Divides a length into multiple groups.
+/// \param length A length to be divided.
+/// \param block_no A block number.
+/// \param num_blocks The number of total blocks.
+/// \return The begin and end index of the range. Note that [begin, end).
 std::pair<std::size_t, std::size_t> partial_range(const std::size_t length,
-                                                  const std::size_t my_no,
-                                                  const std::size_t num_sub_groups) {
-  std::size_t partial_length = length / num_sub_groups;
-  std::size_t r = length % num_sub_groups;
+                                                  const std::size_t block_no,
+                                                  const std::size_t num_blocks) {
+  std::size_t partial_length = length / num_blocks;
+  std::size_t r = length % num_blocks;
 
   std::size_t begin_index;
 
-  if (my_no < r) {
-    begin_index = (partial_length + 1) * my_no;
+  if (block_no < r) {
+    begin_index = (partial_length + 1) * block_no;
     ++partial_length;
   } else {
-    begin_index = (partial_length + 1) * r + partial_length * (my_no - r);
+    begin_index = (partial_length + 1) * r + partial_length * (block_no - r);
   }
 
   return std::make_pair(begin_index, begin_index + partial_length);
