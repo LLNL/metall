@@ -8,6 +8,7 @@
 #include <string>
 
 #include <metall_utility/open_mp.hpp>
+#include <metall/detail/utility/common.hpp>
 #include "rmat_edge_generator.hpp"
 
 // ---------------------------------------- //
@@ -20,8 +21,8 @@ struct rmat_option_t {
   double a{0.57};
   double b{0.19};
   double c{0.19};
-  bool scramble_id{true};
-  bool undirected{true};
+  bool scramble_id{false};
+  bool undirected{false};
 };
 
 bool parse_options(int argc, char **argv, rmat_option_t *option, std::string *edge_list_file_name, int *num_threads) {
@@ -88,8 +89,12 @@ int main(int argc, char **argv) {
 
   OMP_DIRECTIVE(parallel)
   {
+    const auto range = metall::detail::utility::partial_range(rmat_option.edge_count,
+                                                              metall::utility::omp::get_thread_num(),
+                                                              metall::utility::omp::get_num_threads());
+    const std::size_t num_edges = range.second - range.first;
     edge_generator::rmat_edge_generator rmat(rmat_option.seed + metall::utility::omp::get_thread_num(),
-                                             rmat_option.vertex_scale, rmat_option.edge_count,
+                                             rmat_option.vertex_scale, num_edges,
                                              rmat_option.a, rmat_option.b, rmat_option.c,
                                              rmat_option.scramble_id, rmat_option.undirected);
 

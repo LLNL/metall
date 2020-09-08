@@ -2,7 +2,7 @@
 
 # USAGE
 # cd metall/build/bench/adjacency_list/
-# sh ../../../bench/adjacency_list/test/test_large.sh
+# sh ./test/test_large.sh
 
 # ----- Default Configuration ----- #
 # Parameters to generate R-MAT graph

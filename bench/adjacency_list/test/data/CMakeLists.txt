@@ -1,0 +1,4 @@
+configure_file(edge_list_rmat_s10_0_of_4 edge_list_rmat_s10_0_of_4 COPYONLY)
+configure_file(edge_list_rmat_s10_1_of_4 edge_list_rmat_s10_1_of_4 COPYONLY)
+configure_file(edge_list_rmat_s10_2_of_4 edge_list_rmat_s10_2_of_4 COPYONLY)
+configure_file(edge_list_rmat_s10_3_of_4 edge_list_rmat_s10_3_of_4 COPYONLY)

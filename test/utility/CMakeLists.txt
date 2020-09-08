@@ -1,3 +1,3 @@
 add_executable(bitset_test bitset_test.cpp)
-target_link_libraries(bitset_test gtest_main)
+link_gtest_lib(bitset_test)
 gtest_discover_tests(bitset_test)

@@ -21,6 +21,12 @@ Metall (memory allocator for persistent memory)
 
 # Getting Started
 
+## Required to Build Metall
+
+- GCC 8.1 or more.
+- Boost C++ Libraries 1.64 or more (build is not required; needs only
+  their header files).
+
 ## Install and Build
 
 Metall consists of only header files and requires some header files in
@@ -38,11 +44,10 @@ include paths such as '-I' or CPLUS_INCLUDE_PATH.
 For example,
 
 ```bash
-g++ -std=c++17 -lstdc++fs your_program.cpp -I/path/to/metall/include -I/path/to/boost/include
+g++ -std=c++17 your_program.cpp -lstdc++fs -I/path/to/metall/include -I/path/to/boost/include
 ```
 
-Note GCC requires linking stdc++fs to use the Filesystem library in
-C++17.
+Note that one might need to link stdc++fs library to use the Filesystem library in C++17.
 
 
 ## Install Using Spack
@@ -51,8 +56,8 @@ Metall package is also available on [Spack](https://spack.io/).
 
 To install Metall using Spack, type ```spack install metall```.
 
-As Metall requires Boost C++ Libraries, Spack also installs a proper
-(latest) version of Boost C++ Libraries automatically, if needed.
+As Metall requires Boost C++ Libraries,
+Spack also installs a proper version of Boost C++ Libraries automatically, if needed.
 
 As Spack's load command configures environmental values properly, one
 can avoid specifying include paths to build a program with Metall.
@@ -60,17 +65,19 @@ For instance:
 
 ```bash
 spack load metall
-g++ -std=c++17 -lstdc++fs your_program.cpp
+g++ -std=c++17 your_program.cpp -lstdc++fs 
 ```
 
 
-## Required to Build Metall
+## Build Examples Using CMake
 
-- GCC 8.1 or more.
-- Boost C++ Libraries 1.64 or more (build is not required; needs only
-  their header files).
+This repository contains some example programs under [example directory](./example).
+One can use CMake to build the examples.
+For more details, see a page
+[here](https://metall.readthedocs.io/en/latest/advanced_build/example_test_bench/).
 
-### Unofficial Support For Clang
+
+## Unofficial Support For Clang
 Clang can be used instead of GCC to build Metall.
 However, we haven't tested it intensively.
 Also, Boost C++ Libraries 1.69 or more may be required
