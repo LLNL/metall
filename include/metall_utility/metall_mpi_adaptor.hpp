@@ -156,9 +156,10 @@ class metall_mpi_adaptor {
     bool ret = true;
     for (int i = 0; i < size; ++i) {
       if (i == rank) {
-        if (metall::detail::utility::file_exist(base_dir_path)
-            && !metall::detail::utility::remove_file(base_dir_path)) {
-          std::cerr << __FILE__ << " : " << __func__ << "Failed to remove directory: " << base_dir_path << std::endl;
+        if (metall::detail::utility::file_exist(priv_make_inter_level_dir_path(base_dir_path))
+            && !metall::detail::utility::remove_file(priv_make_inter_level_dir_path(base_dir_path))) {
+          std::cerr << __FILE__ << " : " << __func__ << "Failed to remove directory: "
+                    << priv_make_inter_level_dir_path(base_dir_path) << std::endl;
           ret = false;
         }
       }
