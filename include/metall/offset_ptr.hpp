@@ -22,4 +22,7 @@ using offset_ptr = boost::interprocess::offset_ptr<T>;
 using boost::interprocess::ipcdetail::to_raw_pointer;
 }
 
+/// \example offset_pointer.cpp
+/// This is an example of how to use offset_pointer.
+
 #endif //METALL_OFFSET_PTR_HPP

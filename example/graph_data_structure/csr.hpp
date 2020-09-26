@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+/// \file
+
 #ifndef METALL_EXAMPLE_GRAPH_DATA_STRUCTURE_CSR_HPP
 #define METALL_EXAMPLE_GRAPH_DATA_STRUCTURE_CSR_HPP
 
