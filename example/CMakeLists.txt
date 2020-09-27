@@ -18,6 +18,10 @@ add_executable(csr_graph csr_graph)
 
 add_executable(adjacency_list_graph adjacency_list_graph)
 
+add_executable(static_mutex static_mutex)
+
+add_executable(concurrent_map concurrent_map)
+
 if (USE_NUMA_LIB)
     if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
         link_libraries(numa)
