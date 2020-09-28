@@ -30,7 +30,7 @@ class metall_mpi_adaptor {
   // -------------------------------------------------------------------------------- //
   metall_mpi_adaptor(metall::open_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
-        m_local_dir_path(priv_make_local_dir_path(data_store_dir, comm)),
+        m_local_dir_path(priv_make_local_dir_path(data_store_dir, priv_mpi_comm_rank(comm))),
         m_local_metall_manager(nullptr) {
     priv_verify_num_partitions(data_store_dir, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_only, m_local_dir_path.c_str());
@@ -38,7 +38,7 @@ class metall_mpi_adaptor {
 
   metall_mpi_adaptor(metall::open_read_only_t, const std::string &data_store_dir, const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
-        m_local_dir_path(priv_make_local_dir_path(data_store_dir, comm)),
+        m_local_dir_path(priv_make_local_dir_path(data_store_dir, priv_mpi_comm_rank(comm))),
         m_local_metall_manager(nullptr) {
     priv_verify_num_partitions(data_store_dir, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_read_only, m_local_dir_path.c_str());
@@ -47,7 +47,7 @@ class metall_mpi_adaptor {
   metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir,
                      const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
-        m_local_dir_path(priv_make_local_dir_path(data_store_dir, comm)),
+        m_local_dir_path(priv_make_local_dir_path(data_store_dir, priv_mpi_comm_rank(comm))),
         m_local_metall_manager(nullptr) {
     priv_setup_inter_level_dir(data_store_dir, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only, m_local_dir_path.c_str());
@@ -56,7 +56,7 @@ class metall_mpi_adaptor {
   metall_mpi_adaptor(metall::create_only_t, const std::string &data_store_dir, const std::size_t capacity,
                      const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
-        m_local_dir_path(priv_make_local_dir_path(data_store_dir, comm)),
+        m_local_dir_path(priv_make_local_dir_path(data_store_dir, priv_mpi_comm_rank(comm))),
         m_local_metall_manager(nullptr) {
     priv_setup_inter_level_dir(data_store_dir, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only, m_local_dir_path.c_str(), capacity);
@@ -114,8 +114,9 @@ class metall_mpi_adaptor {
                    const char *destination_dir_path,
                    const MPI_Comm &comm = MPI_COMM_WORLD) {
     priv_setup_inter_level_dir(destination_dir_path, comm);
-    return priv_global_and(manager_type::copy(priv_make_local_dir_path(source_dir_path, comm).c_str(),
-                                              priv_make_local_dir_path(destination_dir_path, comm).c_str()), comm);
+    const int rank = priv_mpi_comm_rank(comm);
+    return priv_global_and(manager_type::copy(priv_make_local_dir_path(source_dir_path, rank).c_str(),
+                                              priv_make_local_dir_path(destination_dir_path, rank).c_str()), comm);
   }
 
   /// \brief Take a snaphost of the current Metall datastore to another location.
@@ -124,8 +125,9 @@ class metall_mpi_adaptor {
   /// otherwise, returns false.
   bool snapshot(const char *destination_dir_path) {
     priv_setup_inter_level_dir(destination_dir_path, m_mpi_comm);
+    const int rank = priv_mpi_comm_rank(m_mpi_comm);
     return priv_global_and(m_local_metall_manager->snapshot(priv_make_local_dir_path(destination_dir_path,
-                                                                                     m_mpi_comm).c_str()),
+                                                                                     rank).c_str()),
                            m_mpi_comm);
   }
 
@@ -249,11 +251,6 @@ class metall_mpi_adaptor {
 
   static std::string priv_make_inter_level_dir_path(const std::string &base_dir_path) {
     return base_dir_path + "/" + k_datastore_inter_level_dir_name;
-  }
-
-  static std::string priv_make_local_dir_path(const std::string &base_dir_path, const MPI_Comm &comm) {
-    const int rank = priv_mpi_comm_rank(comm);
-    return priv_make_local_dir_path(base_dir_path, rank);
   }
 
   static std::string priv_make_local_dir_path(const std::string &base_dir_path, const int rank) {
