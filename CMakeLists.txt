@@ -24,6 +24,7 @@ include_directories(${PROJECT_BINARY_DIR})
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # -------------------------------------------------------------------------------- #
 # User configurable options
@@ -67,6 +68,14 @@ if (RUN_BUILD_AND_TEST_WITH_CI)
     set(CMAKE_CXX_FLAGS "-w -pthread")
 else ()
     set(CMAKE_CXX_FLAGS "-Wall -pthread")
+endif ()
+
+# Memo:
+# On macOS and FreeBSD libc++ is the default standard library and the -stdlib=libc++ is not required.
+# https://libcxx.llvm.org/docs/UsingLibcxx.html
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
+        NOT (CMAKE_CXX_COMPILER_ID MATCHES "Darwin" OR CMAKE_CXX_COMPILER_ID MATCHES "FreeBSD"))
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif ()
 
 # Debug
