@@ -23,7 +23,7 @@ function(include_cxx_filesystem_library)
     if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")) # GCC
         link_libraries(stdc++fs)
     elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")  # Clang or AppleClang
-        if (APPLE) # macOS
+        if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Darwin") # macOS
             include(get_macos_version)
             get_macos_version() # Get macOS version
             message(VERBOSE "macOS version ${MACOS_VERSION}")
