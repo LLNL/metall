@@ -30,7 +30,8 @@ class adjacency_list {
   // To use custom allocator in multi-level containers, you have to use scoped_allocator_adaptor in the most outer container
   // so that the inner containers obtain their allocator arguments from the outer containers's scoped_allocator_adaptor
   // See: https://en.cppreference.com/w/cpp/memory/scoped_allocator_adaptor
-  using map_allocator_type = scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::template rebind_alloc<std::pair<vid_t, vector_type>>>;
+  using map_allocator_type = scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::
+                              template rebind_alloc<std::pair<const vid_t, vector_type>>>;
   using map_type = unordered_map<vid_t,
                                  vector_type,
                                  std::hash<vid_t>,
