@@ -59,9 +59,10 @@ using closing_function_type = std::function<void()>;
 
 template <typename adjacency_list_type>
 inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_type> &input,
-                              closing_function_type closing_function,
-                              adjacency_list_type *const adj_list) {
-  print_current_num_page_faults();
+                              const closing_function_type& closing_function,
+                              adjacency_list_type *const adj_list,
+                              const bool verbose = false) {
+  if (verbose) print_current_num_page_faults();
 
   std::size_t num_inserted = 0;
   const auto start = util::elapsed_time_sec();
@@ -79,11 +80,13 @@ inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_typ
   }
   const auto elapsed_time = util::elapsed_time_sec(start);
 
-  std::cout << "#of inserted elements\t" << num_inserted << std::endl;
-  std::cout << "Elapsed time (s)\t" << elapsed_time << std::endl;
-  std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-  std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
-  print_current_num_page_faults();
+  if (verbose) {
+    std::cout << "#of inserted elements\t" << num_inserted << std::endl;
+    std::cout << "Elapsed time (s)\t" << elapsed_time << std::endl;
+    std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+    std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
+    print_current_num_page_faults();
+  }
 
   return elapsed_time;
 }

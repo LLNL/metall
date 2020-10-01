@@ -82,4 +82,7 @@ extern int consistent(const char *path);
 }
 #endif
 
+/// \example c_api.c
+/// This is an example of how to use the C API.
+
 #endif //METALL_C_SUPORT_METALL_H

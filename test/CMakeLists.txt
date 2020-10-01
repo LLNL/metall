@@ -1,18 +1,32 @@
 #
-# Setup googletest downloaded and built by download_and_build_gtest()
+# Finds an already downloaded and built googletest in local (i.e., this build directory) by download_and_build_gtest().
 #
-macro(setup_built_gtest)
+macro(find_local_gtest)
     if ((EXISTS ${CMAKE_CURRENT_BINARY_DIR}/googletest-src) AND (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/googletest-build))
         # Add googletest directly to our build. This defines
         # the gtest and gtest_main targets.
         add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
                 EXCLUDE_FROM_ALL)
+        set(FOUND_LOCAL_GTEST ON)
     endif()
 endmacro()
 
 #
-# Download and unpack googletest at configure time
+# Finds a system-wide googletest
+#
+macro(find_global_gtest)
+    # Find a system-wide one
+    find_package(GTest REQUIRED)
+    message(STATUS "Found a system-wide googletest")
+    message(VERBOSE "GTEST_INCLUDE_DIRS=${GTEST_INCLUDE_DIRS}")
+    message(VERBOSE "GTEST_LIBRARIES=${GTEST_LIBRARIES}")
+    message(VERBOSE "GTEST_MAIN_LIBRARIES=${GTEST_MAIN_LIBRARIES}")
+    set(FOUND_GLOBAL_GTEST ON)
+endmacro()
+
+#
+# Downloads and unpacks googletest
 # (see https://github.com/google/googletest/blob/master/googletest/README.md)
 #
 macro(download_and_build_gtest)
@@ -33,40 +47,37 @@ macro(download_and_build_gtest)
 endmacro()
 
 #
-# Find already existing Goggle Test
+# Link googltest library
 #
-macro(find_existing_gtest)
-    # Try to find an already downloaded one first
-    setup_built_gtest()
-
-    if ((TARGET gtest) AND (TARGET gtest_main))
-        message(STATUS "Found already downloaded googletest")
-    else ()
-        # Try to find a system-wide one
-        find_package(GTest)
-        if (GTEST_FOUND)
-            message(STATUS "Found a system-wide googletest")
-            message(VERBOSE "GTEST_INCLUDE_DIRS=${GTEST_INCLUDE_DIRS}")
-            message(VERBOSE "GTEST_LIBRARIES=${GTEST_LIBRARIES}")
-            message(VERBOSE "GTEST_MAIN_LIBRARIES=${GTEST_MAIN_LIBRARIES}")
-        else ()
-            message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-        endif ()
+macro(link_gtest_lib target)
+    if (DEFINED FOUND_LOCAL_GTEST)
+        target_link_libraries(${target} gtest_main)
+    elseif (DEFINED FOUND_GLOBAL_GTEST)
+        target_link_libraries(${target} GTest::Main)
     endif ()
 endmacro()
 
 # ------------------------------------------------------------ #
-# Set up Google Test
+# Set up googletest
 # ------------------------------------------------------------ #
-if (SKIP_DOWNLOAD_GTEST)
-    find_existing_gtest()
-elseif(ONLY_DOWNLOAD_GTEST)
+if(ONLY_DOWNLOAD_GTEST)
     download_and_build_gtest()
     return()
+elseif (SKIP_DOWNLOAD_GTEST)
+    find_local_gtest()
+    if (DEFINED FOUND_LOCAL_GTEST)
+        message(STATUS "Found already downloaded googletest")
+    else ()
+        find_global_gtest()
+    endif()
 else ()
     download_and_build_gtest()
-    setup_built_gtest()
+    find_local_gtest()
+    if (NOT DEFINED FOUND_LOCAL_GTEST)
+        message(FATAL_ERROR "Cannot find the just downloaded googletest")
+    endif()
 endif ()
+
 # ------------------------------------------------------------ #
 
 include(GoogleTest)

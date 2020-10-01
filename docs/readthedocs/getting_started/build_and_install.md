@@ -11,9 +11,9 @@ all you have to do is just setting include paths such as '-I' or CPLUS_INCLUDE_P
 
 For example,
 ```bash
-g++ -std=c++17 -lstdc++fs your_program.cpp -I/path/to/metall/include -I/path/to/boost/include
+g++ -std=c++17 your_program.cpp -lstdc++fs -I/path/to/metall/include -I/path/to/boost/include
 ```
-Note GCC requires linking stdc++fs to use the Filesystem library in C++17.
+Note that one might need to link stdc++fs library to use the Filesystem library in C++17.
 
 
 ## Install Using Spack
@@ -23,7 +23,7 @@ Metall package is also available on [Spack](https://spack.io/).
 To install Metall using Spack, type ```spack install metall```.
 
 As Metall requires Boost C++ Libraries, Spack also installs a proper
-(latest) version of Boost C++ Libraries automatically, if needed.
+version of Boost C++ Libraries automatically, if needed.
 
 As Spack's load command configures environmental values properly, one
 can avoid specifying include paths to build a program with Metall.
@@ -31,7 +31,7 @@ For instance:
 
 ```bash
 spack load metall
-g++ -std=c++17 -lstdc++fs your_program.cpp
+g++ -std=c++17 your_program.cpp -lstdc++fs
 ```
 
 
