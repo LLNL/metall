@@ -78,6 +78,156 @@ TEST(ManagerTest, CreateAndOpenModes) {
   }
 }
 
+TEST(ManagerTest, ConstructArray) {
+  {
+    {
+      manager_type::remove(dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+      [[maybe_unused]] int *a = manager.construct<int>("int")[2](10);
+    }
+
+    {
+      manager_type manager(metall::open_read_only, dir_path().c_str());
+      auto ret = manager.find<int>("int");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(ret.second, 2);
+      auto a = ret.first;
+      ASSERT_EQ(a[0], 10);
+      ASSERT_EQ(a[1], 10);
+    }
+  }
+}
+
+TEST(ManagerTest, findOrConstruct) {
+  {
+    {
+      manager_type::remove(dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+      [[maybe_unused]] int *a = manager.find_or_construct<int>("int")(10);
+    }
+
+    {
+      manager_type manager(metall::open_read_only, dir_path().c_str());
+      int *a = manager.find_or_construct<int>("int")(20);
+      ASSERT_EQ(*a, 10);
+    }
+  }
+}
+
+TEST(ManagerTest, findOrConstructArray) {
+  {
+    {
+      manager_type::remove(dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+      [[maybe_unused]] int *a = manager.find_or_construct<int>("int")[2](10);
+    }
+
+    {
+      manager_type manager(metall::open_read_only, dir_path().c_str());
+      int *a = manager.find_or_construct<int>("int")[2](20);
+      ASSERT_EQ(a[0], 10);
+      ASSERT_EQ(a[1], 10);
+    }
+  }
+}
+
+TEST(ManagerTest, ConstructContainers) {
+  {
+    using vec_t = std::vector<int, metall::manager::allocator_type<int>>;
+    {
+      manager_type::remove(dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+      [[maybe_unused]] vec_t
+          *a = manager.construct<vec_t>("vecs")[2](2, 10, manager.get_allocator<int>());
+    }
+
+    {
+      manager_type manager(metall::open_read_only, dir_path().c_str());
+      auto ret = manager.find<vec_t>("vecs");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(ret.second, 2);
+      vec_t *a = ret.first;
+      ASSERT_EQ(a[0].size(), 2);
+      ASSERT_EQ(a[1].size(), 2);
+      ASSERT_EQ(a[0][0], 10);
+      ASSERT_EQ(a[0][1], 10);
+      ASSERT_EQ(a[1][0], 10);
+      ASSERT_EQ(a[1][1], 10);
+    }
+  }
+}
+
+TEST(ManagerTest, ConstructWithIterator) {
+  {
+    {
+      manager_type::remove(dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+      int values[2] = {10, 20};
+      [[maybe_unused]] int *a = manager.construct_it<int>("int")[2](&values[0]);
+    }
+
+    {
+      manager_type manager(metall::open_read_only, dir_path().c_str());
+      auto ret = manager.find<int>("int");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(ret.second, 2);
+      auto a = ret.first;
+      ASSERT_EQ(a[0], 10);
+      ASSERT_EQ(a[1], 20);
+    }
+  }
+}
+
+TEST(ManagerTest, ConstructObjectsWithIterator) {
+  struct data {
+    int a;
+    float b;
+    data(int _a, float _b)
+        : a(_a), b(_b) {}
+  };
+
+  {
+    {
+      manager_type::remove(dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+      int values1[2] = {10, 20};
+      float values2[2] = {0.1, 0.2};
+      [[maybe_unused]] data *d = manager.construct_it<data>("data")[2](&values1[0], &values2[0]);
+    }
+
+    {
+      manager_type manager(metall::open_read_only, dir_path().c_str());
+      auto ret = manager.find<data>("data");
+      ASSERT_NE(ret.first, nullptr);
+      ASSERT_EQ(ret.second, 2);
+      data* d = ret.first;
+      ASSERT_EQ(d[0].a, 10);
+      ASSERT_EQ(d[0].b, (float)0.1);
+      ASSERT_EQ(d[1].a, 20);
+      ASSERT_EQ(d[1].b, (float)0.2);
+    }
+  }
+}
+
+TEST(ManagerTest, findOrConstructWithIterator) {
+  {
+    {
+      manager_type::remove(dir_path().c_str());
+      manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+      int values[2] = {10, 20};
+      [[maybe_unused]] int *a = manager.find_or_construct_it<int>("int")[2](&values[0]);
+    }
+
+    {
+      manager_type manager(metall::open_read_only, dir_path().c_str());
+      int values[2] = {30, 40};
+      int *a = manager.find_or_construct_it<int>("int")[2](&values[0]);
+      ASSERT_EQ(a[0], 10);
+      ASSERT_EQ(a[1], 20);
+    }
+  }
+}
+
 TEST(ManagerTest, Consistency) {
   manager_type::remove(dir_path().c_str());
 
