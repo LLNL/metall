@@ -2,8 +2,6 @@ add_executable(simple simple)
 
 add_executable(vector_of_vectors vector_of_vectors)
 
-add_executable(multilevel_containers multilevel_containers)
-
 add_executable(string string)
 
 add_executable(string_map string_map)
@@ -16,7 +14,12 @@ add_executable(snapshot snapshot)
 
 add_executable(csr_graph csr_graph)
 
-add_executable(adjacency_list_graph adjacency_list_graph)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message(STATUS "Skip building the examples that use multi-level containers")
+else()
+    add_executable(multilevel_containers multilevel_containers)
+    add_executable(adjacency_list_graph adjacency_list_graph)
+endif()
 
 add_executable(static_mutex static_mutex)
 
@@ -42,5 +45,5 @@ if (MPI_CXX_FOUND)
     add_executable(mpi_open mpi_open)
     target_link_libraries(mpi_open PUBLIC MPI::MPI_CXX)
 else()
-    message(STATUS "Will skip bulding the MPI examples")
+    message(STATUS "Will skip building the MPI examples")
 endif()
