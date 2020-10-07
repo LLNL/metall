@@ -33,10 +33,10 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
+manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() noexcept {
   close();
 
-  // This function must be called at the last line
+  // This function must be called at the end
   priv_mark_properly_closed(m_base_dir_path);
 }
 
@@ -44,59 +44,19 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() {
 // Public methods
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path, const size_type vm_reserve_size) {
-  if (!priv_validate_runtime_configuration()) {
-    return;
-  }
-
-  if (vm_reserve_size > k_max_segment_size) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Too large VM region size is requested " + std::to_string(vm_reserve_size) + " byte.");
-    return;
-  }
-
-  m_base_dir_path = base_dir_path;
-
-  if (!priv_unmark_properly_closed(m_base_dir_path) || !priv_init_datastore_directory(base_dir_path)) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Failed to initialize datastore directory under " + std::string(base_dir_path));
-    return;
-  }
-
-  if (!priv_reserve_vm_region(vm_reserve_size)) {
-    return;
-  }
-
-  if (!priv_allocate_segment_header(m_vm_region)) {
-    return;
-  }
-
-  if (!m_segment_storage.create(priv_make_file_name(m_base_dir_path, k_segment_prefix),
-                                m_vm_region_size - k_segment_header_size,
-                                static_cast<char *>(m_vm_region) + k_segment_header_size,
-                                k_initial_segment_size)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot create application data segment");
-    return;
-  }
-
-  if (!priv_store_uuid(m_base_dir_path)) {
-    return;
-  }
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::create(const char *base_dir_path, const size_type vm_reserve_size) {
+  return priv_create(base_dir_path, vm_reserve_size);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::open_read_only(const char *base_dir_path) {
-  priv_open(base_dir_path, true, 0);
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open_read_only(const char *base_dir_path) {
+  return priv_open(base_dir_path, true, 0);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
                                                      const size_type vm_reserve_size_request) {
-  priv_open(base_dir_path, false, vm_reserve_size_request);
+  return priv_open(base_dir_path, false, vm_reserve_size_request);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -445,7 +405,7 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_release_vm_region() {
                 __FILE__,
                 __LINE__,
                 "Cannot release a VM region " + std::to_string((uint64_t)m_vm_region) + ", "
-                       + std::to_string(m_vm_region_size) + " bytes.");
+                    + std::to_string(m_vm_region_size) + " bytes.");
     return false;
   }
   m_vm_region = nullptr;
@@ -480,6 +440,9 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_segment_header() {
   m_segment_header->~segment_header_type();
   const auto ret = util::munmap(m_segment_header, k_segment_header_size, false);
   m_segment_header = nullptr;
+  if (!ret) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to deallocate segment header");
+  }
   return ret;
 }
 
@@ -488,7 +451,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_store_uuid(const std::strin
   std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
   std::ofstream ofs(file_name);
   if (!ofs) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create a file: " + file_name);
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create a file: " + file_name);
     return false;
   }
   ofs << util::uuid(util::uuid_random_generator{}());
@@ -567,17 +530,17 @@ priv_generic_named_construct(const char_type *const name,
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_path,
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_path,
                                                           const bool read_only,
                                                           const size_type vm_reserve_size_request) {
   if (!priv_validate_runtime_configuration()) {
-    return;
+    return false;
   }
 
   if (!consistent(base_dir_path)) {
     logger::out(logger::level::critical, __FILE__, __LINE__,
                 "Inconsistent data store — it was not closed properly and might have been collapsed.");
-    return;
+    return false;
   }
 
   m_base_dir_path = base_dir_path;
@@ -589,11 +552,12 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
                                                            vm_reserve_size_request);
 
   if (!priv_reserve_vm_region(vm_reserve_size)) {
-    return;
+    return false;
   }
 
   if (!priv_allocate_segment_header(m_vm_region)) {
-    return;
+    priv_release_vm_region();
+    return false;
   }
 
   // Clear the consistent mark before opening with the write mode
@@ -602,19 +566,81 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
                 __FILE__,
                 __LINE__,
                 "Failed to erase the properly close mark before opening");
-    return;
+    priv_deallocate_segment_header();
+    priv_release_vm_region();
+    return false;
   }
 
   if (!m_segment_storage.open(priv_make_file_name(m_base_dir_path, k_segment_prefix),
                               m_vm_region_size - k_segment_header_size,
                               static_cast<char *>(m_vm_region) + k_segment_header_size,
                               read_only)) {
-    return;
+    priv_deallocate_segment_header();
+    priv_release_vm_region();
+    return false;
   }
 
   if (!priv_deserialize_management_data()) {
-    return;
+    m_segment_storage.destroy();
+    priv_deallocate_segment_header();
+    priv_release_vm_region();
+    return false;
   }
+
+  return true;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_create(const char *base_dir_path,
+                                                            const size_type vm_reserve_size) {
+  if (!priv_validate_runtime_configuration()) {
+    return false;
+  }
+
+  if (vm_reserve_size > k_max_segment_size) {
+    logger::out(logger::level::critical,
+                __FILE__,
+                __LINE__,
+                "Too large VM region size is requested " + std::to_string(vm_reserve_size) + " byte.");
+    return false;
+  }
+
+  m_base_dir_path = base_dir_path;
+
+  if (!priv_unmark_properly_closed(m_base_dir_path) || !priv_init_datastore_directory(base_dir_path)) {
+    logger::out(logger::level::critical,
+                __FILE__,
+                __LINE__,
+                "Failed to initialize datastore directory under " + std::string(base_dir_path));
+    return false;
+  }
+
+  if (!priv_reserve_vm_region(vm_reserve_size)) {
+    return false;
+  }
+
+  if (!priv_allocate_segment_header(m_vm_region)) {
+    priv_release_vm_region();
+    return false;
+  }
+
+  if (!m_segment_storage.create(priv_make_file_name(m_base_dir_path, k_segment_prefix),
+                                m_vm_region_size - k_segment_header_size,
+                                static_cast<char *>(m_vm_region) + k_segment_header_size,
+                                k_initial_segment_size)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot create application data segment");
+    priv_deallocate_segment_header();
+    priv_release_vm_region();
+    return false;
+  }
+
+  if (!priv_store_uuid(m_base_dir_path)) {
+    priv_deallocate_segment_header();
+    priv_release_vm_region();
+    return false;
+  }
+
+  return true;
 }
 
 // ---------------------------------------- For serializing/deserializing ---------------------------------------- //

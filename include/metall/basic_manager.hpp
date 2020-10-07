@@ -116,13 +116,13 @@ class basic_manager {
   basic_manager() = delete;
 
   /// \brief Destructor.
-  ~basic_manager() = default;
+  ~basic_manager() noexcept = default;
 
   /// \brief Deleted.
   basic_manager(const basic_manager &) = delete;
 
   /// \brief Move constructor.
-  basic_manager(basic_manager &&) = default;
+  basic_manager(basic_manager &&) noexcept = default;
 
   /// \brief Deleted.
   /// \return N/A.
@@ -130,7 +130,7 @@ class basic_manager {
 
   /// \brief Move assignment operator.
   /// \return An reference to the object.
-  basic_manager &operator=(basic_manager &&) = default;
+  basic_manager &operator=(basic_manager &&) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods
