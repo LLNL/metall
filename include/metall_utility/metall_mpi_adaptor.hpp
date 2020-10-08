@@ -227,6 +227,7 @@ class metall_mpi_adaptor {
                 << priv_make_root_dir_path(root_dir_path) << std::endl;
       ::MPI_Abort(comm, -1);
     }
+    priv_mpi_barrier(comm);
 
     // To simplify the code, all processes do the same thing.
     for (int i = 0; i < size; ++i) {
