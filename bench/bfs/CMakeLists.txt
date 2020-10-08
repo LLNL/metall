@@ -3,7 +3,7 @@ if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 else()
-    MESSAGE(WARNING "OpenMP is not found. Use single thread in BFS")
+    MESSAGE(STATUS "OpenMP is not found. Use single thread in BFS")
 endif()
 
 add_executable(run_bfs_bench_metall run_bfs_bench_metall.cpp)

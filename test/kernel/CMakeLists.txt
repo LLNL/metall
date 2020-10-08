@@ -43,7 +43,7 @@ if (OPENMP_FOUND)
     link_gtest_lib(manager_multithread_test)
     gtest_discover_tests(manager_multithread_test)
 else()
-    MESSAGE(WARNING "OpenMP is not found. Use single thread in the test")
+    MESSAGE(STATUS "OpenMP is not found. Use single thread in the test")
 endif()
 
 add_executable(multimanager_test multimanager_test.cpp)

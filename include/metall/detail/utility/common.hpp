@@ -91,6 +91,8 @@ struct unsigned_variable_type {
   using limits = std::numeric_limits<type>;
 
  public:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
   using type  =
   typename conditional<x <= limits<uint8_t>::max(),
                        uint8_t,
@@ -98,9 +100,8 @@ struct unsigned_variable_type {
                                             uint16_t,
                                             typename conditional<x <= limits<uint32_t>::max(),
                                                                  uint32_t,
-                                                                 typename conditional<x <= limits<uint64_t>::max(),
-                                                                                      uint64_t,
-                                                                                      void>::type>::type>::type>::type;
+                                                                 uint64_t>::type>::type>::type;
+#pragma GCC diagnostic pop
 };
 
 /// \brief Divides a length into multiple groups.

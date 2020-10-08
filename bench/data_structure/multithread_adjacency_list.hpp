@@ -68,7 +68,13 @@ class multithread_adjacency_list {
 
   bool add(key_type key, value_type value) {
     auto guard = metall::utility::mutex::mutex_lock<k_num_banks>(bank_index(key));
+#ifdef __clang__
+    if (m_bank_table[bank_index(key)].count(key) == 0)
+      m_bank_table[bank_index(key)].try_emplace(key, m_bank_table.get_allocator());
+    m_bank_table[bank_index(key)].at(key).emplace_back(std::move(value));
+#else
     m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
+#endif
     return true;
   }
 

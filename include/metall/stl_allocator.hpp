@@ -86,6 +86,8 @@ class stl_allocator
     assert(*m_ptr_manager_kernel_address);
   }
 
+  ~stl_allocator() noexcept = default;
+
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
   stl_allocator(const stl_allocator<T2, manager_kernel_type> &allocator_instance)
@@ -95,10 +97,10 @@ class stl_allocator
   }
 
   stl_allocator(const stl_allocator<T, manager_kernel_type> &other) = default;
-  stl_allocator(stl_allocator<T, manager_kernel_type> &&other) = default;
+  stl_allocator(stl_allocator<T, manager_kernel_type> &&other) noexcept = default;
 
   stl_allocator &operator=(const stl_allocator<T, manager_kernel_type> &) = default;
-  stl_allocator &operator=(stl_allocator<T, manager_kernel_type> &&other) = default;
+  stl_allocator &operator=(stl_allocator<T, manager_kernel_type> &&other) noexcept = default;
 
   /// \brief Copy assign operator for another T
   template <typename T2>
