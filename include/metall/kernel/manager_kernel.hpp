@@ -124,13 +124,13 @@ class manager_kernel {
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
   explicit manager_kernel(const internal_data_allocator_type &allocator);
-  ~manager_kernel();
+  ~manager_kernel() noexcept;
 
   manager_kernel(const manager_kernel &) = delete;
   manager_kernel &operator=(const manager_kernel &) = delete;
 
-  manager_kernel(manager_kernel &&) = default;
-  manager_kernel &operator=(manager_kernel &&) = default;
+  manager_kernel(manager_kernel &&) noexcept = default;
+  manager_kernel &operator=(manager_kernel &&) noexcept = default;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -140,18 +140,21 @@ class manager_kernel {
   /// Expect to be called by a single thread
   /// \param base_dir_path
   /// \param vm_reserve_size
-  void create(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
+  /// \return Returns true if success; otherwise, returns false
+  bool create(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Opens an existing datastore
   /// Expect to be called by a single thread
   /// \param base_dir_path
   /// \param vm_reserve_size
-  void open(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
+  /// \return Returns true if success; otherwise, returns false
+  bool open(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Opens an existing datastore with read only
   /// Expect to be called by a single thread
   /// \param base_dir_path
-  void open_read_only(const char *base_dir_path);
+  /// \return Returns true if success; otherwise, returns false
+  bool open_read_only(const char *base_dir_path);
 
   /// \brief Expect to be called by a single thread
   void close();
@@ -287,7 +290,8 @@ class manager_kernel {
   static bool priv_store_uuid(const std::string &base_dir_path);
   static std::string priv_restore_uuid(const std::string &base_dir_path);
 
-  void priv_open(const char *base_dir_path, const bool read_only, const size_type vm_reserve_size_request = 0);
+  bool priv_open(const char *base_dir_path, const bool read_only, const size_type vm_reserve_size_request = 0);
+  bool priv_create(const char *base_dir_path, const size_type vm_reserve_size);
 
   // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
   bool priv_serialize_management_data();
