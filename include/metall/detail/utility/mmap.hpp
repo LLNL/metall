@@ -114,6 +114,27 @@ inline std::pair<int, void *> map_file_read_mode(const std::string &file_name, v
   return std::make_pair(fd, mapped_addr);
 }
 
+/// \brief Map a file with write mode.
+/// \param fd  The file descriptor to map.
+/// \param addr Normally nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping.
+/// \param length The length of the map.
+/// \param offset The offset in the file.
+/// \return The starting address for the map.
+inline void *map_file_write_mode(const int fd, void *const addr,
+                                 const size_t length, const off_t offset,
+                                 const int additional_flags = 0) {
+
+  if (fd == -1) return nullptr;
+
+  // ----- Map the file ----- //
+  void *mapped_addr = os_mmap(addr, length, PROT_READ | PROT_WRITE, MAP_SHARED | additional_flags, fd, offset);
+  if (mapped_addr == nullptr) {
+    return nullptr;
+  }
+
+  return mapped_addr;
+}
+
 /// \brief Map a file with write mode
 /// \param file_name The name of file to be mapped
 /// \param addr Normally nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
@@ -140,8 +161,55 @@ inline std::pair<int, void *> map_file_write_mode(const std::string &file_name, 
   return std::make_pair(fd, mapped_addr);
 }
 
-inline bool os_msync(void *const addr, const size_t length, const bool sync) {
-  if (::msync(addr, length, sync ? MS_SYNC : MS_ASYNC) != 0) {
+/// \brief Map a file with write mode and MAP_PRIVATE.
+/// \param fd  The file descriptor to map.
+/// \param addr Normally nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping.
+/// \param length The length of the map.
+/// \param offset The offset in the file.
+/// \return The starting address for the map.
+inline void *map_file_write_private_mode(const int fd, void *const addr,
+                                         const size_t length, const off_t offset,
+                                         const int additional_flags = 0) {
+
+  if (fd == -1) return nullptr;
+
+  // ----- Map the file ----- //
+  void *mapped_addr = os_mmap(addr, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | additional_flags, fd, offset);
+  if (mapped_addr == nullptr) {
+    return nullptr;
+  }
+
+  return mapped_addr;
+}
+
+/// \brief Map a file with write mode and MAP_PRIVATE
+/// \param file_name The name of file to be mapped
+/// \param addr Normally nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
+/// \param length The length of the map
+/// \param offset The offset in the file
+/// \return A pair of the file descriptor of the file and the starting address for the map
+inline std::pair<int, void *> map_file_write_private_mode(const std::string &file_name, void *const addr,
+                                                          const size_t length, const off_t offset,
+                                                          const int additional_flags = 0) {
+  // ----- Open the file ----- //
+  const int fd = ::open(file_name.c_str(), O_RDWR);
+  if (fd == -1) {
+    logger::perror(logger::level::error, __FILE__, __LINE__, "open");
+    return std::make_pair(-1, nullptr);
+  }
+
+  // ----- Map the file ----- //
+  void *mapped_addr = os_mmap(addr, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | additional_flags, fd, offset);
+  if (mapped_addr == nullptr) {
+    close(fd);
+    return std::make_pair(-1, nullptr);
+  }
+
+  return std::make_pair(fd, mapped_addr);
+}
+
+inline bool os_msync(void *const addr, const size_t length, const bool sync, const int additional_flags = 0) {
+  if (::msync(addr, length, (sync ? MS_SYNC : MS_ASYNC) | additional_flags) != 0) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "msync");
     return false;
   }

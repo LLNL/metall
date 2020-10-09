@@ -49,3 +49,7 @@ endif()
 add_executable(multimanager_test multimanager_test.cpp)
 link_gtest_lib(multimanager_test)
 gtest_discover_tests(multimanager_test)
+
+add_executable(multifile_segment_storage_test multifile_segment_storage_test.cpp)
+link_gtest_lib(multifile_segment_storage_test)
+gtest_discover_tests(multifile_segment_storage_test)
