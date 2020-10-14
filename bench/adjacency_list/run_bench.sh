@@ -133,7 +133,7 @@ run() {
     exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
     DATASTORE_PATH=${DATASTORE_DIR}/${DATASTORE_NAME}
-    execute ${NUM_THREADS} ${SCHEDULE} ${UMAP_PAGESIZE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE}
+    execute ${NUM_THREADS} ${SCHEDULE} ${UMAP_PAGESIZE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE} -V
 
     ls -Rlsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
