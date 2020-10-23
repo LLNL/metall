@@ -16,8 +16,9 @@ esac
 CHUNK_SIZE=$((2**20))
 NO_CLEANING_FILES_AT_END=false
 UMAP_PAGESIZE=""
+EXEC_NAME="metall"
 
-while getopts "v:f:l:t:s:d:n:cp:" OPT
+while getopts "v:f:l:t:s:d:n:cp:E:" OPT
 do
   case $OPT in
     v) V=$OPTARG;;
@@ -29,6 +30,7 @@ do
     n) CHUNK_SIZE=$OPTARG;;
     c) NO_CLEANING_FILES_AT_END=true;;
     p) UMAP_PAGESIZE="env UMAP_PAGESIZE=${OPTARG}";;
+    E) EXEC_NAME=$OPTARG;;
     :) echo  "[ERROR] Option argument is undefined.";;   #
     \?) echo "[ERROR] Undefined options.";;
   esac
@@ -106,7 +108,6 @@ run() {
     # ------------------------- #
     # Configure
     # ------------------------- #
-    EXEC_NAME=$1
     LOG_FILE=${LOG_FILE_PREFIX}"_"${EXEC_NAME}".log"
     echo "" > ${LOG_FILE}
 
@@ -133,7 +134,7 @@ run() {
     exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
     try_to_get_compiler_ver ${exec_file_name}
     DATASTORE_PATH=${DATASTORE_DIR}/${DATASTORE_NAME}
-    execute ${NUM_THREADS} ${SCHEDULE} ${UMAP_PAGESIZE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE}
+    execute ${NUM_THREADS} ${SCHEDULE} ${UMAP_PAGESIZE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE} -V
 
     ls -Rlsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
 
@@ -150,11 +151,7 @@ run() {
 }
 
 main() {
-    #run bip
-    #run pmem
-    run metall
-    #run metall_numa
-    #run reflink_snapshot
+    run
 }
 
 main "$@"

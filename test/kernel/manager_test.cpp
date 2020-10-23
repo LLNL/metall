@@ -347,18 +347,20 @@ TEST(ManagerTest, MixedSmallAllocation) {
     // To make sure that there is no duplicated allocation
     std::unordered_set<void *> set;
 
-    for (uint64_t i = 0; i < k_chunk_size / alloc_size1; ++i) {
+    for (uint64_t i = 0; i < (k_chunk_size / alloc_size1) * 4; ++i) {
       {
         auto addr = static_cast<char *>(manager.allocate(alloc_size1));
         ASSERT_EQ(set.count(addr), 0);
         set.insert(addr);
       }
-      {
+
+      if (i < (k_chunk_size / alloc_size2) * 4) {
         auto addr = static_cast<char *>(manager.allocate(alloc_size2));
         ASSERT_EQ(set.count(addr), 0);
         set.insert(addr);
       }
-      {
+
+      if (i < (k_chunk_size / alloc_size3) * 4) {
         auto addr = static_cast<char *>(manager.allocate(alloc_size3));
         ASSERT_EQ(set.count(addr), 0);
         set.insert(addr);
