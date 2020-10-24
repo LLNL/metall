@@ -64,11 +64,13 @@ make_dir() {
 }
 
 try_to_get_compiler_ver() {
+  local exec_file_name=$1
+
   echo "" | tee -a ${LOG_FILE}
   echo "----------------------------------------" | tee -a ${LOG_FILE}
-  echo "Compiler information in" ${EXEC_NAME} | tee -a ${LOG_FILE}
+  echo "Compiler information in" ${exec_file_name} | tee -a ${LOG_FILE}
   echo "----------------------------------------" | tee -a ${LOG_FILE}
-  strings $1 | grep "GCC" | tee -a ${LOG_FILE}
+  strings ${exec_file_name} | grep "GCC" | tee -a ${LOG_FILE}
 }
 
 execute() {
@@ -78,9 +80,30 @@ execute() {
   echo "<<<<<" | tee -a ${LOG_FILE}
 }
 
+execute_simple() {
+  echo "$@" | tee -a ${LOG_FILE}
+  "$@" | tee -a ${LOG_FILE}
+}
+
+log_header() {
+  echo "" | tee -a ${LOG_FILE}
+  echo "----------------------------------------" | tee -a ${LOG_FILE}
+  echo "$@" | tee -a ${LOG_FILE}
+  echo "----------------------------------------" | tee -a ${LOG_FILE}
+}
+
 get_system_info() {
   echo "" | tee -a ${LOG_FILE}
+  echo "----------------------------------------" | tee -a ${LOG_FILE}
+  echo "System information" | tee -a ${LOG_FILE}
+  echo "----------------------------------------" | tee -a ${LOG_FILE}
 
+  echo "free -g" | tee -a ${LOG_FILE}
+  if [[ $OSTYPE == "linux"* ]]; then
+    free -g | tee -a ${LOG_FILE}
+  fi
+
+  echo "" | tee -a ${LOG_FILE}
   echo "/proc/sys/vm/dirty_expire_centisecs" | tee -a ${LOG_FILE}
   cat /proc/sys/vm/dirty_expire_centisecs | tee -a ${LOG_FILE}
   echo "/proc/sys/vm/dirty_ratio" | tee -a ${LOG_FILE}
@@ -90,6 +113,8 @@ get_system_info() {
   echo "/proc/sys/vm/dirty_writeback_centisecs" | tee -a ${LOG_FILE}
   cat /proc/sys/vm/dirty_writeback_centisecs | tee -a ${LOG_FILE}
 
+  echo "" | tee -a ${LOG_FILE}
+  echo "" | tee -a ${LOG_FILE}
   df -lh | tee -a ${LOG_FILE}
   mount | tee -a ${LOG_FILE}
 
@@ -108,22 +133,16 @@ run() {
   rm -f "${datastore_dir}/*" # Erase old data if they exist
 
   # ------------------------- #
-  # Start benchmark
+  # Show system inf
   # ------------------------- #
   get_system_info
-
-  echo "" | tee -a ${LOG_FILE}
-  echo "----------------------------------------" | tee -a ${LOG_FILE}
-  echo "Construction with" ${EXEC_NAME} | tee -a ${LOG_FILE}
-  echo "----------------------------------------" | tee -a ${LOG_FILE}
-
   #    ${DROP_PAGECACHE_COMMAND}
 
-  if [[ $OSTYPE == "linux"* ]]; then
-    free -g | tee -a ${LOG_FILE}
-  fi
-
+  # ------------------------- #
+  # Benchmark main
+  # ------------------------- #
   local exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
+  echo "Run the benchmark using" ${exec_file_name} | tee -a ${LOG_FILE}
 
   try_to_get_compiler_ver ${exec_file_name}
 
