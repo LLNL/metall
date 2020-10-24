@@ -41,8 +41,6 @@ option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(LOGGING "Logging" OFF)
-option(USE_PRIVATE_MAP_AND_MSYNC "Use the private map segment storage with msync" OFF)
-set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
 set(DEFAULT_VM_RESERVE_SIZE "0" CACHE STRING
         "Set the default VM reserve size (use the internally defined value if 0 is specified)")
@@ -52,6 +50,10 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
         "Set the initial segment size (use the internally defined value if 0 is specified)")
 
 # ---------- Experimental options ---------- #
+option(USE_PRIVATE_MAP_AND_PWRITE "Use the private map segment storage and pwrite to sync data" OFF)
+option(USE_PRIVATE_MAP_AND_MSYNC "Use the private map segment storage and msync to sync data" OFF)
+set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
+
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
