@@ -4,8 +4,8 @@
 # sh ../../../bench/adjacency_list/run_bench.sh
 
 # ----- Options----- #
-V=17
-FILE_SIZE=$((2**30))
+VERTEX_SCALE=17
+FILE_SIZE=$((2**30)) # File size for Boost.Interprocess
 LOG_FILE_PREFIX="out_adj_bench"
 NUM_THREADS=""
 SCHEDULE=""
@@ -16,12 +16,12 @@ esac
 CHUNK_SIZE=$((2**20))
 NO_CLEANING_FILES_AT_END=false
 UMAP_PAGESIZE=""
-EXEC_NAME="metall"
+EXEC_NAME="metall" # "run_adj_list_bench_${EXEC_NAME}" is the execution file
 
 while getopts "v:f:l:t:s:d:n:cp:E:" OPT
 do
   case $OPT in
-    v) V=$OPTARG;;
+    v) VERTEX_SCALE=$OPTARG;;
     f) FILE_SIZE=$OPTARG;;
     l) LOG_FILE_PREFIX=$OPTARG;;
     t) NUM_THREADS="env OMP_NUM_THREADS=${OPTARG}";;
@@ -40,32 +40,23 @@ done
 A=0.57
 B=0.19
 C=0.19
-SEED=123
-E=$((2**$((${V}+4))))
-MAX_VERTEX_ID=$((2**${V}))
+RND_SEED=123
+DATASTORE_NAME="metall_adjlist_bench"
 
-DATASTORE_NAME="segment"
-ADJ_LIST_KEY_NAME="adj_list"
-
-case "$OSTYPE" in
-  darwin*)
-    INIT_COMMAND=""
-    ;;
-  linux*)
-    PRE_COMMAND_ADJ_LIST_BENCH="taskset -c 1 " # !!! Not using this anymore !!! #
-    case $HOSTNAME in
-        dst-* | bertha* | altus*)
-            INIT_COMMAND="/home/perma/drop_buffer_cache "
-            ;;
-        *) # Expect other LC machines
-            INIT_COMMAND="srun --drop-caches=pagecache true"
-            ;;
-    esac ;;
-esac
-
-if [[ $MAX_VERTEX_ID -eq 0 ]]; then
-    MAX_VERTEX_ID=$((2**${V}))
-fi
+#case "$OSTYPE" in
+#  darwin*)
+#    DROP_PAGECACHE_COMMAND=""
+#    ;;
+#  linux*)
+#    case $HOSTNAME in
+#        dst-* | bertha* | altus*)
+#            DROP_PAGECACHE_COMMAND="/home/perma/drop_buffer_cache "
+#            ;;
+#        *) # Expect other LC machines
+#            DROP_PAGECACHE_COMMAND="srun --drop-caches=pagecache true"
+#            ;;
+#    esac ;;
+#esac
 
 make_dir() {
     if [ ! -d "$1" ]; then
@@ -73,9 +64,11 @@ make_dir() {
     fi
 }
 
-LOG_FILE=""
-
 try_to_get_compiler_ver() {
+    echo "" | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
+    echo "Compiler information in" ${EXEC_NAME} | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
     strings $1 | grep "GCC" | tee -a ${LOG_FILE}
 }
 
@@ -109,11 +102,11 @@ run() {
     # Configure
     # ------------------------- #
     LOG_FILE=${LOG_FILE_PREFIX}"_"${EXEC_NAME}".log"
-    echo "" > ${LOG_FILE}
+    echo "" > ${LOG_FILE} # Reset the log file
 
-    DATASTORE_DIR=${DATASTORE_DIR_ROOT}/${EXEC_NAME}
-    make_dir ${DATASTORE_DIR}
-    rm -f "${DATASTORE_DIR}/*"
+    local datastore_dir=${DATASTORE_DIR_ROOT}/${EXEC_NAME}
+    make_dir ${datastore_dir}
+    rm -f "${datastore_dir}/*" # Erase old data if they exist
 
     # ------------------------- #
     # Start benchmark
@@ -125,28 +118,33 @@ run() {
     echo "Construction with" ${EXEC_NAME} | tee -a ${LOG_FILE}
     echo "----------------------------------------" | tee -a ${LOG_FILE}
 
-    ${INIT_COMMAND}
+#    ${DROP_PAGECACHE_COMMAND}
 
     if [[ $OSTYPE = "linux"* ]]; then
         free -g  | tee -a ${LOG_FILE}
     fi
 
-    exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
+    local exec_file_name="../adjacency_list/run_adj_list_bench_${EXEC_NAME}"
+
     try_to_get_compiler_ver ${exec_file_name}
-    DATASTORE_PATH=${DATASTORE_DIR}/${DATASTORE_NAME}
-    execute ${NUM_THREADS} ${SCHEDULE} ${UMAP_PAGESIZE} ${exec_file_name} -o ${DATASTORE_PATH} -f ${FILE_SIZE} -s ${SEED} -v ${V} -e ${E} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE} -V
 
-    ls -Rlsth ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
+    local datastore_path=${datastore_dir}/${DATASTORE_NAME}
+    local num_edges=$((2**$((${VERTEX_SCALE}+4))))
+    execute ${NUM_THREADS} ${SCHEDULE} ${UMAP_PAGESIZE} ${exec_file_name} -o ${datastore_path} -f ${FILE_SIZE} -s ${RND_SEED} -v ${VERTEX_SCALE} -e ${num_edges} -a ${A} -b ${B} -c ${C} -r 1 -u 1 -n ${CHUNK_SIZE} -V
 
-    df ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
-
-    du -h ${DATASTORE_DIR}"/" | tee -a ${LOG_FILE}
+    echo "" | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
+    echo "Datastore information" | tee -a ${LOG_FILE}
+    echo "----------------------------------------" | tee -a ${LOG_FILE}
+    ls -Rlsth ${datastore_dir}"/" | tee -a ${LOG_FILE}
+    df ${datastore_dir}"/" | tee -a ${LOG_FILE}
+    du -h ${datastore_dir}"/" | tee -a ${LOG_FILE}
 
     if ${NO_CLEANING_FILES_AT_END}; then
         echo "Do not delete the used directory"
     else
         echo "Delete the used directory"
-        rm -rf ${DATASTORE_DIR}
+        rm -rf ${datastore_dir}
     fi
 }
 
