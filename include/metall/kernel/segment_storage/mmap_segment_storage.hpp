@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_KERNEL_SEGMENT_STORAGE_MULTIFILE_SEGMENT_STORAGE_HPP
-#define METALL_KERNEL_SEGMENT_STORAGE_MULTIFILE_SEGMENT_STORAGE_HPP
+#ifndef METALL_KERNEL_SEGMENT_STORAGE_MMAP_SEGMENT_STORAGE_HPP
+#define METALL_KERNEL_SEGMENT_STORAGE_MMAP_SEGMENT_STORAGE_HPP
 
 #include <string>
 #include <iostream>
@@ -27,12 +27,12 @@ namespace util = metall::detail::utility;
 /// \brief Segment storage that uses multiple backing files
 /// The current implementation does not delete files even though that are empty
 template <typename different_type, typename size_type>
-class multifile_segment_storage {
+class mmap_segment_storage {
  public:
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  multifile_segment_storage()
+  mmap_segment_storage()
       : m_system_page_size(0),
         m_num_blocks(0),
         m_vm_region_size(0),
@@ -53,15 +53,15 @@ class multifile_segment_storage {
     priv_load_system_page_size();
   }
 
-  ~multifile_segment_storage() {
+  ~mmap_segment_storage() {
     sync(true);
     destroy();
   }
 
-  multifile_segment_storage(const multifile_segment_storage &) = delete;
-  multifile_segment_storage &operator=(const multifile_segment_storage &) = delete;
+  mmap_segment_storage(const mmap_segment_storage &) = delete;
+  mmap_segment_storage &operator=(const mmap_segment_storage &) = delete;
 
-  multifile_segment_storage(multifile_segment_storage &&other) noexcept:
+  mmap_segment_storage(mmap_segment_storage &&other) noexcept:
       m_system_page_size(other.m_system_page_size),
       m_num_blocks(other.m_num_blocks),
       m_vm_region_size(other.m_vm_region_size),
@@ -75,7 +75,7 @@ class multifile_segment_storage {
     other.priv_reset();
   }
 
-  multifile_segment_storage &operator=(multifile_segment_storage &&other) noexcept {
+  mmap_segment_storage &operator=(mmap_segment_storage &&other) noexcept {
     m_system_page_size = other.m_system_page_size;
     m_num_blocks = other.m_num_blocks;
     m_vm_region_size = other.m_vm_region_size;
@@ -647,5 +647,5 @@ class multifile_segment_storage {
 
 } // namespace kernel
 } // namespace metall
-#endif //METALL_KERNEL_SEGMENT_STORAGE_MULTIFILE_SEGMENT_STORAGE_HPP
+#endif //METALL_KERNEL_SEGMENT_STORAGE_MMAP_SEGMENT_STORAGE_HPP
 

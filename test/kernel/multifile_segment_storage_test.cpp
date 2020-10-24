@@ -5,11 +5,11 @@
 
 #include "gtest/gtest.h"
 
-#include <metall/kernel/segment_storage/multifile_segment_storage.hpp>
+#include <metall/kernel/segment_storage/mmap_segment_storage.hpp>
 #include "../test_utility.hpp"
 
 namespace {
-using segment_storage_type = metall::kernel::multifile_segment_storage<std::ptrdiff_t, std::size_t>;
+using segment_storage_type = metall::kernel::mmap_segment_storage<std::ptrdiff_t, std::size_t>;
 
 const std::string &test_dir() {
   const static std::string path(test_utility::make_test_dir_path("MultifileSegmentStorageTest"));
