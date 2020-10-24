@@ -294,6 +294,12 @@ inline void dump_adj_list(const adjacency_list_type &adj_list, const std::string
   std::cout << "Finished" << std::endl;
 };
 
+/// \brief Run Key-value insertion benchmark.
+/// \tparam adjacency_list_type A type of the adjacent-list type to use.
+/// \param options Benchmark options.
+/// \param closing_function A function that is called after each chunk is inserted.
+/// if '!closing_function' is true, it won't be called.
+/// \param adj_list A pointer to a adjacently list object.
 template <typename adjacency_list_type>
 void run_bench(const bench_options &options, closing_function_type closing_function, adjacency_list_type *adj_list) {
 
@@ -340,8 +346,13 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
   }
 }
 
+/// \brief Run Key-value insertion benchmark.
+/// \tparam adjacency_list_type A type of the adjacent-list type to use.
+/// \param options Benchmark options.
+/// \param adj_list A pointer to a adjacently list object.
 template <typename adjacency_list_type>
 void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
+  // Pass 'NULL' of closing_function_type so that it won't be called.
   run_bench(options, closing_function_type(), adj_list);
 }
 
