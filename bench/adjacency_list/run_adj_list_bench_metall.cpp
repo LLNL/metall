@@ -33,6 +33,8 @@ int main(int argc, char *argv[]) {
   }
 
   {
+    // metall::logger::set_log_level(metall::logger::level::verbose);
+
     metall::manager manager(metall::create_only, option.datastore_path_list[0].c_str());
     auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<>());
 

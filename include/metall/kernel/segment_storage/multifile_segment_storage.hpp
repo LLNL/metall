@@ -43,6 +43,13 @@ class multifile_segment_storage {
         m_free_file_space(true),
         m_block_map_info(),
         m_block_size(0) {
+#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC is defined");
+#endif
+#ifdef METALL_USE_PRIVATE_MAP_AND_PWRITE
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
+#endif
+
     priv_load_system_page_size();
   }
 
@@ -341,9 +348,9 @@ class multifile_segment_storage {
 
     const auto ret = (read_only) ?
                      util::map_file_read_mode(path, addr, file_size, 0, MAP_FIXED) :
-#if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+                     #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
                      util::map_file_write_private_mode(path, addr, file_size, 0, MAP_FIXED);
-#else
+                     #else
                      util::map_file_write_mode(path, addr, file_size, 0, MAP_FIXED | map_nosync);
 #endif
     if (ret.first == -1 || !ret.second) {
@@ -387,11 +394,13 @@ class multifile_segment_storage {
     }
 
 #if METALL_USE_PRIVATE_MAP_AND_MSYNC
+    logger::out(logger::level::info, __FILE__, __LINE__, "diff-msync for the application data segment");
     priv_parallel_diff_msync();
 #elif METALL_USE_PRIVATE_MAP_AND_PWRITE
-    //std::cout << "pwrite test" << std::endl;
+    logger::out(logger::level::info, __FILE__, __LINE__, "pwrite() for the application data segment");
     priv_parallel_write_block();
 #else
+    logger::out(logger::level::info, __FILE__, __LINE__, "msync() for the application data segment");
     if (!util::os_msync(m_segment, m_current_segment_size, sync)) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to msync the segment");
       return;
@@ -523,7 +532,8 @@ class multifile_segment_storage {
     const auto private_map = m_block_map_info[block_no].second;
 
     constexpr ssize_t max_write_size = (1ULL << 30ULL);
-    for (ssize_t total_written_size = 0; total_written_size < (ssize_t)m_block_size; total_written_size += max_write_size) {
+    for (ssize_t total_written_size = 0; total_written_size < (ssize_t)m_block_size;
+         total_written_size += max_write_size) {
       const auto write_size = std::min((ssize_t)max_write_size, (ssize_t)(m_block_size - total_written_size));
       const auto written_size = ::pwrite(fd, private_map, write_size, total_written_size);
       if (written_size == -1) {
@@ -613,6 +623,11 @@ class multifile_segment_storage {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to remove a file: " + file_path);
       return;
     }
+
+    logger::out(logger::level::info,
+                __FILE__,
+                __LINE__,
+                std::string("File free test result") + (m_free_file_space ? "Success" : "Failed"));
   }
 
   // -------------------------------------------------------------------------------- //
