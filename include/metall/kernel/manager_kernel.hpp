@@ -32,7 +32,7 @@
 #include <metall/logger.hpp>
 
 #ifdef METALL_USE_UMAP
-#include <metall/kernel/segment_storage/umap_segment_storage.hpp>
+#include <metall/kernel/segment_storage/umap_sparse_segment_storage.hpp>
 #else
 #include <metall/kernel/segment_storage/multifile_backed_segment_storage.hpp>
 #endif
@@ -94,7 +94,7 @@ class manager_kernel {
 
   using segment_storage_type =
 #ifdef METALL_USE_UMAP
-  umap_segment_storage<difference_type, size_type>;
+  umap_sparse_segment_storage<difference_type, size_type>;
 #else
   multifile_backed_segment_storage<difference_type, size_type>;
 #endif
