@@ -63,7 +63,7 @@ int main(int, char *argv[]) {
 
   int fd = -1;
   void *map_addr = nullptr;
-  std::tie(fd, map_addr) = map_file(file_path, map_size);
+  std::tie(fd, map_addr) = map_file_share(file_path, map_size);
   std::cout << "DRAM usage (GB)" << "\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
   std::cout << "DRAM cache usage (GB)" << "\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 

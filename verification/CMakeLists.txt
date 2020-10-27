@@ -1,5 +1,7 @@
 add_subdirectory(file_clone)
-#add_subdirectory(free_mmap_region)
+add_subdirectory(free_mmap_region)
 add_subdirectory(mmap)
 add_subdirectory(object_size)
 add_subdirectory(logger)
+add_subdirectory(soft_dirty)
+add_subdirectory(file_io)

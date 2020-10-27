@@ -106,9 +106,9 @@ inline bool fsync_recursive(const std::string &path) {
 #endif
 }
 
-inline bool extend_file_size_manually(const int fd, const ssize_t file_size) {
+inline bool extend_file_size_manually(const int fd, const off_t offset, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
-  for (off_t i = 0; i < file_size / 4096; ++i) {
+  for (off_t i = offset; i < file_size / 4096 + offset; ++i) {
     ::pwrite(fd, buffer, 4096, i * 4096);
   }
   const size_t remained_size = file_size % 4096;
@@ -117,42 +117,53 @@ inline bool extend_file_size_manually(const int fd, const ssize_t file_size) {
 
   delete[] buffer;
 
-  bool ret = true;
-  ret &= os_fsync(fd);
-  ret &= os_close(fd);
+  const bool ret = os_fsync(fd);
 
   return ret;
 }
 
-inline bool extend_file_size(const int fd, const size_t file_size) {
-  // -----  extend the file if its size is smaller than that of mapped area ----- //
-  struct stat statbuf;
-  if (::fstat(fd, &statbuf) == -1) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
-    return false;
-  }
-  if (::llabs(statbuf.st_size) < static_cast<ssize_t>(file_size)) {
-    if (::ftruncate(fd, file_size) == -1) {
-      logger::perror(logger::level::error, __FILE__, __LINE__, "ftruncate");
+inline bool extend_file_size(const int fd, const size_t file_size, const bool fill_with_zero) {
+
+  if (fill_with_zero) {
+#ifdef __APPLE__
+    if (!extend_file_size_manually(fd, 0, file_size)) {
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to extend file size manually, filling zero");
       return false;
+    }
+#else
+    if (::posix_fallocate(fd, 0, file_size) == -1) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "fallocate");
+      return false;
+    }
+#endif
+  } else {
+    // -----  extend the file if its size is smaller than that of mapped area ----- //
+    struct stat statbuf;
+    if (::fstat(fd, &statbuf) == -1) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
+      return false;
+    }
+    if (::llabs(statbuf.st_size) < static_cast<ssize_t>(file_size)) {
+      if (::ftruncate(fd, file_size) == -1) {
+        logger::perror(logger::level::error, __FILE__, __LINE__, "ftruncate");
+        return false;
+      }
     }
   }
 
-  bool ret = true;
-  ret &= os_fsync(fd);
-  ret &= os_close(fd);
-
+  const bool ret = os_fsync(fd);
   return ret;
 }
 
-inline bool extend_file_size(const std::string &file_name, const size_t file_size) {
+inline bool extend_file_size(const std::string &file_name, const size_t file_size, const bool fill_with_zero = false) {
   const int fd = ::open(file_name.c_str(), O_RDWR);
   if (fd == -1) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
   }
 
-  const bool ret = extend_file_size(fd, file_size);
+  bool ret = extend_file_size(fd, file_size, fill_with_zero);
+  ret &= os_close(fd);
 
   return ret;
 }

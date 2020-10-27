@@ -41,7 +41,6 @@ option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(LOGGING "Logging" OFF)
-set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
 set(DEFAULT_VM_RESERVE_SIZE "0" CACHE STRING
         "Set the default VM reserve size (use the internally defined value if 0 is specified)")
@@ -51,6 +50,10 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
         "Set the initial segment size (use the internally defined value if 0 is specified)")
 
 # ---------- Experimental options ---------- #
+option(USE_PRIVATE_MAP_AND_PWRITE "Use the private map segment storage and pwrite to sync data" OFF)
+option(USE_PRIVATE_MAP_AND_MSYNC "Use the private map segment storage and msync to sync data" OFF)
+set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
+
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
@@ -167,6 +170,28 @@ if (LOGGING)
     message(STATUS "Enable logging")
 endif()
 
+if (USE_PRIVATE_MAP_AND_MSYNC)
+    if (USE_PRIVATE_MAP_AND_MSYNC AND UMAP_ROOT)
+        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and UMAP_ROOT options cannot coexist")
+    endif()
+    if (USE_PRIVATE_MAP_AND_MSYNC AND USE_PRIVATE_MAP_AND_PWRITE)
+        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and USE_PRIVATE_MAP_AND_PWRITE options cannot coexist")
+    endif()
+    add_definitions(-DMETALL_USE_PRIVATE_MAP_AND_MSYNC)
+    message(STATUS "Use the private map segment storage")
+endif()
+
+if (USE_PRIVATE_MAP_AND_PWRITE)
+    if (USE_PRIVATE_MAP_AND_PWRITE AND UMAP_ROOT)
+        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_PWRITE and UMAP_ROOT options cannot coexist")
+    endif()
+    if (USE_PRIVATE_MAP_AND_MSYNC AND USE_PRIVATE_MAP_AND_PWRITE)
+        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and USE_PRIVATE_MAP_AND_PWRITE options cannot coexist")
+    endif()
+    add_definitions(-DMETALL_USE_PRIVATE_MAP_AND_PWRITE)
+    message(STATUS "Use the private map segment storage")
+endif()
+
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
 # -------------------------------------------------------------------------------- #
@@ -210,6 +235,12 @@ include_cxx_filesystem_library()
 
 # ---------- UMap ---------- #
 if (UMAP_ROOT)
+    if (USE_PRIVATE_MAP_AND_MSYNC AND UMAP_ROOT)
+        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and UMAP_ROOT options cannot coexist")
+    endif()
+    if (USE_PRIVATE_MAP_AND_PWRITE AND UMAP_ROOT)
+        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_PWRITE and UMAP_ROOT options cannot coexist")
+    endif()
     include_directories(${UMAP_ROOT}/include)
     if (UNIX AND NOT APPLE)
         find_library(LIBUMAP NAMES umap PATHS ${UMAP_ROOT}/lib)
