@@ -37,7 +37,7 @@ std::size_t get_page_size() {
   return (std::size_t)page_size;
 }
 
-std::pair<int, void *> map_file(const std::string &file_path, const std::size_t size) {
+std::pair<int, void *> map_file_share(const std::string &file_path, const std::size_t size) {
   const auto start = util::elapsed_time_sec();
 
   std::cout << "Map size: " << size << std::endl;
@@ -48,6 +48,28 @@ std::pair<int, void *> map_file(const std::string &file_path, const std::size_t 
   }
 
   const auto ret = util::map_file_write_mode(file_path, nullptr, size, 0, k_map_nosync);
+  if (ret.first == -1 || !ret.second) {
+    std::cerr << __LINE__ << " Failed mapping" << std::endl;
+    std::abort();
+  }
+
+  const auto elapsed_time = util::elapsed_time_sec(start);
+  std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
+
+  return ret;
+}
+
+std::pair<int, void *> map_file_private(const std::string &file_path, const std::size_t size) {
+  const auto start = util::elapsed_time_sec();
+
+  std::cout << "Map size: " << size << std::endl;
+
+  if (!util::create_file(file_path) || !util::extend_file_size(file_path, size)) {
+    std::cerr << __LINE__ << " Failed to initialize file: " << file_path << std::endl;
+    std::abort();
+  }
+
+  const auto ret = util::map_file_write_private_mode(file_path, nullptr, size, 0, k_map_nosync);
   if (ret.first == -1 || !ret.second) {
     std::cerr << __LINE__ << " Failed mapping" << std::endl;
     std::abort();
