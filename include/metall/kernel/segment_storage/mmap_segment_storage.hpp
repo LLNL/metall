@@ -638,10 +638,6 @@ class mmap_segment_storage {
       if (ret.first == -1) util::os_close(ret.first);
       return;
     }
-    if (!util::os_close(ret.first)) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to close file: " + file_path);
-      return;
-    }
 
     // Test freeing file space
     char *buf = static_cast<char *>(ret.second);
@@ -654,6 +650,11 @@ class mmap_segment_storage {
       m_free_file_space = true;
     } else {
       m_free_file_space = false;
+    }
+
+    if (!util::os_close(ret.first)) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to close file: " + file_path);
+      return;
     }
 
     // Closing
