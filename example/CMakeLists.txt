@@ -14,6 +14,8 @@ add_executable(snapshot snapshot)
 
 add_executable(csr_graph csr_graph)
 
+add_executable(fallback_allocator_adaptor fallback_allocator_adaptor)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(STATUS "Skip building the examples that use multi-level containers")
 else()

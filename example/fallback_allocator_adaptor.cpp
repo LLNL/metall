@@ -1,0 +1,38 @@
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
+// See the top-level COPYRIGHT file for details.
+//
+// SPDX-License-Identifier: (Apache-2.0 OR MIT)
+
+#include <iostream>
+
+#include <boost/container/vector.hpp>
+
+#include <metall/metall.hpp>
+#include <metall_utility/fallback_allocator_adaptor.hpp>
+
+// The line below is the only change required to use fallback_allocator_adaptor.
+using allocator_t = metall::utility::fallback_allocator_adaptor<metall::manager::allocator_type<int>>;
+using vector_t = boost::container::vector<int, allocator_t>;
+
+int main() {
+
+  // Allocation with Metall
+  // The codes below are the same for
+  // both 'fallback_allocator_adaptor<..>' and 'metall::manager::allocator_type<...>' cases.
+  {
+    metall::manager manager(metall::create_only, "/tmp/dir");
+    auto pvec = manager.construct<vector_t>("vec")(manager.get_allocator());
+    pvec->push_back(1);
+    std::cout << (*pvec)[0] << std::endl;
+  }
+
+  // Allocation w/o Metall
+  // This code causes a build error if fallback_allocator_adaptor is not used.
+  {
+    vector_t vec;
+    vec.push_back(2);
+    std::cout << vec[0] << std::endl;
+  }
+
+  return 0;
+}

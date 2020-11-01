@@ -5,3 +5,7 @@ gtest_discover_tests(concurrent_map_test)
 add_executable(stl_allocator_test stl_allocator_test.cpp)
 link_gtest_lib(stl_allocator_test)
 gtest_discover_tests(stl_allocator_test)
+
+add_executable(fallback_allocator_adaptor_test fallback_allocator_adaptor_test.cpp)
+link_gtest_lib(fallback_allocator_adaptor_test)
+gtest_discover_tests(fallback_allocator_adaptor_test)
