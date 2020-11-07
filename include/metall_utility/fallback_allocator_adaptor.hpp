@@ -14,15 +14,20 @@
 
 namespace metall::utility {
 
-/// \brief A STL compatible allocator which fallbacks to the default heap allocator (e.g., malloc)
+/// \brief A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc)
 /// if its constructor receives no argument.
+/// \tparam primary_alloc A primary allocator type, i.e., metall::stl_allocator.
+///
+/// \details
 /// Using this allocator, the following code will work:
+/// \code
 /// {
 ///  using alloc = fallback_allocator_adaptor<metall::manager::allocator_type<int>>;
 ///  vector<int, alloc> temp_vec; // Allocate an vector object temporarily in 'DRAM'.
 /// }
-/// \tparam primary_alloc A primary allocator type, i.e., metall::stl_allocator.
-/// \note The purpose of this allocator is providing a way to quickly integrate Metall into an application
+/// \endcode
+/// \attention
+/// The purpose of this allocator is providing a way to quickly integrate Metall into an application
 /// which wants to allocate 'metallized' classes temporarily in 'DRAM' occasionally.
 /// This allocator could cause difficult bugs to debug. Use this allocator with great care.
 template <typename primary_alloc>
@@ -59,6 +64,8 @@ class fallback_allocator_adaptor {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
+
+  /// \brief Default constructor which falls back on a heap allocator.
   fallback_allocator_adaptor() noexcept
       : m_primary_allocator(nullptr) {}
 
@@ -239,4 +246,8 @@ inline bool operator!=(const fallback_allocator_adaptor<primary_allocator_type> 
 }
 
 } // namespace metall::utility
+
+/// \example fallback_allocator_adaptor.cpp
+/// This is an example of how to use fallback_allocator_adaptor.
+
 #endif //METALL_UTILITY_FALLBACK_ALLOCATOR_ADAPTOR_HPP

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_UTILITY__FILE_HPP
-#define METALL_DETAIL_UTILITY__FILE_HPP
+#ifndef METALL_DETAIL_UTILITY_FILE_HPP
+#define METALL_DETAIL_UTILITY_FILE_HPP
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -358,4 +358,4 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 } // namespace utility
 } // namespace detail
 } // namespace metall
-#endif //METALL_DETAIL_UTILITY__FILE_HPP
+#endif //METALL_DETAIL_UTILITY_FILE_HPP

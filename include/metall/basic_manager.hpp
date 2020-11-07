@@ -312,42 +312,41 @@ class basic_manager {
     return m_kernel.snapshot(destination_dir_path);
   }
 
-  /// \brief Copies backing files synchronously.
+  /// \brief Copies data store synchronously.
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
-  /// \return If succeeded, returns True; other false.
+  /// \return If succeeded, returns true; other false.
   static bool copy(const char *source_dir_path, const char *destination_dir_path) {
     return manager_kernel_type::copy(source_dir_path, destination_dir_path);
   }
 
-  /// \brief Copies backing files asynchronously.
+  /// \brief Copies data store asynchronously.
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
   /// \return Returns an object of std::future.
-  /// If succeeded, its get() returns True; other false.
+  /// If succeeded, its get() returns true; other false.
   static auto copy_async(const char *source_dir_path, const char *destination_dir_path) {
     return manager_kernel_type::copy_async(source_dir_path, destination_dir_path);
   }
 
-  /// \brief Remove backing files synchronously.
+  /// \brief Remove data store synchronously.
   /// \param dir_path Path to a data store to remove.
-  /// \return If succeeded, returns True; other false.
+  /// \return If succeeded, returns true; other false.
   static bool remove(const char *dir_path) {
     return manager_kernel_type::remove(dir_path);
   }
 
-  /// \brief Remove backing files asynchronously.
+  /// \brief Remove data store asynchronously.
   /// \param dir_path Path to a data store to remove.
   /// \return Returns an object of std::future.
-  /// If succeeded, its get() returns True; other false
+  /// If succeeded, its get() returns true; other false
   static std::future<bool> remove_async(const char *dir_path) {
     return std::async(std::launch::async, remove, dir_path);
   }
 
-  /// \brief Check if the backing data store is consistent,
-  /// i.e. it was closed properly.
+  /// \brief Check if the backing data store exists and is consistent (i.e., it was closed properly in the previous run).
   /// \param dir_path Path to a data store.
-  /// \return Return true if it is consistent; otherwise, returns false.
+  /// \return Returns true if it exists and is consistent; otherwise, returns false.
   static bool consistent(const char *dir_path) {
     return manager_kernel_type::consistent(dir_path);
   }

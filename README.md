@@ -36,7 +36,7 @@ Metall is available at:
 [https://github.com/LLNL/metall](https://github.com/LLNL/metall).
 
 All core files exist under
-[metall/include/metall/](https://github.com/LLNL/metall/tree/develop/include/metall).
+[metall/include/metall/](https://github.com/LLNL/metall/tree/master/include/metall).
 
 To build your program with Metall, all you have to do is just setting
 include paths such as '-I' or CPLUS_INCLUDE_PATH.

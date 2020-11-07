@@ -9,9 +9,12 @@
 #define METALL_VERSION_HPP
 
 /// \brief Metall version.
-///  METALL_VERSION % 100 is the patch level.
-///  METALL_VERSION / 100 % 1000 is the minor version.
-///  METALL_VERSION / 100000 is the major version.
+/// \details
+/// \code
+///  METALL_VERSION / 100000 // the major version.
+///  METALL_VERSION / 100 % 1000 // the minor version.
+///  METALL_VERSION % 100 // the patch level.
+/// \endcode
 #define METALL_VERSION 000500
 
 #endif //METALL_VERSION_HPP

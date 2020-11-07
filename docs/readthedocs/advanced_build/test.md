@@ -29,7 +29,7 @@ env METALL_TEST_DIR="/mnt/ssd/" make test
 
 ## Manual Test
 There is another test program in Metall's repository.  
-The test program uses [Adjacency List Benchmark](https://github.com/LLNL/metall/tree/develop/bench/adjacency_list/).
+The test program uses [Adjacency List Benchmark](https://github.com/LLNL/metall/tree/master/bench/adjacency_list/).
 One program creates a graph data and another program opens it.
 This test is useful to make sure that Metall can store data persistently.
 
