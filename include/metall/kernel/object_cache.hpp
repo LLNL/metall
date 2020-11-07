@@ -14,7 +14,7 @@
 #include <boost/container/vector.hpp>
 #include <metall/kernel/bin_directory.hpp>
 #include <metall/detail/utility/proc.hpp>
-#include <metall_utility/hash.hpp>
+#include <metall/detail/utility/hash.hpp>
 #define ENABLE_MUTEX_IN_METALL_OBJECT_CACHE 1
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
 #include <metall/detail/utility/mutex.hpp>
@@ -174,9 +174,9 @@ class object_cache {
 #if SUPPORT_GET_CPU_CORE_NO
     thread_local static const auto sub_cache_no = std::hash<std::thread::id>{}(std::this_thread::get_id()) % k_num_cache_per_core;
     const unsigned int core_num = get_core_no();
-    return metall::utility::hash<unsigned int>{}(core_num * k_num_cache_per_core + sub_cache_no) % m_cache_table.size();
+    return metall::detail::utility::hash<unsigned int>{}(core_num * k_num_cache_per_core + sub_cache_no) % m_cache_table.size();
 #else
-    thread_local static const auto hashed_thread_id = metall::utility::hash<unsigned int>{}(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+    thread_local static const auto hashed_thread_id = metall::detail::utility::hash<unsigned int>{}(std::hash<std::thread::id>{}(std::this_thread::get_id()));
     return hashed_thread_id % m_cache_table.size();
 #endif
   }
