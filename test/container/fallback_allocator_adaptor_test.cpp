@@ -11,67 +11,68 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include <metall/metall.hpp>
+#include <metall_utility/fallback_allocator_adaptor.hpp>
 #include "../test_utility.hpp"
 
 template <typename T>
-using alloc_type = metall::manager::allocator_type<T>;
+using fb_alloc_type = metall::utility::fallback_allocator_adaptor<metall::manager::allocator_type<T>>;
 
 const std::string &dir_path() {
-  const static std::string path(test_utility::make_test_dir_path("StlAllocatorTest"));
+  const static std::string path(test_utility::make_test_dir_path("FallbackAllocatorAdaptorTest"));
   return path;
 }
 
-TEST(StlAllocatorTest, Types) {
+TEST(FallbackAllocatorAdaptorTest, Types) {
 
   {
     using T = std::byte;
-    using alloc_t = alloc_type<T>;
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::allocator_type), typeid(alloc_t));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::allocator_type), typeid(fb_alloc_type<T>));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::value_type), typeid(T));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::value_type), typeid(T));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::pointer), typeid(alloc_t::pointer));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::pointer), typeid(metall::offset_ptr<T>));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::pointer), typeid(fb_alloc_type<T>::pointer));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::pointer), typeid(metall::offset_ptr<T>));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::const_pointer), typeid(alloc_t::const_pointer));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::const_pointer), typeid(metall::offset_ptr<const T>));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::const_pointer), typeid(fb_alloc_type<T>::const_pointer));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::const_pointer), typeid(metall::offset_ptr<const T>));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::void_pointer), typeid(alloc_t::void_pointer));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::void_pointer), typeid(metall::offset_ptr<void>));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::void_pointer), typeid(fb_alloc_type<T>::void_pointer));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::void_pointer), typeid(metall::offset_ptr<void>));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::const_void_pointer),
-                    typeid(alloc_t::const_void_pointer));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::const_void_pointer),
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::const_void_pointer),
+                    typeid(fb_alloc_type<T>::const_void_pointer));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::const_void_pointer),
                     typeid(metall::offset_ptr<const void>));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::difference_type),
-                    typeid(alloc_t::difference_type));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::difference_type),
+                    typeid(fb_alloc_type<T>::difference_type));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::size_type), typeid(alloc_t::size_type));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::size_type), typeid(fb_alloc_type<T>::size_type));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_copy_assignment),
-                    typeid(alloc_t::propagate_on_container_copy_assignment));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_copy_assignment),
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::propagate_on_container_copy_assignment),
+                    typeid(fb_alloc_type<T>::propagate_on_container_copy_assignment));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::propagate_on_container_copy_assignment),
                     typeid(std::true_type));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_move_assignment),
-                    typeid(alloc_t::propagate_on_container_move_assignment));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_move_assignment),
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::propagate_on_container_move_assignment),
+                    typeid(fb_alloc_type<T>::propagate_on_container_move_assignment));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::propagate_on_container_move_assignment),
                     typeid(std::true_type));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_swap),
-                    typeid(alloc_t::propagate_on_container_swap));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_swap), typeid(std::true_type));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::propagate_on_container_swap),
+                    typeid(fb_alloc_type<T>::propagate_on_container_swap));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::propagate_on_container_swap), typeid(std::true_type));
 
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::is_always_equal),
-                    typeid(alloc_t::is_always_equal));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::is_always_equal), typeid(std::false_type));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::is_always_equal),
+                    typeid(fb_alloc_type<T>::is_always_equal));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::is_always_equal), typeid(std::false_type));
 
     using otherT = int;
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::rebind_alloc<otherT>), typeid(alloc_type<otherT>));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::rebind_traits<otherT>),
-                    typeid(std::allocator_traits<alloc_type<otherT>>));
+    using other_alloc_t = fb_alloc_type<otherT>;
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::rebind_alloc<otherT>), typeid(other_alloc_t));
+    GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::rebind_traits<otherT>),
+                    typeid(std::allocator_traits<other_alloc_t>));
 
   }
 
@@ -81,10 +82,9 @@ TEST(StlAllocatorTest, Types) {
       int a;
       double b;
     };
-    using alloc_t = alloc_type<T>;
 
-    metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 24UL);
-    alloc_t alloc = manager.get_allocator<T>();
+    using alloc_t = fb_alloc_type<T>;
+    alloc_t alloc = alloc_t();
 
     {
       auto p = std::allocator_traits<alloc_t>::allocate(alloc, 1);
@@ -107,32 +107,23 @@ TEST(StlAllocatorTest, Types) {
   }
 }
 
-TEST(StlAllocatorTest, Exception) {
-  metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 24UL);
-
-  alloc_type<int> allocator = manager.get_allocator<int>();
+TEST(FallbackAllocatorAdaptorTest, Exception) {
+  fb_alloc_type<int> allocator;
 
   ASSERT_NO_THROW({
                     allocator.deallocate(allocator.allocate(1), 1);
                   });
-
-  // TODO: return std::bad_alloc
-  //  ASSERT_THROW({
-  //                 allocator.allocate(1UL << 24UL);
-  //               }, std::bad_alloc);
 
   ASSERT_THROW({
                  allocator.allocate(allocator.max_size() + 1);
                }, std::bad_array_new_length);
 }
 
-TEST(StlAllocatorTest, Container) {
+TEST(FallbackAllocatorAdaptorTest, Container) {
   {
-    metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 27UL);
     using element_type = std::pair<uint64_t, uint64_t>;
 
-    boost::interprocess::vector<element_type, alloc_type<element_type>>
-        vector(manager.get_allocator<>());
+    boost::interprocess::vector<element_type, fb_alloc_type<element_type>> vector;
     for (uint64_t i = 0; i < 1024; ++i) {
       vector.emplace_back(element_type(i, i * 2));
     }
@@ -142,20 +133,20 @@ TEST(StlAllocatorTest, Container) {
   }
 }
 
-TEST(StlAllocatorTest, NestedContainer) {
+TEST(FallbackAllocatorAdaptorTest, NestedContainer) {
   using element_type = uint64_t;
-  using vector_type = boost::interprocess::vector<element_type, alloc_type<element_type>>;
+
+  using vector_type = boost::interprocess::vector<element_type, fb_alloc_type<element_type>>;
+  using map_alloc_type = boost::container::scoped_allocator_adaptor<fb_alloc_type<std::pair<const element_type,
+                                                                                            vector_type>>>;
   using map_type = boost::unordered_map<element_type, // Key
                                         vector_type, // Value
                                         std::hash<element_type>, // Hash function
                                         std::equal_to<>, // Equal function
-                                        boost::container::scoped_allocator_adaptor<alloc_type<std::pair<const element_type,
-                                                                                                        vector_type>>>>;
+                                        map_alloc_type>;
 
   {
-    metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 27UL);
-
-    map_type map(manager.get_allocator<>());
+    map_type map;
     for (uint64_t i = 0; i < 1024; ++i) {
 #ifdef __clang__
       if (map.count(i % 8) == 0)
@@ -172,9 +163,9 @@ TEST(StlAllocatorTest, NestedContainer) {
   }
 }
 
-TEST(StlAllocatorTest, PersistentConstructFind) {
+TEST(FallbackAllocatorAdaptorTest, PersistentConstructFind) {
   using element_type = uint64_t;
-  using vector_type = boost::interprocess::vector<element_type, alloc_type<element_type>>;
+  using vector_type = boost::interprocess::vector<element_type, fb_alloc_type<element_type>>;
 
   {
     metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 27UL);
@@ -214,9 +205,9 @@ TEST(StlAllocatorTest, PersistentConstructFind) {
   }
 }
 
-TEST(StlAllocatorTest, PersistentConstructOrFind) {
+TEST(FallbackAllocatorAdaptorTest, PersistentConstructOrFind) {
   using element_type = uint64_t;
-  using vector_type = boost::interprocess::vector<element_type, alloc_type<element_type>>;
+  using vector_type = boost::interprocess::vector<element_type, fb_alloc_type<element_type>>;
 
   {
     metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 27UL);
@@ -249,15 +240,16 @@ TEST(StlAllocatorTest, PersistentConstructOrFind) {
   }
 }
 
-TEST(StlAllocatorTest, PersistentNestedContainer) {
+TEST(FallbackAllocatorAdaptorTest, PersistentNestedContainer) {
   using element_type = uint64_t;
-  using vector_type = boost::interprocess::vector<element_type, alloc_type<element_type>>;
+  using vector_type = boost::interprocess::vector<element_type, fb_alloc_type<element_type>>;
+  using map_alloc_type = boost::container::scoped_allocator_adaptor<fb_alloc_type<std::pair<const element_type,
+                                                                                            vector_type>>>;
   using map_type = boost::unordered_map<element_type, // Key
                                         vector_type, // Value
                                         std::hash<element_type>, // Hash function
                                         std::equal_to<element_type>, // Equal function
-                                        boost::container::scoped_allocator_adaptor<alloc_type<std::pair<const element_type,
-                                                                                                        vector_type>>>>;
+                                        map_alloc_type>;
 
   {
     metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 27UL);
