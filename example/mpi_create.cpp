@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
   ::MPI_Init(&argc, &argv);
   {
     // mpi_adaptor with the create mode fails if the directory exists.
+    // This remove function fails if directory exists and created by a different number of MPI ranks.
     metall::utility::metall_mpi_adaptor::remove("/tmp/metall_mpi");
 
     metall::utility::metall_mpi_adaptor mpi_adaptor(metall::create_only, "/tmp/metall_mpi");
