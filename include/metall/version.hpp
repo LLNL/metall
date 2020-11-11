@@ -15,6 +15,6 @@
 ///  METALL_VERSION / 100 % 1000 // the minor version.
 ///  METALL_VERSION % 100 // the patch level.
 /// \endcode
-#define METALL_VERSION 000500
+#define METALL_VERSION 000600
 
 #endif //METALL_VERSION_HPP
