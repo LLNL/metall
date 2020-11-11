@@ -4,7 +4,7 @@ Metall consists of only header files and requires some header files in Boost C++
 
 Metall is available at: <https://github.com/LLNL/metall>.
 
-All core files exist under [metall/include/metall/](https://github.com/LLNL/metall/tree/develop/include/metall).
+All core files exist under [metall/include/metall/](https://github.com/LLNL/metall/tree/master/include/metall).
 
 To build your program with Metall,
 all you have to do is just setting include paths such as '-I' or CPLUS_INCLUDE_PATH.

@@ -294,8 +294,17 @@ inline void dump_adj_list(const adjacency_list_type &adj_list, const std::string
   std::cout << "Finished" << std::endl;
 };
 
+/// \brief Run Key-value insertion benchmark.
+/// \tparam adjacency_list_type A type of the adjacent-list type to use.
+/// \param options Benchmark options.
+/// \param closing_function A function that is called after each chunk is inserted.
+/// if '!closing_function' is true, it won't be called.
+/// \param adj_list A pointer to a adjacently list object.
 template <typename adjacency_list_type>
 void run_bench(const bench_options &options, closing_function_type closing_function, adjacency_list_type *adj_list) {
+
+  std::cout << "Start key-value data ingestion" << std::endl;
+  print_omp_configuration();
 
   std::ofstream ofs_save_edge;
   if (!options.edge_list_dump_file_name.empty()) {
@@ -309,7 +318,7 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
 
   double elapsed_time_sec;
   if (options.input_file_name_list.empty()) {
-    std::cout << "Get inputs from an R-MAT edge generator" << std::endl;
+    std::cout << "Get inputs from an R-MAT edge generator (graph data)" << std::endl;
     elapsed_time_sec = run_bench_rmat_edge(options.rmat,
                                            options.chunk_size,
                                            closing_function,
@@ -325,7 +334,7 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
                                          &ofs_save_edge,
                                          options.verbose);
   }
-  std::cout << "\nFinished adj_list (s)\t" << elapsed_time_sec << std::endl;
+  std::cout << "\nIngesting all data took (s)\t" << elapsed_time_sec << std::endl;
 
   if (ofs_save_edge.is_open()) {
     ofs_save_edge.close();
@@ -340,8 +349,13 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
   }
 }
 
+/// \brief Run Key-value insertion benchmark.
+/// \tparam adjacency_list_type A type of the adjacent-list type to use.
+/// \param options Benchmark options.
+/// \param adj_list A pointer to a adjacently list object.
 template <typename adjacency_list_type>
 void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
+  // Pass 'NULL' of closing_function_type so that it won't be called.
   run_bench(options, closing_function_type(), adj_list);
 }
 

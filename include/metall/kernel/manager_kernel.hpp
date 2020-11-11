@@ -32,9 +32,9 @@
 #include <metall/logger.hpp>
 
 #ifdef METALL_USE_UMAP
-#include <metall/kernel/segment_storage/umap_segment_storage.hpp>
+#include <metall/kernel/segment_storage/umap_sparse_segment_storage.hpp>
 #else
-#include <metall/kernel/segment_storage/multifile_backed_segment_storage.hpp>
+#include <metall/kernel/segment_storage/mmap_segment_storage.hpp>
 #endif
 
 #define ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL 1
@@ -94,9 +94,9 @@ class manager_kernel {
 
   using segment_storage_type =
 #ifdef METALL_USE_UMAP
-  umap_segment_storage<difference_type, size_type>;
+  umap_sparse_segment_storage<difference_type, size_type>;
 #else
-  multifile_backed_segment_storage<difference_type, size_type>;
+  mmap_segment_storage<difference_type, size_type>;
 #endif
 
   static constexpr const char *k_uuid_file_name = "uuid";

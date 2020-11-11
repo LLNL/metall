@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
     // The line below should print out:
     // "Rank x opened value x"
-    // where x is a number
+    // , where x is a number
     std::cout << "Rank " << rank << " opened value " << *stored_rank << std::endl;
   }
   ::MPI_Finalize();

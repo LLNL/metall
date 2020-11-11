@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_UTILITY__FILE_HPP
-#define METALL_DETAIL_UTILITY__FILE_HPP
+#ifndef METALL_DETAIL_UTILITY_FILE_HPP
+#define METALL_DETAIL_UTILITY_FILE_HPP
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -106,9 +106,9 @@ inline bool fsync_recursive(const std::string &path) {
 #endif
 }
 
-inline bool extend_file_size_manually(const int fd, const ssize_t file_size) {
+inline bool extend_file_size_manually(const int fd, const off_t offset, const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
-  for (off_t i = 0; i < file_size / 4096; ++i) {
+  for (off_t i = offset; i < file_size / 4096 + offset; ++i) {
     ::pwrite(fd, buffer, 4096, i * 4096);
   }
   const size_t remained_size = file_size % 4096;
@@ -117,42 +117,53 @@ inline bool extend_file_size_manually(const int fd, const ssize_t file_size) {
 
   delete[] buffer;
 
-  bool ret = true;
-  ret &= os_fsync(fd);
-  ret &= os_close(fd);
+  const bool ret = os_fsync(fd);
 
   return ret;
 }
 
-inline bool extend_file_size(const int fd, const size_t file_size) {
-  // -----  extend the file if its size is smaller than that of mapped area ----- //
-  struct stat statbuf;
-  if (::fstat(fd, &statbuf) == -1) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
-    return false;
-  }
-  if (::llabs(statbuf.st_size) < static_cast<ssize_t>(file_size)) {
-    if (::ftruncate(fd, file_size) == -1) {
-      logger::perror(logger::level::error, __FILE__, __LINE__, "ftruncate");
+inline bool extend_file_size(const int fd, const size_t file_size, const bool fill_with_zero) {
+
+  if (fill_with_zero) {
+#ifdef __APPLE__
+    if (!extend_file_size_manually(fd, 0, file_size)) {
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to extend file size manually, filling zero");
       return false;
+    }
+#else
+    if (::posix_fallocate(fd, 0, file_size) == -1) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "fallocate");
+      return false;
+    }
+#endif
+  } else {
+    // -----  extend the file if its size is smaller than that of mapped area ----- //
+    struct stat statbuf;
+    if (::fstat(fd, &statbuf) == -1) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
+      return false;
+    }
+    if (::llabs(statbuf.st_size) < static_cast<ssize_t>(file_size)) {
+      if (::ftruncate(fd, file_size) == -1) {
+        logger::perror(logger::level::error, __FILE__, __LINE__, "ftruncate");
+        return false;
+      }
     }
   }
 
-  bool ret = true;
-  ret &= os_fsync(fd);
-  ret &= os_close(fd);
-
+  const bool ret = os_fsync(fd);
   return ret;
 }
 
-inline bool extend_file_size(const std::string &file_name, const size_t file_size) {
+inline bool extend_file_size(const std::string &file_name, const size_t file_size, const bool fill_with_zero = false) {
   const int fd = ::open(file_name.c_str(), O_RDWR);
   if (fd == -1) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
   }
 
-  const bool ret = extend_file_size(fd, file_size);
+  bool ret = extend_file_size(fd, file_size, fill_with_zero);
+  ret &= os_close(fd);
 
   return ret;
 }
@@ -175,11 +186,13 @@ inline bool create_file(const std::string &file_name) {
 inline bool create_directory(const std::string &dir_path) {
   bool success = true;
   try {
-    if (!fs::create_directories(dir_path)) {
+    std::error_code ec;
+    if (!fs::create_directories(dir_path, ec)) {
+      logger::out(logger::level::error, __FILE__, __LINE__, ec.message());
       success = false;
     }
   } catch (fs::filesystem_error &e) {
-    logger::out(logger::level::info, __FILE__, __LINE__, e.what());
+    logger::out(logger::level::error, __FILE__, __LINE__, e.what());
     success = false;
   }
   return success;
@@ -219,8 +232,7 @@ inline ssize_t get_actual_file_size(const std::string &file_name) {
 
 /// \brief Check if a file, any kinds of file including directory, exists
 inline bool file_exist(const std::string &file_name) {
-  struct stat statbuf;
-  return (::stat(file_name.c_str(), &statbuf) == 0);
+  return (::access(file_name.c_str(), F_OK) == 0);
 }
 
 /// \brief Check if a directory exists
@@ -347,4 +359,4 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 } // namespace utility
 } // namespace detail
 } // namespace metall
-#endif //METALL_DETAIL_UTILITY__FILE_HPP
+#endif //METALL_DETAIL_UTILITY_FILE_HPP

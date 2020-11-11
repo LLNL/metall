@@ -39,48 +39,60 @@ void check_macros() {
 #endif
 }
 
-void setup_file(const std::string &file_name, const std::size_t file_size) {
+void free_file_backed_mmap(const std::string &file_name, const std::size_t file_size,
+                           const std::function<std::pair<int, void *>(const std::string &file_name,
+                                                                      const long unsigned int size)> &map_file,
+                           const std::function<void(void *const addr, const long unsigned int size)> &uncommit_function) {
+  std::cout << "\n----- Map file -----" << std::endl;
   int fd = -1;
   void *addr = nullptr;
   std::tie(fd, addr) = map_file(file_name, file_size);
   close_file(fd);
+  std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 
-  // Commit only half pages
+  // Commit pages
+  std::cout << "\n----- Commit Pages -----" << std::endl;
   char *const map = reinterpret_cast<char *>(addr);
   const auto page_size = get_page_size();
   for (uint64_t i = 0; i < file_size; i += page_size) {
     map[i] = 1;
   }
+  std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 
-  std::cout << "\nmunmap" << std::endl;
-  unmap(addr, file_size);
-
-  std::cout << "Expected file size\t" << file_size
-            << "\nThe current file size\t" << util::get_actual_file_size(file_name) << std::endl;
-}
-
-void free_file_backed_mmap(const std::string &file_name, const std::size_t file_size,
-                           const std::function<void(const std::size_t size, void *const addr)> &free_function) {
-  int fd = -1;
-  void *addr = nullptr;
-  std::tie(fd, addr) = map_file(file_name, file_size);
-  close_file(fd);
-
-  const auto page_size = get_page_size();
+  std::cout << "\n----- Uncommit pages -----" << std::endl;
   for (std::size_t offset = 0; offset < file_size; offset += page_size) {
-    free_function(page_size, static_cast<char *>(addr) + offset);
+    uncommit_function(static_cast<char *>(addr) + offset, page_size);
   }
   std::cout << "The current file size\t" << util::get_actual_file_size(file_name) << std::endl;
+  std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 
-  std::cout << "\nmunmap" << std::endl;
+  std::cout << "\n----- munmap -----" << std::endl;
   unmap(addr, file_size);
 
   std::cout << "The current file size\t" << util::get_actual_file_size(file_name) << std::endl;
+  std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 }
 
 int main() {
-  const auto page_size = get_page_size();
-  const std::size_t file_size = page_size * 1024ULL;
+  check_macros();
 
-  setup_file("", file_size);
+  std::string file_name = "/tmp/file";
+  const auto page_size = get_page_size();
+  const std::size_t file_size = page_size * 1024ULL * 512;
+
+  std::cout << "\n------------------------------" << std::endl;
+  std::cout << "\nMap Shared" << std::endl;
+  std::cout << "\n------------------------------" << std::endl;
+  free_file_backed_mmap(file_name, file_size, map_file_share, metall::detail::utility::uncommit_file_backed_pages);
+
+  std::cout << "\n------------------------------" << std::endl;
+  std::cout << "\nMap Private" << std::endl;
+  std::cout << "\n------------------------------" << std::endl;
+  free_file_backed_mmap(file_name, file_size, map_file_private, metall::detail::utility::uncommit_private_pages);
+
+  return 0;
 }
