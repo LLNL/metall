@@ -186,11 +186,13 @@ inline bool create_file(const std::string &file_name) {
 inline bool create_directory(const std::string &dir_path) {
   bool success = true;
   try {
-    if (!fs::create_directories(dir_path)) {
+    std::error_code ec;
+    if (!fs::create_directories(dir_path, ec)) {
+      logger::out(logger::level::error, __FILE__, __LINE__, ec.message());
       success = false;
     }
   } catch (fs::filesystem_error &e) {
-    logger::out(logger::level::info, __FILE__, __LINE__, e.what());
+    logger::out(logger::level::error, __FILE__, __LINE__, e.what());
     success = false;
   }
   return success;
@@ -230,8 +232,7 @@ inline ssize_t get_actual_file_size(const std::string &file_name) {
 
 /// \brief Check if a file, any kinds of file including directory, exists
 inline bool file_exist(const std::string &file_name) {
-  struct stat statbuf;
-  return (::stat(file_name.c_str(), &statbuf) == 0);
+  return (::access(file_name.c_str(), F_OK) == 0);
 }
 
 /// \brief Check if a directory exists
