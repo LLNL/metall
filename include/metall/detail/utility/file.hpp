@@ -224,7 +224,7 @@ inline ssize_t get_file_size(const std::string &file_name) {
 inline ssize_t get_actual_file_size(const std::string &file_name) {
   struct stat statbuf;
   if (::stat(file_name.c_str(), &statbuf) != 0) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "stat");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "stat (" + file_name + ")");
     return -1;
   }
   return statbuf.st_blocks * 512LL;

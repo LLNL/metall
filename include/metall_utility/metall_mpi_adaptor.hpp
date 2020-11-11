@@ -233,7 +233,6 @@ class metall_mpi_adaptor {
                     "Root directory already exists: " + root_dir_path);
         ::MPI_Abort(comm, -1);
       } else {
-        logger::perror(logger::level::verbose, __FILE__, __LINE__, "fstat");
 
         std::stringstream ss;
         ss << "Rank " << priv_mpi_comm_rank(comm) << " is creating a root directory: " << root_dir_path;
