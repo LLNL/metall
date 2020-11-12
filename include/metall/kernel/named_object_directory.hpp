@@ -31,10 +31,20 @@ namespace util = metall::detail::utility;
 namespace json = metall::detail::utility::ptree;
 }
 
-/// \brief Directory for namaed objects.
-/// \tparam offset_type
-template <typename _offset_type, typename _size_type, typename allocator_type>
+/// \brief Directory for named objects.
+/// \tparam _offset_type
+/// \tparam _size_type
+/// \tparam _allocator_type
+template <typename _offset_type, typename _size_type, typename _allocator_type = std::allocator<std::byte>>
 class named_object_directory {
+  // JSON structure
+  // {
+  // "named_objects" : [
+  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "attribute" : ""},
+  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "attribute" : ""}
+  // ]
+  // }
+
  public:
   // -------------------------------------------------------------------------------- //
   // Public types and static values
@@ -44,46 +54,28 @@ class named_object_directory {
   using offset_type = _offset_type;
   using length_type = size_type;
   using attribute_type = std::string;
+  using allocator_type = _allocator_type;
+
+  using mapped_type = std::tuple<name_type, offset_type, length_type, attribute_type>;
+  using key_string_type = name_type;
+  using value_type = std::pair<const key_string_type, mapped_type>;
 
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  enum items {
-    name = 0,
-    offset = 1,
-    length = 2,
-    attribute = 3
-  };
-
-  struct json_key {
-    static constexpr const char *named_objects = "named_objects";
-    static constexpr const char *name = "name";
-    static constexpr const char *offset = "offset";
-    static constexpr const char *length = "length";
-    static constexpr const char *attribute = "attribute";
-  };
-
-  // JSON structure
-  // {
-  // "named_objects" : [
-  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "attribute" : ""},
-  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "attribute" : ""}
-  // ]
-  // }
-
-  using mapped_type = std::tuple<name_type, offset_type, length_type, attribute_type>;
-  using key_string_type = name_type;
-  using value_type = std::pair<const key_string_type, mapped_type>;
   using table_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<value_type>;
   using table_type = boost::unordered_map<key_string_type,
                                           mapped_type,
-                                          util::string_hash < key_string_type>,
-  std::equal_to<key_string_type>,
-  table_allocator_type>;
-  using const_iterator = typename table_type::const_iterator;
+                                          util::string_hash<key_string_type>,
+                                          std::equal_to<key_string_type>,
+                                          table_allocator_type>;
 
  public:
+  // -------------------------------------------------------------------------------- //
+  // Public types and static values
+  // -------------------------------------------------------------------------------- //
+  using const_iterator = typename table_type::const_iterator;
 
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
@@ -129,6 +121,9 @@ class named_object_directory {
     return m_table.find(name);
   }
 
+  /// \brief
+  /// \param name
+  /// \return
   size_type count(const name_type &name) const {
     return m_table.count(name);
   }
@@ -143,6 +138,31 @@ class named_object_directory {
   /// \return
   const_iterator end() const {
     return m_table.end();
+  }
+
+  /// \brief
+  /// \param name
+  /// \param buf
+  /// \return
+  bool get_attribute(const name_type &name, attribute_type* buf) const {
+    auto itr = find(name);
+    if (itr == end()) return false;
+
+    *buf = std::get<items::attribute>(itr->second);
+    return true;
+  }
+
+  /// \brief
+  /// \param name
+  /// \param attribute
+  /// \return
+  bool set_attribute(const name_type &name, const attribute_type& attribute) {
+    auto itr = m_table.find(name);
+    if (itr == end()) return false;
+
+    std::get<items::attribute>(itr->second) = attribute;
+
+    return true;
   }
 
   /// \brief
@@ -225,6 +245,20 @@ class named_object_directory {
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
+  enum items {
+    name = 0,
+    offset = 1,
+    length = 2,
+    attribute = 3
+  };
+
+  struct json_key {
+    static constexpr const char *named_objects = "named_objects";
+    static constexpr const char *name = "name";
+    static constexpr const char *offset = "offset";
+    static constexpr const char *length = "length";
+    static constexpr const char *attribute = "attribute";
+  };
 
   // -------------------------------------------------------------------------------- //
   // Private methods
