@@ -104,14 +104,14 @@ TEST(ChunkDirectoryTest, Serialize) {
   directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
   directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
 
-  ASSERT_TRUE(test_utility::create_test_dir());
-  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  test_utility::create_test_dir();
+  const auto file(test_utility::make_test_path());
   ASSERT_TRUE(directory.serialize(file.c_str()));
 }
 
 TEST(ChunkDirectoryTest, Deserialize) {
   ASSERT_TRUE(test_utility::create_test_dir());
-  const auto file(test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  const auto file(test_utility::make_test_path());
 
   {
     std::allocator<char> allocator;
