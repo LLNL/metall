@@ -57,6 +57,30 @@ TEST(NambedObjectDirectoryTest, Count) {
   ASSERT_EQ(obj.count("item2"), 1);
 }
 
+TEST(NambedObjectDirectoryTest, Attribute) {
+  directory_type obj;
+
+  directory_type::attribute_type buf;
+
+  // Operations should fails for non-existing name
+  ASSERT_FALSE(obj.get_attribute("item1", &buf));
+  ASSERT_FALSE(obj.set_attribute("item1", buf));
+
+  // Check empty attribute
+  obj.insert("item1", 1, 1);
+  ASSERT_TRUE(obj.get_attribute("item1", &buf));
+  ASSERT_TRUE(buf.empty());
+
+  // Set an attribute
+  buf = "Attribute1";
+  ASSERT_TRUE(obj.set_attribute("item1", buf));
+
+  // Get an attribute
+  directory_type::attribute_type buf2;
+  ASSERT_TRUE(obj.get_attribute("item1", &buf2));
+  ASSERT_EQ(buf, buf2);
+}
+
 TEST(NambedObjectDirectoryTest, Erase) {
   directory_type obj;
 
