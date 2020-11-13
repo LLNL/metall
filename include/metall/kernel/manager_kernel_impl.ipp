@@ -530,8 +530,8 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
 
   if (!priv_check_version(m_manager_metadata)) {
     std::stringstream ss;
-    ss << "Invalid version — it was created by Metall v" << priv_get_version(m_manager_metadata)
-       << " (currently using v" << METALL_VERSION << ")";
+    ss << "Invalid version — it was created by Metall v" << to_version_string(priv_get_version(m_manager_metadata))
+       << " (currently using v" << to_version_string(METALL_VERSION) << ")";
     logger::out(logger::level::critical, __FILE__, __LINE__, ss.str());
     return false;
   }
