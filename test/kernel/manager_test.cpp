@@ -527,5 +527,18 @@ TEST(ManagerTest, UUID) {
     ASSERT_NE(manager_type::get_uuid(dir_path().c_str()), uuid);
   }
 }
+
+TEST(ManagerTest, Version) {
+  manager_type::remove(dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str());
+    ASSERT_EQ(manager_type::get_version(dir_path().c_str()), METALL_VERSION);
+  }
+
+  {
+    manager_type manager(metall::open_only, dir_path().c_str());
+    ASSERT_EQ(manager_type::get_version(dir_path().c_str()), METALL_VERSION);
+  }
+}
 }
 

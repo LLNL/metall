@@ -7,13 +7,8 @@
 #include "gtest/gtest.h"
 
 #include <string>
-#include <algorithm>
-#include <random>
-
-#include <boost/container/vector.hpp>
 
 #include <metall/metall.hpp>
-#include <metall/detail/utility/file.hpp>
 
 #include "../test_utility.hpp"
 
@@ -43,11 +38,16 @@ TEST(SnapshotTest, Snapshot) {
     ASSERT_TRUE(manager.snapshot(snapshot_dir_path().c_str()));
     ASSERT_TRUE(metall::manager::consistent(snapshot_dir_path().c_str()));
 
+    // UUID
     const auto original_uuid = metall::manager::get_uuid(original_dir_path().c_str());
     ASSERT_FALSE(original_uuid.empty());
     const auto snapshot_uuid = metall::manager::get_uuid(snapshot_dir_path().c_str());
     ASSERT_FALSE(snapshot_uuid.empty());
     ASSERT_NE(original_uuid, snapshot_uuid);
+
+    // Version
+    ASSERT_EQ(metall::manager::get_version(original_dir_path().c_str()),
+              metall::manager::get_version(snapshot_dir_path().c_str()));
   }
 
   {
