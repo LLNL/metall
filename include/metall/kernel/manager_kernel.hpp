@@ -257,8 +257,14 @@ class manager_kernel {
   static bool consistent(const char *dir_path);
 
   /// \brief Returns the UUID of the backing data store.
+  /// \param dir_path Path to a data store.
   /// \return UUID in std::string; returns an empty string on error.
   static std::string get_uuid(const char *dir_path);
+
+  /// \brief Gets the version number of the backing data store.
+  /// \param dir_path Path to a data store.
+  /// \return Returns a version number; returns 0 on error.
+  static version_type get_version(const char *dir_path);
 
   /// \brief Show some profile information
   /// \tparam out_stream_type

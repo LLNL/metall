@@ -277,6 +277,20 @@ std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid(const char *dir_
   return priv_get_uuid(meta_data);
 }
 
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+version_type manager_kernel<chnk_no, chnk_sz, alloc_t>::get_version(const char *dir_path) {
+  json_store meta_data;
+  if (!priv_read_management_metadata(dir_path, &meta_data)) {
+    logger::out(logger::level::error,
+                __FILE__,
+                __LINE__,
+                "Cannot read management metadata in " + std::string(dir_path));
+    return 0;
+  }
+  const auto version = priv_get_version(meta_data);
+  return (version == detail::k_error_version) ? 0 : version;
+}
+
 // -------------------------------------------------------------------------------- //
 // Private methods
 // -------------------------------------------------------------------------------- //
@@ -739,7 +753,7 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 version_type manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_get_version(const json_store &metadata_json) {
   version_type version;
   if (!util::ptree::get_value(metadata_json, k_manager_metadata_key_for_version, &version)) {
-    return -1;
+    return detail::k_error_version;
   }
   return version;
 }

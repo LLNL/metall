@@ -370,6 +370,13 @@ class basic_manager {
     return manager_kernel_type::get_uuid(dir_path);
   }
 
+  /// \brief Gets the version number of the backing data store.
+  /// \param dir_path Path to a data store.
+  /// \return Returns a version number; returns 0 on error.
+  static version_type get_version(const char *dir_path) {
+    return manager_kernel_type::get_version(dir_path);
+  }
+
   // -------------------- For profiling and debug -------------------- //
 #if !defined(DOXYGEN_SKIP)
   /// \brief Prints out profiling information.

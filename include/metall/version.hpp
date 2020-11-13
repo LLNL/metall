@@ -9,8 +9,7 @@
 #define METALL_VERSION_HPP
 
 /// \brief Metall version.
-/// Metall follows Semantic Versioning 2.0.0
-/// https://semver.org/#semantic-versioning-200.
+/// Metall follows the Semantic Versioning 2.0.0.
 /// \details
 /// \code
 ///  METALL_VERSION / 100000 // the major version.
@@ -21,11 +20,23 @@
 
 namespace metall {
 /// \brief Variable type to handle a version data.
-using version_type = int32_t;
+using version_type = uint32_t;
 static_assert(std::numeric_limits<version_type>::max() >= METALL_VERSION,
               "version_type cannot handle the current version");
 
-/// \brief Convert a raw version number to a std::string with the following format: 'MAJOR.MINOR.PATCH'.
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+namespace detail {
+static constexpr version_type k_error_version = 0;
+static_assert(k_error_version != METALL_VERSION, "The current version is equal to a error number");
+}
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
+/// \brief Converts a raw version number to a std::string with format 'MAJOR.MINOR.PATCH'.
+/// \details
+/// \code
+/// // Example usage
+/// std::string ver_string = to_version_string(METALL_VERSION);
+/// \endcode
 /// \param version A version number.
 /// \return A version string.
 inline std::string to_version_string(const version_type version) {
