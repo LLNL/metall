@@ -24,7 +24,8 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
       m_segment_header(nullptr),
       m_named_object_directory(allocator),
       m_segment_storage(),
-      m_segment_memory_allocator(&m_segment_storage, allocator)
+      m_segment_memory_allocator(&m_segment_storage, allocator),
+      m_manager_metadata()
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
     , m_named_object_directory_mutex()
 #endif
@@ -35,9 +36,6 @@ manager_kernel(const manager_kernel<chnk_no, chnk_sz, alloc_t>::internal_data_al
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 manager_kernel<chnk_no, chnk_sz, alloc_t>::~manager_kernel() noexcept {
   close();
-
-  // This function must be called at the end
-  priv_mark_properly_closed(m_base_dir_path);
 }
 
 // -------------------------------------------------------------------------------- //
@@ -62,11 +60,19 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::open(const char *base_dir_path,
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 void manager_kernel<chnk_no, chnk_sz, alloc_t>::close() {
   if (priv_initialized()) {
-    priv_serialize_management_data();
-    m_segment_storage.sync(true);
+    if (!m_segment_storage.read_only()) {
+      priv_serialize_management_data();
+      m_segment_storage.sync(true);
+    }
+
     m_segment_storage.destroy();
     priv_deallocate_segment_header();
     priv_release_vm_region();
+
+    if (!m_segment_storage.read_only()) {
+      // This function must be called at the end
+      priv_mark_properly_closed(m_base_dir_path);
+    }
   }
 }
 
@@ -218,17 +224,14 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination
   m_segment_storage.sync(true);
   priv_serialize_management_data();
 
-  if (!priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true)) {
-    return false;
-  }
+  if (!priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true)) return false;
 
-  if (!priv_store_uuid(destination_base_dir_path)) {
-    return false;
-  }
+  json_store meta_data;
+  if (!priv_set_uuid(&meta_data)) return false;
+  if (!priv_set_version(&meta_data)) return false;
+  if (!priv_write_management_metadata(destination_base_dir_path, meta_data)) return false;
 
-  if (!priv_mark_properly_closed(destination_base_dir_path)) {
-    return false;
-  }
+  if (!priv_mark_properly_closed(destination_base_dir_path)) return false;
 
   return true;
 }
@@ -258,12 +261,20 @@ std::future<bool> manager_kernel<chnk_no, chnk_sz, alloc_t>::remove_async(const 
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::consistent(const char *dir_path) {
-  return priv_properly_closed(dir_path);
+  return priv_consistent(dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid(const char *dir_path) {
-  return priv_restore_uuid(dir_path);
+  json_store meta_data;
+  if (!priv_read_management_metadata(dir_path, &meta_data)) {
+    logger::out(logger::level::error,
+                __FILE__,
+                __LINE__,
+                "Cannot read management metadata in " + std::string(dir_path));
+    return "";
+  }
+  return priv_get_uuid(meta_data);
 }
 
 // -------------------------------------------------------------------------------- //
@@ -359,6 +370,18 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_validate_runtime_configurat
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_consistent(const std::string &base_dir_path) {
+  json_store metadata;
+  return priv_properly_closed(base_dir_path) && (priv_read_management_metadata(base_dir_path, &metadata)
+      && priv_check_version(metadata));
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_check_version(const json_store &metadata_json) {
+  return priv_get_version(metadata_json) == version_type(METALL_VERSION);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_properly_closed(const std::string &base_dir_path) {
   return util::file_exist(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
 }
@@ -447,43 +470,6 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deallocate_segment_header() {
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_store_uuid(const std::string &base_dir_path) {
-  std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
-  std::ofstream ofs(file_name);
-  if (!ofs) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create a file: " + file_name);
-    return false;
-  }
-  ofs << util::uuid(util::uuid_random_generator{}());
-  if (!ofs) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot write A UUID to a file: " + file_name);
-    return false;
-  }
-  ofs.close();
-
-  return true;
-}
-
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
-std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_restore_uuid(const std::string &base_dir_path) {
-  std::string file_name = priv_make_file_name(base_dir_path, k_uuid_file_name);
-  std::ifstream ifs(file_name);
-
-  if (!ifs.is_open()) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to open a file: " + file_name);
-    return "";
-  }
-
-  std::string uuid_string;
-  if (!(ifs >> uuid_string)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to read a file: " + file_name);
-    return "";
-  }
-
-  return uuid_string;
-}
-
-template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 template <typename T>
 T *
 manager_kernel<chnk_no, chnk_sz, alloc_t>::
@@ -537,7 +523,20 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
     return false;
   }
 
-  if (!consistent(base_dir_path)) {
+  if (!priv_read_management_metadata(base_dir_path, &m_manager_metadata)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to read management metadata");
+    return false;
+  }
+
+  if (!priv_check_version(m_manager_metadata)) {
+    std::stringstream ss;
+    ss << "Invalid version — it was created by Metall v" << priv_get_version(m_manager_metadata)
+       << " (currently using v" << METALL_VERSION << ")";
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str());
+    return false;
+  }
+
+  if (!priv_properly_closed(base_dir_path)) {
     logger::out(logger::level::critical, __FILE__, __LINE__,
                 "Inconsistent data store — it was not closed properly and might have been collapsed.");
     return false;
@@ -634,7 +633,9 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_create(const char *base_dir
     return false;
   }
 
-  if (!priv_store_uuid(m_base_dir_path)) {
+  if (!priv_set_uuid(&m_manager_metadata) || !priv_set_version(&m_manager_metadata)
+      || !priv_write_management_metadata(m_base_dir_path, m_manager_metadata)) {
+    m_segment_storage.destroy();
     priv_deallocate_segment_header();
     priv_release_vm_region();
     return false;
@@ -709,6 +710,83 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::string &base_dir_path) {
   return util::remove_file(priv_make_datastore_dir_path(base_dir_path));
+}
+
+// ---------------------------------------- Management metadata ---------------------------------------- //
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_write_management_metadata(const std::string &base_dir_path,
+                                                                               const json_store &json_root) {
+
+  if (!util::ptree::write_json(json_root, priv_make_file_name(base_dir_path, k_manager_metadata_file_name))) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to write management metadata");
+    return false;
+  }
+
+  return true;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_read_management_metadata(const std::string &base_dir_path,
+                                                                              json_store *json_root) {
+  if (!util::ptree::read_json(priv_make_file_name(base_dir_path, k_manager_metadata_file_name), json_root)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to read management metadata");
+    return false;
+  }
+  return true;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+version_type manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_get_version(const json_store &metadata_json) {
+  version_type version;
+  if (!util::ptree::get_value(metadata_json, k_manager_metadata_key_for_version, &version)) {
+    return -1;
+  }
+  return version;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_set_version(json_store *metadata_json) {
+  if (util::ptree::count(*metadata_json, k_manager_metadata_key_for_version) > 0) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Version information already exist");
+    return false;
+  }
+
+  if (!util::ptree::add_value(k_manager_metadata_key_for_version, version_type(METALL_VERSION), metadata_json)) {
+    return false;
+  }
+
+  return true;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_get_uuid(const json_store &metadata_json) {
+  std::string uuid_string;
+  if (!util::ptree::get_value(metadata_json, k_manager_metadata_key_for_uuid, &uuid_string)) {
+    return "";
+  }
+
+  return uuid_string;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_set_uuid(json_store *metadata_json) {
+  std::stringstream uuid_ss;
+  uuid_ss << util::uuid(util::uuid_random_generator{}());
+  if (!uuid_ss) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to convert UUID to std::string");
+    return false;
+  }
+
+  if (util::ptree::count(*metadata_json, k_manager_metadata_key_for_uuid) > 0) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "UUID already exist");
+    return false;
+  }
+
+  if (!util::ptree::add_value(k_manager_metadata_key_for_uuid, uuid_ss.str(), metadata_json)) {
+    return false;
+  }
+
+  return true;
 }
 
 } // namespace kernel

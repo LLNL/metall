@@ -17,4 +17,11 @@
 /// \endcode
 #define METALL_VERSION 000600
 
+namespace metall {
+/// \brief Variable type to handle a version data.
+using version_type = int32_t;
+static_assert(std::numeric_limits<version_type>::max() >= METALL_VERSION,
+              "version_type cannot handle the current version");
+}
+
 #endif //METALL_VERSION_HPP
