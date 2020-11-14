@@ -75,7 +75,8 @@ class manager_kernel {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
   using self_type = manager_kernel<_chunk_no_type, _chunk_size, _internal_data_allocator_type>;
-  static constexpr const char *k_datastore_dir_name = "metall_datastore";
+  static constexpr const char *k_datastore_top_dir_name = "metall_datastore";
+  static constexpr const char *k_datastore_core_dir_name = "core";
 
   // For segment
   static constexpr size_type k_default_vm_reserve_size = METALL_DEFAULT_VM_RESERVE_SIZE;
@@ -284,8 +285,18 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private methods
   // -------------------------------------------------------------------------------- //
-  static std::string priv_make_datastore_dir_path(const std::string &base_dir_path);
-  static std::string priv_make_file_name(const std::string &base_dir_path, const std::string &item_name);
+
+  // Directory structure:
+  // base_dir_path/ <- this path is given by user
+  //  top_dir/
+  //    some top-level file
+  //    core_dir/
+  //      many core files
+  //      many directories
+  static std::string priv_make_top_dir_path(const std::string &base_dir_path);
+  static std::string priv_make_top_level_file_name(const std::string &base_dir_path, const std::string &item_name);
+  static std::string priv_make_core_dir_path(const std::string &base_dir_path);
+  static std::string priv_make_core_file_name(const std::string &base_dir_path, const std::string &item_name);
   static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   bool priv_initialized() const;
