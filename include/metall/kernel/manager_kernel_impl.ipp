@@ -231,14 +231,32 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::snapshot(const char *destination
   m_segment_storage.sync(true);
   priv_serialize_management_data();
 
-  if (!priv_copy_data_store(m_base_dir_path, destination_base_dir_path, true)) return false;
+  if (!util::create_directory(priv_make_top_dir_path(destination_base_dir_path))) {
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Failed to create directory: " + std::string(destination_base_dir_path));
+    return false;
+  }
 
+  // Copy only core directory first
+  if (!util::clone_file(priv_make_core_dir_path(m_base_dir_path),
+                        priv_make_core_dir_path(destination_base_dir_path),true)) {
+    std::stringstream ss;
+    ss << "Failed to copy " << priv_make_top_dir_path(m_base_dir_path) << " to "
+       << priv_make_top_dir_path(destination_base_dir_path);
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+  }
+
+  // Make a new metadata
   json_store meta_data;
   if (!priv_set_uuid(&meta_data)) return false;
   if (!priv_set_version(&meta_data)) return false;
   if (!priv_write_management_metadata(destination_base_dir_path, meta_data)) return false;
 
-  if (!priv_mark_properly_closed(destination_base_dir_path)) return false;
+  // Finally, mark it as properly-closed
+  if (!priv_mark_properly_closed(destination_base_dir_path)) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create a properly closed mark");
+    return false;
+  }
 
   return true;
 }
@@ -313,45 +331,51 @@ version_type manager_kernel<chnk_no, chnk_sz, alloc_t>::get_version(const char *
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_datastore_dir_path(const std::string &base_dir_path) {
-  return base_dir_path + "/" + k_datastore_dir_name;
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_top_dir_path(const std::string &base_dir_path) {
+  return base_dir_path + "/" + k_datastore_top_dir_name;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string
-manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_file_name(const std::string &base_dir_path,
-                                                               const std::string &item_name) {
-  return priv_make_datastore_dir_path(base_dir_path) + "/" + item_name;
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_top_level_file_name(const std::string &base_dir_path,
+                                                                         const std::string &item_name) {
+  return priv_make_top_dir_path(base_dir_path) + "/" + item_name;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_core_dir_path(const std::string &base_dir_path) {
+  return priv_make_top_dir_path(base_dir_path) + "/" + k_datastore_core_dir_name;
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string
+manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_make_core_file_name(const std::string &base_dir_path,
+                                                                    const std::string &item_name) {
+  return priv_make_core_dir_path(base_dir_path) + "/" + item_name;
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_init_datastore_directory(const std::string &base_dir_path) {
   // Create the base directory if needed
-  if (!util::file_exist(base_dir_path)) {
-    if (!util::create_directory(base_dir_path)) {
-      logger::out(logger::level::critical,
-                  __FILE__,
-                  __LINE__,
-                  "Failed to create directory: " + std::string(base_dir_path));
-      return false;
-    }
+  if (!util::create_directory(base_dir_path)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + base_dir_path);
+    return false;
   }
 
+  // Remove existing directory to certainly create a new data store
   if (!remove(base_dir_path.c_str())) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Failed to remove an existing data store: " + std::string(base_dir_path));
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to remove a directory: " + base_dir_path);
     return false;
   }
 
   // Create the data store directory if needed
-  if (!util::create_directory(priv_make_datastore_dir_path(base_dir_path))) {
+  if (!util::create_directory(priv_make_core_dir_path(base_dir_path))) {
     logger::out(logger::level::critical,
                 __FILE__,
                 __LINE__,
-                "Failed to create directory: " + priv_make_datastore_dir_path(base_dir_path));
+                "Failed to create directory: " + priv_make_core_dir_path(base_dir_path));
     return false;
   }
 
@@ -414,17 +438,17 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_check_version(const json_st
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_properly_closed(const std::string &base_dir_path) {
-  return util::file_exist(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
+  return util::file_exist(priv_make_top_level_file_name(base_dir_path, k_properly_closed_mark_file_name));
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_mark_properly_closed(const std::string &base_dir_path) {
-  return util::create_file(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
+  return util::create_file(priv_make_top_level_file_name(base_dir_path, k_properly_closed_mark_file_name));
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_unmark_properly_closed(const std::string &base_dir_path) {
-  return util::remove_file(priv_make_file_name(base_dir_path, k_properly_closed_mark_file_name));
+  return util::remove_file(priv_make_top_level_file_name(base_dir_path, k_properly_closed_mark_file_name));
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
@@ -580,8 +604,9 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
 
   m_base_dir_path = base_dir_path;
 
-  const size_type existing_segment_size = segment_storage_type::get_size(priv_make_file_name(m_base_dir_path,
-                                                                                             k_segment_prefix));
+  const size_type existing_segment_size = segment_storage_type::get_size(priv_make_core_file_name(
+      m_base_dir_path,
+      k_segment_prefix));
   const size_type vm_reserve_size = (read_only) ? existing_segment_size + k_segment_header_size
                                                 : std::max(existing_segment_size + k_segment_header_size,
                                                            vm_reserve_size_request);
@@ -606,7 +631,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_open(const char *base_dir_p
     return false;
   }
 
-  if (!m_segment_storage.open(priv_make_file_name(m_base_dir_path, k_segment_prefix),
+  if (!m_segment_storage.open(priv_make_core_file_name(m_base_dir_path, k_segment_prefix),
                               m_vm_region_size - k_segment_header_size,
                               static_cast<char *>(m_vm_region) + k_segment_header_size,
                               read_only)) {
@@ -659,7 +684,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_create(const char *base_dir
     return false;
   }
 
-  if (!m_segment_storage.create(priv_make_file_name(m_base_dir_path, k_segment_prefix),
+  if (!m_segment_storage.create(priv_make_core_file_name(m_base_dir_path, k_segment_prefix),
                                 m_vm_region_size - k_segment_header_size,
                                 static_cast<char *>(m_vm_region) + k_segment_header_size,
                                 k_initial_segment_size)) {
@@ -688,12 +713,13 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
 
   if (m_segment_storage.read_only()) return true;
 
-  if (!m_named_object_directory.serialize(priv_make_file_name(m_base_dir_path,
-                                                              k_named_object_directory_prefix).c_str())) {
+  if (!m_named_object_directory.serialize(priv_make_core_file_name(m_base_dir_path,
+                                                                   k_named_object_directory_prefix).c_str())) {
     logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to serialize named object directory");
     return false;
   }
-  if (!m_segment_memory_allocator.serialize(priv_make_file_name(m_base_dir_path, k_segment_memory_allocator_prefix))) {
+  if (!m_segment_memory_allocator.serialize(priv_make_core_file_name(m_base_dir_path,
+                                                                     k_segment_memory_allocator_prefix))) {
     return false;
   }
 
@@ -703,13 +729,13 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_serialize_management_data() {
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_deserialize_management_data() {
-  if (!m_named_object_directory.deserialize(priv_make_file_name(m_base_dir_path,
-                                                                k_named_object_directory_prefix).c_str())) {
+  if (!m_named_object_directory.deserialize(priv_make_core_file_name(m_base_dir_path,
+                                                                     k_named_object_directory_prefix).c_str())) {
     logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to deserialize named object directory");
     return false;
   }
-  if (!m_segment_memory_allocator.deserialize(priv_make_file_name(m_base_dir_path,
-                                                                  k_segment_memory_allocator_prefix))) {
+  if (!m_segment_memory_allocator.deserialize(priv_make_core_file_name(m_base_dir_path,
+                                                                       k_segment_memory_allocator_prefix))) {
     return false;
   }
   return true;
@@ -721,22 +747,20 @@ bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::string &src_base_dir_path,
                                                                 const std::string &dst_base_dir_path,
                                                                 [[maybe_unused]] const bool overwrite) {
-  const std::string src_datastore_dir_path = priv_make_datastore_dir_path(src_base_dir_path);
+  const std::string src_datastore_dir_path = priv_make_top_dir_path(src_base_dir_path);
   if (!util::directory_exist(src_datastore_dir_path)) {
     logger::out(logger::level::critical, __FILE__, __LINE__,
                 "Source directory does not exist: " + src_datastore_dir_path);
     return false;
   }
 
-  if (!util::file_exist(dst_base_dir_path)) {
-    if (!util::create_directory(dst_base_dir_path)) {
-      logger::out(logger::level::critical, __FILE__, __LINE__,
-                  "Failed to create directory: " + dst_base_dir_path);
-      return false;
-    }
+  if (!util::create_directory(dst_base_dir_path)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__,
+                "Failed to create directory: " + dst_base_dir_path);
+    return false;
   }
 
-  const std::string dst_datastore_dir_path = priv_make_datastore_dir_path(dst_base_dir_path);
+  const std::string dst_datastore_dir_path = priv_make_top_dir_path(dst_base_dir_path);
 
   assert(*(src_datastore_dir_path.end()) != '/');
   return util::clone_file(src_datastore_dir_path, dst_datastore_dir_path, true);
@@ -745,7 +769,7 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_copy_data_store(const std::strin
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool
 manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_remove_data_store(const std::string &base_dir_path) {
-  return util::remove_file(priv_make_datastore_dir_path(base_dir_path));
+  return util::remove_file(priv_make_top_dir_path(base_dir_path));
 }
 
 // ---------------------------------------- Management metadata ---------------------------------------- //
@@ -753,7 +777,8 @@ template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_write_management_metadata(const std::string &base_dir_path,
                                                                                const json_store &json_root) {
 
-  if (!util::ptree::write_json(json_root, priv_make_file_name(base_dir_path, k_manager_metadata_file_name))) {
+  if (!util::ptree::write_json(json_root,
+                               priv_make_core_file_name(base_dir_path, k_manager_metadata_file_name))) {
     logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to write management metadata");
     return false;
   }
@@ -764,7 +789,7 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_write_management_metadata(c
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 bool manager_kernel<chnk_no, chnk_sz, alloc_t>::priv_read_management_metadata(const std::string &base_dir_path,
                                                                               json_store *json_root) {
-  if (!util::ptree::read_json(priv_make_file_name(base_dir_path, k_manager_metadata_file_name), json_root)) {
+  if (!util::ptree::read_json(priv_make_core_file_name(base_dir_path, k_manager_metadata_file_name), json_root)) {
     logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to read management metadata");
     return false;
   }
