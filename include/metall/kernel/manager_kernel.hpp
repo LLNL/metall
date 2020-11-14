@@ -186,7 +186,7 @@ class manager_kernel {
   /// \param name
   /// \return
   template <typename T>
-  std::pair<T *, size_type> find(char_ptr_holder_type name);
+  std::pair<T *, size_type> find(char_ptr_holder_type name) const;
 
   /// \brief Destroy an already constructed object
   /// \tparam T

@@ -239,7 +239,7 @@ class basic_manager {
   /// \return Returns a pointer to the object and the count (if it is not an array, returns 1).
   /// If not present, nullptr is returned.
   template <typename T>
-  std::pair<T *, size_type> find(char_ptr_holder_type name) {
+  std::pair<T *, size_type> find(char_ptr_holder_type name) const {
     return m_kernel.template find<T>(name);
   }
 
@@ -301,7 +301,7 @@ class basic_manager {
   /// \tparam T Type of the object.
   /// \return Returns a STL compatible allocator object.
   template <typename T = std::byte>
-  allocator_type<T> get_allocator() {
+  allocator_type<T> get_allocator() const {
     return allocator_type<T>(reinterpret_cast<manager_kernel_type **>(&(m_kernel.get_segment_header()->manager_kernel_address)));
   }
 
