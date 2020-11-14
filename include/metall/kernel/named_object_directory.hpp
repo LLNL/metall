@@ -15,9 +15,9 @@
 #include <tuple>
 #include <sstream>
 
-#include <boost/container/scoped_allocator.hpp>
 #include <boost/container/string.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <metall/logger.hpp>
 #include <metall/detail/utility/ptree.hpp>
@@ -37,14 +37,6 @@ namespace json = metall::detail::utility::ptree;
 /// \tparam _allocator_type
 template <typename _offset_type, typename _size_type, typename _allocator_type = std::allocator<std::byte>>
 class named_object_directory {
-  // JSON structure
-  // {
-  // "named_objects" : [
-  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "description" : ""},
-  //  {"name" : "object1", "offset" : 0x432, "length" : 2, "description" : "..."}
-  // ]
-  // }
-
  public:
   // -------------------------------------------------------------------------------- //
   // Public types and static values
@@ -56,32 +48,29 @@ class named_object_directory {
   using description_type = std::string;
   using allocator_type = _allocator_type;
 
-  using mapped_type = std::tuple<name_type, offset_type, length_type, description_type>;
-  using key_string_type = name_type;
-  using value_type = std::pair<const key_string_type, mapped_type>;
-
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  using table_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<value_type>;
-  using table_type = boost::unordered_map<key_string_type,
-                                          mapped_type,
-                                          util::string_hash<key_string_type>,
-                                          std::equal_to<key_string_type>,
-                                          table_allocator_type>;
+  using key_string_type = name_type;
+
+  using main_entry_type = std::tuple<name_type, offset_type, length_type, description_type>;
+  using main_table_type = boost::unordered_map<key_string_type, main_entry_type, util::string_hash<key_string_type>>;
+
+  using key_table_type = boost::unordered_set<key_string_type, util::string_hash<key_string_type>>;
 
  public:
   // -------------------------------------------------------------------------------- //
   // Public types and static values
   // -------------------------------------------------------------------------------- //
-  using const_iterator = typename table_type::const_iterator;
+  using key_iterator = typename key_table_type::const_iterator;
 
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit named_object_directory(const allocator_type &allocator = allocator_type())
-      : m_table(allocator) {}
+  explicit named_object_directory([[maybe_unused]] const allocator_type &allocator = allocator_type())
+      : m_main_table(),
+        m_key_table() {}
   ~named_object_directory() noexcept = default;
   named_object_directory(const named_object_directory &) = default;
   named_object_directory(named_object_directory &&) noexcept = default;
@@ -104,8 +93,11 @@ class named_object_directory {
     bool inserted = false;
 
     try {
-      const auto ret = m_table.emplace(name, std::make_tuple(name, offset, length, description));
-      inserted = ret.second;
+      inserted = m_main_table.emplace(name, std::make_tuple(name, offset, length, description)).second;
+      if (inserted != m_key_table.insert(name).second) {
+        logger::out(logger::level::critical, __FILE__, __LINE__, "Error occurred in an internal table");
+        return false;
+      }
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown");
       return false;
@@ -117,36 +109,54 @@ class named_object_directory {
   /// \brief
   /// \param name
   /// \return
-  const_iterator find(const name_type &name) const {
-    return m_table.find(name);
-  }
-
-  /// \brief
-  /// \param name
-  /// \return
   size_type count(const name_type &name) const {
-    return m_table.count(name);
+    assert(m_main_table.count(name) == m_key_table.count(name));
+    return m_main_table.count(name);
   }
 
   /// \brief
   /// \return
-//  const_iterator begin() const {
-//    return m_table.begin();
-//  }
+  key_iterator keys_begin() const {
+    return m_key_table.cbegin();
+  }
 
   /// \brief
   /// \return
-  const_iterator end() const {
-    return m_table.end();
+  key_iterator keys_end() const {
+    return m_key_table.cend();
   }
 
   /// \brief
   /// \param name
   /// \param buf
   /// \return
-  bool get_description(const name_type &name, description_type* buf) const {
-    auto itr = find(name);
-    if (itr == end()) return false;
+  bool get_offset(const name_type &name, offset_type *buf) const {
+    auto itr = m_main_table.find(name);
+    if (itr == m_main_table.end()) return false;
+
+    *buf = std::get<index::offset>(itr->second);
+    return true;
+  }
+
+  /// \brief
+  /// \param name
+  /// \param buf
+  /// \return
+  bool get_length(const name_type &name, length_type *buf) const {
+    auto itr = m_main_table.find(name);
+    if (itr == m_main_table.end()) return false;
+
+    *buf = std::get<index::length>(itr->second);
+    return true;
+  }
+
+  /// \brief
+  /// \param name
+  /// \param buf
+  /// \return
+  bool get_description(const name_type &name, description_type *buf) const {
+    auto itr = m_main_table.find(name);
+    if (itr == m_main_table.end()) return false;
 
     *buf = std::get<index::description>(itr->second);
     return true;
@@ -156,23 +166,28 @@ class named_object_directory {
   /// \param name
   /// \param description
   /// \return
-  bool set_description(const name_type &name, const description_type& description) {
-    auto itr = m_table.find(name);
-    if (itr == end()) return false;
+  bool set_description(const name_type &name, const description_type &description) {
+    auto itr = m_main_table.find(name);
+    if (itr == m_main_table.end()) return false;
 
     std::get<index::description>(itr->second) = description;
-
     return true;
   }
 
   /// \brief
   /// \param name
   /// \return
-  size_type erase(const const_iterator position) {
-    if (position == end()) return 0;
-
-    const auto num_erased = m_table.erase(position->first);
-    assert(num_erased <= 1);
+  size_type erase(const name_type &name) {
+    size_type num_erased = 0;
+    try {
+      num_erased = m_key_table.erase(name);
+      if (m_main_table.erase(name) != num_erased) {
+        logger::out(logger::level::critical, __FILE__, __LINE__, "Error occurred in an internal table");
+        num_erased = 0;
+      }
+    } catch (...) {
+      return 0;
+    }
     return num_erased;
   }
 
@@ -181,12 +196,14 @@ class named_object_directory {
   bool serialize(const char *const path) const {
 
     json::node_type json_named_objects_list;
-    for (const auto &item : m_table) {
+    for (const auto &item : m_main_table) {
       json::node_type json_named_object_entry;
       if (!json::add_value(json_key::name, std::get<index::name>(item.second), &json_named_object_entry) ||
           !json::add_value(json_key::offset, std::get<index::offset>(item.second), &json_named_object_entry) ||
           !json::add_value(json_key::length, std::get<index::length>(item.second), &json_named_object_entry) ||
-          !json::add_value(json_key::description, std::get<index::description>(item.second), &json_named_object_entry)) {
+          !json::add_value(json_key::description,
+                           std::get<index::description>(item.second),
+                           &json_named_object_entry)) {
         return false;
       }
       if (!json::push_back(json_named_object_entry, &json_named_objects_list)) {
@@ -252,6 +269,13 @@ class named_object_directory {
     description = 3
   };
 
+  // JSON structure
+  // {
+  // "named_objects" : [
+  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "description" : ""},
+  //  {"name" : "object1", "offset" : 0x432, "length" : 2, "description" : "..."}
+  // ]
+  // }
   struct json_key {
     static constexpr const char *named_objects = "named_objects";
     static constexpr const char *name = "name";
@@ -267,7 +291,8 @@ class named_object_directory {
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  table_type m_table;
+  main_table_type m_main_table;
+  key_table_type m_key_table;
 };
 
 } // namespace kernel

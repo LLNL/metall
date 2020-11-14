@@ -30,21 +30,6 @@ TEST(NambedObjectDirectoryTest, UniqueInsert) {
   ASSERT_FALSE(obj.insert("item2", 1, 1));
 }
 
-TEST(NambedObjectDirectoryTest, Find) {
-  directory_type obj;
-
-  obj.insert("item1", 1, 2);
-  obj.insert("item2", 3, 4);
-
-  ASSERT_EQ(std::get<1>(obj.find("item1")->second), 1);
-  ASSERT_EQ(std::get<2>(obj.find("item1")->second), 2);
-
-  ASSERT_EQ(std::get<1>(obj.find("item2")->second), 3);
-  ASSERT_EQ(std::get<2>(obj.find("item2")->second), 4);
-
-  ASSERT_EQ(obj.find("item3"), obj.end());
-}
-
 TEST(NambedObjectDirectoryTest, Count) {
   directory_type obj;
 
@@ -54,7 +39,37 @@ TEST(NambedObjectDirectoryTest, Count) {
 
   ASSERT_EQ(obj.count("item2"), 0);
   obj.insert("item2", 3, 4);
+  ASSERT_EQ(obj.count("item1"), 1);
   ASSERT_EQ(obj.count("item2"), 1);
+}
+
+TEST(NambedObjectDirectoryTest, GetValue) {
+  directory_type obj;
+
+  typename directory_type::offset_type offset = 0;
+  typename directory_type::length_type length = 0;
+
+  // Fails before insertions
+  ASSERT_FALSE(obj.get_offset("item1", &offset));
+  ASSERT_FALSE(obj.get_length("item1", &length));
+  obj.insert("item1", 1, 2);
+
+  // Fails before insertions
+  ASSERT_FALSE(obj.get_offset("item2", &offset));
+  ASSERT_FALSE(obj.get_length("item2", &length));
+  obj.insert("item2", 3, 4);
+
+  // Get values correctly
+  ASSERT_TRUE(obj.get_offset("item1", &offset));
+  ASSERT_EQ(offset, 1);
+  ASSERT_TRUE(obj.get_length("item1", &length));
+  ASSERT_EQ(length, 2);
+
+  // Get values correctly
+  ASSERT_TRUE(obj.get_offset("item2", &offset));
+  ASSERT_EQ(offset, 3);
+  ASSERT_TRUE(obj.get_length("item2", &length));
+  ASSERT_EQ(length, 4);
 }
 
 TEST(NambedObjectDirectoryTest, Description) {
@@ -84,22 +99,46 @@ TEST(NambedObjectDirectoryTest, Description) {
 TEST(NambedObjectDirectoryTest, Erase) {
   directory_type obj;
 
+  ASSERT_EQ(obj.erase("item1"), 0);
+  obj.insert("item1", 1, 2);
+
+  ASSERT_EQ(obj.erase("item2"), 0);
+  obj.insert("item2", 3, 4);
+
+  ASSERT_EQ(obj.erase("item1"), 1);
+  ASSERT_EQ(obj.count("item1"), 0);
+  ASSERT_EQ(obj.erase("item1"), 0);
+
+  ASSERT_EQ(obj.erase("item2"), 1);
+  ASSERT_EQ(obj.count("item2"), 0);
+  ASSERT_EQ(obj.erase("item2"), 0);
+}
+
+TEST(NambedObjectDirectoryTest, KeyIterator) {
+  directory_type obj;
+
+  ASSERT_EQ(obj.keys_begin(), obj.keys_end());
   obj.insert("item1", 1, 2);
   obj.insert("item2", 3, 4);
 
-  ASSERT_EQ(obj.erase(obj.find("item1")), 1);
-  ASSERT_EQ(obj.find("item1"), obj.end());
-  ASSERT_EQ(obj.count("item1"), 0);
-  ASSERT_NE(obj.find("item2"), obj.end());
-  ASSERT_EQ(obj.count("item2"), 1);
-  ASSERT_EQ(obj.erase(obj.find("item1")), 0);
+  int count = 0;
+  bool found1 = false;
+  bool found2 = false;
+  for (auto itr = obj.keys_begin(); itr != obj.keys_end(); ++itr) {
+    ASSERT_TRUE(*itr == "item1" || *itr == "item2");
+    found1 |= *itr == "item1";
+    found2 |= *itr == "item2";
+    ++count;
+  }
+  ASSERT_TRUE(found1);
+  ASSERT_TRUE(found2);
+  ASSERT_EQ(count, 2);
 
-  ASSERT_EQ(obj.erase(obj.find("item2")), 1);
-  ASSERT_EQ(obj.find("item1"), obj.end());
-  ASSERT_EQ(obj.count("item1"), 0);
-  ASSERT_EQ(obj.find("item2"), obj.end());
-  ASSERT_EQ(obj.count("item2"), 0);
-  ASSERT_EQ(obj.erase(obj.find("item2")), 0);
+  obj.erase("item1");
+  ASSERT_EQ(*(obj.keys_begin()), "item2");
+
+  obj.erase("item2");
+  ASSERT_EQ(obj.keys_begin(), obj.keys_end());
 }
 
 TEST(NambedObjectDirectoryTest, Serialize) {
@@ -119,22 +158,50 @@ TEST(NambedObjectDirectoryTest, Deserialize) {
   const auto file(test_utility::make_test_path());
 
   {
-      directory_type obj;
+    directory_type obj;
     obj.insert("item1", 1, 2);
     obj.insert("item2", 3, 4, "description2");
     obj.serialize(file.c_str());
   }
 
   {
-      directory_type obj;
+    directory_type obj;
     ASSERT_TRUE(obj.deserialize(file.c_str()));
 
-    ASSERT_EQ(std::get<1>(obj.find("item1")->second), 1);
-    ASSERT_EQ(std::get<2>(obj.find("item1")->second), 2);
+    typename directory_type::offset_type offset = 0;
+    typename directory_type::length_type length = 0;
+    directory_type::description_type description;
 
-    ASSERT_EQ(std::get<1>(obj.find("item2")->second), 3);
-    ASSERT_EQ(std::get<2>(obj.find("item2")->second), 4);
-    ASSERT_EQ(std::get<3>(obj.find("item2")->second), "description2");
+    // Get values correctly
+    ASSERT_TRUE(obj.get_offset("item1", &offset));
+    ASSERT_EQ(offset, 1);
+    ASSERT_TRUE(obj.get_length("item1", &length));
+    ASSERT_EQ(length, 2);
+    ASSERT_TRUE(obj.get_description("item1", &description));
+    ASSERT_TRUE(description.empty());
+
+
+    // Get values correctly
+    ASSERT_TRUE(obj.get_offset("item2", &offset));
+    ASSERT_EQ(offset, 3);
+    ASSERT_TRUE(obj.get_length("item2", &length));
+    ASSERT_EQ(length, 4);
+    ASSERT_TRUE(obj.get_description("item2", &description));
+    ASSERT_EQ(description, "description2");
+
+    // Key table is also restored
+    int count = 0;
+    bool found1 = false;
+    bool found2 = false;
+    for (auto itr = obj.keys_begin(); itr != obj.keys_end(); ++itr) {
+      ASSERT_TRUE(*itr == "item1" || *itr == "item2");
+      found1 |= *itr == "item1";
+      found2 |= *itr == "item2";
+      ++count;
+    }
+    ASSERT_TRUE(found1);
+    ASSERT_TRUE(found2);
+    ASSERT_EQ(count, 2);
   }
 }
 
