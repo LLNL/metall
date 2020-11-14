@@ -114,6 +114,33 @@ TEST(NambedObjectDirectoryTest, Erase) {
   ASSERT_EQ(obj.erase("item2"), 0);
 }
 
+TEST(NambedObjectDirectoryTest, KeyIterator) {
+  directory_type obj;
+
+  ASSERT_EQ(obj.keys_begin(), obj.keys_end());
+  obj.insert("item1", 1, 2);
+  obj.insert("item2", 3, 4);
+
+  int count = 0;
+  bool found1 = false;
+  bool found2 = false;
+  for (auto itr = obj.keys_begin(); itr != obj.keys_end(); ++itr) {
+    ASSERT_TRUE(*itr == "item1" || *itr == "item2");
+    found1 |= *itr == "item1";
+    found2 |= *itr == "item2";
+    ++count;
+  }
+  ASSERT_TRUE(found1);
+  ASSERT_TRUE(found2);
+  ASSERT_EQ(count, 2);
+
+  obj.erase("item1");
+  ASSERT_EQ(*(obj.keys_begin()), "item2");
+
+  obj.erase("item2");
+  ASSERT_EQ(obj.keys_begin(), obj.keys_end());
+}
+
 TEST(NambedObjectDirectoryTest, Serialize) {
   directory_type obj;
 
@@ -162,6 +189,19 @@ TEST(NambedObjectDirectoryTest, Deserialize) {
     ASSERT_TRUE(obj.get_description("item2", &description));
     ASSERT_EQ(description, "description2");
 
+    // Key table is also restored
+    int count = 0;
+    bool found1 = false;
+    bool found2 = false;
+    for (auto itr = obj.keys_begin(); itr != obj.keys_end(); ++itr) {
+      ASSERT_TRUE(*itr == "item1" || *itr == "item2");
+      found1 |= *itr == "item1";
+      found2 |= *itr == "item2";
+      ++count;
+    }
+    ASSERT_TRUE(found1);
+    ASSERT_TRUE(found2);
+    ASSERT_EQ(count, 2);
   }
 }
 
