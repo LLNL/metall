@@ -225,34 +225,38 @@ class metall_mpi_adaptor {
   // Private methods
   // -------------------------------------------------------------------------------- //
   static void priv_setup_root_dir(const std::string &root_dir_prefix, const MPI_Comm &comm) {
-    if (priv_mpi_comm_rank(comm) == priv_determine_local_root_rank(comm)) { // Only one process creates at each node
-      const std::string root_dir_path = priv_make_root_dir_path(root_dir_prefix);
+    const int rank = priv_mpi_comm_rank(comm);
+    const int size = priv_mpi_comm_size(comm);
+    const std::string root_dir_path = priv_make_root_dir_path(root_dir_prefix);
 
-      if (metall::detail::utility::file_exist(root_dir_path)) { // We must create a directory
+    // Make sure the root directory does not exist
+    const auto local_ret = metall::detail::utility::directory_exist(root_dir_path);
+    if (priv_global_or(local_ret, comm)) {
+      if (rank == 0) {
         logger::out(logger::level::error, __FILE__, __LINE__,
                     "Root directory already exists: " + root_dir_path);
         ::MPI_Abort(comm, -1);
-      } else {
+      }
+    }
+    priv_mpi_barrier(comm);
 
-        std::stringstream ss;
-        ss << "Rank " << priv_mpi_comm_rank(comm) << " is creating a root directory: " << root_dir_path;
-        logger::out(logger::level::info, __FILE__, __LINE__, ss.str());
-
+    for (int i = 0; i < size; ++i) {
+      if (i == rank && !metall::detail::utility::directory_exist(root_dir_path)) {
         if (!metall::detail::utility::create_directory(root_dir_path)) {
           logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create directory: " + root_dir_path);
           ::MPI_Abort(comm, -1);
         }
-      }
 
-      const std::string mark_file = root_dir_path + "/" + k_datastore_mark_file_name;
-      if (!metall::detail::utility::create_file(mark_file)) {
-        logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create file: " + mark_file);
-        ::MPI_Abort(comm, -1);
-      }
+        const std::string mark_file = root_dir_path + "/" + k_datastore_mark_file_name;
+        if (!metall::detail::utility::create_file(mark_file)) {
+          logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create file: " + mark_file);
+          ::MPI_Abort(comm, -1);
+        }
 
-      priv_store_partition_size(root_dir_prefix, comm);
+        priv_store_partition_size(root_dir_prefix, comm);
+      }
+      priv_mpi_barrier(comm);
     }
-    priv_mpi_barrier(comm);
   }
 
   static void priv_store_partition_size(const std::string &root_dir_prefix, const MPI_Comm &comm) {
@@ -333,6 +337,14 @@ class metall_mpi_adaptor {
 
   static bool priv_global_and(const bool local_result, const MPI_Comm &comm) {
     const auto ret = mpi::global_logical_and(local_result, comm);
+    if (!ret.first) {
+      ::MPI_Abort(comm, -1);
+    }
+    return ret.second;
+  }
+
+  static bool priv_global_or(const bool local_result, const MPI_Comm &comm) {
+    const auto ret = mpi::global_logical_or(local_result, comm);
     if (!ret.first) {
       ::MPI_Abort(comm, -1);
     }
