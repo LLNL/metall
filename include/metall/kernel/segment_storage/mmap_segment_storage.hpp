@@ -190,7 +190,7 @@ class mmap_segment_storage {
                          m_block_size,
                          m_current_segment_size,
                          read_only)) {
-        logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map a file " + m_block_size);
+        logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map a file " + std::to_string(m_block_size));
         return false;
       }
       m_current_segment_size += m_block_size;
