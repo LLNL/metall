@@ -37,7 +37,7 @@ g++ -std=c++17 your_program.cpp -lstdc++fs
 
 ## Required to Build Metall
 
-- GCC 8.1 or more.
+- GCC 8.1 or more (8.3 or more is recommended due to early implementation of the Filesystem library).
 - Boost C++ Libraries 1.64 or more (build is not required; needs only
   their header files).
 
