@@ -56,14 +56,14 @@ class named_object_directory {
   using description_type = std::string;
   using allocator_type = _allocator_type;
 
-  using mapped_type = std::tuple<name_type, offset_type, length_type, description_type>;
-  using key_string_type = name_type;
-  using value_type = std::pair<const key_string_type, mapped_type>;
-
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
+  using mapped_type = std::tuple<name_type, offset_type, length_type, description_type>;
+  using key_string_type = name_type;
+  using value_type = std::pair<const key_string_type, mapped_type>;
+
   using table_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<value_type>;
   using table_type = boost::unordered_map<key_string_type,
                                           mapped_type,
@@ -117,27 +117,32 @@ class named_object_directory {
   /// \brief
   /// \param name
   /// \return
-  const_iterator find(const name_type &name) const {
-    return m_table.find(name);
-  }
-
-  /// \brief
-  /// \param name
-  /// \return
   size_type count(const name_type &name) const {
     return m_table.count(name);
   }
 
   /// \brief
+  /// \param name
+  /// \param buf
   /// \return
-//  const_iterator begin() const {
-//    return m_table.begin();
-//  }
+  bool get_offset(const name_type &name, offset_type* buf) const {
+    auto itr = m_table.find(name);
+    if (itr == m_table.end()) return false;
+
+    *buf = std::get<index::offset>(itr->second);
+    return true;
+  }
 
   /// \brief
+  /// \param name
+  /// \param buf
   /// \return
-  const_iterator end() const {
-    return m_table.end();
+  bool get_length(const name_type &name, length_type* buf) const {
+    auto itr = m_table.find(name);
+    if (itr == m_table.end()) return false;
+
+    *buf = std::get<index::length>(itr->second);
+    return true;
   }
 
   /// \brief
@@ -145,8 +150,8 @@ class named_object_directory {
   /// \param buf
   /// \return
   bool get_description(const name_type &name, description_type* buf) const {
-    auto itr = find(name);
-    if (itr == end()) return false;
+    auto itr = m_table.find(name);
+    if (itr == m_table.end()) return false;
 
     *buf = std::get<index::description>(itr->second);
     return true;
@@ -158,21 +163,22 @@ class named_object_directory {
   /// \return
   bool set_description(const name_type &name, const description_type& description) {
     auto itr = m_table.find(name);
-    if (itr == end()) return false;
+    if (itr == m_table.end()) return false;
 
     std::get<index::description>(itr->second) = description;
-
     return true;
   }
 
   /// \brief
   /// \param name
   /// \return
-  size_type erase(const const_iterator position) {
-    if (position == end()) return 0;
-
-    const auto num_erased = m_table.erase(position->first);
-    assert(num_erased <= 1);
+  size_type erase(const name_type &name) {
+    size_type num_erased = 0;
+    try {
+      num_erased = m_table.erase(name);
+    } catch (...) {
+      return 0;
+    }
     return num_erased;
   }
 

@@ -139,13 +139,17 @@ manager_kernel<chnk_no, chnk_sz, alloc_t>::find(char_ptr_holder_type name) const
 
   const char *const raw_name = (name.is_unique()) ? typeid(T).name() : name.get();
 
-  const auto iterator = m_named_object_directory.find(raw_name);
-  if (iterator == m_named_object_directory.end()) {
+  if (m_named_object_directory.count(raw_name) == 0) {
     return std::make_pair<T *, size_type>(nullptr, 0);
   }
 
-  const auto offset = std::get<1>(iterator->second);
-  const auto length = std::get<2>(iterator->second);
+  typename named_object_directory_type::offset_type offset = 0;
+  typename named_object_directory_type::length_type length = 0;
+  if (!m_named_object_directory.get_offset(raw_name, &offset)
+      || !m_named_object_directory.get_length(raw_name, &length)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot get value from named object directory");
+    return std::make_pair<T *, size_type>(nullptr, 0);
+  }
   return std::make_pair(reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.get_segment())), length);
 }
 
@@ -167,13 +171,20 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::destroy(char_ptr_holder_type nam
 
     const char *const raw_name = (name.is_unique()) ? typeid(T).name() : name.get();
 
-    const auto iterator = m_named_object_directory.find(raw_name);
-    if (iterator == m_named_object_directory.end()) return false; // No object with the name
+    if (m_named_object_directory.count(raw_name) == 0) return false; // No object with the name
 
-    const difference_type offset = std::get<1>(iterator->second);
-    const size_type length = std::get<2>(iterator->second);
+    typename named_object_directory_type::offset_type offset = 0;
+    typename named_object_directory_type::length_type length = 0;
+    if (!m_named_object_directory.get_offset(raw_name, &offset)
+        || !m_named_object_directory.get_length(raw_name, &length)) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot get value from named object directory");
+      return false;
+    }
 
-    m_named_object_directory.erase(iterator);
+    if (m_named_object_directory.erase(raw_name) != 1) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to erase the named object");
+      return false;
+    }
 
     // TODO: might be able to free the lock here ?
 
@@ -504,10 +515,15 @@ priv_generic_named_construct(const char_type *const name,
     lock_guard_type guard(m_named_object_directory_mutex); // TODO: implement a better lock strategy
 #endif
 
-    const auto iterator = m_named_object_directory.find(name);
-    if (iterator != m_named_object_directory.end()) { // Found an entry
+    const auto count = m_named_object_directory.count(name);
+    assert(count <= 1);
+    if (count > 0) { // Found an entry
       if (try2find) {
-        const auto offset = std::get<1>(iterator->second);
+        typename named_object_directory_type::offset_type offset = 0;
+        if (!m_named_object_directory.get_offset(name, &offset)) {
+          logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot get a value from named object directory");
+          return nullptr;
+        }
         return reinterpret_cast<T *>(offset + static_cast<char *>(m_segment_storage.get_segment()));
       } else {
         return nullptr;
