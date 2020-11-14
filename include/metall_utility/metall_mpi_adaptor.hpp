@@ -234,7 +234,7 @@ class metall_mpi_adaptor {
     if (priv_global_or(local_ret, comm)) {
       if (rank == 0) {
         logger::out(logger::level::error, __FILE__, __LINE__,
-                    "Root directory already exists: " + root_dir_path);
+                    "Root directory (or a file with the same name) already exists: " + root_dir_path);
         ::MPI_Abort(comm, -1);
       }
     }

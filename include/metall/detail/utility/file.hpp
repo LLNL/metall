@@ -170,7 +170,11 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
 
 /// \brief Check if a file, any kinds of file including directory, exists
 inline bool file_exist(const std::string &file_name) {
-  return (::access(file_name.c_str(), F_OK) == 0);
+  std::string fixed_string(file_name);
+  while (fixed_string.back() == '/') {
+    fixed_string.pop_back();
+  }
+  return (::access(fixed_string.c_str(), F_OK) == 0);
 }
 
 /// \brief Check if a directory exists
@@ -216,7 +220,7 @@ inline bool create_directory(const std::string &dir_path) {
 #if (defined(__GNUG__) && !defined(__clang__)) && (__GNUC__ < 8 || (__GNUC__ == 8 && __GNUC_MINOR__ < 3)) // Check if < GCC 8.3
     // Remove trailing separator(s) if they exist:
     while (fixed_string.back() == '/') {
-      fixed_string.erase(fixed_string.size() - 1, 1);
+      fixed_string.pop_back();
     }
 #endif
 
