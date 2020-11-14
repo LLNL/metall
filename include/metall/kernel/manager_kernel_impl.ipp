@@ -130,16 +130,12 @@ void manager_kernel<chnk_no, chnk_sz, alloc_t>::deallocate(void *addr) {
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 template <typename T>
 std::pair<T *, typename manager_kernel<chnk_no, chnk_sz, alloc_t>::size_type>
-manager_kernel<chnk_no, chnk_sz, alloc_t>::find(char_ptr_holder_type name) {
+manager_kernel<chnk_no, chnk_sz, alloc_t>::find(char_ptr_holder_type name) const {
   assert(priv_initialized());
 
   if (name.is_anonymous()) {
     return std::make_pair(nullptr, 0);
   }
-
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-  lock_guard_type guard(m_named_object_directory_mutex); // TODO: don't need at here?
-#endif
 
   const char *const raw_name = (name.is_unique()) ? typeid(T).name() : name.get();
 
