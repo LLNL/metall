@@ -68,7 +68,7 @@ class named_object_directory {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit named_object_directory([[maybe_unused]] const allocator_type &allocator = allocator_type())
+  explicit named_object_directory(const allocator_type &allocator = allocator_type())
       : m_main_table(),
         m_key_table() {}
   ~named_object_directory() noexcept = default;
