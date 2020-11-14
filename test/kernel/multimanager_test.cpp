@@ -29,10 +29,9 @@ TEST(MultiManagerTest, SingleThread) {
   using element_type = uint64_t;
   using vector_type = boost::interprocess::vector<element_type, metall_allocator<element_type>>;
 
-  const auto dir_path1(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
-                                                            + std::to_string(1)));
-  const auto dir_path2(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
-                                                            + std::to_string(2)));
+  test_utility::create_test_dir();
+  const auto dir_path1(test_utility::make_test_path(std::to_string(1)));
+  const auto dir_path2(test_utility::make_test_path(std::to_string(2)));
 
   {
     manager_type manager1(metall::create_only, dir_path1.c_str(), k_chunk_size * 8);
@@ -108,8 +107,7 @@ TEST(MultiManagerTest, MultiThread) {
 
   OMP_DIRECTIVE(parallel)
   {
-    const auto dir_path(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
-                                                             + std::to_string(omp::get_thread_num())));
+    const auto dir_path(test_utility::make_test_path("/" + std::to_string(omp::get_thread_num())));
 
     manager_type manager(metall::create_only, dir_path.c_str(), k_chunk_size * 16);
     vector_type *vector = manager.construct<vector_type>("vector")(manager.get_allocator<>());
@@ -120,8 +118,7 @@ TEST(MultiManagerTest, MultiThread) {
   }
 
   for (int t = 0; t < get_num_threads(); ++t) {
-    const auto dir_path(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()
-                                                             + std::to_string(t)));
+    const auto dir_path(test_utility::make_test_path("/" + std::to_string(t)));
     manager_type manager(metall::open_only, dir_path.c_str());
 
     vector_type *vector;

@@ -14,8 +14,11 @@
 #include <future>
 #include <vector>
 #include <map>
+#include <sstream>
 
+#include <metall/logger.hpp>
 #include <metall/offset_ptr.hpp>
+#include <metall/version.hpp>
 #include <metall/kernel/manager_kernel_fwd.hpp>
 #include <metall/kernel/manager_kernel_defs.hpp>
 #include <metall/kernel/segment_header.hpp>
@@ -29,7 +32,7 @@
 #include <metall/detail/utility/char_ptr_holder.hpp>
 #include <metall/detail/utility/soft_dirty_page.hpp>
 #include <metall/detail/utility/uuid.hpp>
-#include <metall/logger.hpp>
+#include <metall/detail/utility/ptree.hpp>
 
 #ifdef METALL_USE_UMAP
 #include <metall/kernel/segment_storage/umap_sparse_segment_storage.hpp>
@@ -99,8 +102,6 @@ class manager_kernel {
   mmap_segment_storage<difference_type, size_type>;
 #endif
 
-  static constexpr const char *k_uuid_file_name = "uuid";
-
   // For actual memory allocation layer
   static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";
   using segment_memory_allocator = segment_allocator<chunk_no_type, size_type, difference_type,
@@ -113,6 +114,12 @@ class manager_kernel {
   static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
 
   static constexpr const char *k_properly_closed_mark_file_name = "properly_closed_mark";
+
+  // For manager metadata data
+  static constexpr const char *k_manager_metadata_file_name = "manager_metadata";
+  static constexpr const char *k_manager_metadata_key_for_version = "version";
+  static constexpr const char *k_manager_metadata_key_for_uuid = "uuid";
+  using json_store = metall::detail::utility::ptree::node_type;
 
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
   using mutex_type = util::mutex;
@@ -186,7 +193,7 @@ class manager_kernel {
   /// \param name
   /// \return
   template <typename T>
-  std::pair<T *, size_type> find(char_ptr_holder_type name);
+  std::pair<T *, size_type> find(char_ptr_holder_type name) const;
 
   /// \brief Destroy an already constructed object
   /// \tparam T
@@ -250,10 +257,24 @@ class manager_kernel {
   static bool consistent(const char *dir_path);
 
   /// \brief Returns the UUID of the backing data store.
-  /// \return UUID in std::string; returns an empty string on error.
+  /// \return Returns UUID in std::string; returns an empty string on error.
+  std::string get_uuid() const;
+
+  /// \brief Returns the UUID of the backing data store.
+  /// \param dir_path Path to a data store.
+  /// \return Returns UUID in std::string; returns an empty string on error.
   static std::string get_uuid(const char *dir_path);
 
-  /// \brief Show some profile infromation
+  /// \brief Gets the version number of the backing data store.
+  /// \return Returns a version number; returns 0 on error.
+  version_type get_version() const;
+
+  /// \brief Gets the version number of the backing data store.
+  /// \param dir_path Path to a data store.
+  /// \return Returns a version number; returns 0 on error.
+  static version_type get_version(const char *dir_path);
+
+  /// \brief Show some profile information
   /// \tparam out_stream_type
   /// \param log_out
   template <typename out_stream_type>
@@ -270,6 +291,8 @@ class manager_kernel {
   bool priv_initialized() const;
   bool priv_validate_runtime_configuration() const;
 
+  static bool priv_consistent(const std::string &base_dir_path);
+  static bool priv_check_version(const json_store& metadata_json);
   static bool priv_properly_closed(const std::string &base_dir_path);
   static bool priv_mark_properly_closed(const std::string &base_dir_path);
   static bool priv_unmark_properly_closed(const std::string &base_dir_path);
@@ -287,9 +310,6 @@ class manager_kernel {
   bool priv_allocate_segment_header(void *addr);
   bool priv_deallocate_segment_header();
 
-  static bool priv_store_uuid(const std::string &base_dir_path);
-  static std::string priv_restore_uuid(const std::string &base_dir_path);
-
   bool priv_open(const char *base_dir_path, const bool read_only, const size_type vm_reserve_size_request = 0);
   bool priv_create(const char *base_dir_path, const size_type vm_reserve_size);
 
@@ -304,6 +324,16 @@ class manager_kernel {
   /// \brief Removes all backing files
   static bool priv_remove_data_store(const std::string &dir_path);
 
+  // ---------------------------------------- Management metadata ---------------------------------------- //
+  static bool priv_read_management_metadata(const std::string &base_dir_path, json_store* json_root);
+  static bool priv_write_management_metadata(const std::string &base_dir_path, const json_store& json_root);
+
+  static version_type priv_get_version(const json_store& metadata_json);
+  static bool priv_set_version(json_store* metadata_json);
+
+  static bool priv_set_uuid(json_store* metadata_json);
+  static std::string priv_get_uuid(const json_store& metadata_json);
+
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
@@ -314,6 +344,7 @@ class manager_kernel {
   named_object_directory_type m_named_object_directory;
   segment_storage_type m_segment_storage;
   segment_memory_allocator m_segment_memory_allocator;
+  json_store m_manager_metadata;
 
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
   mutex_type m_named_object_directory_mutex;

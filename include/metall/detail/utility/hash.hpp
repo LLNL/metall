@@ -78,6 +78,6 @@ struct string_hash {
   }
 };
 
-} // namespace metall::utility
+} // namespace metall::detail::utility
 
 #endif //METALL_DETAIL_UTILITY_HASH_HPP

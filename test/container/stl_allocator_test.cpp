@@ -17,7 +17,7 @@ template <typename T>
 using alloc_type = metall::manager::allocator_type<T>;
 
 const std::string &dir_path() {
-  const static std::string path(test_utility::make_test_dir_path("StlAllocatorTest"));
+  const static std::string path(test_utility::make_test_path());
   return path;
 }
 
