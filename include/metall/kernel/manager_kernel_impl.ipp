@@ -265,6 +265,11 @@ bool manager_kernel<chnk_no, chnk_sz, alloc_t>::consistent(const char *dir_path)
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid() const {
+  return self_type::get_uuid(m_base_dir_path);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
 std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid(const char *dir_path) {
   json_store meta_data;
   if (!priv_read_management_metadata(dir_path, &meta_data)) {
@@ -275,6 +280,11 @@ std::string manager_kernel<chnk_no, chnk_sz, alloc_t>::get_uuid(const char *dir_
     return "";
   }
   return priv_get_uuid(meta_data);
+}
+
+template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>
+version_type manager_kernel<chnk_no, chnk_sz, alloc_t>::get_version() const {
+  return self_type::get_version(m_base_dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz, typename alloc_t>

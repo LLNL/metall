@@ -7,13 +7,8 @@
 #include "gtest/gtest.h"
 
 #include <string>
-#include <algorithm>
-#include <random>
-
-#include <boost/container/vector.hpp>
 
 #include <metall/metall.hpp>
-#include <metall/detail/utility/file.hpp>
 
 #include "../test_utility.hpp"
 

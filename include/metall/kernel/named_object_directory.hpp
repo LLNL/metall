@@ -40,8 +40,8 @@ class named_object_directory {
   // JSON structure
   // {
   // "named_objects" : [
-  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "attribute" : ""},
-  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "attribute" : ""}
+  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "description" : ""},
+  //  {"name" : "object1", "offset" : 0x432, "length" : 2, "description" : "..."}
   // ]
   // }
 
@@ -53,10 +53,10 @@ class named_object_directory {
   using name_type = std::string;
   using offset_type = _offset_type;
   using length_type = size_type;
-  using attribute_type = std::string;
+  using description_type = std::string;
   using allocator_type = _allocator_type;
 
-  using mapped_type = std::tuple<name_type, offset_type, length_type, attribute_type>;
+  using mapped_type = std::tuple<name_type, offset_type, length_type, description_type>;
   using key_string_type = name_type;
   using value_type = std::pair<const key_string_type, mapped_type>;
 
@@ -95,16 +95,16 @@ class named_object_directory {
   /// \param name
   /// \param offset
   /// \param length
-  /// \param attribute
+  /// \param description
   /// \return
   bool insert(const name_type &name,
               const offset_type offset,
               const length_type length,
-              const attribute_type &attribute = std::string()) {
+              const description_type &description = std::string()) {
     bool inserted = false;
 
     try {
-      const auto ret = m_table.emplace(name, std::make_tuple(name, offset, length, attribute));
+      const auto ret = m_table.emplace(name, std::make_tuple(name, offset, length, description));
       inserted = ret.second;
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown");
@@ -130,9 +130,9 @@ class named_object_directory {
 
   /// \brief
   /// \return
-  const_iterator begin() const {
-    return m_table.begin();
-  }
+//  const_iterator begin() const {
+//    return m_table.begin();
+//  }
 
   /// \brief
   /// \return
@@ -144,23 +144,23 @@ class named_object_directory {
   /// \param name
   /// \param buf
   /// \return
-  bool get_attribute(const name_type &name, attribute_type* buf) const {
+  bool get_description(const name_type &name, description_type* buf) const {
     auto itr = find(name);
     if (itr == end()) return false;
 
-    *buf = std::get<items::attribute>(itr->second);
+    *buf = std::get<index::description>(itr->second);
     return true;
   }
 
   /// \brief
   /// \param name
-  /// \param attribute
+  /// \param description
   /// \return
-  bool set_attribute(const name_type &name, const attribute_type& attribute) {
+  bool set_description(const name_type &name, const description_type& description) {
     auto itr = m_table.find(name);
     if (itr == end()) return false;
 
-    std::get<items::attribute>(itr->second) = attribute;
+    std::get<index::description>(itr->second) = description;
 
     return true;
   }
@@ -183,10 +183,10 @@ class named_object_directory {
     json::node_type json_named_objects_list;
     for (const auto &item : m_table) {
       json::node_type json_named_object_entry;
-      if (!json::add_value(json_key::name, std::get<items::name>(item.second), &json_named_object_entry) ||
-          !json::add_value(json_key::offset, std::get<items::offset>(item.second), &json_named_object_entry) ||
-          !json::add_value(json_key::length, std::get<items::length>(item.second), &json_named_object_entry) ||
-          !json::add_value(json_key::attribute, std::get<items::attribute>(item.second), &json_named_object_entry)) {
+      if (!json::add_value(json_key::name, std::get<index::name>(item.second), &json_named_object_entry) ||
+          !json::add_value(json_key::offset, std::get<index::offset>(item.second), &json_named_object_entry) ||
+          !json::add_value(json_key::length, std::get<index::length>(item.second), &json_named_object_entry) ||
+          !json::add_value(json_key::description, std::get<index::description>(item.second), &json_named_object_entry)) {
         return false;
       }
       if (!json::push_back(json_named_object_entry, &json_named_objects_list)) {
@@ -223,16 +223,16 @@ class named_object_directory {
       name_type name;
       offset_type offset = 0;
       length_type length = 0;
-      attribute_type attribute;
+      description_type description;
 
       if (!json::get_value(object.second, json_key::name, &name) ||
           !json::get_value(object.second, json_key::offset, &offset) ||
           !json::get_value(object.second, json_key::length, &length) ||
-          !json::get_value(object.second, json_key::attribute, &attribute)) {
+          !json::get_value(object.second, json_key::description, &description)) {
         return false;
       }
 
-      if (!insert(name, offset, length, attribute)) {
+      if (!insert(name, offset, length, description)) {
         logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to reconstruct named object table");
         return false;
       }
@@ -245,11 +245,11 @@ class named_object_directory {
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  enum items {
+  enum index {
     name = 0,
     offset = 1,
     length = 2,
-    attribute = 3
+    description = 3
   };
 
   struct json_key {
@@ -257,7 +257,7 @@ class named_object_directory {
     static constexpr const char *name = "name";
     static constexpr const char *offset = "offset";
     static constexpr const char *length = "length";
-    static constexpr const char *attribute = "attribute";
+    static constexpr const char *description = "description";
   };
 
   // -------------------------------------------------------------------------------- //
