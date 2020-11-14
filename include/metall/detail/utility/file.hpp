@@ -208,11 +208,20 @@ inline bool create_directory(const std::string &dir_path) {
 
   bool success = true;
   try {
-    std::error_code ec;
-    // MEMO: GCC <= v8.2 (GCC bug# 87846)
+    std::string fixed_string = dir_path;
+
+    // MEMO: GCC bug 87846 (fixed in v8.3)
     // "Calling std::filesystem::create_directories with a path with a trailing separator (e.g. "./a/b/")
     // does not create any directory."
-    if (!fs::create_directories(dir_path, ec)) {
+#if (defined(__GNUG__) && !defined(__clang__)) && (__GNUC__ < 8 || (__GNUC__ == 8 && __GNUC_MINOR__ < 3)) // Check if < GCC 8.3
+    // Remove trailing separator(s) if they exist:
+    while (fixed_string.back() == '/') {
+      fixed_string.erase(fixed_string.size() - 1, 1);
+    }
+#endif
+
+    std::error_code ec;
+    if (!fs::create_directories(fixed_string, ec)) {
       // If the directory exist, create_directories returns false although error_code says 'Success'.
       logger::out(logger::level::error, __FILE__, __LINE__, ec.message());
       success = false;
