@@ -113,9 +113,14 @@ class multilayer_bitset {
     block_holder() = default;
     ~block_holder() = default;
     block_holder(const block_holder &) = default;
-    block_holder(block_holder &&other) = default;
+    block_holder(block_holder &&other) noexcept = default;
     block_holder &operator=(const block_holder &) = default;
-    block_holder &operator=(block_holder &&other) = default;
+    block_holder &operator=(block_holder &&other) noexcept = default;
+
+    void init() {
+      block = 0;
+      array = nullptr;
+    }
 
     block_type block; // Construct a bitset into this space directly if #of required bits are small
     block_type *array; // Holds a pointer to a multi-layer bitset table
@@ -131,13 +136,21 @@ class multilayer_bitset {
   multilayer_bitset() = default;
   ~multilayer_bitset() = default;
   multilayer_bitset(const multilayer_bitset &) = default;
-  multilayer_bitset(multilayer_bitset &&other) = default;
+  multilayer_bitset(multilayer_bitset &&other) noexcept = default;
   multilayer_bitset &operator=(const multilayer_bitset &) = default;
-  multilayer_bitset &operator=(multilayer_bitset &&other) = default;
+  multilayer_bitset &operator=(multilayer_bitset &&other) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
+
+  /// \brief Initialize
+  /// This function does not free memory
+  void init() {
+    assert(!m_data.array);
+    m_data.init();
+  }
+
   /// \brief Allocates internal space
   void allocate(const std::size_t num_bits, rebind_allocator_type& allocator) {
     const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
@@ -248,6 +261,7 @@ class multilayer_bitset {
   }
 
   void free_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
+    if (!m_data.array) return;
     std::allocator_traits<rebind_allocator_type>::deallocate(allocator, m_data.array, num_all_blokcs(num_bits_power2));
   }
 
