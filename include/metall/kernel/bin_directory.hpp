@@ -42,7 +42,7 @@ namespace util = metall::detail::utility;
 /// \tparam _k_num_bins The number of bins
 /// \tparam _value_type The value type to store
 /// \tparam _allocator_type The allocator type to allocate internal data
-template <std::size_t _k_num_bins, typename _value_type, typename _allocator_type>
+template <std::size_t _k_num_bins, typename _value_type, typename _allocator_type = std::allocator<std::byte>>
 class bin_directory {
  public:
   // -------------------------------------------------------------------------------- //
@@ -78,14 +78,14 @@ class bin_directory {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit bin_directory(const allocator_type &allocator)
+  explicit bin_directory(const allocator_type &allocator = allocator_type())
       : m_table(k_num_bins, bin_type(allocator), allocator) {}
 
-  ~bin_directory() = default;
+  ~bin_directory() noexcept = default;
   bin_directory(const bin_directory &) = default;
-  bin_directory(bin_directory &&) = default;
+  bin_directory(bin_directory &&) noexcept = default;
   bin_directory &operator=(const bin_directory &) = default;
-  bin_directory &operator=(bin_directory &&) = default;
+  bin_directory &operator=(bin_directory &&) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods

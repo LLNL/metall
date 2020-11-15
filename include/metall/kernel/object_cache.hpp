@@ -11,7 +11,10 @@
 #include <mutex>
 #include <vector>
 #include <thread>
+#include <memory>
+
 #include <boost/container/vector.hpp>
+
 #include <metall/kernel/bin_directory.hpp>
 #include <metall/detail/utility/proc.hpp>
 #include <metall/detail/utility/hash.hpp>
@@ -27,7 +30,7 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <std::size_t _k_num_bins, typename _difference_type, typename bin_no_mngr, typename _allocator_type>
+template <std::size_t _k_num_bins, typename _difference_type, typename _bin_no_manager>
 class object_cache {
  public:
   // -------------------------------------------------------------------------------- //
@@ -36,23 +39,20 @@ class object_cache {
   static constexpr unsigned int k_num_bins = _k_num_bins;
   static constexpr unsigned int k_full_cache_size = 8;
   using difference_type = _difference_type;
-  using allocator_type = _allocator_type;
+  using bin_no_manager = _bin_no_manager;
 
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  template <typename T>
-  using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
-  using local_object_cache_type = bin_directory<_k_num_bins, difference_type, allocator_type>;
-  using cache_table_allocator = boost::container::scoped_allocator_adaptor<other_allocator_type<local_object_cache_type>>;
-  using cache_table_type = boost::container::vector<local_object_cache_type, cache_table_allocator>;
+  using local_object_cache_type = bin_directory<_k_num_bins, difference_type>;
+  using cache_table_type = boost::container::vector<local_object_cache_type>;
 
   static constexpr unsigned int k_num_cache_per_core = 4;
   static constexpr std::size_t k_max_total_cache_size_per_bin = 1ULL << 20ULL;
   static constexpr unsigned int k_cache_block_size = 8; // Add and remove caches by this size
   static constexpr std::size_t k_max_cache_object_size = k_max_total_cache_size_per_bin / k_cache_block_size / 2;
-  static constexpr unsigned int k_max_bin_no = bin_no_mngr::to_bin_no(k_max_cache_object_size);
+  static constexpr unsigned int k_max_bin_no = _bin_no_manager::to_bin_no(k_max_cache_object_size);
   static constexpr int k_cpu_core_no_cache_duration = 4;
 
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
@@ -70,18 +70,18 @@ class object_cache {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  object_cache(const allocator_type &allocator)
-      : m_cache_table(num_cores() * k_num_cache_per_core, allocator)
+  object_cache()
+      : m_cache_table(num_cores() * k_num_cache_per_core)
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
   , m_mutex(m_cache_table.size())
 #endif
-  {};
+  {}
 
-  ~object_cache() = default;
+  ~object_cache() noexcept = default;
   object_cache(const object_cache &) = default;
-  object_cache(object_cache &&) = default;
+  object_cache(object_cache &&) noexcept = default;
   object_cache &operator=(const object_cache &) = default;
-  object_cache &operator=(object_cache &&) = default;
+  object_cache &operator=(object_cache &&) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods
@@ -126,7 +126,7 @@ class object_cache {
 #endif
     m_cache_table[cache_no].insert(bin_no, object_offset);
 
-    const auto object_size = bin_no_mngr::to_object_size(bin_no);
+    const auto object_size = _bin_no_manager::to_object_size(bin_no);
     if (m_cache_table[cache_no].size(bin_no) * object_size >= k_max_total_cache_size_per_bin) {
       assert(m_cache_table[cache_no].size(bin_no) >= k_cache_block_size);
       difference_type offsets[k_cache_block_size];

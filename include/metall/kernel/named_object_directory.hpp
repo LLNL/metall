@@ -34,8 +34,7 @@ namespace json = metall::detail::utility::ptree;
 /// \brief Directory for named objects.
 /// \tparam _offset_type
 /// \tparam _size_type
-/// \tparam _allocator_type
-template <typename _offset_type, typename _size_type, typename _allocator_type = std::allocator<std::byte>>
+template <typename _offset_type, typename _size_type>
 class named_object_directory {
  public:
   // -------------------------------------------------------------------------------- //
@@ -46,7 +45,6 @@ class named_object_directory {
   using offset_type = _offset_type;
   using length_type = size_type;
   using description_type = std::string;
-  using allocator_type = _allocator_type;
 
  private:
   // -------------------------------------------------------------------------------- //
@@ -68,9 +66,7 @@ class named_object_directory {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit named_object_directory(const allocator_type &allocator = allocator_type())
-      : m_main_table(),
-        m_key_table() {}
+  named_object_directory() = default;
   ~named_object_directory() noexcept = default;
   named_object_directory(const named_object_directory &) = default;
   named_object_directory(named_object_directory &&) noexcept = default;

@@ -20,15 +20,14 @@ namespace metall {
 
 #if !defined(DOXYGEN_SKIP)
 // Forward declaration
-template <typename chunk_no_type, std::size_t k_chunk_size, typename kernel_allocator_type>
+template <typename chunk_no_type, std::size_t k_chunk_size>
 class basic_manager;
 #endif // DOXYGEN_SKIP
 
 /// \brief A generalized Metall manager class
 /// \tparam chunk_no_type
 /// \tparam k_chunk_size
-/// \tparam kernel_allocator_type
-template <typename chunk_no_type = uint32_t, std::size_t k_chunk_size = (1ULL << 21ULL), typename kernel_allocator_type = std::allocator<std::byte>>
+template <typename chunk_no_type = uint32_t, std::size_t k_chunk_size = (1ULL << 21ULL)>
 class basic_manager {
  public:
   // -------------------------------------------------------------------------------- //
@@ -36,7 +35,7 @@ class basic_manager {
   // -------------------------------------------------------------------------------- //
 
   /// \brief Manager kernel type
-  using manager_kernel_type = kernel::manager_kernel<chunk_no_type, k_chunk_size, kernel_allocator_type>;
+  using manager_kernel_type = kernel::manager_kernel<chunk_no_type, k_chunk_size>;
 
   /// \brief Void pointer type
   using void_pointer = typename manager_kernel_type::void_pointer;
@@ -67,7 +66,7 @@ class basic_manager {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
   using char_ptr_holder_type = typename manager_kernel_type::char_ptr_holder_type;
-  using self_type = basic_manager<chunk_no_type, k_chunk_size, kernel_allocator_type>;
+  using self_type = basic_manager<chunk_no_type, k_chunk_size>;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -76,39 +75,31 @@ class basic_manager {
 
   /// \brief Opens an existing data store.
   /// \param base_path Path to a data store.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(open_only_t, const char *base_path,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
+  basic_manager(open_only_t, const char *base_path)
+      : m_kernel() {
     m_kernel.open(base_path);
   }
 
   /// \brief Opens an existing data store with the read only mode.
   /// Write accesses will cause segmentation fault.
   /// \param base_path Path to a data store.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(open_read_only_t, const char *base_path,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
+  basic_manager(open_read_only_t, const char *base_path)
+      : m_kernel() {
     m_kernel.open_read_only(base_path);
   }
 
   /// \brief Creates a new data store (an existing data store will be overwritten).
   /// \param base_path Path to create a data store.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(create_only_t, const char *base_path,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
+  basic_manager(create_only_t, const char *base_path)
+      : m_kernel() {
     m_kernel.create(base_path);
   }
 
   /// \brief Creates a new data store (an existing data store will be overwritten).
   /// \param base_path Path to create a data store.
   /// \param capacity Maximum total allocation size.
-  /// \param allocator Allocator to allocate management data.
-  basic_manager(create_only_t, const char *base_path, const size_type capacity,
-                const kernel_allocator_type &allocator = kernel_allocator_type())
-      : m_kernel(allocator) {
+  basic_manager(create_only_t, const char *base_path, const size_type capacity)
+      : m_kernel() {
     m_kernel.create(base_path, capacity);
   }
 
