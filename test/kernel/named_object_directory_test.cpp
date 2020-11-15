@@ -10,7 +10,7 @@
 
 namespace {
 
-using directory_type = metall::kernel::named_object_directory<ssize_t, std::size_t, std::allocator<char>>;
+using directory_type = metall::kernel::named_object_directory<ssize_t, std::size_t>;
 
 TEST(NambedObjectDirectoryTest, Insert) {
   directory_type obj;

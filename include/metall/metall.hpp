@@ -25,9 +25,6 @@ using manager = basic_manager<>;
 /// \example complex_map.cpp
 /// This is an example of how to use a complex STL map container with Metall.
 
-/// \example custom_kernel_allocator.cpp
-/// This is an example of how to use a custom allocator for Metall kernel.
-
 /// \example multilevel_containers.cpp
 /// This is an example of how to use a multi-level STL container with Metall.
 

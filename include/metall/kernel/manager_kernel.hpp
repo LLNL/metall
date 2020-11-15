@@ -52,7 +52,7 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <typename _chunk_no_type, std::size_t _chunk_size, typename _internal_data_allocator_type>
+template <typename _chunk_no_type, std::size_t _chunk_size>
 class manager_kernel {
 
  public:
@@ -68,13 +68,12 @@ class manager_kernel {
 
   using chunk_no_type = _chunk_no_type;
   static constexpr size_type k_chunk_size = _chunk_size;
-  using internal_data_allocator_type = _internal_data_allocator_type;
 
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  using self_type = manager_kernel<_chunk_no_type, _chunk_size, _internal_data_allocator_type>;
+  using self_type = manager_kernel<_chunk_no_type, _chunk_size>;
   static constexpr const char *k_datastore_top_dir_name = "metall_datastore";
   static constexpr const char *k_datastore_core_dir_name = "core";
 
@@ -107,11 +106,10 @@ class manager_kernel {
   static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";
   using segment_memory_allocator = segment_allocator<chunk_no_type, size_type, difference_type,
                                                      k_chunk_size, k_max_segment_size,
-                                                     segment_storage_type,
-                                                     internal_data_allocator_type>;
+                                                     segment_storage_type>;
 
   // For named object directory
-  using named_object_directory_type = named_object_directory<difference_type, size_type, internal_data_allocator_type>;
+  using named_object_directory_type = named_object_directory<difference_type, size_type>;
   static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
 
   static constexpr const char *k_properly_closed_mark_file_name = "properly_closed_mark";
@@ -131,7 +129,7 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit manager_kernel(const internal_data_allocator_type &allocator);
+  manager_kernel();
   ~manager_kernel() noexcept;
 
   manager_kernel(const manager_kernel &) = delete;

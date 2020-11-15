@@ -12,8 +12,7 @@ namespace kernel {
 /// \brief Manager kernel class version 0
 /// \tparam chunk_no_type Type of chunk number
 /// \tparam chunk_size Size of single chunk in byte
-/// \tparam allocator_type Allocator used to allocate internal data
-template <typename _chunk_no_type, std::size_t _chunk_size, typename _allocator_type>
+template <typename _chunk_no_type, std::size_t _chunk_size>
 class manager_kernel;
 
 } // namespace kernel
