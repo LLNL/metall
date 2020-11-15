@@ -26,7 +26,7 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <typename _chunk_no_type, std::size_t _k_chunk_size, std::size_t _k_max_size, typename allocator_type>
+template <typename _chunk_no_type, std::size_t _k_chunk_size, std::size_t _k_max_size>
 class chunk_directory {
  private:
   // -------------------------------------------------------------------------------- //
@@ -36,8 +36,7 @@ class chunk_directory {
   static constexpr std::size_t k_max_size = _k_max_size;
   using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
   static constexpr std::size_t k_num_max_slots = k_chunk_size / bin_no_mngr::to_object_size(0);
-  using multilayer_bitset_type = multilayer_bitset<allocator_type>;
-  using multilayer_bitset_allocator_type = typename multilayer_bitset_type::rebind_allocator_type;
+  using multilayer_bitset_type = multilayer_bitset;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -77,12 +76,10 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit chunk_directory(const std::size_t max_num_chunks,
-                           const allocator_type &allocator)
+  explicit chunk_directory(const std::size_t max_num_chunks)
       : m_table(nullptr),
         m_max_num_chunks(0),
-        m_begin_unused_chunk_no(0),
-        m_multilayer_bitset_allocator(allocator) {
+        m_begin_unused_chunk_no(0) {
     priv_allocate(max_num_chunks);
   }
 
@@ -128,7 +125,7 @@ class chunk_directory {
       const slot_count_type num_slots = slots(chunk_no);
       m_table[chunk_no].type = chunk_type::empty;
       m_table[chunk_no].num_occupied_slots = 0;
-      m_table[chunk_no].slot_occupancy.free(num_slots, m_multilayer_bitset_allocator);
+      m_table[chunk_no].slot_occupancy.free(num_slots);
 
       if (chunk_no == m_begin_unused_chunk_no - 1) {
         m_begin_unused_chunk_no = static_cast<std::size_t>(find_next_used_chunk_backward(chunk_no)) + 1;
@@ -374,7 +371,7 @@ class chunk_directory {
         }
         bitset_buf.erase(0, 1);
 
-        m_table[chunk_no].slot_occupancy.allocate(num_slots, m_multilayer_bitset_allocator);
+        m_table[chunk_no].slot_occupancy.allocate(num_slots);
         if (!m_table[chunk_no].slot_occupancy.deserialize(num_slots, bitset_buf)) {
           logger::out(logger::level::critical,
                       __FILE__,
@@ -465,7 +462,7 @@ class chunk_directory {
         m_table[chunk_no].bin_no = bin_no;
         m_table[chunk_no].type = chunk_type::small_chunk;
         m_table[chunk_no].num_occupied_slots = 0;
-        m_table[chunk_no].slot_occupancy.allocate(num_slots, m_multilayer_bitset_allocator);
+        m_table[chunk_no].slot_occupancy.allocate(num_slots);
 
         m_begin_unused_chunk_no = std::max(static_cast<std::size_t>(chunk_no) + 1, m_begin_unused_chunk_no);
 
@@ -534,7 +531,6 @@ class chunk_directory {
   entry_type *m_table;
   std::size_t m_max_num_chunks;
   std::size_t m_begin_unused_chunk_no;
-  multilayer_bitset_allocator_type m_multilayer_bitset_allocator;
 };
 
 } // namespace kernel

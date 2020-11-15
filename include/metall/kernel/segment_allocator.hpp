@@ -71,7 +71,7 @@ class segment_allocator {
   static constexpr const char *k_non_full_chunk_bin_file_name = "non_full_chunk_bin";
 
   // For chunk directory
-  using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size, internal_data_allocator_type>;
+  using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size>;
   using chunk_slot_no_type = typename chunk_directory_type::slot_no_type;
   static constexpr const char *k_chunk_directory_file_name = "chunk_directory";
 
@@ -95,7 +95,7 @@ class segment_allocator {
   explicit segment_allocator(segment_storage_type *segment_storage,
                              const internal_data_allocator_type &allocator = internal_data_allocator_type())
       : m_non_full_chunk_bin(allocator),
-        m_chunk_directory(k_max_size / k_chunk_size, allocator),
+        m_chunk_directory(k_max_size / k_chunk_size),
         m_segment_storage(segment_storage)
 #ifndef METALL_DISABLE_OBJECT_CACHE
       , m_object_cache(allocator)
