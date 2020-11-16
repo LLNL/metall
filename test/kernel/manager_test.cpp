@@ -25,7 +25,7 @@ using object_size_mngr = metall::kernel::object_size_manager<k_chunk_size, 1ULL 
 constexpr std::size_t k_min_object_size = object_size_mngr::at(0);
 
 const std::string &dir_path() {
-  const static std::string path(test_utility::make_test_dir_path("ManagerTest"));
+  const static std::string path(test_utility::make_test_path());
   return path;
 }
 
@@ -525,6 +525,19 @@ TEST(ManagerTest, UUID) {
   { // Returns a new UUID?
     manager_type manager(metall::create_only, dir_path().c_str());
     ASSERT_NE(manager_type::get_uuid(dir_path().c_str()), uuid);
+  }
+}
+
+TEST(ManagerTest, Version) {
+  manager_type::remove(dir_path().c_str());
+  {
+    manager_type manager(metall::create_only, dir_path().c_str());
+    ASSERT_EQ(manager_type::get_version(dir_path().c_str()), METALL_VERSION);
+  }
+
+  {
+    manager_type manager(metall::open_only, dir_path().c_str());
+    ASSERT_EQ(manager_type::get_version(dir_path().c_str()), METALL_VERSION);
   }
 }
 }

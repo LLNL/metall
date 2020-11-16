@@ -26,7 +26,7 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <typename _chunk_no_type, std::size_t _k_chunk_size, std::size_t _k_max_size, typename allocator_type>
+template <typename _chunk_no_type, std::size_t _k_chunk_size, std::size_t _k_max_size>
 class chunk_directory {
  private:
   // -------------------------------------------------------------------------------- //
@@ -36,8 +36,7 @@ class chunk_directory {
   static constexpr std::size_t k_max_size = _k_max_size;
   using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
   static constexpr std::size_t k_num_max_slots = k_chunk_size / bin_no_mngr::to_object_size(0);
-  using multilayer_bitset_type = multilayer_bitset<allocator_type>;
-  using multilayer_bitset_allocator_type = typename multilayer_bitset_type::rebind_allocator_type;
+  using multilayer_bitset_type = multilayer_bitset;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -53,35 +52,34 @@ class chunk_directory {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
   enum chunk_type : uint8_t {
-    empty = 0, // This must be 0
+    empty = 0,
     small_chunk = 1,
     large_chunk_head = 2,
-    large_chunk_tail = 3
+    large_chunk_body = 3
   };
 
+  // Chunk directory is just an array of this structure
   struct entry_type {
-    entry_type()
-        : bin_no(),
-          type(chunk_type::empty),
-          num_occupied_slots(0),
-          slot_occupancy() {}
+    void init() {
+      type = chunk_type::empty;
+      num_occupied_slots = 0;
+      slot_occupancy.init();
+    }
 
-    bin_no_type bin_no; // 1B
-    chunk_type type;    // 1B
-    slot_count_type num_occupied_slots; // 4B
-    multilayer_bitset_type slot_occupancy; // 8B
+    bin_no_type bin_no; // 1 byte
+    chunk_type type;    // 1 byte
+    slot_count_type num_occupied_slots; // 4 bytes, just for small chunk
+    multilayer_bitset_type slot_occupancy; // 8 bytes, just for small chunk
   };
 
  public:
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit chunk_directory(const std::size_t max_num_chunks,
-                           const allocator_type &allocator)
+  explicit chunk_directory(const std::size_t max_num_chunks)
       : m_table(nullptr),
         m_max_num_chunks(0),
-        m_end_chunk_no(0),
-        m_multilayer_bitset_allocator(allocator) {
+        m_begin_unused_chunk_no(0) {
     priv_allocate(max_num_chunks);
   }
 
@@ -92,8 +90,8 @@ class chunk_directory {
   chunk_directory(const chunk_directory &) = delete;
   chunk_directory &operator=(const chunk_directory &) = delete;
 
-  chunk_directory(chunk_directory &&) = default;
-  chunk_directory &operator=(chunk_directory &&) = default;
+  chunk_directory(chunk_directory &&) noexcept = default;
+  chunk_directory &operator=(chunk_directory &&) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods
@@ -105,9 +103,9 @@ class chunk_directory {
     chunk_no_type inserted_chunk_no;
 
     if (bin_no < bin_no_mngr::num_small_bins()) {
-      inserted_chunk_no = insert_small_chunk(bin_no);
+      inserted_chunk_no = priv_insert_small_chunk(bin_no);
     } else {
-      inserted_chunk_no = insert_large_chunk(bin_no);
+      inserted_chunk_no = priv_insert_large_chunk(bin_no);
     }
 
     assert(inserted_chunk_no < size());
@@ -121,29 +119,29 @@ class chunk_directory {
     assert(chunk_no < size());
     if (empty_chunk(chunk_no)) return;
 
-    assert(m_end_chunk_no > 0);
+    assert(m_begin_unused_chunk_no > 0);
 
     if (m_table[chunk_no].type == chunk_type::small_chunk) {
       const slot_count_type num_slots = slots(chunk_no);
       m_table[chunk_no].type = chunk_type::empty;
       m_table[chunk_no].num_occupied_slots = 0;
-      m_table[chunk_no].slot_occupancy.free(num_slots, m_multilayer_bitset_allocator);
+      m_table[chunk_no].slot_occupancy.free(num_slots);
 
-      if (chunk_no == m_end_chunk_no - 1) {
-        m_end_chunk_no = static_cast<std::size_t>(find_next_used_chunk_backward(chunk_no)) + 1;
+      if (chunk_no == m_begin_unused_chunk_no - 1) {
+        m_begin_unused_chunk_no = static_cast<std::size_t>(find_next_used_chunk_backward(chunk_no)) + 1;
       }
 
     } else {
       m_table[chunk_no].type = chunk_type::empty;
       chunk_no_type offset = 1;
-      for (; chunk_no + offset < m_max_num_chunks && m_table[chunk_no + offset].type == chunk_type::large_chunk_tail;
+      for (; chunk_no + offset < m_max_num_chunks && m_table[chunk_no + offset].type == chunk_type::large_chunk_body;
              ++offset) {
         m_table[chunk_no + offset].type = chunk_type::empty;
       }
 
       const chunk_no_type last_chunk_no = chunk_no + offset - 1;
-      if (last_chunk_no == m_end_chunk_no - 1) {
-        m_end_chunk_no = static_cast<std::size_t>(find_next_used_chunk_backward(last_chunk_no)) + 1;
+      if (last_chunk_no == m_begin_unused_chunk_no - 1) {
+        m_begin_unused_chunk_no = static_cast<std::size_t>(find_next_used_chunk_backward(last_chunk_no)) + 1;
       }
     }
   }
@@ -219,8 +217,8 @@ class chunk_directory {
   /// \brief
   /// \return
   std::size_t size() const {
-    assert(m_end_chunk_no <= m_max_num_chunks);
-    return m_end_chunk_no;
+    assert(m_begin_unused_chunk_no <= m_max_num_chunks);
+    return m_begin_unused_chunk_no;
   }
 
   /// \brief
@@ -295,7 +293,7 @@ class chunk_directory {
         }
 
       } else if (m_table[chunk_no].type == chunk_type::large_chunk_head
-          || m_table[chunk_no].type == chunk_type::large_chunk_tail) {
+          || m_table[chunk_no].type == chunk_type::large_chunk_body) {
         ofs << "\n";
         if (!ofs) {
           logger::out(logger::level::critical,
@@ -340,8 +338,8 @@ class chunk_directory {
         m_table[chunk_no].type = chunk_type::small_chunk;
       } else if (type == static_cast<status_underlying_type>(chunk_type::large_chunk_head)) {
         m_table[chunk_no].type = chunk_type::large_chunk_head;
-      } else if (type == static_cast<status_underlying_type>(chunk_type::large_chunk_tail)) {
-        m_table[chunk_no].type = chunk_type::large_chunk_tail;
+      } else if (type == static_cast<status_underlying_type>(chunk_type::large_chunk_body)) {
+        m_table[chunk_no].type = chunk_type::large_chunk_body;
       } else {
         logger::out(logger::level::critical, __FILE__, __LINE__, "Invalid chunk type");
         return false;
@@ -373,7 +371,7 @@ class chunk_directory {
         }
         bitset_buf.erase(0, 1);
 
-        m_table[chunk_no].slot_occupancy.allocate(num_slots, m_multilayer_bitset_allocator);
+        m_table[chunk_no].slot_occupancy.allocate(num_slots);
         if (!m_table[chunk_no].slot_occupancy.deserialize(num_slots, bitset_buf)) {
           logger::out(logger::level::critical,
                       __FILE__,
@@ -383,7 +381,7 @@ class chunk_directory {
         }
       }
 
-      m_end_chunk_no = std::max(static_cast<std::size_t>(chunk_no) + 1, m_end_chunk_no);
+      m_begin_unused_chunk_no = std::max(static_cast<std::size_t>(chunk_no) + 1, m_begin_unused_chunk_no);
     }
 
     if (!ifs.eof()) {
@@ -413,12 +411,17 @@ class chunk_directory {
   }
 
   /// \brief Reserves chunk directory.
-  /// It allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
+  /// Allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
+  /// Accordingly, this function does not initialize an allocate data.
   /// \param max_num_chunks
   bool priv_allocate(const std::size_t max_num_chunks) {
     assert(!m_table);
     m_max_num_chunks = max_num_chunks;
-    /// CAUTION: Assumes that mmap + MAP_ANONYMOUS returns zero-initialized region
+
+    // Assume that mmap + MAP_ANONYMOUS returns 'uncommited pages'.
+    // An uncommited page will be zero-initialized when it is touched first time;
+    // however, this class does not relies on that.
+    // The table entries will be initialized just before they are used.
     m_table = static_cast<entry_type *>(util::map_anonymous_write_mode(nullptr, m_max_num_chunks * sizeof(entry_type)));
 
     if (!m_table) {
@@ -426,7 +429,8 @@ class chunk_directory {
       logger::perror(logger::level::critical, __FILE__, __LINE__, "Cannot allocate chunk table");
       return false;
     }
-    m_end_chunk_no = 0;
+
+    m_begin_unused_chunk_no = 0;
     return true;
   }
 
@@ -437,25 +441,30 @@ class chunk_directory {
     util::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
     m_table = nullptr;
     m_max_num_chunks = 0;
-    m_end_chunk_no = 0;
+    m_begin_unused_chunk_no = 0;
   }
 
   /// \brief
   /// \param bin_no
   /// \param num_slots
   /// \return
-  chunk_no_type insert_small_chunk(const bin_no_type bin_no) {
+  chunk_no_type priv_insert_small_chunk(const bin_no_type bin_no) {
     const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no));
     assert(num_slots > 1);
 
     for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
+      if (chunk_no >= m_begin_unused_chunk_no) {
+        // Initialize (empty) it before just in case
+        m_table[chunk_no].init();
+      }
+
       if (empty_chunk(chunk_no)) {
         m_table[chunk_no].bin_no = bin_no;
         m_table[chunk_no].type = chunk_type::small_chunk;
         m_table[chunk_no].num_occupied_slots = 0;
-        m_table[chunk_no].slot_occupancy.allocate(num_slots, m_multilayer_bitset_allocator);
+        m_table[chunk_no].slot_occupancy.allocate(num_slots);
 
-        m_end_chunk_no = std::max(static_cast<std::size_t>(chunk_no) + 1, m_end_chunk_no);
+        m_begin_unused_chunk_no = std::max(static_cast<std::size_t>(chunk_no) + 1, m_begin_unused_chunk_no);
 
         return chunk_no;
       }
@@ -467,28 +476,34 @@ class chunk_directory {
   /// \brief
   /// \param bin_no
   /// \return
-  chunk_no_type insert_large_chunk(const bin_no_type bin_no) {
+  chunk_no_type priv_insert_large_chunk(const bin_no_type bin_no) {
     const std::size_t num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
     assert(num_chunks >= 1);
 
-    chunk_no_type count_empty_chunks = 0;
+    chunk_no_type count_continuous_empty_chunks = 0;
     for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
+      if (chunk_no >= m_begin_unused_chunk_no) {
+        // Initialize (empty) it before just in case
+        m_table[chunk_no].init();
+      }
+
       if (!empty_chunk(chunk_no)) {
-        count_empty_chunks = 0;
+        count_continuous_empty_chunks = 0;
         continue;
       }
-      ++count_empty_chunks;
-      if (count_empty_chunks == num_chunks) {
-        const chunk_no_type top_chunk_no = chunk_no - (count_empty_chunks - 1);
+
+      ++count_continuous_empty_chunks;
+      if (count_continuous_empty_chunks == num_chunks) {
+        const chunk_no_type top_chunk_no = chunk_no - (count_continuous_empty_chunks - 1);
         m_table[top_chunk_no].bin_no = bin_no;
         m_table[top_chunk_no].type = chunk_type::large_chunk_head;
 
         for (chunk_no_type offset = 1; offset < num_chunks; ++offset) {
           m_table[top_chunk_no + offset].bin_no = bin_no; // just in case
-          m_table[top_chunk_no + offset].type = chunk_type::large_chunk_tail;
+          m_table[top_chunk_no + offset].type = chunk_type::large_chunk_body;
         }
 
-        m_end_chunk_no = std::max(top_chunk_no + num_chunks, m_end_chunk_no);
+        m_begin_unused_chunk_no = std::max(top_chunk_no + num_chunks, m_begin_unused_chunk_no);
 
         return top_chunk_no;
       }
@@ -515,8 +530,7 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   entry_type *m_table;
   std::size_t m_max_num_chunks;
-  std::size_t m_end_chunk_no;
-  multilayer_bitset_allocator_type m_multilayer_bitset_allocator;
+  std::size_t m_begin_unused_chunk_no;
 };
 
 } // namespace kernel

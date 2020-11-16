@@ -100,7 +100,7 @@ template <typename list_type>
 void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
 
   // Allocate manager
-  const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  const auto dir(test_utility::make_test_path());
   manager_type manager(metall::create_only, dir.c_str());
 
   // Main loop
@@ -132,7 +132,7 @@ template <typename list_type>
 void run_alloc_dealloc_mixed_and_write_value_test(const list_type &allocation_size_list) {
 
   // Allocate manager
-  const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  const auto dir(test_utility::make_test_path());
   manager_type manager(metall::create_only, dir.c_str());
 
   // Main loop
@@ -276,7 +276,7 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   using allocation_element_type = std::array<char, 256>;
   constexpr std::size_t num_allocates = 1024;
 
-  const auto dir(test_utility::make_test_dir_path(::testing::UnitTest::GetInstance()->current_test_info()->name()));
+  const auto dir(test_utility::make_test_path());
   manager_type manager(metall::create_only, dir.c_str());
 
   std::vector<std::string> keys;

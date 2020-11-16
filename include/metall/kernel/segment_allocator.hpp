@@ -39,9 +39,10 @@ namespace {
 namespace util = metall::detail::utility;
 }
 
-template <typename _chunk_no_type, typename size_type, typename difference_type,
-    std::size_t _chunk_size, std::size_t _max_size, typename _segment_storage_type,
-          typename _internal_data_allocator_type>
+template <typename _chunk_no_type,
+          typename size_type,
+          typename difference_type, std::size_t _chunk_size, std::size_t _max_size,
+          typename _segment_storage_type>
 class segment_allocator {
  public:
   // -------------------------------------------------------------------------------- //
@@ -52,7 +53,6 @@ class segment_allocator {
   static constexpr size_type k_max_size = _max_size;
   static constexpr difference_type k_null_offset = std::numeric_limits<difference_type>::max();
   using segment_storage_type = _segment_storage_type;
-  using internal_data_allocator_type = _internal_data_allocator_type;
 
  private:
   // -------------------------------------------------------------------------------- //
@@ -67,20 +67,17 @@ class segment_allocator {
 
   // For non-full chunk number bin (used to called 'bin directory')
   // NOTE: we only manage the non-full chunk numbers of the small bins (small oject sizes)
-  using non_full_chunk_bin_type = bin_directory<k_num_small_bins, chunk_no_type, internal_data_allocator_type>;
+  using non_full_chunk_bin_type = bin_directory<k_num_small_bins, chunk_no_type>;
   static constexpr const char *k_non_full_chunk_bin_file_name = "non_full_chunk_bin";
 
   // For chunk directory
-  using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size, internal_data_allocator_type>;
+  using chunk_directory_type = chunk_directory<chunk_no_type, k_chunk_size, k_max_size>;
   using chunk_slot_no_type = typename chunk_directory_type::slot_no_type;
   static constexpr const char *k_chunk_directory_file_name = "chunk_directory";
 
   // For object cache
 #ifndef METALL_DISABLE_OBJECT_CACHE
-  using small_object_cache_type = object_cache<k_num_small_bins,
-                                               difference_type,
-                                               bin_no_mngr,
-                                               internal_data_allocator_type>;
+  using small_object_cache_type = object_cache<k_num_small_bins, difference_type, bin_no_mngr>;
 #endif
 
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
@@ -92,13 +89,12 @@ class segment_allocator {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  explicit segment_allocator(segment_storage_type *segment_storage,
-                             const internal_data_allocator_type &allocator = internal_data_allocator_type())
-      : m_non_full_chunk_bin(allocator),
-        m_chunk_directory(k_max_size / k_chunk_size, allocator),
+  explicit segment_allocator(segment_storage_type *segment_storage)
+      : m_non_full_chunk_bin(),
+        m_chunk_directory(k_max_size / k_chunk_size),
         m_segment_storage(segment_storage)
 #ifndef METALL_DISABLE_OBJECT_CACHE
-      , m_object_cache(allocator)
+      , m_object_cache()
 #endif
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
       , m_chunk_mutex(),
@@ -111,8 +107,8 @@ class segment_allocator {
   segment_allocator(const segment_allocator &) = delete;
   segment_allocator &operator=(const segment_allocator &) = delete;
 
-  segment_allocator(segment_allocator &&) = default;
-  segment_allocator &operator=(segment_allocator &&) = default;
+  segment_allocator(segment_allocator &&) noexcept = default;
+  segment_allocator &operator=(segment_allocator &&) noexcept = default;
 
  public:
   // -------------------------------------------------------------------------------- //

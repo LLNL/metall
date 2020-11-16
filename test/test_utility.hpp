@@ -6,14 +6,17 @@
 #ifndef METALL_TEST_UTILITY_HPP
 #define METALL_TEST_UTILITY_HPP
 
+#include "gtest/gtest.h"
+
 #include <string>
 #include <cstdlib>
+
 #include <metall/detail/utility/file.hpp>
 
 namespace test_utility {
 
 const char *k_test_dir_env_name = "METALL_TEST_DIR";
-const char *k_default_test_dir = "/tmp";
+const char *k_default_test_dir = "/tmp/metall_test_dir";
 
 namespace detail {
 inline std::string get_test_dir() {
@@ -30,12 +33,11 @@ inline bool create_test_dir() {
   return true;
 }
 
-inline std::string make_test_dir_path(const std::string &name) {
-  return detail::get_test_dir() + "/" + name;
-}
-
-inline std::string make_test_file_path(const std::string &name) {
-  return detail::get_test_dir() + "/metall_test_" + name;
+inline std::string make_test_path(const std::string &name = std::string()) {
+  return detail::get_test_dir() + "/metalltest"
+    + "-" + ::testing::UnitTest::GetInstance()->current_test_case()->name()
+    + "-" + ::testing::UnitTest::GetInstance()->current_test_info()->name()
+    + "-" + name;
 }
 
 }

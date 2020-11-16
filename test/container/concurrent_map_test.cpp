@@ -126,11 +126,9 @@ TEST (ConcurrentMapTest, Persistence) {
   using allocator_type = bip::allocator<std::pair<const char, int>, bip::managed_mapped_file::segment_manager>;
   using map_type =  metall::container::concurrent_map<char, int, std::less<char>, std::hash<char>, allocator_type, 2>;
 
-  const std::string dir_path(test_utility::make_test_dir_path("concurrent_map"));
-  const std::string file_path(dir_path + "/persistentce_test");
+  const std::string file_path(test_utility::make_test_path());
 
   test_utility::create_test_dir();
-  metall::detail::utility::create_directory(dir_path);
   metall::detail::utility::remove_file(file_path);
 
   std::vector<std::pair<char, int>> inputs(10);

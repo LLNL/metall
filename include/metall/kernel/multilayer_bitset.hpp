@@ -94,7 +94,6 @@ namespace bs = metall::detail::utility::bitset_detail;
 namespace mlbs = multilayer_bitset_detail;
 }
 
-template <typename allocator_type>
 class multilayer_bitset {
  public:
   // -------------------------------------------------------------------------------- //
@@ -113,9 +112,14 @@ class multilayer_bitset {
     block_holder() = default;
     ~block_holder() = default;
     block_holder(const block_holder &) = default;
-    block_holder(block_holder &&other) = default;
+    block_holder(block_holder &&other) noexcept = default;
     block_holder &operator=(const block_holder &) = default;
-    block_holder &operator=(block_holder &&other) = default;
+    block_holder &operator=(block_holder &&other) noexcept = default;
+
+    void init() {
+      block = 0;
+      array = nullptr;
+    }
 
     block_type block; // Construct a bitset into this space directly if #of required bits are small
     block_type *array; // Holds a pointer to a multi-layer bitset table
@@ -123,36 +127,42 @@ class multilayer_bitset {
   using block_type = typename block_holder::block_type;
   static constexpr std::size_t k_num_bits_in_block = sizeof(block_type) * 8;
 
-  using rebind_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<block_type>;
-
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
   multilayer_bitset() = default;
   ~multilayer_bitset() = default;
   multilayer_bitset(const multilayer_bitset &) = default;
-  multilayer_bitset(multilayer_bitset &&other) = default;
+  multilayer_bitset(multilayer_bitset &&other) noexcept = default;
   multilayer_bitset &operator=(const multilayer_bitset &) = default;
-  multilayer_bitset &operator=(multilayer_bitset &&other) = default;
+  multilayer_bitset &operator=(multilayer_bitset &&other) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
+
+  /// \brief Initialize
+  /// This function does not free memory
+  void init() {
+    assert(!m_data.array);
+    m_data.init();
+  }
+
   /// \brief Allocates internal space
-  void allocate(const std::size_t num_bits, rebind_allocator_type& allocator) {
+  void allocate(const std::size_t num_bits) {
     const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       m_data.block = 0;
     } else {
-      allocate_multilayer_bitset(num_bits_power2, allocator);
+      allocate_multilayer_bitset(num_bits_power2);
     }
   }
 
   /// \brief Users have to explicitly free bitset table
-  void free(const std::size_t num_bits, rebind_allocator_type& allocator) {
+  void free(const std::size_t num_bits) {
     const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
     if (k_num_bits_in_block < num_bits_power2) {
-      free_multilayer_bitset(num_bits_power2, allocator);
+      free_multilayer_bitset(num_bits_power2);
     }
   }
 
@@ -237,9 +247,9 @@ class multilayer_bitset {
   // Private methods
   // -------------------------------------------------------------------------------- //
   // -------------------- Allocation and free -------------------- //
-  void allocate_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
+  void allocate_multilayer_bitset(const std::size_t num_bits_power2) {
     const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
-    m_data.array = std::allocator_traits<rebind_allocator_type>::allocate(allocator, num_blocks);
+    m_data.array = static_cast<block_type*>(std::malloc(num_blocks * sizeof(block_type)));
     if (!m_data.array) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot allocate multi-layer bitset");
       return;
@@ -247,8 +257,8 @@ class multilayer_bitset {
     std::fill(&m_data.array[0], &m_data.array[num_blocks], 0);
   }
 
-  void free_multilayer_bitset(const std::size_t num_bits_power2, rebind_allocator_type& allocator) {
-    std::allocator_traits<rebind_allocator_type>::deallocate(allocator, m_data.array, num_all_blokcs(num_bits_power2));
+  void free_multilayer_bitset([[maybe_unused]] const std::size_t num_bits_power2) {
+    std::free(m_data.array);
   }
 
   // -------------------- Find, set, and reset bits -------------------- //

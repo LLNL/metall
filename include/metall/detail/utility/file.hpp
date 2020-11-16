@@ -168,6 +168,24 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
   return ret;
 }
 
+/// \brief Check if a file, any kinds of file including directory, exists
+inline bool file_exist(const std::string &file_name) {
+  std::string fixed_string(file_name);
+  while (fixed_string.back() == '/') {
+    fixed_string.pop_back();
+  }
+  return (::access(fixed_string.c_str(), F_OK) == 0);
+}
+
+/// \brief Check if a directory exists
+inline bool directory_exist(const std::string &dir_path) {
+  struct stat statbuf;
+  if (::stat(dir_path.c_str(), &statbuf) == -1) {
+    return false;
+  }
+  return (uint64_t)S_IFDIR & (uint64_t)(statbuf.st_mode);
+}
+
 inline bool create_file(const std::string &file_name) {
 
   const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
@@ -183,11 +201,32 @@ inline bool create_file(const std::string &file_name) {
 }
 
 #if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+/// \brief Creates directories recursively.
+/// \return Returns true if the directory was created or already exists, returns true.
+/// Otherwise, returns false.
 inline bool create_directory(const std::string &dir_path) {
+
+  if (directory_exist(dir_path)) {
+    return true;
+  }
+
   bool success = true;
   try {
+    std::string fixed_string = dir_path;
+
+    // MEMO: GCC bug 87846 (fixed in v8.3)
+    // "Calling std::filesystem::create_directories with a path with a trailing separator (e.g. "./a/b/")
+    // does not create any directory."
+#if (defined(__GNUG__) && !defined(__clang__)) && (__GNUC__ < 8 || (__GNUC__ == 8 && __GNUC_MINOR__ < 3)) // Check if < GCC 8.3
+    // Remove trailing separator(s) if they exist:
+    while (fixed_string.back() == '/') {
+      fixed_string.pop_back();
+    }
+#endif
+
     std::error_code ec;
-    if (!fs::create_directories(dir_path, ec)) {
+    if (!fs::create_directories(fixed_string, ec)) {
+      // If the directory exist, create_directories returns false although error_code says 'Success'.
       logger::out(logger::level::error, __FILE__, __LINE__, ec.message());
       success = false;
     }
@@ -198,11 +237,17 @@ inline bool create_directory(const std::string &dir_path) {
   return success;
 }
 #else
+/// \brief Creates directories recursively.
+/// \return Returns true if the directory was created or already exists, returns true.
+/// Otherwise, returns false.
 inline bool create_directory(const std::string &dir_path) {
-  if (::mkdir(dir_path.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
-    return false;
+  if (directory_exist(dir_path)) {
+    return true;
   }
-  return true;
+
+  std::string mkdir_command("mkdir -p " + dir_path);
+  const int status = std::system(mkdir_command.c_str());
+  return (status != -1) && !!(WIFEXITED(status));
 }
 #endif
 
@@ -224,24 +269,10 @@ inline ssize_t get_file_size(const std::string &file_name) {
 inline ssize_t get_actual_file_size(const std::string &file_name) {
   struct stat statbuf;
   if (::stat(file_name.c_str(), &statbuf) != 0) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "stat");
+    logger::perror(logger::level::error, __FILE__, __LINE__, "stat (" + file_name + ")");
     return -1;
   }
   return statbuf.st_blocks * 512LL;
-}
-
-/// \brief Check if a file, any kinds of file including directory, exists
-inline bool file_exist(const std::string &file_name) {
-  return (::access(file_name.c_str(), F_OK) == 0);
-}
-
-/// \brief Check if a directory exists
-inline bool directory_exist(const std::string &dir_path) {
-  struct stat statbuf;
-  if (::stat(dir_path.c_str(), &statbuf) == -1) {
-    return false;
-  }
-  return (uint64_t)S_IFDIR & (uint64_t)(statbuf.st_mode);
 }
 
 /// \brief Remove a file or directory

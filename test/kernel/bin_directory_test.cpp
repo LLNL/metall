@@ -95,12 +95,15 @@ TEST(BinDirectoryTest, Serialize) {
   obj.insert(num_small_bins - 1, 3);
   obj.insert(num_small_bins - 1, 4);
 
-  ASSERT_TRUE(test_utility::create_test_dir());
-  const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
+  test_utility::create_test_dir();
+  const auto file = test_utility::make_test_path();
   ASSERT_TRUE(obj.serialize(file.c_str()));
 }
 
 TEST(BinDirectoryTest, Deserialize) {
+  test_utility::create_test_dir();
+  const auto file = test_utility::make_test_path();
+
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
@@ -110,14 +113,12 @@ TEST(BinDirectoryTest, Deserialize) {
     obj.insert(num_small_bins - 1, 3);
     obj.insert(num_small_bins - 1, 4);
 
-    const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
     obj.serialize(file.c_str());
   }
 
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
-    const auto file = test_utility::make_test_file_path(::testing::UnitTest::GetInstance()->current_test_info()->name());
     ASSERT_TRUE(obj.deserialize(file.c_str()));
 
 #ifdef METALL_USE_SPACE_AWARE_BIN
