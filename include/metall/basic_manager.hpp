@@ -40,6 +40,9 @@ class basic_manager {
   /// \brief Void pointer type
   using void_pointer = typename manager_kernel_type::void_pointer;
 
+  /// \brief Char type
+  using char_type = typename manager_kernel_type::char_type;
+
   /// \brief Size type
   using size_type = typename manager_kernel_type::size_type;
 
@@ -57,6 +60,15 @@ class basic_manager {
   /// \brief Construct iterator proxy
   template <typename T>
   using construct_iter_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, true>;
+
+  /// \brief An value that describes the type of the instance constructed in memory
+  using instance_type = typename manager_kernel_type::instance_type;
+
+  /// \brief Const iterator for named objects
+  using const_named_iterator = typename manager_kernel_type::const_named_iterator;
+
+  /// \brief Const iterator for unique objects
+  using const_unique_iterator = typename manager_kernel_type::const_unique_iterator;
 
   /// \brief Chunk number type (= chunk_no_type)
   using chunk_number_type = chunk_no_type;
@@ -235,6 +247,7 @@ class basic_manager {
   }
 
   /// \brief Destroys a previously created object.
+  /// Calls the destructor and frees the memory.
   /// \copydoc common_doc_const_find
   ///
   /// \details
@@ -245,11 +258,163 @@ class basic_manager {
   ///
   /// \tparam T The type of the object.
   /// \param name The name of the object.
-  /// \return Returns false if the object was not present.
+  /// \return Returns false if the object was not destroyed.
   template <typename T>
-  bool destroy(char_ptr_holder_type name) {
+  bool destroy(const char* name) {
     return m_kernel.template destroy<T>(name);
   }
+
+  /// \brief Destroys a unique object of type T.
+  /// Calls the destructor and frees the memory.
+  /// \copydoc common_doc_const_find
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// bool destroyed = basic_manager.destroy<T>(metall::unique_instance);
+  /// \endcode
+  ///
+  /// \tparam T The type of the object.
+  /// \return Returns false if the object was not destroyed.
+  template <typename T>
+  bool destroy(const metall::detail::utility::unique_instance_t*const) {
+    return m_kernel.template destroy<T>(metall::unique_instance);
+  }
+
+  /// \brief Destroys a object (named, unique, or anonymous) by its address.
+  /// Calls the destructor and frees the memory.
+  /// Cannot destroy an object not allocated by construct/find_or_construct functions.
+  /// \copydoc common_doc_const_find
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// bool destroyed = basic_manager.destroy_ptr<T>(ptr);
+  /// \endcode
+  ///
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \return Returns false if the object was not destroyed.
+  /// Note that the original API developed by Boost.Interprocess library does not return value.
+  template <class T>
+  bool destroy_ptr(const T *ptr) {
+    return m_kernel.template destroy_ptr<T>(ptr);
+  }
+
+  /// \brief Returns the name of an object created with construct/find_or_construct functions.
+  /// \details
+  /// Example:
+  /// \code
+  /// const char_type name = basic_manager.get_instance_name<T>(ptr);
+  /// \endcode
+  ///
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \return The name of the object.
+  /// If ptr points to an unique instance, typeid(T).name() is returned.
+  /// If ptr points to an anonymous instance or memory not allocated by construct/find_or_construct functions,
+  /// 0 is returned.
+  template<class T>
+  const char_type *get_instance_name(const T *ptr) const {
+    return m_kernel.get_instance_name(ptr);
+  }
+
+  /// \brief Returns is the type of an object created with construct/find_or_construct functions.
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// const instance_type t = basic_manager.get_instance_type<T>(ptr);
+  /// \endcode
+  ///
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \return The type of the object.
+  template<class T>
+  instance_type get_instance_type(const T *ptr) const {
+    return m_kernel.get_instance_type(ptr);
+  }
+
+  /// \brief Returns the length of an object created with construct/find_or_construct
+  /// functions (1 if is a single element, >=1 if it's an array).
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// const size_type length = basic_manager.get_instance_length<T>(ptr);
+  /// \endcode
+  ///
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \return The type of the object.
+  template<class T>
+  size_type get_instance_length(const T *ptr) const {
+    return m_kernel.get_instance_length(ptr);
+  }
+
+  /// \brief Returns Returns the number of named objects stored in the managed segment.
+  ///
+  /// \details
+  /// \copydoc common_doc_const_find
+  ///
+  /// \return The number of named objects stored in the managed segment.
+  size_type get_num_named_objects() const {
+    return m_kernel.get_num_named_objects();
+  }
+
+  /// \brief Returns Returns the number of unique objects stored in the managed segment.
+  ///
+  /// \details
+  /// \copydoc common_doc_const_find
+  ///
+  /// \return The number of unique objects stored in the managed segment.
+  size_type get_num_unique_objects() const {
+    return m_kernel.get_num_unique_objects();
+  }
+
+  /// \brief Returns a constant iterator to the index storing the named objects.
+  ///
+  /// \details
+  /// \copydoc common_doc_const_find
+  ///
+  /// \return A constant iterator to the index storing the named objects.
+  const_named_iterator named_begin() const {
+    return m_kernel.named_begin();
+  }
+
+  /// \brief Returns a constant iterator to the end of the index storing the named allocations.
+  ///
+  /// \details
+  /// \copydoc common_doc_const_find
+  ///
+  /// \return A constant iterator.
+  const_named_iterator named_end() const {
+    return m_kernel.named_end();
+  }
+
+  /// \brief Returns a constant iterator to the index storing the unique objects.
+  ///
+  /// \details
+  /// \copydoc common_doc_const_find
+  ///
+  /// \return A constant iterator to the index storing the unique objects.
+  const_unique_iterator unique_begin() const {
+    return m_kernel.unique_begin();
+  }
+
+  /// \brief Returns a constant iterator to the end of the index
+  /// storing the unique allocations. NOT thread-safe. Never throws.
+  ///
+  /// \details
+  /// \copydoc common_doc_const_find
+  ///
+  /// \return A constant iterator.
+  const_unique_iterator unique_end() const {
+    return m_kernel.unique_end();
+  }
+
+  // TODO: implement
+  // bool belongs_to_segment (const void *ptr) const;
 
   // -------------------- Allocate memory by size -------------------- //
   /// \brief Allocates nbytes bytes.
@@ -287,19 +452,11 @@ class basic_manager {
     m_kernel.flush(synchronous);
   }
 
-  // -------------------- Utility Methods -------------------- //
-  /// \brief Returns a STL compatible allocator object.
-  /// \tparam T Type of the object.
-  /// \return Returns a STL compatible allocator object.
-  template <typename T = std::byte>
-  allocator_type<T> get_allocator() const {
-    return allocator_type<T>(reinterpret_cast<manager_kernel_type **>(&(m_kernel.get_segment_header()->manager_kernel_address)));
-  }
-
+  // -------------------- Snapshot, copy, data store management -------------------- //
   /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
   /// \param destination_dir_path Path to store a snapshot.
   /// \return Returns true on success; other false.
-  bool snapshot(const char *destination_dir_path) {
+  bool snapshot(const char_type *destination_dir_path) {
     return m_kernel.snapshot(destination_dir_path);
   }
 
@@ -307,7 +464,7 @@ class basic_manager {
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
   /// \return If succeeded, returns true; other false.
-  static bool copy(const char *source_dir_path, const char *destination_dir_path) {
+  static bool copy(const char_type *source_dir_path, const char_type *destination_dir_path) {
     return manager_kernel_type::copy(source_dir_path, destination_dir_path);
   }
 
@@ -316,14 +473,14 @@ class basic_manager {
   /// \param destination_dir_path Destination data store path.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns true; other false.
-  static auto copy_async(const char *source_dir_path, const char *destination_dir_path) {
+  static auto copy_async(const char_type *source_dir_path, const char_type *destination_dir_path) {
     return manager_kernel_type::copy_async(source_dir_path, destination_dir_path);
   }
 
   /// \brief Remove data store synchronously.
   /// \param dir_path Path to a data store to remove.
   /// \return If succeeded, returns true; other false.
-  static bool remove(const char *dir_path) {
+  static bool remove(const char_type *dir_path) {
     return manager_kernel_type::remove(dir_path);
   }
 
@@ -331,15 +488,92 @@ class basic_manager {
   /// \param dir_path Path to a data store to remove.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns true; other false
-  static std::future<bool> remove_async(const char *dir_path) {
+  static std::future<bool> remove_async(const char_type *dir_path) {
     return std::async(std::launch::async, remove, dir_path);
   }
 
   /// \brief Check if the backing data store exists and is consistent (i.e., it was closed properly in the previous run).
   /// \param dir_path Path to a data store.
   /// \return Returns true if it exists and is consistent; otherwise, returns false.
-  static bool consistent(const char *dir_path) {
+  static bool consistent(const char_type *dir_path) {
     return manager_kernel_type::consistent(dir_path);
+  }
+
+  /// \brief Returns a UUID of the data store.
+  /// \return UUID in the std::string format; returns an empty string on error.
+  std::string get_uuid() const {
+    return m_kernel.get_uuid();
+  }
+
+  /// \brief Returns a UUID of the data store.
+  /// \param dir_path Path to a data store.
+  /// \return UUID in the std::string format; returns an empty string on error.
+  static std::string get_uuid(const char_type *dir_path) {
+    return manager_kernel_type::get_uuid(dir_path);
+  }
+
+  /// \brief Gets the version of the Metall that created the backing data store.
+  /// \return Returns a version number; returns 0 on error.
+  version_type get_version() const {
+    return m_kernel.get_version();
+  }
+
+  /// \brief Gets the version of the Metall that created the backing data store.
+  /// \param dir_path Path to a data store.
+  /// \return Returns a version number; returns 0 on error.
+  static version_type get_version(const char_type *dir_path) {
+    return manager_kernel_type::get_version(dir_path);
+  }
+
+
+  // -------------------- Data store description -------------------- //
+
+  /// \brief Sets an description.
+  /// An existing description is overwrite (only one attribute per data store).
+  /// \warning This method is not thread-safe.
+  /// \param attribute An std::string object that holds a description.
+  /// \return Returns true on success; otherwise, false.
+  bool set_description(const std::string &description) {
+    return m_kernel.set_description(description);
+  }
+
+  /// \brief Sets an description.
+  /// An existing description is overwrite (only one description per data store).
+  /// \warning This function is not thread-safe.
+  /// Updating the same data store with multiple threads simultaneously could cause an issue.
+  /// \param dir_path Path to a data store.
+  /// \param description An std::string object that holds a description.
+  /// \return Returns true on success; otherwise, false.
+  static bool set_description(const char *dir_path, const std::string &description) {
+    return manager_kernel_type::set_description(dir_path, description);
+  }
+
+  /// \brief Gets an description.
+  /// If there is no description, nothing to happen to the given description object.
+  /// \param description A pointer to an std::string object to store an description if it exists.
+  /// \return Returns true on success; returns false on error.
+  /// Trying to get a non-existent description is not considered as an error.
+  bool get_description(std::string *description) const {
+    return m_kernel.get_description(description);
+  }
+
+  /// \brief Gets an description.
+  /// If there is no description, nothing to happen to the given description object.
+  /// \param dir_path Path to a data store.
+  /// \param description A pointer to an std::string object to store an description if it exists.
+  /// \return Returns true on success; returns false on error.
+  /// Trying to get a non-existent description is not considered as an error.
+  static bool get_description(const char *dir_path, std::string *description) {
+    return manager_kernel_type::get_description(dir_path, description);
+  }
+
+  // -------------------- etc -------------------- //
+  /// \brief Returns a STL compatible allocator object.
+  /// \tparam T Type of the object.
+  /// \return Returns a STL compatible allocator object.
+  template <typename T = std::byte>
+  allocator_type<T> get_allocator() const {
+    return allocator_type<T>(reinterpret_cast<manager_kernel_type *const*>(&(m_kernel.get_segment_header()->manager_kernel_address)));
   }
 
   /// \brief Returns the internal chunk size.
@@ -354,31 +588,7 @@ class basic_manager {
     return &m_kernel;
   }
 
-  /// \brief Returns a UUID of the data store.
-  /// \return UUID in the std::string format; returns an empty string on error.
-  std::string get_uuid() const {
-    return m_kernel.get_uuid();
-  }
-
-  /// \brief Returns a UUID of the data store.
-  /// \param dir_path Path to a data store.
-  /// \return UUID in the std::string format; returns an empty string on error.
-  static std::string get_uuid(const char *dir_path) {
-    return manager_kernel_type::get_uuid(dir_path);
-  }
-
-  /// \brief Gets the version of the Metall that created the backing data store.
-  /// \return Returns a version number; returns 0 on error.
-  version_type get_version() const {
-    return m_kernel.get_version();
-  }
-
-  /// \brief Gets the version of the Metall that created the backing data store.
-  /// \param dir_path Path to a data store.
-  /// \return Returns a version number; returns 0 on error.
-  static version_type get_version(const char *dir_path) {
-    return manager_kernel_type::get_version(dir_path);
-  }
+  // bool belongs_to_segment (const void *ptr) const
 
   // -------------------- For profiling and debug -------------------- //
 #if !defined(DOXYGEN_SKIP)

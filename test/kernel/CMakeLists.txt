@@ -1,6 +1,6 @@
-add_executable(named_object_directory_test named_object_directory_test.cpp)
-link_gtest_lib(named_object_directory_test)
-gtest_discover_tests(named_object_directory_test)
+add_executable(general_object_directory_test general_object_directory_test.cpp)
+link_gtest_lib(general_object_directory_test)
+gtest_discover_tests(general_object_directory_test)
 
 add_executable(bin_manager_test bin_manager_test.cpp)
 link_gtest_lib(bin_manager_test)

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_DETAIL_NAMED_OBJECT_DIRECTORY_HPP
-#define METALL_DETAIL_NAMED_OBJECT_DIRECTORY_HPP
+#ifndef METALL_DETAIL_ATTRIBUTED_OBJECT_DIRECTORY_HPP
+#define METALL_DETAIL_ATTRIBUTED_OBJECT_DIRECTORY_HPP
 
 #include <iostream>
 #include <utility>
@@ -31,11 +31,11 @@ namespace util = metall::detail::utility;
 namespace json = metall::detail::utility::ptree;
 }
 
-/// \brief Directory for named objects.
+/// \brief Directory for attributed objects.
 /// \tparam _offset_type
 /// \tparam _size_type
 template <typename _offset_type, typename _size_type>
-class named_object_directory {
+class attributed_object_directory {
  public:
   // -------------------------------------------------------------------------------- //
   // Public types and static values
@@ -46,32 +46,56 @@ class named_object_directory {
   using length_type = size_type;
   using description_type = std::string;
 
+  struct entry_type {
+    name_type name;
+    offset_type offset;
+    length_type length;
+    description_type description;
+
+    bool equal(const entry_type &other) const {
+      return (name == other.name);
+    }
+  };
+
  private:
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  using key_string_type = name_type;
+  struct entry_hash {
+    uint64_t operator()(const entry_type &entry) const {
+      return util::hash<offset_type>()(entry.offset);
+    }
+  };
+  struct entry_equal {
+    bool operator()(const entry_type &lhd, const entry_type &rhd) const {
+      return lhd.equal(rhd);
+    }
+  };
+  using entry_table_type = boost::unordered_set<entry_type, entry_hash, entry_equal>;
 
-  using main_entry_type = std::tuple<name_type, offset_type, length_type, description_type>;
-  using main_table_type = boost::unordered_map<key_string_type, main_entry_type, util::string_hash<key_string_type>>;
-
-  using key_table_type = boost::unordered_set<key_string_type, util::string_hash<key_string_type>>;
+  // Following tables hold the index of the corresponding entry of each key
+  using offset_index_table_type = boost::unordered_map<offset_type,
+                                                       typename entry_table_type::iterator,
+                                                       util::hash<offset_type>>;
+  using name_index_table_type = boost::unordered_map<name_type,
+                                                     typename entry_table_type::iterator,
+                                                     util::string_hash<name_type>>;
 
  public:
   // -------------------------------------------------------------------------------- //
   // Public types and static values
   // -------------------------------------------------------------------------------- //
-  using key_iterator = typename key_table_type::const_iterator;
+  using const_iterator = typename entry_table_type::const_iterator;
 
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  named_object_directory() = default;
-  ~named_object_directory() noexcept = default;
-  named_object_directory(const named_object_directory &) = default;
-  named_object_directory(named_object_directory &&) noexcept = default;
-  named_object_directory &operator=(const named_object_directory &) = default;
-  named_object_directory &operator=(named_object_directory &&) noexcept = default;
+  attributed_object_directory() = default;
+  ~attributed_object_directory() noexcept = default;
+  attributed_object_directory(const attributed_object_directory &) = default;
+  attributed_object_directory(attributed_object_directory &&) noexcept = default;
+  attributed_object_directory &operator=(const attributed_object_directory &) = default;
+  attributed_object_directory &operator=(attributed_object_directory &&) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods
@@ -86,105 +110,147 @@ class named_object_directory {
               const offset_type offset,
               const length_type length,
               const description_type &description = std::string()) {
-    bool inserted = false;
+
+    if (m_offset_index_table.count(offset) > 0) {
+      assert(m_name_index_table.count(name) > 0);
+      return false;
+    }
+    assert(m_name_index_table.count(name) == 0);
 
     try {
-      inserted = m_main_table.emplace(name, std::make_tuple(name, offset, length, description)).second;
-      if (inserted != m_key_table.insert(name).second) {
-        logger::out(logger::level::critical, __FILE__, __LINE__, "Error occurred in an internal table");
-        return false;
+      const auto inserted_ret = m_entry_table.insert(entry_type{name, offset, length, description});
+      assert(inserted_ret.second);
+      {
+        [[maybe_unused]] const auto ret = m_offset_index_table.emplace(offset, inserted_ret.first);
+        assert(ret.first != m_offset_index_table.end());
+        assert(ret.second);
+      }
+      {
+        [[maybe_unused]] const auto ret = m_name_index_table.emplace(name, inserted_ret.first);
+        assert(ret.first != m_name_index_table.end());
+        assert(ret.second);
       }
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown");
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when inserting entry");
       return false;
     }
 
-    return inserted;
+    return true;
   }
 
   /// \brief
+  /// \return
+  size_type size() const {
+    return m_entry_table.size();
+  }
+
+  /// \brief Counts by name
   /// \param name
   /// \return
   size_type count(const name_type &name) const {
-    assert(m_main_table.count(name) == m_key_table.count(name));
-    return m_main_table.count(name);
+    return m_name_index_table.count(name);
   }
 
-  /// \brief
+  /// \brief Count by offset
+  /// \param offset
   /// \return
-  key_iterator keys_begin() const {
-    return m_key_table.cbegin();
+  size_type count(const offset_type &offset) const {
+    return m_offset_index_table.count(offset);
   }
 
-  /// \brief
-  /// \return
-  key_iterator keys_end() const {
-    return m_key_table.cend();
-  }
-
-  /// \brief
+  /// \brief Finds by name
   /// \param name
-  /// \param buf
   /// \return
-  bool get_offset(const name_type &name, offset_type *buf) const {
-    auto itr = m_main_table.find(name);
-    if (itr == m_main_table.end()) return false;
+  const_iterator find(const name_type &name) const {
+    if (count(name) > 0) {
+      auto itr = m_name_index_table.find(name);
+      assert(itr->second != m_entry_table.end());
+      return const_iterator(itr->second);
+    }
+    return m_entry_table.cend();
+  }
 
-    *buf = std::get<index::offset>(itr->second);
-    return true;
+  /// \brief Finds by offset
+  /// \param offset
+  /// \return
+  const_iterator find(const offset_type &offset) const {
+    if (count(offset) > 0) {
+      auto itr = m_offset_index_table.find(offset);
+      assert(itr->second != m_entry_table.end());
+      return const_iterator(itr->second);
+    }
+    return m_entry_table.cend();
   }
 
   /// \brief
-  /// \param name
-  /// \param buf
   /// \return
-  bool get_length(const name_type &name, length_type *buf) const {
-    auto itr = m_main_table.find(name);
-    if (itr == m_main_table.end()) return false;
-
-    *buf = std::get<index::length>(itr->second);
-    return true;
+  const_iterator begin() const {
+    return m_entry_table.cbegin();
   }
 
   /// \brief
-  /// \param name
-  /// \param buf
   /// \return
-  bool get_description(const name_type &name, description_type *buf) const {
-    auto itr = m_main_table.find(name);
-    if (itr == m_main_table.end()) return false;
-
-    *buf = std::get<index::description>(itr->second);
-    return true;
+  const_iterator end() const {
+    return m_entry_table.cend();
   }
 
-  /// \brief
-  /// \param name
-  /// \param description
+  /// \brief Erase by iterator
+  /// \param position
   /// \return
-  bool set_description(const name_type &name, const description_type &description) {
-    auto itr = m_main_table.find(name);
-    if (itr == m_main_table.end()) return false;
+  size_type erase(const_iterator position) {
+    if (position == m_entry_table.end())
+      return 0;
 
-    std::get<index::description>(itr->second) = description;
-    return true;
+    try {
+      m_offset_index_table.erase(position->offset);
+      m_name_index_table.erase(position->name);
+      m_entry_table.erase(position);
+    } catch (...) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
+      return 0;
+    }
+
+    return 1;
   }
 
-  /// \brief
+  /// \brief Erase by name
   /// \param name
   /// \return
   size_type erase(const name_type &name) {
-    size_type num_erased = 0;
+    if (count(name) == 0)
+      return 0;
+
     try {
-      num_erased = m_key_table.erase(name);
-      if (m_main_table.erase(name) != num_erased) {
-        logger::out(logger::level::critical, __FILE__, __LINE__, "Error occurred in an internal table");
-        num_erased = 0;
-      }
+      auto itr = find(name);
+      m_offset_index_table.erase(itr->offset);
+      m_name_index_table.erase(itr->name);
+      m_entry_table.erase(itr);
     } catch (...) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
       return 0;
     }
-    return num_erased;
+
+    return 1;
+  }
+
+  /// \brief Erase offset
+  /// \param offset
+  /// \return
+  size_type erase(const offset_type &offset) {
+    if (count(offset) == 0)
+      return 0;
+
+    try {
+      auto itr = find(offset);
+      m_offset_index_table.erase(itr->offset);
+      m_name_index_table.erase(itr->name);
+      m_entry_table.erase(itr);
+    } catch (...) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
+      return 0;
+    }
+
+    return 1;
   }
 
   /// \brief
@@ -192,14 +258,12 @@ class named_object_directory {
   bool serialize(const char *const path) const {
 
     json::node_type json_named_objects_list;
-    for (const auto &item : m_main_table) {
+    for (const auto &item : m_entry_table) {
       json::node_type json_named_object_entry;
-      if (!json::add_value(json_key::name, std::get<index::name>(item.second), &json_named_object_entry) ||
-          !json::add_value(json_key::offset, std::get<index::offset>(item.second), &json_named_object_entry) ||
-          !json::add_value(json_key::length, std::get<index::length>(item.second), &json_named_object_entry) ||
-          !json::add_value(json_key::description,
-                           std::get<index::description>(item.second),
-                           &json_named_object_entry)) {
+      if (!json::add_value(json_key::name, item.name, &json_named_object_entry) ||
+          !json::add_value(json_key::offset, item.offset, &json_named_object_entry) ||
+          !json::add_value(json_key::length, item.length, &json_named_object_entry) ||
+          !json::add_value(json_key::description, item.description, &json_named_object_entry)) {
         return false;
       }
       if (!json::push_back(json_named_object_entry, &json_named_objects_list)) {
@@ -258,12 +322,6 @@ class named_object_directory {
   // -------------------------------------------------------------------------------- //
   // Private types and static values
   // -------------------------------------------------------------------------------- //
-  enum index {
-    name = 0,
-    offset = 1,
-    length = 2,
-    description = 3
-  };
 
   // JSON structure
   // {
@@ -287,10 +345,10 @@ class named_object_directory {
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  main_table_type m_main_table;
-  key_table_type m_key_table;
+  entry_table_type m_entry_table;
+  offset_index_table_type m_offset_index_table;
+  name_index_table_type m_name_index_table;
 };
-
 } // namespace kernel
 } // namespace metall
-#endif //METALL_DETAIL_NAMED_OBJECT_DIRECTORY_HPP
+#endif //METALL_DETAIL_ATTRIBUTED_OBJECT_DIRECTORY_HPP

@@ -33,7 +33,7 @@ TEST(SnapshotTest, Snapshot) {
     metall::manager manager(metall::create_only, original_dir_path().c_str());
 
     [[maybe_unused]] auto a = manager.construct<uint32_t>("a")(1);
-    [[maybe_unused]] auto b = manager.construct<uint64_t>("b")(2);
+    [[maybe_unused]] auto b = manager.construct<uint64_t>(metall::unique_instance)(2);
 
     ASSERT_TRUE(manager.snapshot(snapshot_dir_path().c_str()));
     ASSERT_TRUE(metall::manager::consistent(snapshot_dir_path().c_str()));
@@ -56,7 +56,7 @@ TEST(SnapshotTest, Snapshot) {
     auto a = manager.find<uint32_t>("a").first;
     ASSERT_EQ(*a, 1);
 
-    auto b = manager.find<uint64_t>("b").first;
+    auto b = manager.find<uint64_t>(metall::unique_instance).first;
     ASSERT_EQ(*b, 2);
   }
 }
