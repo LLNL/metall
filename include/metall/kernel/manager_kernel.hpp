@@ -7,6 +7,8 @@
 #define METALL_KERNEL_MANAGER_KERNEL_HPP
 
 #include <iostream>
+#include <fstream>
+#include <streambuf>
 #include <cassert>
 #include <string>
 #include <utility>
@@ -15,6 +17,7 @@
 #include <vector>
 #include <map>
 #include <sstream>
+#include <typeinfo>
 
 #include <metall/logger.hpp>
 #include <metall/offset_ptr.hpp>
@@ -24,6 +27,7 @@
 #include <metall/kernel/segment_header.hpp>
 #include <metall/kernel/segment_allocator.hpp>
 #include <metall/kernel/attributed_object_directory.hpp>
+#include <metall/object_attribute_accessor.hpp>
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/in_place_interface.hpp>
 #include <metall/detail/utility/array_construct.hpp>
@@ -66,7 +70,7 @@ class manager_kernel {
   using difference_type = std::ptrdiff_t;
   using id_type = uint16_t;
 
-  using instance_type = util::object_instance_type;
+  using instance_kind = util::instance_kind;
 
   using chunk_no_type = _chunk_no_type;
   static constexpr size_type k_chunk_size = _chunk_size;
@@ -138,6 +142,13 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   using const_named_iterator = attributed_object_directory_type::const_iterator;
   using const_unique_iterator = attributed_object_directory_type::const_iterator;
+  using const_anonymous_iterator = attributed_object_directory_type::const_iterator;
+  using named_object_attr_accessor_type = named_object_attr_accessor<attributed_object_directory_type::offset_type,
+                                                                     attributed_object_directory_type::size_type>;
+  using unique_object_attr_accessor_type = unique_object_attr_accessor<attributed_object_directory_type::offset_type,
+                                                                       attributed_object_directory_type::size_type>;
+  using anonymous_object_attr_accessor_type = anonymous_object_attr_accessor<attributed_object_directory_type::offset_type,
+                                                                             attributed_object_directory_type::size_type>;
 
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
@@ -234,12 +245,12 @@ class manager_kernel {
   template <class T>
   const char_type *get_instance_name(const T *ptr) const;
 
-  /// \brief Returns is the type of an object created with construct/find_or_construct functions.
+  /// \brief Returns is the kind of an object created with construct/find_or_construct functions.
   /// \tparam T
   /// \param ptr
   /// \return
   template <class T>
-  instance_type get_instance_type(const T *ptr) const;
+  instance_kind get_instance_kind(const T *ptr) const;
 
   /// \brief Returns the length of an object created with construct/find_or_construct
   /// functions (1 if is a single element, >=1 if it's an array).
@@ -249,6 +260,30 @@ class manager_kernel {
   template <class T>
   size_type get_instance_length(const T *ptr) const;
 
+  /// \brief Checks if the type of an object, which was created with construct/find_or_construct
+  /// functions (1 if is a single element, >=1 if it's an array), is T.
+  /// \tparam T
+  /// \param ptr
+  /// \return
+  template <class T>
+  bool is_instance_type(const void *const ptr) const;
+
+  /// \brief Gets the description of an object created with construct/find_or_construct.
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \param description A pointer to a string buffer.
+  /// \return
+  template <class T>
+  bool get_instance_description(const T *ptr, std::string *description) const;
+
+  /// \brief Sets a description to an object created with construct/find_or_construct.
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \param description A description to set.
+  /// \return
+  template <class T>
+  bool set_instance_description(const T *ptr, const std::string &description);
+
   /// \brief Returns Returns the number of named objects stored in the managed segment.
   /// \return
   size_type get_num_named_objects() const;
@@ -256,6 +291,10 @@ class manager_kernel {
   /// \brief Returns Returns the number of unique objects stored in the managed segment.
   /// \return
   size_type get_num_unique_objects() const;
+
+  /// \brief Returns Returns the number of anonymous objects stored in the managed segment.
+  /// \return
+  size_type get_num_anonymous_objects() const;
 
   /// \brief Returns a constant iterator to the index storing the named objects.
   /// \return
@@ -274,19 +313,28 @@ class manager_kernel {
   /// \return
   const_unique_iterator unique_end() const;
 
+  /// \brief Returns a constant iterator to the index storing the anonymous objects.
+  /// \return
+  const_anonymous_iterator anonymous_begin() const;
+
+  /// \brief Returns a constant iterator to the end of the index
+  /// storing the anonymous allocations. NOT thread-safe. Never throws.
+  /// \return
+  const_anonymous_iterator anonymous_end() const;
+
   /// \brief Generic named/anonymous new function. This method is required by construct_proxy and construct_iter_proxy
   /// \tparam T Type of the object(s)
   /// \param name Name of the object(s)
   /// \param num Number of objects to be constructed
   /// \param try2find If true, tries to find already constructed object(s) with the same name
-  /// \param dothrow If true, throws exception
+  /// \param do_throw Ignored --- this method does not throw its own exception
   /// \param table Reference to an in_place_interface object
   /// \return Returns a pointer to the constructed object(s)
   template <typename T>
   T *generic_construct(char_ptr_holder_type name,
                        size_type num,
                        bool try2find,
-                       bool dothrow,
+                       bool do_throw,
                        util::in_place_interface &table);
 
   /// \brief Get the address of the segment header.
@@ -353,30 +401,46 @@ class manager_kernel {
   /// \brief Gets a description from a file.
   /// \param description A pointer to a string buffer.
   /// \return Returns false on error.
-  bool get_description(std::string* description) const;
+  bool get_description(std::string *description) const;
 
   /// \brief Gets a description from a file.
   /// \param base_dir_path  Path to a data store.
   /// \param description A pointer to a string buffer.
   /// \return Returns false on error.
-  static bool get_description(const std::string &base_dir_path, std::string* description);
+  static bool get_description(const std::string &base_dir_path, std::string *description);
 
   /// \brief Sets a description to a file.
   /// \param description A description to write.
   /// \return Returns false on error.
-  bool set_description(const std::string& description);
+  bool set_description(const std::string &description);
 
   /// \brief Sets a description to a file.
-  /// \param base_dir_path  Path to a data store.
+  /// \param base_dir_path Path to a data store.
   /// \param description A description to write.
   /// \return Returns false on error.
-  static bool set_description(const std::string &base_dir_path, const std::string& description);
+  static bool set_description(const std::string &base_dir_path, const std::string &description);
 
-  /// \brief Show some profile information
+  /// \brief Returns an instance that provides access to the attribute of named objects.
+  /// \param base_dir_path Path to a data store.
+  /// \return Returns an instance of named_object_attr_accessor_type.
+  static named_object_attr_accessor_type access_named_object_attribute(const std::string &base_dir_path);
+
+  /// \brief Returns an instance that provides access to the attribute of unique object.
+  /// \param base_dir_path Path to a data store.
+  /// \return Returns an instance of unique_object_attr_accessor_type.
+  static unique_object_attr_accessor_type access_unique_object_attribute(const std::string &base_dir_path);
+
+  /// \brief Returns an instance that provides access to the attribute of anonymous object.
+  /// \param base_dir_path Path to a data store.
+  /// \return Returns an instance of anonymous_object_attr_accessor_type.
+  static anonymous_object_attr_accessor_type access_anonymous_object_attribute(const std::string &base_dir_path);
+
+  /// \brief Show some profile information.
+  /// This method release object caches (which will slow down Metall).
   /// \tparam out_stream_type
   /// \param log_out
   template <typename out_stream_type>
-  void profile(out_stream_type *log_out) const;
+  void profile(out_stream_type *log_out);
 
  private:
   // -------------------------------------------------------------------------------- //
@@ -414,8 +478,8 @@ class manager_kernel {
   T *priv_construct_and_update_object_directory(char_ptr_holder_type name,
                                                 size_type length,
                                                 bool try2find,
-                                                bool dothrow, // TODO implement 'dothrow'
-                                                   util::in_place_interface &table);
+                                                bool do_throw, // ignored --- this function does not throw.
+                                                util::in_place_interface &table);
 
   template <typename T>
   bool priv_update_object_directory_no_mutex(char_ptr_holder_type name, difference_type offset, size_type length);
@@ -462,8 +526,8 @@ class manager_kernel {
   static std::string priv_get_uuid(const json_store &metadata_json);
 
   // ---------------------------------------- Description ---------------------------------------- //
-  static bool priv_read_description(const std::string &base_dir_path, std::string* description);
-  static bool priv_write_description(const std::string &base_dir_path, const std::string& description);
+  static bool priv_read_description(const std::string &base_dir_path, std::string *description);
+  static bool priv_write_description(const std::string &base_dir_path, const std::string &description);
 
   // -------------------------------------------------------------------------------- //
   // Private fields

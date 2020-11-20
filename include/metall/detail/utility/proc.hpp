@@ -19,7 +19,7 @@ namespace utility {
 #endif
 
 /// \brief Returns the number of the CPU core on which the calling thread is currently executing
-/// \return Returns a nonnegative CPU core number
+/// \return Returns a non-negative CPU core number
 inline int get_cpu_core_no() {
 #if SUPPORT_GET_CPU_CORE_NO
 

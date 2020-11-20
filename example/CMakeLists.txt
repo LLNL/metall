@@ -16,6 +16,12 @@ add_executable(csr_graph csr_graph)
 
 add_executable(fallback_allocator_adaptor fallback_allocator_adaptor)
 
+add_executable(datastore_description datastore_description)
+
+add_executable(object_attribute object_attribute)
+
+add_executable(object_attribute_api_list object_attribute_api_list)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(STATUS "Skip building the examples that use multi-level containers")
 else()
@@ -44,6 +50,7 @@ if (MPI_CXX_FOUND)
     if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux")
         target_link_libraries(mpi_create PUBLIC rt)
     endif()
+
 else()
     message(STATUS "Will skip building the MPI examples")
 endif()

@@ -5,8 +5,8 @@
 
 /// \file
 
-#ifndef METALL_C_SUPORT_METALL_H
-#define METALL_C_SUPORT_METALL_H
+#ifndef METALL_C_API_METALL_H
+#define METALL_C_API_METALL_H
 
 #include <stdint.h>
 
@@ -85,4 +85,4 @@ extern int consistent(const char *path);
 /// \example c_api.c
 /// This is an example of how to use the C API.
 
-#endif //METALL_C_SUPORT_METALL_H
+#endif //METALL_C_API_METALL_H

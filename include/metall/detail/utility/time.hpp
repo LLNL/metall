@@ -18,7 +18,7 @@ inline std::chrono::high_resolution_clock::time_point elapsed_time_sec() {
 
 inline double elapsed_time_sec(const std::chrono::high_resolution_clock::time_point &tic) {
   auto duration_time = std::chrono::high_resolution_clock::now() - tic;
-  return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration_time).count() / 1e6);
+  return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration_time).count()) / 1e6;
 }
 
 } // namespace utility

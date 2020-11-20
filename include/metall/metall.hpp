@@ -49,4 +49,13 @@ using manager = basic_manager<>;
 /// \example csr_graph.cpp
 /// This is an example of how to use a CSR graph data structure with Metall.
 
+/// \example datastore_description.cpp
+/// This is an example of how to set and get datastore description.
+
+/// \example object_attribute.cpp
+/// This is an example of how to access object attributes.
+
+/// \example object_attribute_api_list.cpp
+/// This is an example of how to use all API related to object attributes.
+
 #endif //METALL_METALL_HPP

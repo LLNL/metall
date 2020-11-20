@@ -6,12 +6,10 @@
 #ifndef METALL_DETAIL_CHUNK_DIRECTORY_HPP
 #define METALL_DETAIL_CHUNK_DIRECTORY_HPP
 
-#include <iostream>
-#include <vector>
 #include <limits>
 #include <fstream>
 #include <cassert>
-#include <memory>
+#include <type_traits>
 
 #include <metall/detail/utility/common.hpp>
 #include <metall/detail/utility/mmap.hpp>
@@ -332,7 +330,7 @@ class chunk_directory {
       const auto bin_no = static_cast<bin_no_type>(buf2);
       m_table[chunk_no].bin_no = bin_no;
 
-      using status_underlying_type = typename std::underlying_type<chunk_type>::type;
+      using status_underlying_type = std::underlying_type_t<chunk_type>;
       const auto type = static_cast<status_underlying_type>(buf3);
       if (type == static_cast<status_underlying_type>(chunk_type::small_chunk)) {
         m_table[chunk_no].type = chunk_type::small_chunk;
@@ -411,15 +409,15 @@ class chunk_directory {
   }
 
   /// \brief Reserves chunk directory.
-  /// Allocates 'uncommited pages' so that not to waste physical memory until the pages are touched.
+  /// Allocates 'uncommitted pages' so that not to waste physical memory until the pages are touched.
   /// Accordingly, this function does not initialize an allocate data.
   /// \param max_num_chunks
   bool priv_allocate(const std::size_t max_num_chunks) {
     assert(!m_table);
     m_max_num_chunks = max_num_chunks;
 
-    // Assume that mmap + MAP_ANONYMOUS returns 'uncommited pages'.
-    // An uncommited page will be zero-initialized when it is touched first time;
+    // Assume that mmap + MAP_ANONYMOUS returns 'uncommitted pages'.
+    // An uncommitted page will be zero-initialized when it is touched first time;
     // however, this class does not relies on that.
     // The table entries will be initialized just before they are used.
     m_table = static_cast<entry_type *>(util::map_anonymous_write_mode(nullptr, m_max_num_chunks * sizeof(entry_type)));

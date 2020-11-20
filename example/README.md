@@ -28,7 +28,15 @@ To build examples see a [page](https://metall.readthedocs.io/en/latest/advanced_
 * [multilevel_containers.cpp](multilevel_containers.cpp)
     * A multi-level STL container with Metall
 
+* [datastore_description.cpp](datastore_description.cpp)
+  * Set and get datastore description
 
+* [object_attribute.cpp](object_attribute.cpp)
+  * How to access object attributes
+
+* [object_attribute_api_list.cpp](object_attribute_api_list.cpp)
+  * List of API to manipulate object attributes
+  
 ### Graph
 
 * [csr_graph.cpp](csr_graph.cpp)

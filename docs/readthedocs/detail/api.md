@@ -38,41 +38,82 @@ manager(create_only_t, const char *base_path,
 
 // -------------------- Allocation -------------------- //
 //  Allocates n bytes
-void* metall::manager.allocate(size_t n);
+void* manager.allocate(size_t n);
 
 //  Deallocates the allocated memory
-void metall::manager.deallocate(void *addr)
+void manager.deallocate(void *addr)
 
 // -------------------- STL allocator -------------------- //
 // Returns an STL allocator object for type T
-allocator_type<T> metall::manager.get_allocator<T>()
+allocator_type<T> manager.get_allocator<T>()
 
-// -------------------- Object Allocation (following Boost.Interprocess) -------------------- //
+// -------------------- Attributed Object -------------------- //
 // Allocates and constructs an object of T with arguments args.
 // Also stores the allocated memory address with key name
-T* metall::manager.construct<T, Args>(char* name)(Args... args)
+T* manager.construct<T, Args>(char* name)(Args... args)
 
 // Finds an already constructed object with key name
-T* metall::manager.find<T>(char* name)
+T* manager.find<T>(char* name)
 
-// Destroys a previously created unique instance
-bool metall::manager.destroy(char* name)
+// Destroys a previously created named and unique instance
+// Calls the destructor and frees the memory.
+bool manager.destroy(char* name)
+
+// Destroys a object (named, unique, or anonymous) by its address.
+// Calls the destructor and frees the memory.
+bool manager.destroy_ptr<T>(T* ptr)
+
+// -------------------- Attributed Object (Metall original) -------------------- //
+// Returns the name of an attributed object
+const char_type *manager.get_instance_name<T>(const T *ptr)
+
+// Returns the kind of an object. One of the following value is returned:
+// instance_kind::named_kind
+// instance_kind::unique_kind
+// instance_kind::anonymous_kind
+instance_kind manager.get_instance_kind<T>(const T *ptr)
+
+// Returns the length of an object
+size_type manager.get_instance_length<T>(const T *ptr)
+
+// Checks if the type of an object is T.
+bool manager.is_instance_type<T>(const T *ptr)
+
+// Gets the description of an object
+bool manager.get_instance_description(const T *ptr, std::string *description)
+
+// Sets a description to an object
+bool manager.set_instance_description(const T *ptr, const std::string& description)
 
 // -------------------- Snapshot (Metall original) -------------------- //      
-// Snapshot the entire data
-bool metall::manager.snapshot(const char *destination_dir_path)
+// Takes a snapshot of the current datastore.
+bool manager.snapshot(const char *destination_dir_path)
 
 // -------------------- Utilities (Metall original) -------------------- //
-// Check if the backing data store exists and is consistent
+// Check if a datastore exists and is consistent
 // (i.e., it was closed properly in the previous run).
 static bool metall::manager::consistent(const char *dir_path)
 
-// Copies backing data store synchronously.
+// Copies datastore
 static bool metall::manager::copy(const char *source_dir_path, const char *destination_dir_path)
 
-// Remove a data store synchronously.
+// Removes datastore synchronously
 static bool metall::manager::remove(const char *dir_path)
 
+// Gets the version number of the Metall that created the current datastore.
+version_type manager.get_version()
+
+// Gets the version of the Metall that created a datastore
+static version_type metall::get_version(const char_type *dir_path)
+
+// -------------------- Data store description -------------------- //
+// Sets a description
+bool set_description(const std::string &description)
+static bool metall::set_description(const char *dir_path, const std::string &description)
+
+// Gets a description
+bool get_description(std::string *description)
+static bool metall::get_description(const char *dir_path, std::string *description)
 ```
 
 Example programs are located in [example](https://github.com/LLNL/metall/tree/master/example).

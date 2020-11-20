@@ -62,13 +62,25 @@ class basic_manager {
   using construct_iter_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, true>;
 
   /// \brief An value that describes the type of the instance constructed in memory
-  using instance_type = typename manager_kernel_type::instance_type;
+  using instance_kind = typename manager_kernel_type::instance_kind;
 
   /// \brief Const iterator for named objects
   using const_named_iterator = typename manager_kernel_type::const_named_iterator;
 
   /// \brief Const iterator for unique objects
   using const_unique_iterator = typename manager_kernel_type::const_unique_iterator;
+
+  /// \brief Const iterator for anonymous objects
+  using const_anonymous_iterator = typename manager_kernel_type::const_anonymous_iterator;
+
+  /// \brief Provides access to named object attribute
+  using named_object_attribute_accessor_type = typename manager_kernel_type::named_object_attr_accessor_type;
+
+  /// \brief Provides access to unique object attribute
+  using unique_object_attribute_accessor_type = typename manager_kernel_type::unique_object_attr_accessor_type;
+
+  /// \brief Provides access to anonymous object attribute
+  using anonymous_object_attribute_accessor_type = typename manager_kernel_type::anonymous_object_attr_accessor_type;
 
   /// \brief Chunk number type (= chunk_no_type)
   using chunk_number_type = chunk_no_type;
@@ -139,7 +151,7 @@ class basic_manager {
   // Public methods
   // -------------------------------------------------------------------------------- //
 
-  // -------------------- Object construction function family -------------------- //
+  // -------------------- Attributed object construction function family -------------------- //
   // Each function also works with '[ ]' operator to generate an array, leveraging the proxy class (construct_proxy)
 
   /// \private
@@ -149,51 +161,72 @@ class basic_manager {
   /// <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">
   /// (see details).
   /// </a>
+  ///
+  /// A named object must be associated with non-empty name.
+  /// The name of an unique object is typeid(T).name().
 
-  /// \brief Allocates an object of type T (throwing version).
+  /// \brief Allocates an object of type T.
   /// \copydoc common_doc_const_find
   ///
   /// \details
+  /// If T's constructor throws, the function throws that exception.
+  /// Memory is freed automatically if T's constructor throws and if an
+  /// array was being constructed, destructors of created objects are called
+  /// before freeing the memory.
+  ///
   /// Example:
   /// \code
   /// T *ptr = basic_manager.construct<T>("Name")(arg1, arg2...);
   /// T *ptr = basic_manager.construct<T>("Name")[count](arg1, arg2...);
   /// \endcode
   /// Where, 'arg1, arg2...' are the arguments passed to T's constructor via a proxy object.
-  /// One can also construct an array using '[ ]' operator. When an array is constructed, each object receives the same arguments.
+  /// One can also construct an array using '[ ]' operator.
+  /// When an array is constructed, each object receives the same arguments.
   ///
   /// \tparam T The type of the object.
   /// \param name A unique name of the object.
   /// \return A proxy object that constructs the object on the allocated space.
+  /// Returns nullptr if the name was used or it failed to allocate memory.
   template <typename T>
   construct_proxy<T> construct(char_ptr_holder_type name) {
-    return construct_proxy<T>(&m_kernel, name, false, true);
+    return construct_proxy<T>(&m_kernel, name, false, false);
   }
 
-  /// \brief Tries to find an already constructed object. If not exist, constructs an object of type T (throwing version).
+  /// \brief Tries to find an already constructed object. If not exist, constructs an object of type T.
   /// \copydoc common_doc_const_find
   ///
   /// \details
+  /// If T's constructor throws, the function throws that exception.
+  /// Memory is freed automatically if T's constructor throws and if an
+  /// array was being constructed, destructors of created objects are called
+  /// before freeing the memory.
+  ///
   /// Example:
   /// \code
   /// T *ptr = basic_manager.find_or_construct<T>("Name")(arg1, arg2...);
   /// T *ptr = basic_manager.find_or_construct<T>("Name")[count](arg1, arg2...);
   /// \endcode
   /// Where, 'arg1, arg2...' are the arguments passed to T's constructor via a proxy object.
-  /// One can also construct an array using '[ ]' operator. When an array is constructed, each object receives the same arguments.
+  /// One can also construct an array using '[ ]' operator.
+  /// When an array is constructed, each object receives the same arguments.
   ///
   /// \tparam T The type of the object.
   /// \param name The name of the object.
   /// \return A proxy object that holds a pointer of an already constructed object or an object newly constructed.
   template <typename T>
   construct_proxy<T> find_or_construct(char_ptr_holder_type name) {
-    return construct_proxy<T>(&m_kernel, name, true, true);
+    return construct_proxy<T>(&m_kernel, name, true, false);
   }
 
-  /// \brief Allocates an array of objects of type T, receiving arguments from iterators (throwing version).
+  /// \brief Allocates an array of objects of type T, receiving arguments from iterators.
   /// \copydoc common_doc_const_find
   ///
   /// \details
+  /// If T's constructor throws, the function throws that exception.
+  /// Memory is freed automatically if T's constructor throws and if an
+  /// array was being constructed, destructors of created objects are called
+  /// before freeing the memory.
+  ///
   /// Example:
   /// \code
   /// T *ptr = basic_manager.construct_it<T>("Name")[count](it1, it2...);
@@ -205,14 +238,19 @@ class basic_manager {
   /// \return A proxy object to construct an array of objects.
   template <typename T>
   construct_iter_proxy<T> construct_it(char_ptr_holder_type name) {
-    return construct_iter_proxy<T>(&m_kernel, name, false, true);
+    return construct_iter_proxy<T>(&m_kernel, name, false, false);
   }
 
   /// \brief Tries to find an already constructed object.
-  /// If not exist, constructs an array of objects of type T, receiving arguments from iterators (throwing version).
+  /// If not exist, constructs an array of objects of type T, receiving arguments from iterators.
   /// \copydoc common_doc_const_find
   ///
   /// \details
+  /// If T's constructor throws, the function throws that exception.
+  /// Memory is freed automatically if T's constructor throws and if an
+  /// array was being constructed, destructors of created objects are called
+  /// before freeing the memory.
+  ///
   /// Example:
   /// \code
   /// T *ptr = basic_manager.find_or_construct_it<T>("Name")[count](it1, it2...);
@@ -225,11 +263,14 @@ class basic_manager {
   /// constructs an array of objects or just holds an pointer.
   template <typename T>
   construct_iter_proxy<T> find_or_construct_it(char_ptr_holder_type name) {
-    return construct_iter_proxy<T>(&m_kernel, name, true, true);
+    return construct_iter_proxy<T>(&m_kernel, name, true, false);
   }
 
   /// \brief Tries to find a previously created object.
   /// \copydoc common_doc_const_find
+  /// \warning There is no mutex inside.
+  /// Calling this function with other construct/destroy methods that updates an object directory simultaneously
+  /// will cause a concurrent issue.
   ///
   /// \details
   /// Example:
@@ -251,6 +292,14 @@ class basic_manager {
   /// \copydoc common_doc_const_find
   ///
   /// \details
+  ///
+  /// \note
+  /// If T's destructor throws:
+  /// 1) the exception will be thrown (propagated);
+  /// 2) the memory will won't be freed;
+  /// 3) the object entry will be still removed from the attributed object directory.
+  /// Therefore, it is not recommended to throw exception in a destructor.
+  ///
   /// Example:
   /// \code
   /// bool destroyed = basic_manager.destroy<T>("Name");
@@ -269,6 +318,14 @@ class basic_manager {
   /// \copydoc common_doc_const_find
   ///
   /// \details
+  ///
+  /// \note
+  /// If T's destructor throws:
+  /// 1) the exception will be thrown (propagated);
+  /// 2) the memory will won't be freed;
+  /// 3) the object entry will be still removed from the attributed object directory.
+  /// Therefore, it is not recommended to throw exception in a destructor.
+  ///
   /// Example:
   /// \code
   /// bool destroyed = basic_manager.destroy<T>(metall::unique_instance);
@@ -287,6 +344,14 @@ class basic_manager {
   /// \copydoc common_doc_const_find
   ///
   /// \details
+  ///
+  /// \note
+  /// If T's destructor throws:
+  /// 1) the exception will be thrown (propagated);
+  /// 2) the memory will won't be freed;
+  /// 3) the object entry will be still removed from the attributed object directory.
+  /// Therefore, it is not recommended to throw exception in a destructor.
+  ///
   /// Example:
   /// \code
   /// bool destroyed = basic_manager.destroy_ptr<T>(ptr);
@@ -302,6 +367,7 @@ class basic_manager {
   }
 
   /// \brief Returns the name of an object created with construct/find_or_construct functions.
+  ///
   /// \details
   /// Example:
   /// \code
@@ -313,26 +379,26 @@ class basic_manager {
   /// \return The name of the object.
   /// If ptr points to an unique instance, typeid(T).name() is returned.
   /// If ptr points to an anonymous instance or memory not allocated by construct/find_or_construct functions,
-  /// 0 is returned.
+  /// nullptr is returned.
   template<class T>
   const char_type *get_instance_name(const T *ptr) const {
     return m_kernel.get_instance_name(ptr);
   }
 
-  /// \brief Returns is the type of an object created with construct/find_or_construct functions.
+  /// \brief Returns the kind of an object created with construct/find_or_construct functions.
   ///
   /// \details
   /// Example:
   /// \code
-  /// const instance_type t = basic_manager.get_instance_type<T>(ptr);
+  /// const instance_kind t = basic_manager.get_instance_kind<T>(ptr);
   /// \endcode
   ///
   /// \tparam T The type of the object.
   /// \param ptr A pointer to the object.
   /// \return The type of the object.
   template<class T>
-  instance_type get_instance_type(const T *ptr) const {
-    return m_kernel.get_instance_type(ptr);
+  instance_kind get_instance_kind(const T *ptr) const {
+    return m_kernel.get_instance_kind(ptr);
   }
 
   /// \brief Returns the length of an object created with construct/find_or_construct
@@ -350,6 +416,59 @@ class basic_manager {
   template<class T>
   size_type get_instance_length(const T *ptr) const {
     return m_kernel.get_instance_length(ptr);
+  }
+
+  /// \brief Checks if the type of an object, which was created with construct/find_or_construct
+  /// functions, is T.
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// const bool correct_type = basic_manager.type<T>(ptr);
+  /// \endcode
+  ///
+  /// \tparam T A expected type of the object.
+  /// \param ptr A pointer to the object.
+  /// \return Returns true if T is correct; otherwise false.
+  template<class T>
+  bool is_instance_type(const void *const ptr) const {
+    return m_kernel.template is_instance_type<T>(ptr);
+  }
+
+  /// \brief Gets the description of an object created with construct/find_or_construct
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// std::string description;
+  /// basic_manager.get_instance_description<T>(ptr, &description);
+  /// \endcode
+  ///
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \param description A pointer to a string buffer.
+  /// \return Returns false on error.
+  template<class T>
+  bool get_instance_description(const T *ptr, std::string *description) const {
+    return m_kernel.get_instance_description(ptr, description);
+  }
+
+  /// \brief Sets a description to an object created with construct/find_or_construct
+  ///
+  /// \details
+  /// Example:
+  /// \code
+  /// std::string description;
+  /// basic_manager.set_instance_description<T>(ptr, description);
+  /// \endcode
+  ///
+  /// \tparam T The type of the object.
+  /// \param ptr A pointer to the object.
+  /// \param description A description to set.
+  /// \return Returns false on error.
+  template<class T>
+  bool set_instance_description(const T *ptr, const std::string& description) {
+    return m_kernel.set_instance_description(ptr, description);
   }
 
   /// \brief Returns Returns the number of named objects stored in the managed segment.
@@ -370,6 +489,13 @@ class basic_manager {
   /// \return The number of unique objects stored in the managed segment.
   size_type get_num_unique_objects() const {
     return m_kernel.get_num_unique_objects();
+  }
+
+  /// \brief Returns Returns the number of anonymous objects (objects constructed with metall::anonymous_instance)
+  /// stored in the managed segment.
+  /// \return The number of anonymous objects stored in the managed segment.
+  size_type get_num_anonymous_objects() const {
+    return m_kernel.get_num_anonymous_objects();
   }
 
   /// \brief Returns a constant iterator to the index storing the named objects.
@@ -413,6 +539,19 @@ class basic_manager {
     return m_kernel.unique_end();
   }
 
+  /// \brief Returns a constant iterator to the index storing the anonymous objects.
+  /// \return A constant iterator to the index storing the anonymous objects.
+  const_anonymous_iterator anonymous_begin() const {
+    return m_kernel.anonymous_begin();
+  }
+
+  /// \brief Returns a constant iterator to the end of the index
+  /// storing the anonymous allocations. NOT thread-safe. Never throws.
+  /// \return A constant iterator.
+  const_anonymous_iterator anonymous_end() const {
+    return m_kernel.anonymous_end();
+  }
+
   // TODO: implement
   // bool belongs_to_segment (const void *ptr) const;
 
@@ -443,6 +582,9 @@ class basic_manager {
   }
 
   // void deallocate_many(multiallocation_chain &chain);
+
+  // Returns true if all allocated memory has been deallocated
+  // bool all_memory_deallocated();
 
   // -------------------- Flush -------------------- //
   /// \brief Flush data to persistent memory.
@@ -477,7 +619,7 @@ class basic_manager {
     return manager_kernel_type::copy_async(source_dir_path, destination_dir_path);
   }
 
-  /// \brief Remove data store synchronously.
+  /// \brief Removes data store synchronously.
   /// \param dir_path Path to a data store to remove.
   /// \return If succeeded, returns true; other false.
   static bool remove(const char_type *dir_path) {
@@ -492,7 +634,7 @@ class basic_manager {
     return std::async(std::launch::async, remove, dir_path);
   }
 
-  /// \brief Check if the backing data store exists and is consistent (i.e., it was closed properly in the previous run).
+  /// \brief Check if a data store exists and is consistent (i.e., it was closed properly in the previous run).
   /// \param dir_path Path to a data store.
   /// \return Returns true if it exists and is consistent; otherwise, returns false.
   static bool consistent(const char_type *dir_path) {
@@ -525,20 +667,19 @@ class basic_manager {
     return manager_kernel_type::get_version(dir_path);
   }
 
-
   // -------------------- Data store description -------------------- //
 
-  /// \brief Sets an description.
-  /// An existing description is overwrite (only one attribute per data store).
+  /// \brief Sets a description to a Metall data store.
+  /// An existing description is overwritten (only one description per data store).
   /// \warning This method is not thread-safe.
-  /// \param attribute An std::string object that holds a description.
+  /// \param description An std::string object that holds a description.
   /// \return Returns true on success; otherwise, false.
   bool set_description(const std::string &description) {
     return m_kernel.set_description(description);
   }
 
-  /// \brief Sets an description.
-  /// An existing description is overwrite (only one description per data store).
+  /// \brief Sets a description to a Metall data store.
+  /// An existing description is overwritten (only one description per data store).
   /// \warning This function is not thread-safe.
   /// Updating the same data store with multiple threads simultaneously could cause an issue.
   /// \param dir_path Path to a data store.
@@ -548,23 +689,45 @@ class basic_manager {
     return manager_kernel_type::set_description(dir_path, description);
   }
 
-  /// \brief Gets an description.
+  /// \brief Gets a description.
   /// If there is no description, nothing to happen to the given description object.
-  /// \param description A pointer to an std::string object to store an description if it exists.
+  /// \param description A pointer to an std::string object to store a description if it exists.
   /// \return Returns true on success; returns false on error.
   /// Trying to get a non-existent description is not considered as an error.
   bool get_description(std::string *description) const {
     return m_kernel.get_description(description);
   }
 
-  /// \brief Gets an description.
+  /// \brief Gets a description.
   /// If there is no description, nothing to happen to the given description object.
   /// \param dir_path Path to a data store.
-  /// \param description A pointer to an std::string object to store an description if it exists.
+  /// \param description A pointer to an std::string object to store a description if it exists.
   /// \return Returns true on success; returns false on error.
   /// Trying to get a non-existent description is not considered as an error.
   static bool get_description(const char *dir_path, std::string *description) {
     return manager_kernel_type::get_description(dir_path, description);
+  }
+
+  // -------------------- Object attribute -------------------- //
+  /// \brief Returns an instance that provides access to the attribute of named objects.
+  /// \param dir_path Path to a data store.
+  /// \return Returns an instance of named_object_attribute_accessor_type.
+  static named_object_attribute_accessor_type access_named_object_attribute(const char *dir_path) {
+    return manager_kernel_type::access_named_object_attribute(dir_path);
+  }
+
+  /// \brief Returns an instance that provides access to the attribute of unique object.
+  /// \param dir_path Path to a data store.
+  /// \return Returns an instance of unique_object_attribute_accessor_type.
+  static unique_object_attribute_accessor_type access_unique_object_attribute(const char *dir_path) {
+    return manager_kernel_type::access_unique_object_attribute(dir_path);
+  }
+
+  /// \brief Returns an instance that provides access to the attribute of anonymous object.
+  /// \param dir_path Path to a data store.
+  /// \return Returns an instance of anonymous_object_attribute_accessor_type.
+  static anonymous_object_attribute_accessor_type access_anonymous_object_attribute(const char *dir_path) {
+    return manager_kernel_type::access_anonymous_object_attribute(dir_path);
   }
 
   // -------------------- etc -------------------- //
@@ -590,13 +753,17 @@ class basic_manager {
 
   // bool belongs_to_segment (const void *ptr) const
 
+  // Makes an internal sanity check
+  // and returns true if success
+  // bool check_sanity();
+
   // -------------------- For profiling and debug -------------------- //
 #if !defined(DOXYGEN_SKIP)
   /// \brief Prints out profiling information.
   /// \tparam out_stream_type A type of out stream.
   /// \param log_out An object of the out stream.
   template <typename out_stream_type>
-  void profile(out_stream_type *log_out) const {
+  void profile(out_stream_type *log_out) {
     m_kernel.profile(log_out);
   }
 #endif

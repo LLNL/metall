@@ -66,7 +66,7 @@ class segment_allocator {
   static constexpr size_type k_num_small_bins = bin_no_mngr::num_small_bins();
 
   // For non-full chunk number bin (used to called 'bin directory')
-  // NOTE: we only manage the non-full chunk numbers of the small bins (small oject sizes)
+  // NOTE: we only manage the non-full chunk numbers of the small bins (small object sizes)
   using non_full_chunk_bin_type = bin_directory<k_num_small_bins, chunk_no_type>;
   static constexpr const char *k_non_full_chunk_bin_file_name = "non_full_chunk_bin";
 
@@ -124,7 +124,7 @@ class segment_allocator {
     const auto offset = (priv_small_object_bin(bin_no)) ?
                         priv_allocate_small_object(bin_no) : priv_allocate_large_object(bin_no);
     assert(offset >= 0);
-    assert((difference_type)offset < (difference_type)size());
+    assert(offset < (difference_type)size());
 
     return offset;
   }
@@ -164,7 +164,7 @@ class segment_allocator {
   /// \param offset
   void deallocate(const difference_type offset) {
     assert(offset >= 0);
-    assert((difference_type)offset < (difference_type)size());
+    assert(offset < (difference_type)size());
 
     const chunk_no_type chunk_no = offset / k_chunk_size;
     const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
@@ -220,7 +220,7 @@ class segment_allocator {
   /// \tparam out_stream_type
   /// \param log_out
   template <typename out_stream_type>
-  void profile(out_stream_type *log_out) const {
+  void profile(out_stream_type *log_out) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     priv_clear_object_cache();
 #endif
@@ -429,7 +429,7 @@ class segment_allocator {
 
     // To simplify the implementation, free slots only when object_size is at least double of the page size
     const size_type
-        min_free_size = std::max((size_type)m_segment_storage->page_size() * 2, (size_type)min_free_size_hint);
+        min_free_size = std::max((size_type)m_segment_storage->page_size() * 2, min_free_size_hint);
     if (object_size < min_free_size) return;
 
     // This function assumes that small objects are equal to or smaller than the half chunk size

@@ -17,6 +17,7 @@
 #include <sys/clonefile.h>
 #endif
 
+#include <cstdlib>
 #include <metall/detail/utility/file.hpp>
 #include <metall/logger.hpp>
 

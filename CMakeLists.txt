@@ -265,7 +265,7 @@ if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     include_directories(include)
 
-    add_subdirectory(src lib)
+    add_subdirectory(src)
     add_subdirectory(example)
 
     if (BUILD_BENCH)

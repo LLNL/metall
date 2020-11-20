@@ -29,7 +29,7 @@ int main() {
     std::size_t num_vertices = 16;
     std::size_t num_edges = 256;
 
-    // Allocate and construct an object in the persistent memory with a name "csr_graph"
+    // Allocate and construct an object in the persistent memory with a name "csr_graph"
     csr_graph_t *csr_graph = manager.construct<csr_graph_t>("csr_graph")
         (num_vertices, num_edges, manager.get_allocator()); // Arguments to the constructor
 

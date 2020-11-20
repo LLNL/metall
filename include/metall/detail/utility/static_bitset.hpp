@@ -51,7 +51,7 @@ typename std::conditional<num_bits <= 8,
                           >::type
 >::type;
 
-// exapmles: bitset_base_type = uint64_t
+// examples: bitset_base_type = uint64_t
 // input 1 ~ 64 -> return 1;  input 65 ~ 128 -> return 2
 template <typename bitset_base_type>
 inline constexpr std::size_t bitset_size(const std::size_t size) {

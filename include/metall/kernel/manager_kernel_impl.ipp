@@ -138,17 +138,17 @@ manager_kernel<chnk_no, chnk_sz>::find(char_ptr_holder_type name) const {
   }
 
   if (name.is_unique()) {
-    auto itr = m_unique_object_directory.find(typeid(T).name());
+    auto itr = m_unique_object_directory.find(gen_type_name<T>());
     if (itr != m_unique_object_directory.end()) {
-      auto *const addr = reinterpret_cast<T *>(priv_to_address(itr->offset));
-      const auto length = itr->length;
+      auto *const addr = reinterpret_cast<T *>(priv_to_address(itr->offset()));
+      const auto length = itr->length();
       return std::make_pair(addr, length);
     }
   } else {
     auto itr = m_named_object_directory.find(name.get());
     if (itr != m_named_object_directory.end()) {
-      auto *const addr = reinterpret_cast<T *>(priv_to_address(itr->offset));
-      const auto length = itr->length;
+      auto *const addr = reinterpret_cast<T *>(priv_to_address(itr->offset()));
+      const auto length = itr->length();
       return std::make_pair(addr, length);
     }
   }
@@ -185,35 +185,35 @@ manager_kernel<chnk_no, chnk_sz>::get_instance_name(const T *ptr) const {
 
   auto nitr = m_named_object_directory.find(priv_to_offset(ptr));
   if (nitr != m_named_object_directory.end()) {
-    return nitr->name.c_str();
+    return nitr->name().c_str();
   }
 
   auto uitr = m_unique_object_directory.find(priv_to_offset(ptr));
   if (uitr != m_unique_object_directory.end()) {
-    return uitr->name.c_str();
+    return uitr->name().c_str();
   }
 
-  return 0; // This is not error, anonymous object or non-constructed object
+  return nullptr; // This is not error, anonymous object or non-constructed object
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 template <typename T>
-typename manager_kernel<chnk_no, chnk_sz>::instance_type
-manager_kernel<chnk_no, chnk_sz>::get_instance_type(const T *ptr) const {
+typename manager_kernel<chnk_no, chnk_sz>::instance_kind
+manager_kernel<chnk_no, chnk_sz>::get_instance_kind(const T *ptr) const {
   if (m_named_object_directory.count(priv_to_offset(ptr)) > 0) {
-    return instance_type::named_type;
+    return instance_kind::named_kind;
   }
 
   if (m_unique_object_directory.count(priv_to_offset(ptr)) > 0) {
-    return instance_type::unique_type;
+    return instance_kind::unique_kind;
   }
 
   if (m_anonymous_object_directory.count(priv_to_offset(ptr)) > 0) {
-    return instance_type::anonymous_type;
+    return instance_kind::anonymous_kind;
   }
 
-  logger::out(logger::level::critical, __FILE__, __LINE__, "Invalid pointer");
-  return instance_type();
+  logger::out(logger::level::error, __FILE__, __LINE__, "Invalid pointer");
+  return instance_kind();
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -223,28 +223,97 @@ manager_kernel<chnk_no, chnk_sz>::get_instance_length(const T *ptr) const {
   {
     auto itr = m_named_object_directory.find(priv_to_offset(ptr));
     if (itr != m_named_object_directory.end()) {
-      assert(itr->length > 0);
-      return itr->length;
+      assert(itr->length() > 0);
+      return itr->length();
     }
   }
 
   {
     auto itr = m_unique_object_directory.find(priv_to_offset(ptr));
     if (itr != m_unique_object_directory.end()) {
-      assert(itr->length > 0);
-      return itr->length;
+      assert(itr->length() > 0);
+      return itr->length();
     }
   }
 
   {
     auto itr = m_anonymous_object_directory.find(priv_to_offset(ptr));
     if (itr != m_anonymous_object_directory.end()) {
-      assert(itr->length > 0);
-      return itr->length;
+      assert(itr->length() > 0);
+      return itr->length();
     }
   }
 
   return 0; // Won't treat as an error
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+template <typename T>
+bool
+manager_kernel<chnk_no, chnk_sz>::is_instance_type(const void *const ptr) const {
+  {
+    auto itr = m_named_object_directory.find(priv_to_offset(ptr));
+    if (itr != m_named_object_directory.end()) {
+      return itr->type_id() == gen_type_id<T>();
+    }
+  }
+
+  {
+    auto itr = m_unique_object_directory.find(priv_to_offset(ptr));
+    if (itr != m_unique_object_directory.end()) {
+      return itr->type_id() == gen_type_id<T>();
+    }
+  }
+
+  {
+    auto itr = m_anonymous_object_directory.find(priv_to_offset(ptr));
+    if (itr != m_anonymous_object_directory.end()) {
+      return itr->type_id() == gen_type_id<T>();
+    }
+  }
+
+  return false;
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+template <typename T>
+bool manager_kernel<chnk_no, chnk_sz>::get_instance_description(const T *ptr, std::string *description) const {
+  {
+    auto itr = m_named_object_directory.find(priv_to_offset(ptr));
+    if (itr != m_named_object_directory.end()) {
+      *description = itr->description();
+      return true;
+    }
+  }
+
+  {
+    auto itr = m_unique_object_directory.find(priv_to_offset(ptr));
+    if (itr != m_unique_object_directory.end()) {
+      *description = itr->description();
+      return true;
+    }
+  }
+
+  {
+    auto itr = m_anonymous_object_directory.find(priv_to_offset(ptr));
+    if (itr != m_anonymous_object_directory.end()) {
+      *description = itr->description();
+      return true;
+    }
+  }
+
+  return false;
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+template <typename T>
+bool manager_kernel<chnk_no, chnk_sz>::set_instance_description(const T *ptr, const std::string& description) {
+  if (m_segment_storage.read_only()) return false;
+
+  return (m_named_object_directory.set_description(m_named_object_directory.find(priv_to_offset(ptr)), description)
+      || m_unique_object_directory.set_description(m_unique_object_directory.find(priv_to_offset(ptr)), description)
+      || m_anonymous_object_directory.set_description(m_anonymous_object_directory.find(priv_to_offset(ptr)),
+                                                      description));
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -257,6 +326,12 @@ template <typename chnk_no, std::size_t chnk_sz>
 typename manager_kernel<chnk_no, chnk_sz>::size_type
 manager_kernel<chnk_no, chnk_sz>::get_num_unique_objects() const {
   return m_unique_object_directory.size();
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+typename manager_kernel<chnk_no, chnk_sz>::size_type
+manager_kernel<chnk_no, chnk_sz>::get_num_anonymous_objects() const {
+  return m_anonymous_object_directory.size();
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -281,6 +356,18 @@ template <typename chnk_no, std::size_t chnk_sz>
 typename manager_kernel<chnk_no, chnk_sz>::const_unique_iterator
 manager_kernel<chnk_no, chnk_sz>::unique_end() const {
   return m_unique_object_directory.end();
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+typename manager_kernel<chnk_no, chnk_sz>::const_anonymous_iterator
+manager_kernel<chnk_no, chnk_sz>::anonymous_begin() const {
+  return m_anonymous_object_directory.begin();
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+typename manager_kernel<chnk_no, chnk_sz>::const_anonymous_iterator
+manager_kernel<chnk_no, chnk_sz>::anonymous_end() const {
+  return m_anonymous_object_directory.end();
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -426,6 +513,24 @@ bool manager_kernel<chnk_no, chnk_sz>::set_description(const std::string &base_d
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::set_description(const std::string &description) {
   return set_description(m_base_dir_path, description);
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+typename manager_kernel<chnk_no, chnk_sz>::named_object_attr_accessor_type
+manager_kernel<chnk_no, chnk_sz>::access_named_object_attribute(const std::string &base_dir_path) {
+  return named_object_attr_accessor_type(priv_make_core_file_name(base_dir_path, k_named_object_directory_prefix));
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+typename manager_kernel<chnk_no, chnk_sz>::unique_object_attr_accessor_type
+manager_kernel<chnk_no, chnk_sz>::access_unique_object_attribute(const std::string &base_dir_path) {
+  return unique_object_attr_accessor_type(priv_make_core_file_name(base_dir_path, k_unique_object_directory_prefix));
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+typename manager_kernel<chnk_no, chnk_sz>::anonymous_object_attr_accessor_type
+manager_kernel<chnk_no, chnk_sz>::access_anonymous_object_attribute(const std::string &base_dir_path) {
+  return anonymous_object_attr_accessor_type(priv_make_core_file_name(base_dir_path, k_anonymous_object_directory_prefix));
 }
 
 // -------------------------------------------------------------------------------- //
@@ -628,7 +733,7 @@ manager_kernel<chnk_no, chnk_sz>::priv_allocate_segment_header(void *const addr)
 template <typename chnk_no, std::size_t chnk_sz>
 bool
 manager_kernel<chnk_no, chnk_sz>::priv_deallocate_segment_header() {
-  m_segment_header->~segment_header_type();
+  std::destroy_at(&m_segment_header);
   const auto ret = util::munmap(m_segment_header, k_segment_header_size, false);
   m_segment_header = nullptr;
   if (!ret) {
@@ -644,7 +749,7 @@ manager_kernel<chnk_no, chnk_sz>::
 priv_construct_and_update_object_directory(char_ptr_holder_type name,
                                            size_type length,
                                            bool try2find,
-                                           bool, // TODO implement 'dothrow'
+                                           bool, // This function does not throw
                                            util::in_place_interface &table) {
   void *ptr = nullptr;
   {
@@ -670,8 +775,16 @@ priv_construct_and_update_object_directory(char_ptr_holder_type name,
     }
   }
 
-  // Construct each object in the allocated memory
+  // To prevent memory leak, deallocates the memory when array_construct throws exception
+  std::unique_ptr<void, std::function<void(void *)>> ptr_holder(ptr, [this](void *const ptr) {
+    deallocate(ptr);
+  });
+
+  // Constructs each object in the allocated memory
+  // When T's constructor throws execption, this function calls T's destrocutor and rethrows an exception
   util::array_construct(ptr, length, table);
+
+  ptr_holder.release(); // release the poiter since the construction was successful
 
   return static_cast<T *>(ptr);
 }
@@ -682,7 +795,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_update_object_directory_no_mutex(cha
                                                                              const difference_type offset,
                                                                              size_type length) {
   if (name.is_anonymous()) {
-    if (!m_anonymous_object_directory.insert(std::to_string(offset), offset, length)) {
+    if (!m_anonymous_object_directory.insert("", offset, length, gen_type_id<T>())) {
       logger::out(logger::level::critical,
                   __FILE__,
                   __LINE__,
@@ -690,7 +803,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_update_object_directory_no_mutex(cha
       return false;
     }
   } else if (name.is_unique()) {
-    if (!m_unique_object_directory.insert(typeid(T).name(), offset, length)) {
+    if (!m_unique_object_directory.insert(gen_type_name<T>(), offset, length, gen_type_id<T>())) {
       logger::out(logger::level::critical,
                   __FILE__,
                   __LINE__,
@@ -698,7 +811,12 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_update_object_directory_no_mutex(cha
       return false;
     }
   } else {
-    if (!m_named_object_directory.insert(name.get(), offset, length)) {
+    if (std::string(name.get()).empty()) {
+      logger::out(logger::level::warning, __FILE__, __LINE__, "Empty name is invalid for nambed object");
+      return false;
+    }
+
+    if (!m_named_object_directory.insert(name.get(), offset, length, gen_type_id<T>())) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to insert an entry into the named object table");
       return false;
     }
@@ -768,11 +886,8 @@ template <typename T>
 void manager_kernel<chnk_no, chnk_sz>::priv_destruct_and_free_memory(const difference_type offset,
                                                                      const size_type length) {
   auto *object = static_cast<T *>(priv_to_address(offset));
-  // Destruct each object
-  for (size_type i = 0; i < length; ++i) {
-    object->~T();
-    ++object;
-  }
+  // Destruct each object, can throw
+  std::destroy(&object[0], &object[length]);
   // Finally, deallocate the memory
   m_segment_memory_allocator.deallocate(offset);
 }
@@ -1087,6 +1202,10 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_read_description(const std::string &
                                                              std::string *description) {
   const auto &file_name = priv_make_core_file_name(base_dir_path, k_description_file_name);
 
+  if (!util::file_exist(file_name)) {
+    return false; // This is not an error
+  }
+
   try {
     std::ifstream ifs(file_name);
     if (!ifs.is_open()) {
@@ -1094,10 +1213,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_read_description(const std::string &
       return false;
     }
 
-    if(!(ifs >> *description)) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to read data:" + file_name);
-      return false;
-    }
+    description->assign((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
     ifs.close();
   } catch (const std::ios_base::failure& e) {

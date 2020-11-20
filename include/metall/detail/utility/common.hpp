@@ -84,8 +84,8 @@ inline constexpr uint64_t power_cpt(const uint64_t base, const uint64_t exp) noe
 template <uint64_t x>
 struct unsigned_variable_type {
  private:
-  template <bool _cond, typename _iftrue, typename _iffalse>
-  using conditional = std::conditional<_cond, _iftrue, _iffalse>;
+  template <bool cond, typename if_true, typename if_false>
+  using conditional = std::conditional<cond, if_true, if_false>;
 
   template <typename type>
   using limits = std::numeric_limits<type>;
