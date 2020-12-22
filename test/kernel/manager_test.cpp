@@ -15,12 +15,11 @@
 namespace {
 using namespace metall::detail;
 
-using chunk_no_type = uint32_t;
-static constexpr std::size_t k_chunk_size = 1 << 21;
-using manager_type = metall::basic_manager<chunk_no_type, k_chunk_size>;
+using manager_type = metall::manager;
 template <typename T>
 using allocator_type = typename manager_type::allocator_type<T>;
 
+constexpr auto k_chunk_size = manager_type::chunk_size();
 using object_size_mngr = metall::kernel::object_size_manager<k_chunk_size, 1ULL << 48>;
 constexpr std::size_t k_min_object_size = object_size_mngr::at(0);
 
