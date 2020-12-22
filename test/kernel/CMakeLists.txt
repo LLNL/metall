@@ -35,11 +35,9 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
 endif()
 
 find_package(OpenMP)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-
+if (OpenMP_CXX_FOUND)
     add_executable(manager_multithread_test manager_multithread_test.cpp)
+    target_link_libraries(manager_multithread_test PUBLIC OpenMP::OpenMP_CXX)
     link_gtest_lib(manager_multithread_test)
     gtest_discover_tests(manager_multithread_test)
 else()
