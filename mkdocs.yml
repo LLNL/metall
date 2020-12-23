@@ -22,7 +22,7 @@ nav:
 - 'Metall 101':
   - 'Introduction': 'detail/introduction.md'
   - 'API': 'detail/api.md'
-  - 'API': 'detail/api.md'
+  - 'Data Store ls': 'detail/ls.md'
   - 'Pointers in Persistent Memory': 'detail/pointer.md'
   - 'Persistence Policy': 'detail/persistence_policy.md'
   - 'Snapshot': 'detail/snapshot.md'
