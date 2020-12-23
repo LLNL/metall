@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_DETAIL_UTILITY_IN_PLACE_INTERFACE_HPP
 #define METALL_DETAIL_UTILITY_IN_PLACE_INTERFACE_HPP
 

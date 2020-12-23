@@ -6,7 +6,7 @@
 #include <thread>
 
 #include <metall/metall.hpp>
-#include <metall_container/concurrent_map.hpp>
+#include <metall/container/concurrent_map.hpp>
 
 using map_type = metall::container::concurrent_map<char,
                                                    int,

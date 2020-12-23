@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_BASIC_MANAGER_HPP
 #define METALL_BASIC_MANAGER_HPP
 

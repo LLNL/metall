@@ -10,7 +10,7 @@
 
 #include <metall/detail/utility/time.hpp>
 #include <metall/detail/utility/memory.hpp>
-#include <metall_utility/open_mp.hpp>
+#include <metall/utility/open_mp.hpp>
 
 namespace adjacency_list_bench {
 

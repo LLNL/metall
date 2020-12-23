@@ -15,7 +15,7 @@
 #include <metall/detail/utility/memory.hpp>
 
 #include "kernel.hpp"
-#include <metall_utility/open_mp.hpp>
+#include <metall/utility/open_mp.hpp>
 
 namespace bfs_bench {
 

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_UTILITY_NUMA_ALLOCATOR_HPP
-#define METALL_UTILITY_NUMA_ALLOCATOR_HPP
+#ifndef METALL_BENCH_UTILITY_NUMA_ALLOCATOR_HPP
+#define METALL_BENCH_UTILITY_NUMA_ALLOCATOR_HPP
 
 #include <memory>
 #include "numa.hpp"

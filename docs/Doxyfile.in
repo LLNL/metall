@@ -831,10 +831,10 @@ WARN_LOGFILE           =
 
 INPUT                  = ../include/metall \
                          ../include/metall/c_api \
+                         ../include/metall/container \
+                         ../include/metall/utility \
                          ../include/metall/detail/base_stl_allocator.hpp \
                          ../include/metall/detail/utility/named_proxy.hpp \
-                         ../include/metall_container \
-                         ../include/metall_utility \
                          ../example/graph_data_structure
 
 # This tag can be used to specify the character encoding of the source files

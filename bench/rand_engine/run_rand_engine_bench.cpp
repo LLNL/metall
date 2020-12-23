@@ -6,7 +6,7 @@
 #include <iostream>
 #include <random>
 #include <boost/random/mersenne_twister.hpp>
-#include <metall_utility/random.hpp>
+#include <metall/utility/random.hpp>
 #include <metall/detail/utility/time.hpp>
 
 template <typename rand_engine_type>

@@ -8,7 +8,7 @@
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/container/map.hpp>
-#include <metall_container/concurrent_map.hpp>
+#include <metall/container/concurrent_map.hpp>
 #include <metall/detail/utility/file.hpp>
 #include "../test_utility.hpp"
 

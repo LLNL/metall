@@ -22,8 +22,8 @@
 #include <boost/container/scoped_allocator.hpp>
 #endif
 
-#include <metall_utility/hash.hpp>
-#include <metall_utility/mutex.hpp>
+#include <metall/utility/hash.hpp>
+#include <metall/utility/mutex.hpp>
 
 namespace data_structure {
 

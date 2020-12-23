@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_KERNEL_OBJECT_ATTRIBUTE_ACCESSOR_HPP
 #define METALL_KERNEL_OBJECT_ATTRIBUTE_ACCESSOR_HPP
 

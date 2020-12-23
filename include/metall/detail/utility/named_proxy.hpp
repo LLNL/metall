@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_UTILITY_DETAIL_NAMED_PROXY_HPP
 #define METALL_UTILITY_DETAIL_NAMED_PROXY_HPP
 
@@ -17,7 +15,7 @@ namespace metall {
 namespace detail {
 
 /// \namespace metall::detail::utility
-/// \brief A namespace for utility items
+/// \brief A namespace for utility items for internall implemetation
 namespace utility {
 
 /// \brief Proxy class that implements named allocation syntax.

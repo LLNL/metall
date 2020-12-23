@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string>
 
-#include <metall_utility/open_mp.hpp>
+#include <metall/utility/open_mp.hpp>
 #include <metall/detail/utility/common.hpp>
 #include "rmat_edge_generator.hpp"
 

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <metall_utility/metall_mpi_adaptor.hpp>
+#include <metall/utility/metall_mpi_adaptor.hpp>
 
 int main(int argc, char **argv) {
 

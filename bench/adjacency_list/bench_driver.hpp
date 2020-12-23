@@ -13,7 +13,7 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <metall/detail/utility/common.hpp>
-#include <metall_utility/open_mp.hpp>
+#include <metall/utility/open_mp.hpp>
 #include "edge_generator/rmat_edge_generator.hpp"
 #include "../utility/pair_reader.hpp"
 #include "kernel.hpp"
