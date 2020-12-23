@@ -8,6 +8,7 @@
 #include <cassert>
 #include <functional>
 #include <thread>
+#include <vector>
 
 #include "free_mmap_region.hpp"
 

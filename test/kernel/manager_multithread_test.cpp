@@ -58,7 +58,7 @@ void validate_overlap(const addr_list_type &addr_and_size_lists) {
             });
 
   void *previous_end = allocation_range_list[0].first;
-  for (const auto begin_and_end : allocation_range_list) {
+  for (const auto& begin_and_end : allocation_range_list) {
     ASSERT_LE(previous_end, begin_and_end.first);
     previous_end = begin_and_end.second;
   }
