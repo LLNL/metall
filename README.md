@@ -19,6 +19,7 @@ Metall (memory allocator for persistent memory)
   copy mechanism in filesystem. In case reflink is not supported, Metall
   automatically falls back to regular copy.
 
+* See details: [Metall overview slides](docs/publications/metall_overview.pdf).
 
 # Getting Started
 

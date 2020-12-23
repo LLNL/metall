@@ -77,8 +77,8 @@ inline void *os_mmap(void *const addr, const size_t length, const int protection
 }
 
 /// \brief Map an anonymous region
-/// \param addr Normaly nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
-/// \param length The lenght of the map
+/// \param addr Normally nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
+/// \param length The length of the map
 /// \param additional_flags Additional map flags
 /// \return The starting address for the map. Returns nullptr on error.
 inline void *map_anonymous_write_mode(void *const addr,
@@ -89,8 +89,8 @@ inline void *map_anonymous_write_mode(void *const addr,
 
 /// \brief Map a file with read mode
 /// \param file_name The name of file to be mapped
-/// \param addr Normaly nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
-/// \param length The lenght of the map
+/// \param addr Normally nullptr; if this is not nullptr the kernel takes it as a hint about where to place the mapping
+/// \param length The length of the map
 /// \param offset The offset in the file
 /// \param additional_flags Additional map flags
 /// \return A pair of the file descriptor of the file and the starting address for the map

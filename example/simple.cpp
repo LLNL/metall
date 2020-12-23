@@ -20,7 +20,7 @@ int main() {
     metall::manager manager(metall::create_only,  // Create a new one
                   "/tmp/dir");          // The directory to store backing datastore
 
-    // Allocate and construct a vector object in the persistent memory with a name "vec"
+    // Allocate and construct a vector object in the persistent memory with a name "vec"
     auto pvec = manager.construct<vector_t>                 // Allocate and construct an object of vector_t
                                     ("vec")              // Name of the allocated object
                                     (manager.get_allocator()); // Arguments passed to vector_t's constructor
@@ -35,14 +35,14 @@ int main() {
     // Reattach the manager object
     metall::manager manager(metall::open_only, "/tmp/dir");
 
-    // Find the previously constructed object
+    // Find the previously constructed object
     // Please do not forget to use ".first" at the end
     auto pvec = manager.find<vector_t>("vec").first;
 
     pvec->push_back(10); // Can restart to use containers normally
 
-    std::cout << (*pvec)[0] << std::endl; // Will print "5"
-    std::cout << (*pvec)[1] << std::endl; // Will print "10"
+    std::cout << (*pvec)[0] << std::endl; // Will print "5"
+    std::cout << (*pvec)[1] << std::endl; // Will print "10"
 
     manager.destroy<vector_t>("vec"); // Destroy the object
   }

@@ -15,6 +15,10 @@ namespace utility {
 template <typename char_type>
 using char_ptr_holder = boost::interprocess::ipcdetail::char_ptr_holder<char_type>;
 
+enum instance_kind {
+  anonymous_kind, named_kind, unique_kind
+};
+
 using anonymous_instance_t = boost::interprocess::ipcdetail::anonymous_instance_t;
 using unique_instance_t = boost::interprocess::ipcdetail::unique_instance_t;
 

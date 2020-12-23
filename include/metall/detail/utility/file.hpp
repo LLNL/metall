@@ -138,12 +138,12 @@ inline bool extend_file_size(const int fd, const size_t file_size, const bool fi
 #endif
   } else {
     // -----  extend the file if its size is smaller than that of mapped area ----- //
-    struct stat statbuf;
-    if (::fstat(fd, &statbuf) == -1) {
+    struct stat stat_buf;
+    if (::fstat(fd, &stat_buf) == -1) {
       logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
       return false;
     }
-    if (::llabs(statbuf.st_size) < static_cast<ssize_t>(file_size)) {
+    if (::llabs(stat_buf.st_size) < static_cast<ssize_t>(file_size)) {
       if (::ftruncate(fd, file_size) == -1) {
         logger::perror(logger::level::error, __FILE__, __LINE__, "ftruncate");
         return false;
@@ -179,11 +179,11 @@ inline bool file_exist(const std::string &file_name) {
 
 /// \brief Check if a directory exists
 inline bool directory_exist(const std::string &dir_path) {
-  struct stat statbuf;
-  if (::stat(dir_path.c_str(), &statbuf) == -1) {
+  struct stat stat_buf;
+  if (::stat(dir_path.c_str(), &stat_buf) == -1) {
     return false;
   }
-  return (uint64_t)S_IFDIR & (uint64_t)(statbuf.st_mode);
+  return (uint64_t)S_IFDIR & (uint64_t)(stat_buf.st_mode);
 }
 
 inline bool create_file(const std::string &file_name) {
@@ -267,12 +267,12 @@ inline ssize_t get_file_size(const std::string &file_name) {
 /// Note that, according to GCC,
 /// the file system may use some blocks for internal record keeping
 inline ssize_t get_actual_file_size(const std::string &file_name) {
-  struct stat statbuf;
-  if (::stat(file_name.c_str(), &statbuf) != 0) {
+  struct stat stat_buf;
+  if (::stat(file_name.c_str(), &stat_buf) != 0) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "stat (" + file_name + ")");
     return -1;
   }
-  return statbuf.st_blocks * 512LL;
+  return stat_buf.st_blocks * 512LL;
 }
 
 /// \brief Remove a file or directory

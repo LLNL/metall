@@ -11,8 +11,13 @@
 #include <metall/metall.hpp>
 #include <metall/detail/utility/file.hpp>
 #include <metall_utility/mpi.hpp>
+#include <metall_utility/metall_mpi_datastore.hpp>
 
 namespace metall::utility {
+
+namespace {
+namespace ds = metall::utility::mpi_datastore;
+}
 
 /// \brief A utility class for using Metall with MPI
 /// This is an experimental implementation
@@ -36,7 +41,7 @@ class metall_mpi_adaptor {
         m_local_metall_manager(nullptr) {
     priv_verify_num_partitions(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_only,
-                                                            priv_make_local_dir_path(m_root_dir_prefix,
+                                                            ds::make_local_dir_path(m_root_dir_prefix,
                                                                                      priv_mpi_comm_rank(comm)).c_str());
   }
 
@@ -51,7 +56,7 @@ class metall_mpi_adaptor {
         m_local_metall_manager(nullptr) {
     priv_verify_num_partitions(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_read_only,
-                                                            priv_make_local_dir_path(m_root_dir_prefix,
+                                                            ds::make_local_dir_path(m_root_dir_prefix,
                                                                                      priv_mpi_comm_rank(comm)).c_str());
   }
 
@@ -66,7 +71,7 @@ class metall_mpi_adaptor {
         m_local_metall_manager(nullptr) {
     priv_setup_root_dir(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only,
-                                                            priv_make_local_dir_path(m_root_dir_prefix,
+                                                            ds::make_local_dir_path(m_root_dir_prefix,
                                                                                      priv_mpi_comm_rank(comm)).c_str());
   }
 
@@ -82,7 +87,7 @@ class metall_mpi_adaptor {
         m_local_metall_manager(nullptr) {
     priv_setup_root_dir(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only,
-                                                            priv_make_local_dir_path(m_root_dir_prefix,
+                                                            ds::make_local_dir_path(m_root_dir_prefix,
                                                                                      priv_mpi_comm_rank(comm)).c_str(),
                                                             capacity);
   }
@@ -112,13 +117,13 @@ class metall_mpi_adaptor {
   /// \brief Returns the root path of a Metall datastore
   /// \return A root path of a Metall datastore.
   std::string root_dir_path() const {
-    return priv_make_root_dir_path(m_root_dir_prefix);
+    return ds::make_root_dir_path(m_root_dir_prefix);
   }
 
   /// \brief Returns the path of the sub-Metall datastore of the process.
   /// \return A path of a sub-Metall datastore.
   std::string local_dir_path() const {
-    return priv_make_local_dir_path(priv_make_root_dir_path(m_root_dir_prefix), priv_mpi_comm_rank(m_mpi_comm));
+    return ds::make_local_dir_path(ds::make_root_dir_path(m_root_dir_prefix), priv_mpi_comm_rank(m_mpi_comm));
   }
 
   /// \brief Returns the path of a Metall datastore of a MPI rank.
@@ -126,7 +131,7 @@ class metall_mpi_adaptor {
   /// \param mpi_rank A MPI rank.
   /// \return A path of a Metall datastore.
   static std::string local_dir_path(const std::string &root_dir_prefix, const int mpi_rank) {
-    return priv_make_local_dir_path(root_dir_prefix, mpi_rank);
+    return ds::make_local_dir_path(root_dir_prefix, mpi_rank);
   }
 
   /// \brief Copies a Metall datastore to another location.
@@ -140,8 +145,8 @@ class metall_mpi_adaptor {
                    const MPI_Comm &comm = MPI_COMM_WORLD) {
     priv_setup_root_dir(destination_dir_path, comm);
     const int rank = priv_mpi_comm_rank(comm);
-    return priv_global_and(manager_type::copy(priv_make_local_dir_path(source_dir_path, rank).c_str(),
-                                              priv_make_local_dir_path(destination_dir_path, rank).c_str()), comm);
+    return priv_global_and(manager_type::copy(ds::make_local_dir_path(source_dir_path, rank).c_str(),
+                                              ds::make_local_dir_path(destination_dir_path, rank).c_str()), comm);
   }
 
   /// \brief Take a snapshot of the current Metall datastore to another location.
@@ -151,7 +156,7 @@ class metall_mpi_adaptor {
   bool snapshot(const char *destination_dir_path) {
     priv_setup_root_dir(destination_dir_path, m_mpi_comm);
     const int rank = priv_mpi_comm_rank(m_mpi_comm);
-    return priv_global_and(m_local_metall_manager->snapshot(priv_make_local_dir_path(destination_dir_path,
+    return priv_global_and(m_local_metall_manager->snapshot(ds::make_local_dir_path(destination_dir_path,
                                                                                      rank).c_str()),
                            m_mpi_comm);
   }
@@ -168,7 +173,7 @@ class metall_mpi_adaptor {
     // ----- Check if this is a Metall datastore ----- //
     bool corrent_dir = true;
     if (!metall::detail::utility::file_exist(
-        priv_make_root_dir_path(root_dir_prefix) + "/" + k_datastore_mark_file_name)) {
+        ds::make_root_dir_path(root_dir_prefix) + "/" + k_datastore_mark_file_name)) {
       corrent_dir = false;
     }
     if (!priv_global_and(corrent_dir, comm)) {
@@ -194,12 +199,12 @@ class metall_mpi_adaptor {
     bool ret = true;
     for (int i = 0; i < size; ++i) {
       if (i == rank) {
-        if (metall::detail::utility::file_exist(priv_make_root_dir_path(root_dir_prefix))
-            && !metall::detail::utility::remove_file(priv_make_root_dir_path(root_dir_prefix))) {
+        if (metall::detail::utility::file_exist(ds::make_root_dir_path(root_dir_prefix))
+            && !metall::detail::utility::remove_file(ds::make_root_dir_path(root_dir_prefix))) {
           logger::out(logger::level::error,
                       __FILE__,
                       __LINE__,
-                      "Failed to remove directory: " + priv_make_root_dir_path(root_dir_prefix));
+                      "Failed to remove directory: " + ds::make_root_dir_path(root_dir_prefix));
           ret = false;
         }
       }
@@ -227,7 +232,7 @@ class metall_mpi_adaptor {
   static void priv_setup_root_dir(const std::string &root_dir_prefix, const MPI_Comm &comm) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
-    const std::string root_dir_path = priv_make_root_dir_path(root_dir_prefix);
+    const std::string root_dir_path = ds::make_root_dir_path(root_dir_prefix);
 
     // Make sure the root directory and a file with the same name do not exist
     const auto local_ret = metall::detail::utility::file_exist(root_dir_path);
@@ -261,7 +266,7 @@ class metall_mpi_adaptor {
 
   static void priv_store_partition_size(const std::string &root_dir_prefix, const MPI_Comm &comm) {
     const int size = priv_mpi_comm_size(comm);
-    const std::string path = priv_make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
+    const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
 
     std::ofstream ofs(path);
     if (!ofs) {
@@ -277,7 +282,7 @@ class metall_mpi_adaptor {
   }
 
   static int priv_read_num_partitions(const std::string &root_dir_prefix, const MPI_Comm &comm) {
-    const std::string path = priv_make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
+    const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
     std::ifstream ifs(path);
     if (!ifs) {
       logger::out(logger::level::error, __FILE__, __LINE__, "Failed to open a file: " + path);
@@ -303,14 +308,6 @@ class metall_mpi_adaptor {
       }
     }
     priv_mpi_barrier(comm);
-  }
-
-  static std::string priv_make_root_dir_path(const std::string &root_dir_prefix) {
-    return root_dir_prefix + "/";
-  }
-
-  static std::string priv_make_local_dir_path(const std::string &root_dir_prefix, const int rank) {
-    return priv_make_root_dir_path(root_dir_prefix) + "/subdir-" + std::to_string(rank);
   }
 
   static int priv_mpi_comm_rank(const MPI_Comm &comm) {

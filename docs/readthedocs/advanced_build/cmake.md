@@ -1,5 +1,6 @@
-# Build API document, Example, Test, and Benchmark Programs
-Metall's repository contains some example, test, and benchmark programs.
+# Build API document, Example, Test, and Utility Programs
+
+Metall's repository contains some example, test, benchmark, utility programs.
 
 ```bash
 git clone https://github.com/LLNL/metall
@@ -9,13 +10,14 @@ cd build
 cmake .. -DBOOST_ROOT=/path/to/boost/root/
 make
 make test  # option; BUILD_TEST must be ON when running cmake
+make install # option; Use CMake CMAKE_INSTALL_PREFIX variable to configure install destinations.
 cmake build_doc  # option; BUILD_DOC must be ON when running cmake
 ```
 
 ## Required
 
  - CMake 3.10 or more.
- - GCC 8.0 or more.
+ - GCC 8.1 or more.
  - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
 
 

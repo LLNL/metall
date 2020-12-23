@@ -30,7 +30,8 @@ class stl_allocator {
   // Public types and static values
   // -------------------------------------------------------------------------------- //
   using value_type = T;
-  using pointer = typename std::pointer_traits<typename metall_manager_kernel_type::void_pointer>::template rebind<value_type>;
+  using pointer = typename std::pointer_traits<typename metall_manager_kernel_type::void_pointer>::template rebind<
+      value_type>;
   using const_pointer = typename std::pointer_traits<pointer>::template rebind<const value_type>;
   using void_pointer = typename std::pointer_traits<pointer>::template rebind<void>;
   using const_void_pointer = typename std::pointer_traits<pointer>::template rebind<const void>;
@@ -63,7 +64,7 @@ class stl_allocator {
   //   func(ptr); // OK
   // }
   //
-  stl_allocator(manager_kernel_type **const pointer_manager_kernel_address) noexcept
+  stl_allocator(manager_kernel_type *const *const pointer_manager_kernel_address) noexcept
       : m_ptr_manager_kernel_address(pointer_manager_kernel_address) {}
 
   /// \brief Construct a new instance using an instance that has a different T
@@ -144,7 +145,7 @@ class stl_allocator {
   // ----------------------------------- This class's unique public functions ----------------------------------- //
   /// \brief Returns a pointer that points to manager kernel
   /// \return A pointer that points to manager kernel
-  manager_kernel_type **get_pointer_to_manager_kernel() const {
+  manager_kernel_type *const *get_pointer_to_manager_kernel() const {
     return to_raw_pointer(m_ptr_manager_kernel_address);
   }
 
@@ -207,8 +208,9 @@ class stl_allocator {
   // Private fields
   // -------------------------------------------------------------------------------- //
  private:
-  // (offset)pointer to a raw pointer that points the address of the manager kernel allocated in DRAM
-  typename std::pointer_traits<typename manager_kernel_type::void_pointer>::template rebind<manager_kernel_type *>
+  // (offset)pointer to a raw pointer that points a manager kernel object allocated in DRAM
+  // i.e., offset_ptr<manager_kernel_type *const>
+  typename std::pointer_traits<typename manager_kernel_type::void_pointer>::template rebind<manager_kernel_type *const>
       m_ptr_manager_kernel_address;
 };
 

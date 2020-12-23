@@ -1,6 +1,6 @@
-add_executable(named_object_directory_test named_object_directory_test.cpp)
-link_gtest_lib(named_object_directory_test)
-gtest_discover_tests(named_object_directory_test)
+add_executable(attributed_object_directory_test attributed_object_directory_test.cpp)
+link_gtest_lib(attributed_object_directory_test)
+gtest_discover_tests(attributed_object_directory_test)
 
 add_executable(bin_manager_test bin_manager_test.cpp)
 link_gtest_lib(bin_manager_test)
@@ -51,3 +51,7 @@ gtest_discover_tests(multimanager_test)
 add_executable(multifile_segment_storage_test multifile_segment_storage_test.cpp)
 link_gtest_lib(multifile_segment_storage_test)
 gtest_discover_tests(multifile_segment_storage_test)
+
+add_executable(object_attribute_accessor_test object_attribute_accessor_test.cpp)
+link_gtest_lib(object_attribute_accessor_test)
+gtest_discover_tests(object_attribute_accessor_test)

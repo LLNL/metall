@@ -208,7 +208,7 @@ class multilayer_bitset {
       return std::to_string(static_cast<uint64_t>(m_data.block));
     } else {
       std::string buf;
-      const std::size_t nb = num_all_blokcs(num_bits_power2);
+      const std::size_t nb = num_all_blocks(num_bits_power2);
       for (std::size_t i = 0; i < nb; ++i) {
         if (i != 0) buf += " ";
         buf += std::to_string(static_cast<uint64_t>(m_data.array[i]));
@@ -225,7 +225,7 @@ class multilayer_bitset {
       ss >> buf;
       m_data.block = buf;
     } else {
-      const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
+      const std::size_t num_blocks = num_all_blocks(num_bits_power2);
       std::stringstream ss(input_string);
 
       std::size_t count = 0;
@@ -248,7 +248,7 @@ class multilayer_bitset {
   // -------------------------------------------------------------------------------- //
   // -------------------- Allocation and free -------------------- //
   void allocate_multilayer_bitset(const std::size_t num_bits_power2) {
-    const std::size_t num_blocks = num_all_blokcs(num_bits_power2);
+    const std::size_t num_blocks = num_all_blocks(num_bits_power2);
     m_data.array = static_cast<block_type*>(std::malloc(num_blocks * sizeof(block_type)));
     if (!m_data.array) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot allocate multi-layer bitset");
@@ -353,7 +353,7 @@ class multilayer_bitset {
     return block == ~static_cast<block_type>(0);
   }
 
-  std::size_t num_all_blokcs(const std::size_t num_bits_power2) const {
+  std::size_t num_all_blocks(const std::size_t num_bits_power2) const {
     const std::size_t index = util::log2_dynamic(num_bits_power2);
     std::size_t num_blocks = 0;
     for (int layer = 0; layer < static_cast<int>(mlbs::k_num_layers_table[index]); ++layer) {
