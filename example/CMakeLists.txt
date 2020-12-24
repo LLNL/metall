@@ -33,6 +33,8 @@ add_executable(static_mutex static_mutex)
 
 add_executable(concurrent_map concurrent_map)
 
+add_executable(metall_containers metall_containers)
+
 if (BUILD_C)
     add_executable(c_api c_api.c)
     target_link_libraries(c_api metall_c)

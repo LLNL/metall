@@ -10,16 +10,19 @@
 #include <mutex>
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 
 #define METALL_USE_STL_CONTAINERS_IN_ADJLIST 0
 #if METALL_USE_STL_CONTAINERS_IN_ADJLIST
 #include <vector>
 #include <unordered_map>
 #include <scoped_allocator>
+namespace container = std;
 #else
-#include <boost/interprocess/containers/vector.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/container/scoped_allocator.hpp>
+#include <metall/container/vector.hpp>
+#include <metall/container/unordered_map.hpp>
+#include <metall/container/scoped_allocator.hpp>
+namespace container = metall::container;
 #endif
 
 #include <metall/utility/hash.hpp>
@@ -38,41 +41,18 @@ class multithread_adjacency_list {
   template <typename T>
   using other_allocator_type = typename std::allocator_traits<_base_allocator_type>::template rebind_alloc<T>;
 
-  template <typename T, typename A>
-  using vector_type =
-#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
-  std::vector<T, A>;
-#else
-  boost::container::vector<T, A>;
-#endif
-
-  template <typename A>
-  using scp_alloc_adp_type =
-#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
-  std::scoped_allocator_adaptor<A>;
-#else
-  boost::container::scoped_allocator_adaptor<A>;
-#endif
-
-  template <typename K, typename M, typename H, typename E, typename A>
-  using unordered_map_type =
-#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
-  std::unordered_map<K, M, H, E, A>;
-#else
-  boost::unordered_map<K, M, H, E, A>;
-#endif
-
   using list_allocator_type = other_allocator_type<value_type>;
-  using list_type = vector_type<value_type, list_allocator_type>;
+  using list_type = container::vector<value_type, list_allocator_type>;
 
-  using key_table_allocator_type = scp_alloc_adp_type<other_allocator_type<std::pair<const key_type, list_type>>>;
-  using key_table_type = unordered_map_type<key_type, list_type,
-                                            metall::utility::hash<key_type>,
-                                            std::equal_to<key_type>,
-                                            key_table_allocator_type>;
+  using key_table_allocator_type = container::scoped_allocator_adaptor<other_allocator_type<std::pair<const key_type,
+                                                                                                      list_type>>>;
+  using key_table_type = container::unordered_map<key_type, list_type,
+                                                  metall::utility::hash<key_type>,
+                                                  std::equal_to<key_type>,
+                                                  key_table_allocator_type>;
 
-  using bank_table_allocator_type = scp_alloc_adp_type<other_allocator_type<key_table_type>>;
-  using bank_table_t = vector_type<key_table_type, bank_table_allocator_type>;
+  using bank_table_allocator_type = container::scoped_allocator_adaptor<other_allocator_type<key_table_type>>;
+  using bank_table_t = container::vector<key_table_type, bank_table_allocator_type>;
 
   // Forward declaration
   class impl_const_key_iterator;
