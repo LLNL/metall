@@ -25,14 +25,14 @@
 #include <boost/container/deque.hpp>
 #endif
 
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 /// \brief A simple key-value store designed to store values related to memory address,
@@ -51,7 +51,7 @@ class bin_directory {
   static constexpr std::size_t k_num_bins = _k_num_bins;
   using value_type = _value_type;
   using allocator_type = _allocator_type;
-  using bin_no_type = typename util::unsigned_variable_type<k_num_bins>::type;
+  using bin_no_type = typename mdtl::unsigned_variable_type<k_num_bins>::type;
 
  private:
   // -------------------------------------------------------------------------------- //

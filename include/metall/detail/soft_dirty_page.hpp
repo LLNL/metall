@@ -8,12 +8,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <metall/detail/utility/memory.hpp>
+#include <metall/detail/memory.hpp>
 #include <metall/logger.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 inline bool reset_soft_dirty_bit() {
   std::ofstream ofs("/proc/self/clear_refs");
@@ -45,8 +43,6 @@ inline constexpr bool check_present_page(const uint64_t pagemap_value) {
   return (pagemap_value >> 63ULL) & 1ULL;
 }
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 
 #endif //METALL_DETAIL_UTILITY_SOFT_DIRTY_PAGE_HPP

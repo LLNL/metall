@@ -3,29 +3,29 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <metall/detail/utility/soft_dirty_page.hpp>
-#include <metall/detail/utility/mmap.hpp>
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/memory.hpp>
+#include <metall/detail/soft_dirty_page.hpp>
+#include <metall/detail/mmap.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/memory.hpp>
 
 bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages, char *const map) {
 
   const uint64_t page_no_offset = reinterpret_cast<uint64_t>(map) / page_size;
   for (uint64_t i = 0; i < 2; ++i) {
-    if (!metall::detail::utility::reset_soft_dirty_bit()) {
+    if (!metall::mtlldetail::reset_soft_dirty_bit()) {
       std::cerr << "Failed to reset soft dirty bit" << std::endl;
       return false;
     }
 
     {
-      metall::detail::utility::pagemap_reader pr;
+      metall::mtlldetail::pagemap_reader pr;
       for (uint64_t p = 0; p < num_pages; ++p) {
         const auto pagemap = pr.at(page_no_offset + p);
-        if (pagemap == metall::detail::utility::pagemap_reader::error_value) {
+        if (pagemap == metall::mtlldetail::pagemap_reader::error_value) {
           std::cerr << "Failed to read pagemap at " << p << std::endl;
           return false;
         }
-        if (metall::detail::utility::check_soft_dirty_page(pagemap)) {
+        if (metall::mtlldetail::check_soft_dirty_page(pagemap)) {
           std::cerr << "Page is dirty at " << p << std::endl;
         }
       }
@@ -37,18 +37,18 @@ bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages, char
         map[page_size * p] = 0;
       }
     }
-    // metall::detail::utility::os_msync(map, page_size * num_pages);
+    // metall::mtlldetail::os_msync(map, page_size * num_pages);
 
     {
-      metall::detail::utility::pagemap_reader pr;
+      metall::mtlldetail::pagemap_reader pr;
       for (uint64_t p = 0; p < num_pages; ++p) {
         const auto pagemap = pr.at(page_no_offset + p);
-        if (pagemap == metall::detail::utility::pagemap_reader::error_value) {
+        if (pagemap == metall::mtlldetail::pagemap_reader::error_value) {
           std::cerr << "Failed to read pagemap at " << p << std::endl;
           return false;
         }
         const bool desired_dirty_flag = (p % 2 == i % 2);
-        if (metall::detail::utility::check_soft_dirty_page(pagemap) != desired_dirty_flag) {
+        if (metall::mtlldetail::check_soft_dirty_page(pagemap) != desired_dirty_flag) {
           std::cerr << "Dirty flag must be " << desired_dirty_flag << " at " << p << std::endl;
           return false;
         }
@@ -60,23 +60,23 @@ bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages, char
 
 int main(int argc, char *argv[]) {
 
-  if (!metall::detail::utility::file_exist("/proc/self/pagemap")) {
+  if (!metall::mtlldetail::file_exist("/proc/self/pagemap")) {
     std::cerr << "Pagemap file does not exist" << std::endl;
     std::abort();
   }
 
-  const ssize_t page_size = metall::detail::utility::get_page_size();
+  const ssize_t page_size = metall::mtlldetail::get_page_size();
   if (page_size <= 0) {
     std::abort();
   }
 
   const std::size_t k_num_pages = 1024;
   {
-    auto map = static_cast<char *>(metall::detail::utility::map_anonymous_write_mode(nullptr,
+    auto map = static_cast<char *>(metall::mtlldetail::map_anonymous_write_mode(nullptr,
                                                                                      page_size * k_num_pages));
     if (map) {
       run_in_core_test(page_size, k_num_pages, map);
-      metall::detail::utility::munmap(map, page_size * k_num_pages, false);
+      metall::mtlldetail::munmap(map, page_size * k_num_pages, false);
     } else {
       std::cerr << "Failed anonymous mapping" << std::endl;
     }
@@ -91,34 +91,34 @@ int main(int argc, char *argv[]) {
   }
 
   {
-    metall::detail::utility::remove_file(file_name);
-    metall::detail::utility::create_file(file_name);
-    metall::detail::utility::extend_file_size(file_name, page_size * k_num_pages);
+    metall::mtlldetail::remove_file(file_name);
+    metall::mtlldetail::create_file(file_name);
+    metall::mtlldetail::extend_file_size(file_name, page_size * k_num_pages);
 
-    auto map = static_cast<char *>(metall::detail::utility::map_file_write_mode(file_name,
+    auto map = static_cast<char *>(metall::mtlldetail::map_file_write_mode(file_name,
                                                                                 nullptr,
                                                                                 page_size * k_num_pages,
                                                                                 0).second);
     if (map) {
       run_in_core_test(page_size, k_num_pages, map);
-      metall::detail::utility::munmap(map, page_size * k_num_pages, false);
+      metall::mtlldetail::munmap(map, page_size * k_num_pages, false);
     } else {
       std::cerr << "Failed file mapping" << std::endl;
     }
   }
 
   {
-    metall::detail::utility::remove_file(file_name);
-    metall::detail::utility::create_file(file_name);
-    metall::detail::utility::extend_file_size(file_name, page_size * k_num_pages);
+    metall::mtlldetail::remove_file(file_name);
+    metall::mtlldetail::create_file(file_name);
+    metall::mtlldetail::extend_file_size(file_name, page_size * k_num_pages);
 
-    auto map = static_cast<char *>(metall::detail::utility::map_file_write_private_mode(file_name,
+    auto map = static_cast<char *>(metall::mtlldetail::map_file_write_private_mode(file_name,
                                                                                         nullptr,
                                                                                         page_size * k_num_pages,
                                                                                         0).second);
     if (map) {
       run_in_core_test(page_size, k_num_pages, map);
-      metall::detail::utility::munmap(map, page_size * k_num_pages, false);
+      metall::mtlldetail::munmap(map, page_size * k_num_pages, false);
     } else {
       std::cerr << "Failed file mapping" << std::endl;
     }

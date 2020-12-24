@@ -11,8 +11,8 @@
 #include <sstream>
 #include <iomanip>
 #include <metall/metall.hpp>
-#include <metall/detail/utility/time.hpp>
-#include <metall/detail/utility/file_clone.hpp>
+#include <metall/detail/time.hpp>
+#include <metall/detail/file_clone.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
 
@@ -30,7 +30,7 @@ using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type
 void normal_copy(const std::string &source_path, const std::string &destination_path) {
   std::string rm_command("cp -R " + source_path + " " + destination_path);
   std::system(rm_command.c_str());
-  if (!metall::detail::utility::fsync(destination_path)) {
+  if (!metall::mtlldetail::fsync(destination_path)) {
     std::abort();
   }
 }
@@ -44,7 +44,7 @@ void reflink_copy(const std::string &source_path, const std::string &destination
   std::system(rm_command.c_str());
 #endif
 
-  if (!metall::detail::utility::fsync(destination_path)) {
+  if (!metall::mtlldetail::fsync(destination_path)) {
     std::abort();
   }
 }
@@ -99,9 +99,9 @@ int main(int argc, char *argv[]) {
 #if !USE_REFLINK_COPY
       {
         const auto snapshot_dir = option.datastore_path_list[0] + "-normal-snapshot-" + snapshot_id.str();
-        const auto start = util::elapsed_time_sec();
+        const auto start = mdtl::elapsed_time_sec();
         normal_copy(option.datastore_path_list[0], snapshot_dir);
-        const auto elapsed_time = util::elapsed_time_sec(start);
+        const auto elapsed_time = mdtl::elapsed_time_sec(start);
         std::cout << "Normal copy took (s)\t" << elapsed_time << std::endl;
         std::cout << "Normal copy datastore size (GB)\t"
                   << get_directory_size_gb(snapshot_dir) << std::endl;
@@ -111,9 +111,9 @@ int main(int argc, char *argv[]) {
 #else
       {
         const auto snapshot_dir = option.datastore_path_list[0] + "-reflink-snapshot-" + snapshot_id.str();
-        const auto start = util::elapsed_time_sec();
+        const auto start = mdtl::elapsed_time_sec();
         reflink_copy(option.datastore_path_list[0], snapshot_dir);
-        const auto elapsed_time = util::elapsed_time_sec(start);
+        const auto elapsed_time = mdtl::elapsed_time_sec(start);
         std::cout << "reflink copy took (s)\t" << elapsed_time << std::endl;
         std::cout << "reflink copy datastore size (GB)\t"
                   << get_directory_size_gb(snapshot_dir) << std::endl;

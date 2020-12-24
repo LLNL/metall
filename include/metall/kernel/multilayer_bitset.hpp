@@ -17,42 +17,41 @@
 #include <memory>
 #include <algorithm>
 
-#include <metall/detail/utility/common.hpp>
-#include <metall/detail/utility/bitset.hpp>
-#include <metall/detail/utility/builtin_functions.hpp>
+#include <metall/detail/utilities.hpp>
+#include <metall/detail/bitset.hpp>
+#include <metall/detail/builtin_functions.hpp>
 #include <metall/logger.hpp>
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 namespace multilayer_bitset_detail {
 
 inline constexpr uint64_t index_depth(const uint64_t num_blocks, const uint64_t num_local_blocks) noexcept {
-  return (num_blocks == 0) ? 0 : (num_local_blocks == 1) ? num_blocks : util::log_cpt(num_blocks - 1, num_local_blocks)
+  return (num_blocks == 0) ? 0 : (num_local_blocks == 1) ? num_blocks : mdtl::log_cpt(num_blocks - 1, num_local_blocks)
       + 1;
 }
 
 inline constexpr uint64_t num_internal_trees(const uint64_t num_blocks,
-                                      const uint64_t num_local_blocks,
-                                      const uint64_t index_depth) noexcept {
+                                             const uint64_t num_local_blocks,
+                                             const uint64_t index_depth) noexcept {
   return (num_blocks == 0 || index_depth <= 1) ? 0
                                                : ((num_local_blocks <= 2) ? num_local_blocks
                                                                           : ((num_blocks - 1)
-              / (util::power_cpt(num_local_blocks, index_depth - 1)) + 1));
+              / (mdtl::power_cpt(num_local_blocks, index_depth - 1)) + 1));
 }
 
 inline constexpr uint64_t num_index_blocks(const uint64_t num_local_blocks,
-                                    const uint64_t index_depth,
-                                    const uint64_t num_full_trees) noexcept {
+                                           const uint64_t index_depth,
+                                           const uint64_t num_full_trees) noexcept {
   return (index_depth <= 1) ? index_depth // no top layer or only top layer
                             : 1 + num_full_trees
-          * util::power_cpt(num_local_blocks, index_depth - 2); // top layer and #blocks for the trees
+          * mdtl::power_cpt(num_local_blocks, index_depth - 2); // top layer and #blocks for the trees
 }
-
 
 // Index is log2(#of bits)
 // !!! This array supports up to 4 layers for now !!!
@@ -90,7 +89,7 @@ static constexpr std::size_t k_num_blocks_table[25][4] = {
 } // namespace multilayer_bitset_detail
 
 namespace {
-namespace bs = metall::detail::utility::bitset_detail;
+namespace bs = metall::mtlldetail::bitset_detail;
 namespace mlbs = multilayer_bitset_detail;
 }
 
@@ -150,7 +149,7 @@ class multilayer_bitset {
 
   /// \brief Allocates internal space
   void allocate(const std::size_t num_bits) {
-    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    const std::size_t num_bits_power2 = mdtl::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       m_data.block = 0;
     } else {
@@ -160,7 +159,7 @@ class multilayer_bitset {
 
   /// \brief Users have to explicitly free bitset table
   void free(const std::size_t num_bits) {
-    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    const std::size_t num_bits_power2 = mdtl::next_power_of_2(num_bits);
     if (k_num_bits_in_block < num_bits_power2) {
       free_multilayer_bitset(num_bits_power2);
     }
@@ -169,7 +168,7 @@ class multilayer_bitset {
   /// \brief Finds an negative bit and sets it to positive
   /// \return The position of the found bit
   ssize_t find_and_set(const std::size_t num_bits) {
-    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    const std::size_t num_bits_power2 = mdtl::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       return find_and_set_in_single_block(num_bits_power2);
     } else {
@@ -179,7 +178,7 @@ class multilayer_bitset {
 
   /// \brief Resets the given bit
   void reset(const std::size_t num_bits, const ssize_t bit_no) {
-    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    const std::size_t num_bits_power2 = mdtl::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       bs::reset(&m_data.block, bit_no);
     } else {
@@ -190,7 +189,7 @@ class multilayer_bitset {
   /// \brief Gets the value of a bit
   /// \return Boolean value of the bit
   bool get(const std::size_t num_bits, const ssize_t bit_no) const {
-    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    const std::size_t num_bits_power2 = mdtl::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       return bs::get(&m_data.block, bit_no);
     } else {
@@ -203,7 +202,7 @@ class multilayer_bitset {
   }
 
   std::string serialize(const std::size_t num_bits) const {
-    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    const std::size_t num_bits_power2 = mdtl::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       return std::to_string(static_cast<uint64_t>(m_data.block));
     } else {
@@ -218,7 +217,7 @@ class multilayer_bitset {
   }
 
   bool deserialize(const std::size_t num_bits, const std::string &input_string) {
-    const std::size_t num_bits_power2 = util::next_power_of_2(num_bits);
+    const std::size_t num_bits_power2 = mdtl::next_power_of_2(num_bits);
     if (num_bits_power2 <= k_num_bits_in_block) {
       std::istringstream ss(input_string);
       uint64_t buf;
@@ -249,7 +248,7 @@ class multilayer_bitset {
   // -------------------- Allocation and free -------------------- //
   void allocate_multilayer_bitset(const std::size_t num_bits_power2) {
     const std::size_t num_blocks = num_all_blocks(num_bits_power2);
-    m_data.array = static_cast<block_type*>(std::malloc(num_blocks * sizeof(block_type)));
+    m_data.array = static_cast<block_type *>(std::malloc(num_blocks * sizeof(block_type)));
     if (!m_data.array) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot allocate multi-layer bitset");
       return;
@@ -273,9 +272,10 @@ class multilayer_bitset {
   }
 
   ssize_t find_and_set_in_multilayers(const std::size_t num_bits_power2) {
-    const std::size_t idx = util::log2_dynamic(num_bits_power2);
+    const std::size_t idx = mdtl::log2_dynamic(num_bits_power2);
 
-    const ssize_t bit_index_in_leaf_layer = find_in_multilayers(mlbs::k_num_layers_table[idx], mlbs::k_num_blocks_table[idx]);
+    const ssize_t
+        bit_index_in_leaf_layer = find_in_multilayers(mlbs::k_num_layers_table[idx], mlbs::k_num_blocks_table[idx]);
     assert(bit_index_in_leaf_layer < static_cast<ssize_t>(num_bits_power2));
     if (bit_index_in_leaf_layer < 0) return -1; // Error
 
@@ -318,7 +318,7 @@ class multilayer_bitset {
   }
 
   void reset_bit_in_multilayers(const std::size_t num_bits_power2, const ssize_t bit_index) {
-    const std::size_t idx = util::log2_dynamic(num_bits_power2);
+    const std::size_t idx = mdtl::log2_dynamic(num_bits_power2);
 
     const std::size_t num_layers = mlbs::k_num_layers_table[idx];
     std::size_t num_parent_index_block = mlbs::k_num_index_blocks_table[idx];
@@ -335,7 +335,7 @@ class multilayer_bitset {
   }
 
   bool get_in_multilayers(const std::size_t num_bits_power2, const ssize_t bit_index) const {
-    const std::size_t idx = util::log2_dynamic(num_bits_power2);
+    const std::size_t idx = mdtl::log2_dynamic(num_bits_power2);
     const std::size_t num_parent_index_block = mlbs::k_num_index_blocks_table[idx];
     return bs::get(&m_data.array[num_parent_index_block], static_cast<std::size_t>(bit_index));
   }
@@ -346,7 +346,7 @@ class multilayer_bitset {
                   "This implementation works on only 64bit system now");
     static_assert(sizeof(unsigned long long) == sizeof(uint64_t), "sizeof(unsigned long long) != sizeof(uint64_t)");
 
-    return (block == 0) ? 0 : util::clzll(~block);
+    return (block == 0) ? 0 : mdtl::clzll(~block);
   }
 
   bool full_block(block_type block) const {
@@ -354,7 +354,7 @@ class multilayer_bitset {
   }
 
   std::size_t num_all_blocks(const std::size_t num_bits_power2) const {
-    const std::size_t index = util::log2_dynamic(num_bits_power2);
+    const std::size_t index = mdtl::log2_dynamic(num_bits_power2);
     std::size_t num_blocks = 0;
     for (int layer = 0; layer < static_cast<int>(mlbs::k_num_layers_table[index]); ++layer) {
       num_blocks += mlbs::k_num_blocks_table[index][layer];

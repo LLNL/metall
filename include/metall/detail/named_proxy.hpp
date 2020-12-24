@@ -3,22 +3,14 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_UTILITY_DETAIL_NAMED_PROXY_HPP
 #define METALL_UTILITY_DETAIL_NAMED_PROXY_HPP
 
 #include <boost/interprocess/detail/named_proxy.hpp>
 
-namespace metall {
-
-/// \namespace metall::detail
-/// \brief A namespace for implementation details
-namespace detail {
-
-/// \namespace metall::detail::utility
-/// \brief A namespace for utility items
-namespace utility {
+/// \namespace metall::mtlldetail
+/// \brief Namespace for implementation details
+namespace metall::mtlldetail {
 
 /// \brief Proxy class that implements named allocation syntax.
 /// \tparam segment_manager segment manager to construct the object
@@ -27,8 +19,6 @@ namespace utility {
 template <typename segment_manager, typename T, bool is_iterator>
 using named_proxy = boost::interprocess::ipcdetail::named_proxy<segment_manager, T, is_iterator>;
 
-}
-}
-}
+} // namespace metall::mtlldetail
 
 #endif //METALL_UTILITY_DETAIL_NAMED_PROXY_HPP

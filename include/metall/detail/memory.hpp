@@ -13,9 +13,7 @@
 #include <fstream>
 #include <metall/logger.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 inline ssize_t get_page_size() noexcept {
   const ssize_t page_size = ::sysconf(_SC_PAGE_SIZE);
@@ -108,11 +106,9 @@ inline ssize_t get_page_cache_size() {
   return static_cast<ssize_t>(cached_size);
 }
 
-
 /// \brief Returns the number of page faults caused by the process
 /// \return A pair of #of minor and major page faults
-inline std::pair<std::size_t, std::size_t> get_num_page_faults()
-{
+inline std::pair<std::size_t, std::size_t> get_num_page_faults() {
   std::size_t minflt = 0;
   std::size_t majflt = 0;
 #ifdef __linux__
@@ -134,8 +130,7 @@ inline std::pair<std::size_t, std::size_t> get_num_page_faults()
 #endif
   return std::make_pair(minflt, majflt);
 }
-} // namespace utility
-} // namespace detail
-} // namespace metall
+
+} // namespace metall::mtlldetail
 
 #endif //METALL_DETAIL_UTILITY_MEMORY_HPP

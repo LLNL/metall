@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_METALL_HPP
 #define METALL_METALL_HPP
 

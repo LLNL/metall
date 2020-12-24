@@ -3,37 +3,11 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_MUTEX_HPP
-#define METALL_MUTEX_HPP
+#ifndef METALL_UTILITY_MUTEX_HPP_DEPRECATED
+#define METALL_UTILITY_MUTEX_HPP_DEPRECATED
 
-#include <mutex>
-#include <cassert>
+#warning "All contents of this file have been moved to metall/utility/mutex.hpp. This file will be removed soon."
 
-namespace metall::utility {
+#include <metall/utility/mutex.hpp>
 
-/// \namespace metall::utility::mutex
-/// \brief A namespace for mutex
-namespace mutex {
-
-/// \brief A utility function that returns a mutex lock allocated as a static object.
-/// This is an experimental implementation.
-/// Example:
-/// { // Mutex region
-///   const int bank_index = hash(key) % num_banks;
-///   auto guard = metall::utility::mutex::mutex_lock<num_banks>(bank_index);
-///   // do some mutex work
-/// }
-template <int num_banks>
-inline std::unique_lock<std::mutex> mutex_lock(const std::size_t index) {
-  static std::mutex mutexes[num_banks];
-  assert(index < num_banks);
-  return std::unique_lock<std::mutex>(mutexes[index]);
-}
-
-}
-}
-
-/// \example static_mutex.cpp
-/// This is an example of how to use the mutex_lock function.
-
-#endif //METALL_MUTEX_HPP
+#endif //METALL_UTILITY_MUTEX_HPP_DEPRECATED

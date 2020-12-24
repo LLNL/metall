@@ -12,8 +12,8 @@
 #include <utility>
 
 #include <boost/graph/rmat_graph_generator.hpp>
-#include <metall_utility/random.hpp>
-#include <metall_utility/hash.hpp>
+#include <metall/utility/random.hpp>
+#include <metall/utility/hash.hpp>
 
 namespace edge_generator {
 

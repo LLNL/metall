@@ -9,13 +9,11 @@
 #include <boost/interprocess/detail/segment_manager_helper.hpp>
 
 namespace metall {
-namespace detail {
-namespace utility {
+namespace mtlldetail {
 
 using boost::interprocess::ipcdetail::array_construct;
 
-} // namespace utility
-} // namespace detail
+} // namespace mtlldetail
 } // namespace metall
 
 #endif //METALL_DETAIL_UTILITY_ARRAY_CONSTRUCT_HPP

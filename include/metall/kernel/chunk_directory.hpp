@@ -11,8 +11,8 @@
 #include <cassert>
 #include <type_traits>
 
-#include <metall/detail/utility/common.hpp>
-#include <metall/detail/utility/mmap.hpp>
+#include <metall/detail/utilities.hpp>
+#include <metall/detail/mmap.hpp>
 #include <metall/kernel/multilayer_bitset.hpp>
 #include <metall/kernel/bin_number_manager.hpp>
 #include <metall/kernel/object_size_manager.hpp>
@@ -21,7 +21,7 @@
 namespace metall {
 namespace kernel {
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 template <typename _chunk_no_type, std::size_t _k_chunk_size, std::size_t _k_max_size>
@@ -42,8 +42,8 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   using chunk_no_type = _chunk_no_type;
   using bin_no_type = typename bin_no_mngr::bin_no_type;
-  using slot_no_type = typename util::unsigned_variable_type<k_num_max_slots - 1>::type;
-  using slot_count_type = typename util::unsigned_variable_type<k_num_max_slots>::type;
+  using slot_no_type = typename mdtl::unsigned_variable_type<k_num_max_slots - 1>::type;
+  using slot_count_type = typename mdtl::unsigned_variable_type<k_num_max_slots>::type;
 
  private:
   // -------------------------------------------------------------------------------- //
@@ -420,7 +420,7 @@ class chunk_directory {
     // An uncommitted page will be zero-initialized when it is touched first time;
     // however, this class does not relies on that.
     // The table entries will be initialized just before they are used.
-    m_table = static_cast<entry_type *>(util::map_anonymous_write_mode(nullptr, m_max_num_chunks * sizeof(entry_type)));
+    m_table = static_cast<entry_type *>(mdtl::map_anonymous_write_mode(nullptr, m_max_num_chunks * sizeof(entry_type)));
 
     if (!m_table) {
       m_max_num_chunks = 0;
@@ -436,7 +436,7 @@ class chunk_directory {
     for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
       erase(chunk_no);
     }
-    util::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
+    mdtl::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
     m_table = nullptr;
     m_max_num_chunks = 0;
     m_begin_unused_chunk_no = 0;

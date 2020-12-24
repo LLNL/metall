@@ -3,7 +3,7 @@
 `datastore_ls` is a utility program that lists object attributes in a Metall data store.
 
 `mpi_datastore_ls` is available for Metall MPI data store,
-which is created by [Metall MPI Adaptor](https://github.com/LLNL/metall/blob/master/include/metall_utility/metall_mpi_adaptor.hpp).
+which is created by [Metall MPI Adaptor](https://github.com/LLNL/metall/blob/master/include/metall/utility/metall_mpi_adaptor.hpp).
 `mpi_datastore_ls` is not a MPI program.
 
 ### Synopsis

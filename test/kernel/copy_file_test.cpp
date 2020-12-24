@@ -8,7 +8,7 @@
 
 #include <metall/metall.hpp>
 
-#include <metall/detail/utility/file.hpp>
+#include <metall/detail/file.hpp>
 #include "../test_utility.hpp"
 
 namespace {

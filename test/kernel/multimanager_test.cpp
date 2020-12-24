@@ -11,7 +11,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <metall/metall.hpp>
-#include <metall_utility/open_mp.hpp>
+#include <metall/utility/open_mp.hpp>
 #include "../test_utility.hpp"
 
 namespace {

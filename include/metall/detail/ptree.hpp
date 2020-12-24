@@ -11,7 +11,7 @@
 
 #include <metall/logger.hpp>
 
-namespace metall::detail::utility::ptree {
+namespace metall::mtlldetail::ptree {
 
 namespace {
 namespace bptree = boost::property_tree;
@@ -52,7 +52,7 @@ inline bool get_value(const node_type &tree, const std::string &key, value_type 
   return true;
 }
 
-inline bool get_child(const node_type &tree, const std::string &key, node_type* out) {
+inline bool get_child(const node_type &tree, const std::string &key, node_type *out) {
   if (!validate_key(key)) {
     logger::out(logger::level::error, __FILE__, __LINE__, "Invalid key: " + key);
     return false;
@@ -98,7 +98,7 @@ inline bool add_child(const std::string &key, const node_type &child, node_type 
 
 inline bool push_back(const node_type &child, node_type *parent) {
   try {
-  parent->push_back(std::make_pair("", child));
+    parent->push_back(std::make_pair("", child));
   } catch (...) {
     logger::out(logger::level::error, __FILE__, __LINE__, "Failed to pushback an item");
     return false;
@@ -140,6 +140,6 @@ inline std::size_t erase(const std::string &key, node_type *tree) {
   return tree->erase(key);
 }
 
-} // namespace metall::detail::utility::ptree
+} // namespace metall::mtlldetail::ptree
 
 #endif //METALL_DETAIL_UTILITY_PTREE_HPP

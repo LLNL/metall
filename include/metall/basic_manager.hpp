@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_BASIC_MANAGER_HPP
 #define METALL_BASIC_MANAGER_HPP
 
@@ -14,7 +12,7 @@
 #include <metall/tags.hpp>
 #include <metall/stl_allocator.hpp>
 #include <metall/kernel/manager_kernel.hpp>
-#include <metall/detail/utility/named_proxy.hpp>
+#include <metall/detail/named_proxy.hpp>
 
 namespace metall {
 
@@ -55,11 +53,11 @@ class basic_manager {
 
   /// \brief Construct proxy
   template <typename T>
-  using construct_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, false>;
+  using construct_proxy = metall::mtlldetail::named_proxy<manager_kernel_type, T, false>;
 
   /// \brief Construct iterator proxy
   template <typename T>
-  using construct_iter_proxy =  metall::detail::utility::named_proxy<manager_kernel_type, T, true>;
+  using construct_iter_proxy = metall::mtlldetail::named_proxy<manager_kernel_type, T, true>;
 
   /// \brief An value that describes the type of the instance constructed in memory
   using instance_kind = typename manager_kernel_type::instance_kind;
@@ -309,7 +307,7 @@ class basic_manager {
   /// \param name The name of the object.
   /// \return Returns false if the object was not destroyed.
   template <typename T>
-  bool destroy(const char* name) {
+  bool destroy(const char *name) {
     return m_kernel.template destroy<T>(name);
   }
 
@@ -334,7 +332,7 @@ class basic_manager {
   /// \tparam T The type of the object.
   /// \return Returns false if the object was not destroyed.
   template <typename T>
-  bool destroy(const metall::detail::utility::unique_instance_t*const) {
+  bool destroy(const metall::mtlldetail::unique_instance_t *const) {
     return m_kernel.template destroy<T>(metall::unique_instance);
   }
 
@@ -380,7 +378,7 @@ class basic_manager {
   /// If ptr points to an unique instance, typeid(T).name() is returned.
   /// If ptr points to an anonymous instance or memory not allocated by construct/find_or_construct functions,
   /// nullptr is returned.
-  template<class T>
+  template <class T>
   const char_type *get_instance_name(const T *ptr) const {
     return m_kernel.get_instance_name(ptr);
   }
@@ -396,7 +394,7 @@ class basic_manager {
   /// \tparam T The type of the object.
   /// \param ptr A pointer to the object.
   /// \return The type of the object.
-  template<class T>
+  template <class T>
   instance_kind get_instance_kind(const T *ptr) const {
     return m_kernel.get_instance_kind(ptr);
   }
@@ -413,7 +411,7 @@ class basic_manager {
   /// \tparam T The type of the object.
   /// \param ptr A pointer to the object.
   /// \return The type of the object.
-  template<class T>
+  template <class T>
   size_type get_instance_length(const T *ptr) const {
     return m_kernel.get_instance_length(ptr);
   }
@@ -430,7 +428,7 @@ class basic_manager {
   /// \tparam T A expected type of the object.
   /// \param ptr A pointer to the object.
   /// \return Returns true if T is correct; otherwise false.
-  template<class T>
+  template <class T>
   bool is_instance_type(const void *const ptr) const {
     return m_kernel.template is_instance_type<T>(ptr);
   }
@@ -448,7 +446,7 @@ class basic_manager {
   /// \param ptr A pointer to the object.
   /// \param description A pointer to a string buffer.
   /// \return Returns false on error.
-  template<class T>
+  template <class T>
   bool get_instance_description(const T *ptr, std::string *description) const {
     return m_kernel.get_instance_description(ptr, description);
   }
@@ -466,8 +464,8 @@ class basic_manager {
   /// \param ptr A pointer to the object.
   /// \param description A description to set.
   /// \return Returns false on error.
-  template<class T>
-  bool set_instance_description(const T *ptr, const std::string& description) {
+  template <class T>
+  bool set_instance_description(const T *ptr, const std::string &description) {
     return m_kernel.set_instance_description(ptr, description);
   }
 
@@ -736,7 +734,7 @@ class basic_manager {
   /// \return Returns a STL compatible allocator object.
   template <typename T = std::byte>
   allocator_type<T> get_allocator() const {
-    return allocator_type<T>(reinterpret_cast<manager_kernel_type *const*>(&(m_kernel.get_segment_header()->manager_kernel_address)));
+    return allocator_type<T>(reinterpret_cast<manager_kernel_type *const *>(&(m_kernel.get_segment_header()->manager_kernel_address)));
   }
 
   /// \brief Returns the internal chunk size.

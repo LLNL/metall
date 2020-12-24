@@ -6,7 +6,7 @@
 #include <iostream>
 #include <thread>
 
-#include <metall_utility/mutex.hpp>
+#include <metall/utility/mutex.hpp>
 
 static constexpr std::size_t k_num_mutexes = 2;
 

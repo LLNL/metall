@@ -12,7 +12,7 @@
 #include <string>
 #include <utility>
 #include <unordered_map>
-#include <metall_utility/hash.hpp>
+#include <metall/utility/hash.hpp>
 
 using key_type = uint64_t;
 using value_type = uint64_t;

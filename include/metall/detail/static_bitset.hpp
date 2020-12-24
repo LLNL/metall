@@ -11,11 +11,9 @@
 #include <limits>
 #include <array>
 
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utilities.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 namespace bitset_detail {
 
@@ -95,9 +93,9 @@ fill_bits_local(const std::size_t start_pos, const std::size_t n) {
 // set_mode == false -> reset mode
 template <typename bitset_base_type>
 inline void update_n_bits(bitset_base_type *const bitset,
-                   const std::size_t start_pos,
-                   const std::size_t n,
-                   const bool set_mode) {
+                          const std::size_t start_pos,
+                          const std::size_t n,
+                          const bool set_mode) {
 
   constexpr std::size_t base_type_num_bits = sizeof(bitset_base_type) * 8ULL;
   if (bitset_local_pos<bitset_base_type>(start_pos) + n <= base_type_num_bits) { // update a single bin
@@ -253,9 +251,7 @@ class static_bitset {
   internal_table_t m_table;
 } __attribute__ ((packed));
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 
 #endif //METALL_DETAIL_UTILITY_STATIC_BITSET_HPP
 

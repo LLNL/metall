@@ -13,7 +13,7 @@
 #include "../test_utility.hpp"
 
 namespace {
-using namespace metall::detail;
+using namespace metall::mtlldetail;
 
 using manager_type = metall::manager;
 template <typename T>

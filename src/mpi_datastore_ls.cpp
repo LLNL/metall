@@ -5,8 +5,8 @@
 
 #include <iostream>
 #include <string>
-#include <metall_utility/metall_mpi_datastore.hpp>
-#include <metall_utility/datastore_ls.hpp>
+#include <metall/utility/metall_mpi_datastore.hpp>
+#include <metall/utility/datastore_ls.hpp>
 
 int main(int argc, char *argv[]) {
 

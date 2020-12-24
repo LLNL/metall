@@ -12,8 +12,8 @@
 #include <string>
 #include <vector>
 #include <boost/algorithm/string.hpp>
-#include <metall/detail/utility/common.hpp>
-#include <metall_utility/open_mp.hpp>
+#include <metall/detail/utilities.hpp>
+#include <metall/utility/open_mp.hpp>
 #include "edge_generator/rmat_edge_generator.hpp"
 #include "../utility/pair_reader.hpp"
 #include "kernel.hpp"
@@ -161,8 +161,8 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
                               std::ofstream *const ofs_save_edge,
                               const bool verbose = false) {
 
-  using reader_type = utility::pair_reader<typename adjacency_list_type::key_type,
-                                           typename adjacency_list_type::value_type>;
+  using reader_type = bench_utility::pair_reader<typename adjacency_list_type::key_type,
+                                                 typename adjacency_list_type::value_type>;
   reader_type reader(input_file_name_list.begin(), input_file_name_list.end());
 
   auto input_storage = allocate_key_value_input_storage<adjacency_list_type>();
@@ -243,7 +243,7 @@ inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
       assert((int)input_storage.size() == (int)omp::get_num_threads());
       auto &local_list = input_storage.at(omp::get_thread_num());
       local_list.clear();
-      const auto range = util::partial_range(num_generate, omp::get_thread_num(), omp::get_num_threads());
+      const auto range = metall::mtlldetail::partial_range(num_generate, omp::get_thread_num(), omp::get_num_threads());
       auto &itr = generator_itr_list.at(omp::get_thread_num());
       for (std::size_t i = range.first; i < range.second; ++i) {
         local_list.emplace_back(*itr);

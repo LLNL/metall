@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_OFFSET_PTR_HPP
 #define METALL_OFFSET_PTR_HPP
 

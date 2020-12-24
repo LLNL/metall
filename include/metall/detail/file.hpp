@@ -43,9 +43,7 @@
 
 #include <metall/logger.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 #if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
 namespace {
@@ -98,11 +96,11 @@ inline bool fsync_recursive(const std::string &path) {
   }
   return true;
 #else
-// FIXME: Implement recersive fsync w/o the C++17 Filesystem library
+  // FIXME: Implement recersive fsync w/o the C++17 Filesystem library
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "Cannot call fsync recursively"
 #endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-  return fsync(path);
+    return fsync(path);
 #endif
 }
 
@@ -387,7 +385,5 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 
 #endif
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 #endif //METALL_DETAIL_UTILITY_FILE_HPP
