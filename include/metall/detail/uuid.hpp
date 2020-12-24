@@ -10,11 +10,11 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-namespace metall::detail::utility {
+namespace metall::mtlldetail {
 
 using uuid = boost::uuids::uuid;
 using uuid_random_generator = boost::uuids::random_generator;
 
-} // namespace metall::detail::utility
+} // namespace metall::mtlldetail
 
 #endif // METALL_DETAIL_UTILITY_UUID_HPP

@@ -15,7 +15,7 @@
 #include <metall/utility/container_of_containers_iterator_adaptor.hpp>
 
 /// \namespace metall::container
-/// \brief A namespace for container
+/// \brief Namespace for Metall container
 namespace metall::container {
 
 /// \brief A concurrent map container which can be stored in persistent memory.

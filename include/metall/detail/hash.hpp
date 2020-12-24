@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace metall::detail::utility {
+namespace metall::mtlldetail {
 
 // -----------------------------------------------------------------------------
 // This also contains public domain code from MurmurHash2.
@@ -63,7 +63,7 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len, const ui
 /// \tparam seed A seed value used for hashing
 template <typename T, unsigned int seed = 123>
 struct hash {
-  uint64_t operator()(const T& key) const {
+  uint64_t operator()(const T &key) const {
     return MurmurHash64A(&key, sizeof(T), seed);
   }
 };
@@ -73,11 +73,11 @@ struct hash {
 /// \tparam seed A seed value used for hashing
 template <typename string_type, unsigned int seed = 123>
 struct string_hash {
-  uint64_t operator()(const string_type& key) const {
+  uint64_t operator()(const string_type &key) const {
     return MurmurHash64A(key.c_str(), key.length() * sizeof(typename string_type::value_type), seed);
   }
 };
 
-} // namespace metall::detail::utility
+} // namespace metall::mtlldetail
 
 #endif //METALL_DETAIL_UTILITY_HASH_HPP

@@ -9,7 +9,7 @@
 #include <memory>
 #include "numa.hpp"
 
-namespace numa {
+namespace bench_utility::numa {
 
 template <typename T>
 class numa_allocator {
@@ -113,5 +113,5 @@ bool operator!=(const numa_allocator<T> &rhd, const numa_allocator<T> &lhd) {
   return !(rhd == lhd);
 }
 
-}
+} // namespace bench_utility::numa
 #endif //METALL_UTILITY_NUMA_ALLOCATOR_HPP

@@ -8,6 +8,8 @@
 
 #include <string>
 
+/// \namespace metall::utility::mpi_datastore
+/// \brief Namespace for MPI datastore
 namespace metall::utility::mpi_datastore {
 
 /// \brief Makes a path of a root directory.

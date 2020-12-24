@@ -8,7 +8,7 @@
 #include <string>
 
 #include <metall/utility/open_mp.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utilities.hpp>
 #include "rmat_edge_generator.hpp"
 
 // ---------------------------------------- //
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 
   OMP_DIRECTIVE(parallel)
   {
-    const auto range = metall::detail::utility::partial_range(rmat_option.edge_count,
+    const auto range = metall::mtlldetail::partial_range(rmat_option.edge_count,
                                                               metall::utility::omp::get_thread_num(),
                                                               metall::utility::omp::get_num_threads());
     const std::size_t num_edges = range.second - range.first;

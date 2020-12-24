@@ -6,9 +6,7 @@
 #ifndef METALL_DETAIL_UTILITY_PARAMETER_PACK_HPP
 #define METALL_DETAIL_UTILITY_PARAMETER_PACK_HPP
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 // ---------- get index ---------- //
 template <typename...>
@@ -22,7 +20,5 @@ struct get_index<T, T, List...> { static constexpr std::size_t value = 0; };
 template <typename T, typename F, typename...  List>
 struct get_index<T, F, List...> { static constexpr std::size_t value = get_index<T, List...>::value + 1; };
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 #endif //METALL_DETAIL_UTILITY_PARAMETER_PACK_HPP

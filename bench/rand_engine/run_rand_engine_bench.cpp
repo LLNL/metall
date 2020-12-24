@@ -7,16 +7,16 @@
 #include <random>
 #include <boost/random/mersenne_twister.hpp>
 #include <metall/utility/random.hpp>
-#include <metall/detail/utility/time.hpp>
+#include <metall/detail/time.hpp>
 
 template <typename rand_engine_type>
 auto run_bench(const uint64_t num_generate) {
   rand_engine_type rand_engine(123);
-  const auto s =  metall::detail::utility::elapsed_time_sec();
+  const auto s =  metall::mtlldetail::elapsed_time_sec();
   for (uint64_t i = 0; i < num_generate; ++i) {
     [[maybe_unused]] volatile const uint64_t x = rand_engine();
   }
-  const auto t =  metall::detail::utility::elapsed_time_sec(s);
+  const auto t =  metall::mtlldetail::elapsed_time_sec(s);
   return t;
 }
 

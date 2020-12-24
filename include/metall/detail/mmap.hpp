@@ -20,14 +20,12 @@
 #include <cerrno>
 #include <sstream>
 
-#include <metall/detail/utility/memory.hpp>
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/memory.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 /// \brief Maps a file checking errors
 /// \param addr Same as mmap(2)
@@ -335,8 +333,7 @@ inline void *reserve_aligned_vm_region(const size_t alignment, const size_t leng
   }
 
   void *const map_addr = os_mmap(nullptr, length + alignment, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-  void *const aligned_map_addr = reinterpret_cast<void *>(utility::round_up(reinterpret_cast<size_t>(map_addr),
-                                                                            alignment));
+  void *const aligned_map_addr = reinterpret_cast<void *>(round_up(reinterpret_cast<size_t>(map_addr), alignment));
 
   // Trim the head
   const size_t surplus_head_length = reinterpret_cast<size_t>(aligned_map_addr) - reinterpret_cast<size_t>(map_addr);
@@ -408,7 +405,5 @@ class pagemap_reader {
   int m_fd;
 };
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 #endif //METALL_DETAIL_UTILITY_MMAP_HPP

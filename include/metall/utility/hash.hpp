@@ -6,7 +6,7 @@
 #ifndef METALL_UTILITY_HASH_HPP
 #define METALL_UTILITY_HASH_HPP
 
-#include <metall/detail/utility/hash.hpp>
+#include <metall/detail/hash.hpp>
 
 namespace metall::utility {
 
@@ -14,13 +14,13 @@ namespace metall::utility {
 /// \tparam T The type of a value to hash
 /// \tparam seed A seed value used for hashing
 template <typename T, unsigned int seed = 123>
-using hash = metall::detail::utility::hash<T, seed>;
+using hash = metall::mtlldetail::hash<T, seed>;
 
 /// \brief Hash string data
 /// \tparam string_type A string class
 /// \tparam seed A seed value used for hashing
 template <typename string_type, unsigned int seed = 123>
-using string_hash = metall::detail::utility::string_hash<string_type, seed>;
+using string_hash = metall::mtlldetail::string_hash<string_type, seed>;
 
 } // namespace metall::utility
 

@@ -13,11 +13,9 @@
 #include <cassert>
 #include <vector>
 
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utilities.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 namespace bitset_detail {
 
 // example (sizeof(block_type) is 8 byte)
@@ -40,14 +38,14 @@ inline constexpr uint64_t local_index(const uint64_t idx) noexcept {
 // 33~     bits -> uint64_t
 template <uint64_t num_bits>
 struct block_type {
-  using type  =  typename std::conditional<num_bits <= sizeof(uint8_t) * 8,
-                                           uint8_t,
-                                           typename std::conditional<num_bits <= sizeof(uint16_t) * 8,
-                                                                     uint16_t,
-                                                                     typename std::conditional<
-                                                                         num_bits <= sizeof(uint32_t) * 8,
-                                                                         uint32_t,
-                                                                         uint64_t>::type>::type>::type;
+  using type = typename std::conditional<num_bits <= sizeof(uint8_t) * 8,
+                                         uint8_t,
+                                         typename std::conditional<num_bits <= sizeof(uint16_t) * 8,
+                                                                   uint16_t,
+                                                                   typename std::conditional<
+                                                                       num_bits <= sizeof(uint32_t) * 8,
+                                                                       uint32_t,
+                                                                       uint64_t>::type>::type>::type;
 };
 
 // examples: block_type = uint64_t
@@ -91,9 +89,9 @@ fill_bits_local(const uint64_t start_idx, const uint64_t n) noexcept {
 // set_mode == false -> reset mode
 template <typename block_type>
 inline void update_n_bits(block_type *const bitset,
-                   const uint64_t start_idx,
-                   const uint64_t n,
-                   const bool set_mode) noexcept {
+                          const uint64_t start_idx,
+                          const uint64_t n,
+                          const bool set_mode) noexcept {
 
   constexpr uint64_t block_type_num_bits = sizeof(block_type) * 8ULL;
   if (local_index<block_type>(start_idx) + n <= block_type_num_bits) { // update a single block
@@ -378,7 +376,5 @@ class bitset {
   internal_table_t m_table;
 };
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 #endif //METALL_DETAIL_UTILITY_BITSET_HPP

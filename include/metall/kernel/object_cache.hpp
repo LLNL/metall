@@ -16,18 +16,18 @@
 #include <boost/container/vector.hpp>
 
 #include <metall/kernel/bin_directory.hpp>
-#include <metall/detail/utility/proc.hpp>
-#include <metall/detail/utility/hash.hpp>
+#include <metall/detail/proc.hpp>
+#include <metall/detail/hash.hpp>
 #define ENABLE_MUTEX_IN_METALL_OBJECT_CACHE 1
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
-#include <metall/detail/utility/mutex.hpp>
+#include <metall/detail/mutex.hpp>
 #endif
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 template <std::size_t _k_num_bins, typename _difference_type, typename _bin_no_manager>
@@ -56,8 +56,8 @@ class object_cache {
   static constexpr int k_cpu_core_no_cache_duration = 4;
 
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
-  using mutex_type = util::mutex;
-  using lock_guard_type = util::mutex_lock_guard;
+  using mutex_type = mdtl::mutex;
+  using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
 
  public:
@@ -73,7 +73,7 @@ class object_cache {
   object_cache()
       : m_cache_table(num_cores() * k_num_cache_per_core)
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
-  , m_mutex(m_cache_table.size())
+      , m_mutex(m_cache_table.size())
 #endif
   {}
 
@@ -141,7 +141,7 @@ class object_cache {
   }
 
   void clear() {
-    for (auto& table : m_cache_table) {
+    for (auto &table : m_cache_table) {
       table.clear();
     }
   }
@@ -174,9 +174,10 @@ class object_cache {
 #if SUPPORT_GET_CPU_CORE_NO
     thread_local static const auto sub_cache_no = std::hash<std::thread::id>{}(std::this_thread::get_id()) % k_num_cache_per_core;
     const unsigned int core_num = get_core_no();
-    return metall::detail::utility::hash<unsigned int>{}(core_num * k_num_cache_per_core + sub_cache_no) % m_cache_table.size();
+    return mdtl::hash<unsigned int>{}(core_num * k_num_cache_per_core + sub_cache_no) % m_cache_table.size();
 #else
-    thread_local static const auto hashed_thread_id = metall::detail::utility::hash<unsigned int>{}(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+    thread_local static const auto hashed_thread_id
+        = mdtl::hash<unsigned int>{}(std::hash<std::thread::id>{}(std::this_thread::get_id()));
     return hashed_thread_id % m_cache_table.size();
 #endif
   }
@@ -187,7 +188,7 @@ class object_cache {
     thread_local static int cached_core_no = 0;
     thread_local static int cached_count = 0;
     if (cached_core_no == 0) {
-      cached_core_no = util::get_cpu_core_no();
+      cached_core_no = mdtl::get_cpu_core_no();
     }
     cached_count = (cached_count + 1) % k_cpu_core_no_cache_duration;
     return cached_core_no;

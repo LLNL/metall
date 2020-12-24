@@ -7,7 +7,7 @@
 #include <string>
 
 #include <metall/metall.hpp>
-#include <metall/detail/utility/time.hpp>
+#include <metall/detail/time.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
 
@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) {
 
     run_bench(option, adj_list);
 
-    const auto start = metall::detail::utility::elapsed_time_sec();
+    const auto start = metall::mtlldetail::elapsed_time_sec();
     manager.flush();
-    const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
+    const auto elapsed_time = metall::mtlldetail::elapsed_time_sec(start);
     std::cout << "Flushing data took (s)\t" << elapsed_time << std::endl;
 
     // std::cout << "Writing profile" << std::endl;

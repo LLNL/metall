@@ -20,15 +20,15 @@
 #include <boost/container/list.hpp>
 
 #include <metall/logger.hpp>
-#include <metall/detail/utility/ptree.hpp>
-#include <metall/detail/utility/hash.hpp>
+#include <metall/detail/ptree.hpp>
+#include <metall/detail/hash.hpp>
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
-namespace json = metall::detail::utility::ptree;
+namespace mdtl = metall::mtlldetail;
+namespace json = metall::mtlldetail::ptree;
 }
 
 template <typename T>
@@ -95,12 +95,12 @@ class attributed_object_directory {
     const auto &description() const {
       return m_description;
     }
-    
+
     auto &description() {
       return m_description;
     }
 
-    template<typename T>
+    template <typename T>
     bool is_type() const {
       return m_type_id == gen_type_id<T>();
     }
@@ -122,10 +122,10 @@ class attributed_object_directory {
   // Following tables hold the index of the corresponding entry of each key
   using offset_index_table_type = boost::unordered_map<offset_type,
                                                        typename entry_table_type::iterator,
-                                                       util::hash<offset_type>>;
+                                                       mdtl::hash<offset_type>>;
   using name_index_table_type = boost::unordered_map<name_type,
                                                      typename entry_table_type::iterator,
-                                                     util::string_hash<name_type>>;
+                                                     mdtl::string_hash<name_type>>;
 
  public:
   // -------------------------------------------------------------------------------- //

@@ -9,7 +9,7 @@
 #include <sstream>
 
 #include <metall/metall.hpp>
-#include <metall/detail/utility/file.hpp>
+#include <metall/detail/file.hpp>
 #include <metall/utility/mpi.hpp>
 #include <metall/utility/metall_mpi_datastore.hpp>
 
@@ -42,7 +42,7 @@ class metall_mpi_adaptor {
     priv_verify_num_partitions(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_only,
                                                             ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                     priv_mpi_comm_rank(comm)).c_str());
+                                                                                    priv_mpi_comm_rank(comm)).c_str());
   }
 
   /// \brief Opens an existing Metall datastore with the read-only mode.
@@ -57,7 +57,7 @@ class metall_mpi_adaptor {
     priv_verify_num_partitions(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::open_read_only,
                                                             ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                     priv_mpi_comm_rank(comm)).c_str());
+                                                                                    priv_mpi_comm_rank(comm)).c_str());
   }
 
   /// \brief Creates a new Metall datastore.
@@ -72,7 +72,7 @@ class metall_mpi_adaptor {
     priv_setup_root_dir(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only,
                                                             ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                     priv_mpi_comm_rank(comm)).c_str());
+                                                                                    priv_mpi_comm_rank(comm)).c_str());
   }
 
   /// \brief Creates a new Metall datastore.
@@ -88,7 +88,7 @@ class metall_mpi_adaptor {
     priv_setup_root_dir(root_dir_prefix, comm);
     m_local_metall_manager = std::make_unique<manager_type>(metall::create_only,
                                                             ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                     priv_mpi_comm_rank(comm)).c_str(),
+                                                                                    priv_mpi_comm_rank(comm)).c_str(),
                                                             capacity);
   }
 
@@ -157,7 +157,7 @@ class metall_mpi_adaptor {
     priv_setup_root_dir(destination_dir_path, m_mpi_comm);
     const int rank = priv_mpi_comm_rank(m_mpi_comm);
     return priv_global_and(m_local_metall_manager->snapshot(ds::make_local_dir_path(destination_dir_path,
-                                                                                     rank).c_str()),
+                                                                                    rank).c_str()),
                            m_mpi_comm);
   }
 
@@ -172,7 +172,7 @@ class metall_mpi_adaptor {
 
     // ----- Check if this is a Metall datastore ----- //
     bool corrent_dir = true;
-    if (!metall::detail::utility::file_exist(
+    if (!metall::mtlldetail::file_exist(
         ds::make_root_dir_path(root_dir_prefix) + "/" + k_datastore_mark_file_name)) {
       corrent_dir = false;
     }
@@ -199,8 +199,8 @@ class metall_mpi_adaptor {
     bool ret = true;
     for (int i = 0; i < size; ++i) {
       if (i == rank) {
-        if (metall::detail::utility::file_exist(ds::make_root_dir_path(root_dir_prefix))
-            && !metall::detail::utility::remove_file(ds::make_root_dir_path(root_dir_prefix))) {
+        if (metall::mtlldetail::file_exist(ds::make_root_dir_path(root_dir_prefix))
+            && !metall::mtlldetail::remove_file(ds::make_root_dir_path(root_dir_prefix))) {
           logger::out(logger::level::error,
                       __FILE__,
                       __LINE__,
@@ -235,7 +235,7 @@ class metall_mpi_adaptor {
     const std::string root_dir_path = ds::make_root_dir_path(root_dir_prefix);
 
     // Make sure the root directory and a file with the same name do not exist
-    const auto local_ret = metall::detail::utility::file_exist(root_dir_path);
+    const auto local_ret = metall::mtlldetail::file_exist(root_dir_path);
     if (priv_global_or(local_ret, comm)) {
       if (rank == 0) {
         logger::out(logger::level::error, __FILE__, __LINE__,
@@ -246,14 +246,14 @@ class metall_mpi_adaptor {
     priv_mpi_barrier(comm);
 
     for (int i = 0; i < size; ++i) {
-      if (i == rank && !metall::detail::utility::directory_exist(root_dir_path)) {
-        if (!metall::detail::utility::create_directory(root_dir_path)) {
+      if (i == rank && !metall::mtlldetail::directory_exist(root_dir_path)) {
+        if (!metall::mtlldetail::create_directory(root_dir_path)) {
           logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create directory: " + root_dir_path);
           ::MPI_Abort(comm, -1);
         }
 
         const std::string mark_file = root_dir_path + "/" + k_datastore_mark_file_name;
-        if (!metall::detail::utility::create_file(mark_file)) {
+        if (!metall::mtlldetail::create_file(mark_file)) {
           logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create file: " + mark_file);
           ::MPI_Abort(comm, -1);
         }

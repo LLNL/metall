@@ -9,7 +9,7 @@
 #include <iterator>
 
 /// \namespace metall::utility
-/// \brief A namespace for utility items
+/// \brief Namespace for utility items
 namespace metall::utility {
 
 /// \brief Utility class that provides an iterator for a container of containers, e.g., map of vectors

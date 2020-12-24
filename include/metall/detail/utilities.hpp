@@ -12,9 +12,9 @@
 #include <cassert>
 #include <algorithm>
 
-#include <metall/detail/utility/builtin_functions.hpp>
+#include <metall/detail/builtin_functions.hpp>
 
-namespace metall::detail::utility {
+namespace metall::mtlldetail {
 
 /// \brief Computes the next power of 2
 /// \param n Input value
@@ -93,7 +93,7 @@ struct unsigned_variable_type {
  public:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
-  using type  =
+  using type =
   typename conditional<x <= limits<uint8_t>::max(),
                        uint8_t,
                        typename conditional<x <= limits<uint16_t>::max(),
@@ -126,5 +126,5 @@ std::pair<std::size_t, std::size_t> partial_range(const std::size_t length,
 
   return std::make_pair(begin_index, begin_index + partial_length);
 }
-} // namespace metall::detail::utility
+} // namespace metall::mtlldetail
 #endif //METALL_DETAIL_UTILITY_COMMON_HPP

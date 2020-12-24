@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include <boost/algorithm/string.hpp>
 
-#include <metall/detail/utility/time.hpp>
-#include <metall/detail/utility/memory.hpp>
+#include <metall/detail/time.hpp>
+#include <metall/detail/memory.hpp>
 
 #include "kernel.hpp"
 #include <metall/utility/open_mp.hpp>
@@ -20,7 +20,7 @@
 namespace bfs_bench {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 namespace omp = metall::utility::omp;
 }
 
@@ -117,7 +117,7 @@ typename graph_type::key_type find_root(const graph_type &graph) {
 // Utility
 // ---------------------------------------- //
 void print_current_num_page_faults() {
-  const auto page_faults = util::get_num_page_faults();
+  const auto page_faults = mdtl::get_num_page_faults();
   std::cout << "#of page faults (minflt majflt) " << page_faults.first << " " << page_faults.second << std::endl;
 }
 
@@ -153,9 +153,9 @@ void run_bench(const graph_type &graph, const bench_options<vertex_id_type> &opt
   vertex_id_type max_id = option.max_vertex_id;
   if (max_id == 0) {
     std::cout << "\nFind the max vertex ID" << std::endl;
-    const auto start = util::elapsed_time_sec();
+    const auto start = mdtl::elapsed_time_sec();
     max_id = find_max_id(graph);
-    const auto elapsed_time = util::elapsed_time_sec(start);
+    const auto elapsed_time = mdtl::elapsed_time_sec(start);
     std::cout << "Finished finding the max ID (s)\t" << elapsed_time << std::endl;
     print_current_num_page_faults();
   }
@@ -163,9 +163,9 @@ void run_bench(const graph_type &graph, const bench_options<vertex_id_type> &opt
   bfs_data data;
   {
     std::cout << "\nInitialize bfs" << std::endl;
-    const auto start = util::elapsed_time_sec();
+    const auto start = mdtl::elapsed_time_sec();
     initialize(max_id, new_root, &data);
-    const auto elapsed_time = util::elapsed_time_sec(start);
+    const auto elapsed_time = mdtl::elapsed_time_sec(start);
     std::cout << "Finished initialization (s)\t" << elapsed_time << std::endl;
     print_current_num_page_faults();
   }
@@ -174,9 +174,9 @@ void run_bench(const graph_type &graph, const bench_options<vertex_id_type> &opt
     std::cout << "\nStart BFS" << std::endl;
     print_omp_configuration();
     print_current_num_page_faults();
-    const auto start = util::elapsed_time_sec();
+    const auto start = mdtl::elapsed_time_sec();
     kernel(graph, &data);
-    const auto elapsed_time = util::elapsed_time_sec(start);
+    const auto elapsed_time = mdtl::elapsed_time_sec(start);
     std::cout << "Finished BFS (s)\t" << elapsed_time << std::endl;
     print_current_num_page_faults();
   }

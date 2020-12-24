@@ -28,15 +28,15 @@
 #include <metall/kernel/segment_allocator.hpp>
 #include <metall/kernel/attributed_object_directory.hpp>
 #include <metall/object_attribute_accessor.hpp>
-#include <metall/detail/utility/common.hpp>
-#include <metall/detail/utility/in_place_interface.hpp>
-#include <metall/detail/utility/array_construct.hpp>
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/file_clone.hpp>
-#include <metall/detail/utility/char_ptr_holder.hpp>
-#include <metall/detail/utility/soft_dirty_page.hpp>
-#include <metall/detail/utility/uuid.hpp>
-#include <metall/detail/utility/ptree.hpp>
+#include <metall/detail/utilities.hpp>
+#include <metall/detail/in_place_interface.hpp>
+#include <metall/detail/array_construct.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/file_clone.hpp>
+#include <metall/detail/char_ptr_holder.hpp>
+#include <metall/detail/soft_dirty_page.hpp>
+#include <metall/detail/uuid.hpp>
+#include <metall/detail/ptree.hpp>
 
 #ifdef METALL_USE_UMAP
 #include <metall/kernel/segment_storage/umap_sparse_segment_storage.hpp>
@@ -46,14 +46,14 @@
 
 #define ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL 1
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-#include <metall/detail/utility/mutex.hpp>
+#include <metall/detail/mutex.hpp>
 #endif
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 template <typename _chunk_no_type, std::size_t _chunk_size>
@@ -65,12 +65,12 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   using void_pointer = offset_ptr<void>;
   using char_type = char; // required by boost's named proxy
-  using char_ptr_holder_type = util::char_ptr_holder<char_type>;
+  using char_ptr_holder_type = mdtl::char_ptr_holder<char_type>;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
   using id_type = uint16_t;
 
-  using instance_kind = util::instance_kind;
+  using instance_kind = mdtl::instance_kind;
 
   using chunk_no_type = _chunk_no_type;
   static constexpr size_type k_chunk_size = _chunk_size;
@@ -99,7 +99,7 @@ class manager_kernel {
   static constexpr const char *k_segment_prefix = "segment";
 
   using segment_header_type = segment_header;
-  static constexpr size_type k_segment_header_size = util::round_up(sizeof(segment_header_type), k_chunk_size);
+  static constexpr size_type k_segment_header_size = mdtl::round_up(sizeof(segment_header_type), k_chunk_size);
 
   using segment_storage_type =
 #ifdef METALL_USE_UMAP
@@ -129,11 +129,11 @@ class manager_kernel {
 
   static constexpr const char *k_description_file_name = "description";
 
-  using json_store = metall::detail::utility::ptree::node_type;
+  using json_store = mdtl::ptree::node_type;
 
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-  using mutex_type = util::mutex;
-  using lock_guard_type = util::mutex_lock_guard;
+  using mutex_type = mdtl::mutex;
+  using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
 
  public:
@@ -335,7 +335,7 @@ class manager_kernel {
                        size_type num,
                        bool try2find,
                        bool do_throw,
-                       util::in_place_interface &table);
+                       mdtl::in_place_interface &table);
 
   /// \brief Get the address of the segment header.
   /// \return Returns the address of the segment header.
@@ -479,7 +479,7 @@ class manager_kernel {
                                                 size_type length,
                                                 bool try2find,
                                                 bool do_throw, // ignored --- this function does not throw.
-                                                util::in_place_interface &table);
+                                                mdtl::in_place_interface &table);
 
   template <typename T>
   bool priv_update_object_directory_no_mutex(char_ptr_holder_type name, difference_type offset, size_type length);

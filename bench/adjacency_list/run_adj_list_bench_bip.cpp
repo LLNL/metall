@@ -10,7 +10,7 @@
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 
-#include <metall/detail/utility/time.hpp>
+#include <metall/detail/time.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
 
@@ -23,7 +23,7 @@ namespace bip = boost::interprocess;
 using allocator_type = bip::allocator<std::byte, bip::managed_mapped_file::segment_manager>;
 using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
 
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 
 int main(int argc, char *argv[]) {
   bench_options option;
@@ -43,9 +43,9 @@ int main(int argc, char *argv[]) {
     auto adj_list = mfile.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(mfile.get_allocator<std::byte>());
     run_bench(option, adj_list);
 
-    const auto start = util::elapsed_time_sec();
+    const auto start = mdtl::elapsed_time_sec();
     mfile.flush(); // NOTE: this method calls msync() with MS_ASYNC
-    const auto elapsed_time = util::elapsed_time_sec(start);
+    const auto elapsed_time = mdtl::elapsed_time_sec(start);
     std::cout << "Async sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Segment usage (GB)\t"

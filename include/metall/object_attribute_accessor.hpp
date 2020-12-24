@@ -11,7 +11,10 @@
 #include <metall/kernel/attributed_object_directory.hpp>
 
 namespace metall {
-namespace detail {
+
+/// \namespace metall::attraccs_detail
+/// \brief Namespace for the details of attribute accessor
+namespace attraccs_detail {
 
 /// \brief
 /// \tparam _offset_type
@@ -114,16 +117,16 @@ class general_named_object_attr_accessor {
   std::string m_object_attribute_file_path;
   bool m_good_status;
 };
-} // namespace detail
+} // namespace attraccs_detail
 
 /// \brief Objet attribute accessor for named object.
 /// \tparam _offset_type Offset type.
 /// \tparam _size_type Size type.
 template <typename _offset_type, typename _size_type>
-class named_object_attr_accessor : public detail::general_named_object_attr_accessor<_offset_type, _size_type> {
+class named_object_attr_accessor : public attraccs_detail::general_named_object_attr_accessor<_offset_type, _size_type> {
 
  private:
-  using base_type = detail::general_named_object_attr_accessor<_offset_type, _size_type>;
+  using base_type = attraccs_detail::general_named_object_attr_accessor<_offset_type, _size_type>;
 
  public:
   using size_type = typename base_type::size_type;
@@ -143,10 +146,10 @@ class named_object_attr_accessor : public detail::general_named_object_attr_acce
 /// \tparam _offset_type Offset type.
 /// \tparam _size_type Size type.
 template <typename _offset_type, typename _size_type>
-class unique_object_attr_accessor : public detail::general_named_object_attr_accessor<_offset_type, _size_type> {
+class unique_object_attr_accessor : public attraccs_detail::general_named_object_attr_accessor<_offset_type, _size_type> {
 
  private:
-  using base_type = detail::general_named_object_attr_accessor<_offset_type, _size_type>;
+  using base_type = attraccs_detail::general_named_object_attr_accessor<_offset_type, _size_type>;
 
  public:
   using size_type = typename base_type::size_type;

@@ -16,8 +16,7 @@
 #include <limits>
 #include <cassert>
 
-namespace utility
-{
+namespace bench_utility {
 
 template <typename first_type, typename second_type>
 class pair_reader
@@ -212,5 +211,5 @@ class pair_reader<first_type, second_type>::iterator
 //  return !(rhd == lhd);
 //}
 
-}
+} // namespace bench_utility
 #endif //METALL_BENCH_UTILITY_PAIR_READER_HPP

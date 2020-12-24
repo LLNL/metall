@@ -13,11 +13,11 @@
 #include <mpi.h>
 
 #include <metall/logger.hpp>
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/mmap.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/mmap.hpp>
 
 /// \namespace metall::utility::mpi
-/// \brief A namespace for MPI utilities
+/// \brief Namespace for MPI utilities
 namespace metall::utility::mpi {
 
 inline int comm_rank(const MPI_Comm &comm) {
@@ -103,13 +103,13 @@ inline int determine_local_root(const MPI_Comm &comm) {
     }
     this_rank_created = true;
 
-    if (!metall::detail::utility::extend_file_size(shm_fd, shm_size, false)) {
+    if (!metall::mtlldetail::extend_file_size(shm_fd, shm_size, false)) {
       logger::out(logger::level::warning, __FILE__, __LINE__, "Failed to extend a shm file; however, continue work");
     }
   }
 
   // By now, should be ready & correct size
-  void *const ptr = metall::detail::utility::map_file_write_mode(shm_fd, nullptr, shm_size, 0, 0);
+  void *const ptr = metall::mtlldetail::map_file_write_mode(shm_fd, nullptr, shm_size, 0, 0);
   if (!ptr) {
     logger::out(logger::level::error, __FILE__, __LINE__, "Failed to map a shm file");
     return -1;
@@ -137,7 +137,7 @@ inline int determine_local_root(const MPI_Comm &comm) {
   const int local_root_rank = p_min_rank_size->first;
 
   // Close shared segment
-  if (!metall::detail::utility::munmap(shm_fd, ptr, shm_size, false)) {
+  if (!metall::mtlldetail::munmap(shm_fd, ptr, shm_size, false)) {
     logger::out(logger::level::warning, __FILE__, __LINE__, "Failed to unmap the shm file; however, continue work.");
   }
   barrier(comm);

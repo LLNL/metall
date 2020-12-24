@@ -10,8 +10,8 @@
 
 #include <pmem_allocator.h>
 
-#include <metall/detail/utility/time.hpp>
-#include <metall/detail/utility/file.hpp>
+#include <metall/detail/time.hpp>
+#include <metall/detail/file.hpp>
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
 
@@ -38,7 +38,7 @@ std::string run_command(const std::string &cmd) {
   std::string buf;
   buf.assign((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
-  metall::detail::utility::remove_file(tmp_file);
+  metall::mtlldetail::remove_file(tmp_file);
 
   return buf;
 }
@@ -55,15 +55,15 @@ int main(int argc, char *argv[]) {
     std::abort();
   }
 
-  metall::detail::utility::create_directory(option.datastore_path_list[0]);
+  metall::mtlldetail::create_directory(option.datastore_path_list[0]);
 
   allocator_type allocator(option.datastore_path_list[0].c_str(), option.segment_size);
   adjacency_list_type adj_list(allocator);
   run_bench(option, &adj_list);
 
-  std::cout << "File size\t" << metall::detail::utility::get_file_size(option.datastore_path_list[0]) << std::endl;
+  std::cout << "File size\t" << metall::mtlldetail::get_file_size(option.datastore_path_list[0]) << std::endl;
   std::cout << "Actual file size\t"
-            << metall::detail::utility::get_actual_file_size(option.datastore_path_list[0]) << std::endl;
+            << metall::mtlldetail::get_actual_file_size(option.datastore_path_list[0]) << std::endl;
   std::cout << run_command("df " + option.datastore_path_list[0]) << std::endl;
   std::cout << run_command("du " + option.datastore_path_list[0]) << std::endl;
 

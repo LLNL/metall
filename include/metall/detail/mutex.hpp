@@ -8,14 +8,10 @@
 
 #include <mutex>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 using mutex = std::mutex;
 using mutex_lock_guard = std::lock_guard<mutex>;
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 #endif //METALL_DETAIL_UTILITY_MUTEX_HPP

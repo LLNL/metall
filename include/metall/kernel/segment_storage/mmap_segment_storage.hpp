@@ -12,16 +12,16 @@
 #include <thread>
 #include <atomic>
 
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/mmap.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/mmap.hpp>
+#include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 /// \brief Segment storage that uses multiple backing files
@@ -98,7 +98,7 @@ class mmap_segment_storage {
   /// \brief Checks if there is a file that can be opened
   static bool openable(const std::string &base_path) {
     const auto file_name = priv_make_file_name(base_path, 0);
-    return util::file_exist(file_name);
+    return mdtl::file_exist(file_name);
   }
 
   /// \brief Gets the size of an existing segment.
@@ -108,10 +108,10 @@ class mmap_segment_storage {
     size_type total_file_size = 0;
     while (true) {
       const auto file_name = priv_make_file_name(base_path, block_no);
-      if (!util::file_exist(file_name)) {
+      if (!mdtl::file_exist(file_name)) {
         break;
       }
-      total_file_size += util::get_file_size(file_name);
+      total_file_size += mdtl::get_file_size(file_name);
       ++block_no;
     }
     return total_file_size;
@@ -174,11 +174,11 @@ class mmap_segment_storage {
     m_num_blocks = 0;
     while (true) {
       const auto file_name = priv_make_file_name(m_base_path, m_num_blocks);
-      if (!util::file_exist(file_name)) {
+      if (!mdtl::file_exist(file_name)) {
         break;
       }
 
-      const auto file_size = util::get_file_size(file_name);
+      const auto file_size = mdtl::get_file_size(file_name);
       assert(file_size % page_size() == 0);
       if (m_block_size > 0 && m_block_size != (size_type)file_size) {
         logger::out(logger::level::critical, __FILE__, __LINE__, "File sizes are not the same");
@@ -314,9 +314,9 @@ class mmap_segment_storage {
     logger::out(logger::level::info, __FILE__, __LINE__,
                 "Create and extend a file " + file_name + " with " + std::to_string(file_size) + " bytes");
 
-    if (!util::create_file(file_name)) return false;
-    if (!util::extend_file_size(file_name, file_size)) return false;
-    if (static_cast<size_type>(util::get_file_size(file_name)) < file_size) {
+    if (!mdtl::create_file(file_name)) return false;
+    if (!mdtl::extend_file_size(file_name, file_size)) return false;
+    if (static_cast<size_type>(mdtl::get_file_size(file_name)) < file_size) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create and extend file: " + file_name);
       return false;
     }
@@ -349,16 +349,16 @@ class mmap_segment_storage {
                     " with " + std::to_string(file_size) + " bytes; read-only mode is " + std::to_string(read_only));
 
     const auto ret = (read_only) ?
-                     util::map_file_read_mode(path, map_addr, file_size, 0, MAP_FIXED) :
+                     mdtl::map_file_read_mode(path, map_addr, file_size, 0, MAP_FIXED) :
                      #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
-                     util::map_file_write_private_mode(path, map_addr, file_size, 0, MAP_FIXED);
+                     mdtl::map_file_write_private_mode(path, map_addr, file_size, 0, MAP_FIXED);
 #else
-    util::map_file_write_mode(path, map_addr, file_size, 0, MAP_FIXED | map_nosync);
+    mdtl::map_file_write_mode(path, map_addr, file_size, 0, MAP_FIXED | map_nosync);
 #endif
     if (ret.first == -1 || !ret.second) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map a file: " + path);
       if (ret.first == -1) {
-        util::os_close(ret.first);
+        mdtl::os_close(ret.first);
       }
       return false;
     }
@@ -372,12 +372,12 @@ class mmap_segment_storage {
     if (!priv_inited()) return;
 
     for (const auto &fd : m_block_fd_list) {
-      util::os_close(fd);
+      mdtl::os_close(fd);
     }
 
     // Destroy the mapping region by calling mmap with PROT_NONE over the region.
     // As the unmap system call syncs the data first, this approach is significantly fast.
-    util::map_with_prot_none(m_segment, m_current_segment_size);
+    mdtl::map_with_prot_none(m_segment, m_current_segment_size);
     // NOTE: the VM region will be unmapped by manager_kernel
 
     priv_reset();
@@ -387,7 +387,7 @@ class mmap_segment_storage {
     if (!priv_inited() || m_read_only) return;
 
     // Protect the region to detect unexpected write by application during msync
-    if (!util::mprotect_read_only(m_segment, m_current_segment_size)) {
+    if (!mdtl::mprotect_read_only(m_segment, m_current_segment_size)) {
       logger::out(logger::level::critical,
                   __FILE__,
                   __LINE__,
@@ -403,12 +403,12 @@ class mmap_segment_storage {
     priv_parallel_write_block();
 #else
     logger::out(logger::level::info, __FILE__, __LINE__, "msync() for the application data segment");
-    if (!util::os_msync(m_segment, m_current_segment_size, sync)) {
+    if (!mdtl::os_msync(m_segment, m_current_segment_size, sync)) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to msync the segment");
       return;
     }
 #endif
-    if (!util::mprotect_read_write(m_segment, m_current_segment_size)) {
+    if (!mdtl::mprotect_read_write(m_segment, m_current_segment_size)) {
       logger::out(logger::level::critical,
                   __FILE__,
                   __LINE__,
@@ -452,7 +452,7 @@ class mmap_segment_storage {
     const auto fd = m_block_fd_list[block_no];
     const auto private_map = static_cast<char *>(m_segment) + block_no * m_block_size;
     const auto
-        shared_map = static_cast<char *>(util::map_file_write_mode(fd, nullptr, m_block_size, 0));
+        shared_map = static_cast<char *>(mdtl::map_file_write_mode(fd, nullptr, m_block_size, 0));
     if (!shared_map) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map " + std::to_string(block_no) + "th file");
       return false;
@@ -468,7 +468,7 @@ class mmap_segment_storage {
     }
 
     if (found_diff) {
-      if (!util::os_msync(shared_map, m_block_size, true)) {
+      if (!mdtl::os_msync(shared_map, m_block_size, true)) {
         logger::out(logger::level::critical,
                     __FILE__,
                     __LINE__,
@@ -478,7 +478,7 @@ class mmap_segment_storage {
     }
 
     // Unmap shared map
-    if (!util::os_munmap(shared_map, m_block_size)) {
+    if (!mdtl::os_munmap(shared_map, m_block_size)) {
       logger::out(logger::level::critical,
                   __FILE__,
                   __LINE__,
@@ -487,7 +487,7 @@ class mmap_segment_storage {
     }
 
     // Re-map the file to discard page cache
-    if (!util::map_file_write_private_mode(fd, private_map, m_block_size, 0, MAP_FIXED)) {
+    if (!mdtl::map_file_write_private_mode(fd, private_map, m_block_size, 0, MAP_FIXED)) {
       logger::out(logger::level::critical,
                   __FILE__,
                   __LINE__,
@@ -554,7 +554,7 @@ class mmap_segment_storage {
     }
 
     // Re-map the file to discard page cache
-    if (!util::map_file_write_private_mode(fd, private_map, m_block_size, 0, MAP_FIXED)) {
+    if (!mdtl::map_file_write_private_mode(fd, private_map, m_block_size, 0, MAP_FIXED)) {
       logger::out(logger::level::critical,
                   __FILE__,
                   __LINE__,
@@ -579,7 +579,7 @@ class mmap_segment_storage {
   bool priv_free_file_backed_region(const different_type offset, const size_type nbytes) const {
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     // Uncommit pages in DRAM first
-    if (!util::uncommit_private_pages(static_cast<char *>(m_segment) + offset, nbytes)) return false;
+    if (!mdtl::uncommit_private_pages(static_cast<char *>(m_segment) + offset, nbytes)) return false;
 
     // Free space in file
     auto sub_offset = offset;
@@ -588,7 +588,7 @@ class mmap_segment_storage {
     while (remain_nbyte > 0) {
       const auto offset_within_block = sub_offset - block_no * m_block_size;
       const auto nbyte_to_free = std::min(m_block_size - offset_within_block, remain_nbyte);
-      if (!util::free_file_space(m_block_fd_list[block_no], offset_within_block, nbyte_to_free)) return false;
+      if (!mdtl::free_file_space(m_block_fd_list[block_no], offset_within_block, nbyte_to_free)) return false;
 
       remain_nbyte -= nbyte_to_free;
       ++block_no;
@@ -597,20 +597,20 @@ class mmap_segment_storage {
 
     return true;
 #else
-    return util::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    return mdtl::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
 #endif
   }
 
   bool priv_uncommit_pages(const different_type offset, const size_type nbytes) const {
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
-    return util::uncommit_private_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    return mdtl::uncommit_private_pages(static_cast<char *>(m_segment) + offset, nbytes);
 #else
-    return util::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    return mdtl::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
 #endif
   }
 
   bool priv_load_system_page_size() {
-    m_system_page_size = util::get_page_size();
+    m_system_page_size = mdtl::get_page_size();
     if (m_system_page_size == -1) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to get system pagesize");
       return false;
@@ -628,14 +628,14 @@ class mmap_segment_storage {
     const std::string file_path(base_path + "_test");
     const size_type file_size = m_system_page_size * 2;
 
-    if (!util::create_file(file_path)) return;
-    if (!util::extend_file_size(file_path, file_size)) return;
-    assert(static_cast<size_type>(util::get_file_size(file_path)) >= file_size);
+    if (!mdtl::create_file(file_path)) return;
+    if (!mdtl::extend_file_size(file_path, file_size)) return;
+    assert(static_cast<size_type>(mdtl::get_file_size(file_path)) >= file_size);
 
-    const auto ret = util::map_file_write_mode(file_path, nullptr, file_size, 0);
+    const auto ret = mdtl::map_file_write_mode(file_path, nullptr, file_size, 0);
     if (ret.first == -1 || !ret.second) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map file: " + file_path);
-      if (ret.first == -1) util::os_close(ret.first);
+      if (ret.first == -1) mdtl::os_close(ret.first);
       return;
     }
 
@@ -643,23 +643,23 @@ class mmap_segment_storage {
     char *buf = static_cast<char *>(ret.second);
     buf[0] = 0;
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
-    if (util::uncommit_private_pages(ret.second, file_size) && util::free_file_space(ret.first, 0, file_size)) {
+    if (mdtl::uncommit_private_pages(ret.second, file_size) && mdtl::free_file_space(ret.first, 0, file_size)) {
 #else
-      if (util::uncommit_file_backed_pages(ret.second, file_size)) {
+      if (mdtl::uncommit_file_backed_pages(ret.second, file_size)) {
 #endif
       m_free_file_space = true;
     } else {
       m_free_file_space = false;
     }
 
-    if (!util::os_close(ret.first)) {
+    if (!mdtl::os_close(ret.first)) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to close file: " + file_path);
       return;
     }
 
     // Closing
-    util::munmap(ret.second, file_size, false);
-    if (!util::remove_file(file_path)) {
+    mdtl::munmap(ret.second, file_size, false);
+    if (!mdtl::remove_file(file_path)) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to remove a file: " + file_path);
       return;
     }

@@ -17,6 +17,7 @@
 
 namespace metall::utility {
 
+#ifndef DOXYGEN_SKIP
 namespace datastore_ls_detail {
 inline void aligned_show(const std::vector<std::vector<std::string>> &buf) {
   if (buf.empty()) return;
@@ -58,8 +59,8 @@ inline void aligned_show(const std::vector<std::vector<std::string>> &buf) {
     std::cout << std::endl;
   }
 }
-
 } // namespace datastore_ls_detail
+#endif // DOXYGEN_SKIP
 
 inline void ls_named_object(const std::string &datastore_path) {
   std::cout << "[Named Object]" << std::endl;

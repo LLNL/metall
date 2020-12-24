@@ -6,18 +6,18 @@
 #include <iostream>
 #include <string>
 
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/file_clone.hpp>
-#include <metall/detail/utility/mmap.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/file_clone.hpp>
+#include <metall/detail/mmap.hpp>
 
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 
 void init_file(const std::string &file_path, const std::size_t size) {
 
-  util::create_file(file_path);
-  util::extend_file_size(file_path, size);
+  mdtl::create_file(file_path);
+  mdtl::extend_file_size(file_path, size);
 
-  auto ret = util::map_file_write_mode(file_path, nullptr, size, 0);
+  auto ret = mdtl::map_file_write_mode(file_path, nullptr, size, 0);
   if (ret.first == -1 || !ret.second) {
     std::abort();
   }
@@ -28,7 +28,7 @@ void init_file(const std::string &file_path, const std::size_t size) {
     map[i] = i;
   }
 
-  util::munmap(ret.first, ret.second, size, true);
+  mdtl::munmap(ret.first, ret.second, size, true);
 }
 
 void update_file(const std::string &file_path,
@@ -37,7 +37,7 @@ void update_file(const std::string &file_path,
 
   int fd;
   void* addr;
-  std::tie(fd, addr) = util::map_file_write_mode(file_path, nullptr, size, 0);
+  std::tie(fd, addr) = mdtl::map_file_write_mode(file_path, nullptr, size, 0);
   if (fd == -1 || !addr) {
     std::abort();
   }
@@ -48,7 +48,7 @@ void update_file(const std::string &file_path,
     map[i] = i + update_value;
   }
 
-  if (!util::munmap(fd, addr, size, true)) {
+  if (!mdtl::munmap(fd, addr, size, true)) {
     std::abort();
   }
 }
@@ -57,7 +57,7 @@ void validate_file(const std::string &file_path,
                    const std::size_t size,
                    const std::size_t update_value) {
 
-  auto ret = util::map_file_read_mode(file_path, nullptr, size, 0);
+  auto ret = mdtl::map_file_read_mode(file_path, nullptr, size, 0);
   if (ret.first == -1 || !ret.second) {
     std::abort();
   }
@@ -72,7 +72,7 @@ void validate_file(const std::string &file_path,
     }
   }
 
-  if (!util::munmap(ret.first, ret.second, size, false)) {
+  if (!mdtl::munmap(ret.first, ret.second, size, false)) {
     std::abort();
   }
 }
@@ -84,14 +84,14 @@ int main([[maybe_unused]] int argc, char *argv[]) {
   const std::size_t file_size = std::stoll(argv[2]);
   const std::string destination_file_path(argv[3]);
 
-  util::remove_file(source_file_path);
-  util::remove_file(destination_file_path);
+  mdtl::remove_file(source_file_path);
+  mdtl::remove_file(destination_file_path);
 
   std::cout << "Init the source file" << std::endl;
   init_file(source_file_path, file_size);
 
   std::cout << "\nClone the file" << std::endl;
-  if (!util::clone_file(source_file_path, destination_file_path, true)) {
+  if (!mdtl::clone_file(source_file_path, destination_file_path, true)) {
     std::cerr << "Failed to clone file: " << source_file_path << " to " << destination_file_path << std::endl;
     std::abort();
   }

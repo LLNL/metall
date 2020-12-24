@@ -8,15 +8,11 @@
 
 #include <boost/interprocess/detail/in_place_interface.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 /// \brief Abstract interface for placement construction and destruction
 using in_place_interface = boost::interprocess::ipcdetail::in_place_interface;
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 
 #endif //METALL_DETAIL_UTILITY_IN_PLACE_INTERFACE_HPP

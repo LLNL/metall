@@ -19,13 +19,13 @@
 #include <metall/kernel/bin_directory.hpp>
 #include <metall/kernel/chunk_directory.hpp>
 #include <metall/kernel/object_size_manager.hpp>
-#include <metall/detail/utility/char_ptr_holder.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/char_ptr_holder.hpp>
+#include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
 
 #define ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR 1
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-#include <metall/detail/utility/mutex.hpp>
+#include <metall/detail/mutex.hpp>
 #endif
 
 #ifndef METALL_DISABLE_OBJECT_CACHE
@@ -36,7 +36,7 @@ namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 template <typename _chunk_no_type,
@@ -81,8 +81,8 @@ class segment_allocator {
 #endif
 
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-  using mutex_type = util::mutex;
-  using lock_guard_type = util::mutex_lock_guard;
+  using mutex_type = mdtl::mutex;
+  using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
 
  public:
@@ -444,10 +444,10 @@ class segment_allocator {
       if (m_chunk_directory.slot_marked(chunk_no, slot_no - 1)) {
         // Round up to the next multiple of page size
         // The left region will be freed when the previous slot is freed
-        range_begin = util::round_up(range_begin, m_segment_storage->page_size());
+        range_begin = mdtl::round_up(range_begin, m_segment_storage->page_size());
       } else {
         // The previous slot is not used, so round down the range_begin to align it with the page size
-        range_begin = util::round_down(range_begin, m_segment_storage->page_size());
+        range_begin = mdtl::round_down(range_begin, m_segment_storage->page_size());
       }
     }
     assert(range_begin % m_segment_storage->page_size() == 0);
@@ -462,9 +462,9 @@ class segment_allocator {
       assert(object_size * (slot_no + 1) < k_chunk_size);
 
       if (m_chunk_directory.slot_marked(chunk_no, slot_no + 1)) {
-        range_end = util::round_down(range_end, m_segment_storage->page_size());
+        range_end = mdtl::round_down(range_end, m_segment_storage->page_size());
       } else {
-        range_end = util::round_up(range_end, m_segment_storage->page_size());
+        range_end = mdtl::round_up(range_end, m_segment_storage->page_size());
       }
     }
     assert(range_end % m_segment_storage->page_size() == 0);

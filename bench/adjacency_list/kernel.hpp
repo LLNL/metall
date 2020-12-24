@@ -8,19 +8,19 @@
 
 #include <iostream>
 
-#include <metall/detail/utility/time.hpp>
-#include <metall/detail/utility/memory.hpp>
+#include <metall/detail/time.hpp>
+#include <metall/detail/memory.hpp>
 #include <metall/utility/open_mp.hpp>
 
 namespace adjacency_list_bench {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 namespace omp = metall::utility::omp;
 }
 
 inline void print_current_num_page_faults() {
-  const auto page_faults = util::get_num_page_faults();
+  const auto page_faults = mdtl::get_num_page_faults();
   std::cout << "#of page faults (minflt majflt)\t" << page_faults.first << "\t" << page_faults.second << std::endl;
 }
 
@@ -65,7 +65,7 @@ inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_typ
   if (verbose) print_current_num_page_faults();
 
   std::size_t num_inserted = 0;
-  const auto start = util::elapsed_time_sec();
+  const auto start = mdtl::elapsed_time_sec();
   OMP_DIRECTIVE(parallel reduction(+:num_inserted))
   {
     assert((int)input.size() == (int)omp::get_num_threads());
@@ -78,13 +78,13 @@ inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_typ
   if (closing_function) {
     closing_function();
   }
-  const auto elapsed_time = util::elapsed_time_sec(start);
+  const auto elapsed_time = mdtl::elapsed_time_sec(start);
 
   if (verbose) {
     std::cout << "#of inserted elements\t" << num_inserted << std::endl;
     std::cout << "Elapsed time (s)\t" << elapsed_time << std::endl;
-    std::cout << "DRAM usage (GB)\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-    std::cout << "DRAM cache usage (GB)\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
+    std::cout << "DRAM usage (GB)\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+    std::cout << "DRAM cache usage (GB)\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
     print_current_num_page_faults();
   }
 

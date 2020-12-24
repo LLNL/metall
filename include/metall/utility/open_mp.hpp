@@ -31,7 +31,7 @@
 namespace metall::utility {
 
 /// \namespace metall::utility::omp
-/// \brief A namespace for utility items for OpenMP
+/// \brief Namespace for utility items for OpenMP
 namespace omp {
 
 using omp_sched_type =

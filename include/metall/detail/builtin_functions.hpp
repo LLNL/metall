@@ -6,9 +6,9 @@
 #ifndef METALL_DETAIL_UTILITY_BUILTIN_FUNCTIONS_HPP
 #define METALL_DETAIL_UTILITY_BUILTIN_FUNCTIONS_HPP
 
-namespace metall::detail::utility {
+namespace metall::mtlldetail {
 
-inline int clzll (unsigned long long x) {
+inline int clzll(const unsigned long long x) {
 #if defined(__GNUG__) || defined(__clang__)
   return __builtin_clzll(x);
 #else
@@ -16,7 +16,7 @@ inline int clzll (unsigned long long x) {
 #endif
 }
 
-inline int ctzll (unsigned long long x) {
+inline int ctzll(const unsigned long long x) {
 #if defined(__GNUG__) || defined(__clang__)
   return __builtin_ctzll(x);
 #else
@@ -24,6 +24,6 @@ inline int ctzll (unsigned long long x) {
 #endif
 }
 
-} // namespace metall::detail::utility
+} // namespace metall::mtlldetail
 
 #endif //METALL_DETAIL_UTILITY_BUILTIN_FUNCTIONS_HPP

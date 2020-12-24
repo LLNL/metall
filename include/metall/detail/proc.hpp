@@ -8,10 +8,7 @@
 
 #include <sched.h>
 
-namespace metall {
-namespace detail {
-namespace utility {
-
+namespace metall::mtlldetail {
 #ifdef _GNU_SOURCE
 #define SUPPORT_GET_CPU_CORE_NO true
 #else
@@ -29,7 +26,7 @@ inline int get_cpu_core_no() {
   }
   return cpu;
 
-  #else
+#else
 
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "CPU core number is always 0"
@@ -39,7 +36,5 @@ inline int get_cpu_core_no() {
 #endif
 }
 
-} // namespace utility
-} // namespace detail
-} // namespace metall
+} // namespace metall::mtlldetail
 #endif //METALL_DETAIL_UTILITY_PROC_HPP

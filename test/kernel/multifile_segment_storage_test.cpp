@@ -22,8 +22,8 @@ const std::string &test_file_prefix() {
 }
 
 void prepare_test_dir() {
-  ASSERT_TRUE(metall::detail::utility::remove_file(test_dir()));
-  ASSERT_TRUE(metall::detail::utility::create_directory(test_dir()));
+  ASSERT_TRUE(metall::mtlldetail::remove_file(test_dir()));
+  ASSERT_TRUE(metall::mtlldetail::create_directory(test_dir()));
 }
 
 TEST(MultifileSegmentStorageTest, PageSize) {
@@ -33,7 +33,7 @@ TEST(MultifileSegmentStorageTest, PageSize) {
 
 TEST(MultifileSegmentStorageTest, Create) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::detail::utility::reserve_vm_region(vm_size);
+  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
   ASSERT_NE(addr, nullptr);
 
   {
@@ -60,13 +60,13 @@ TEST(MultifileSegmentStorageTest, Create) {
     }
   }
 
-  ASSERT_TRUE(metall::detail::utility::munmap(addr, vm_size, true));
+  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 
 
 TEST(MultifileSegmentStorageTest, GetSize) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::detail::utility::reserve_vm_region(vm_size);
+  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
   ASSERT_NE(addr, nullptr);
 
   // vm_size < single_file_size
@@ -87,12 +87,12 @@ TEST(MultifileSegmentStorageTest, GetSize) {
     ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size);
   }
 
-  ASSERT_TRUE(metall::detail::utility::munmap(addr, vm_size, true));
+  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 
 TEST(MultifileSegmentStorageTest, Extend) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::detail::utility::reserve_vm_region(vm_size);
+  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
   ASSERT_NE(addr, nullptr);
 
   {
@@ -116,19 +116,19 @@ TEST(MultifileSegmentStorageTest, Extend) {
     }
   }
 
-  ASSERT_TRUE(metall::detail::utility::munmap(addr, vm_size, true));
+  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 
 TEST(MultifileSegmentStorageTest, Openable) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::detail::utility::reserve_vm_region(vm_size);
+  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
   ASSERT_NE(addr, nullptr);
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
     ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size));
   }
-  ASSERT_TRUE(metall::detail::utility::munmap(addr, vm_size, true));
+  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 
   ASSERT_TRUE(segment_storage_type::openable(test_file_prefix()));
   ASSERT_FALSE(segment_storage_type::openable(test_file_prefix() + "_dummy"));
@@ -136,7 +136,7 @@ TEST(MultifileSegmentStorageTest, Openable) {
 
 TEST(MultifileSegmentStorageTest, Open) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::detail::utility::reserve_vm_region(vm_size);
+  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
   ASSERT_NE(addr, nullptr);
 
   {
@@ -172,12 +172,12 @@ TEST(MultifileSegmentStorageTest, Open) {
       ASSERT_EQ(buf[i], '2');
     }
   }
-  ASSERT_TRUE(metall::detail::utility::munmap(addr, vm_size, true));
+  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 
 TEST(MultifileSegmentStorageTest, Sync) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::detail::utility::reserve_vm_region(vm_size);
+  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
   ASSERT_NE(addr, nullptr);
 
   {
@@ -207,6 +207,6 @@ TEST(MultifileSegmentStorageTest, Sync) {
     }
   }
 
-  ASSERT_TRUE(metall::detail::utility::munmap(addr, vm_size, true));
+  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 }

@@ -8,9 +8,7 @@
 
 #include <boost/interprocess/detail/segment_manager_helper.hpp>
 
-namespace metall {
-namespace detail {
-namespace utility {
+namespace metall::mtlldetail {
 
 template <typename char_type>
 using char_ptr_holder = boost::interprocess::ipcdetail::char_ptr_holder<char_type>;
@@ -22,7 +20,5 @@ enum instance_kind {
 using anonymous_instance_t = boost::interprocess::ipcdetail::anonymous_instance_t;
 using unique_instance_t = boost::interprocess::ipcdetail::unique_instance_t;
 
-} // namespace utility
-} // namespace detail
 } // namespace metall
 #endif //METALL_DETAIL_UTILITY_CHAR_OTR_HOLDER_HPP

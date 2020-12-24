@@ -9,14 +9,14 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <metall/detail/utility/common.hpp>
-#include <metall/detail/utility/builtin_functions.hpp>
+#include <metall/detail/utilities.hpp>
+#include <metall/detail/builtin_functions.hpp>
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 namespace object_size_manager_detail {
@@ -117,9 +117,9 @@ inline constexpr int64_t object_size_index(const std::size_t size) noexcept {
   if (size <= k_size_table<k_chunk_size, k_max_size>[0]) return 0;
 
   if (size <= k_class1_small_size_table[k_num_class1_small_sizes - 1]) {
-    const int z = util::clzll(size);
+    const int z = mdtl::clzll(size);
     const std::size_t r = size + (1ULL << (61ULL - z)) - 1;
-    const int y = util::clzll(r);
+    const int y = mdtl::clzll(r);
     const int index = static_cast<int>(4 * (60 - y) + ((r >> (61ULL - y)) & 3ULL));
     return static_cast<int64_t>(index);
   }

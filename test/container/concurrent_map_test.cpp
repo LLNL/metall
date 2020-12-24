@@ -9,7 +9,7 @@
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/container/map.hpp>
 #include <metall/container/concurrent_map.hpp>
-#include <metall/detail/utility/file.hpp>
+#include <metall/detail/file.hpp>
 #include "../test_utility.hpp"
 
 namespace bip = boost::interprocess;
@@ -129,7 +129,7 @@ TEST (ConcurrentMapTest, Persistence) {
   const std::string file_path(test_utility::make_test_path());
 
   test_utility::create_test_dir();
-  metall::detail::utility::remove_file(file_path);
+  metall::mtlldetail::remove_file(file_path);
 
   std::vector<std::pair<char, int>> inputs(10);
   for (int i = 0; i < (int)inputs.size(); ++i) {

@@ -12,7 +12,7 @@
 namespace metall::utility {
 
 /// \namespace metall::utility::mutex
-/// \brief A namespace for mutex
+/// \brief Namespace for mutex
 namespace mutex {
 
 /// \brief A utility function that returns a mutex lock allocated as a static object.
