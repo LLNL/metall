@@ -4,7 +4,7 @@
 # Usage
 # ------------------------- #
 # cd metall/build/bench/adjacency_list
-# sh ../../../bench/adjacency_list/run_bench.sh [options]
+# sh run_bench.sh [options]
 
 # ------------------------- #
 # Options

@@ -17,3 +17,5 @@ add_executable(run_bfs_bench_bip run_bfs_bench_bip.cpp)
 if (OpenMP_CXX_FOUND)
     target_link_libraries(run_bfs_bench_bip PUBLIC OpenMP::OpenMP_CXX)
 endif ()
+
+configure_file(run_bench.sh run_bench.sh COPYONLY)
