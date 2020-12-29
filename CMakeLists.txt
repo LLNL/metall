@@ -41,6 +41,7 @@ option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(LOGGING "Logging" OFF)
+option(USE_SORTED_BIN "Use VM space aware algorithm in the bin directory" OFF)
 
 set(DEFAULT_VM_RESERVE_SIZE "0" CACHE STRING
         "Set the default VM reserve size (use the internally defined value if 0 is specified)")
@@ -168,6 +169,11 @@ endif ()
 if (LOGGING)
     add_definitions(-DMETALL_ENABLE_LOGGING)
     message(STATUS "Enable logging")
+endif()
+
+if (USE_SORTED_BIN)
+    add_definitions(-DMETALL_USE_SORTED_BIN)
+    message(STATUS "Use VM space aware algorithm in the bin directory")
 endif()
 
 if (USE_PRIVATE_MAP_AND_MSYNC)
