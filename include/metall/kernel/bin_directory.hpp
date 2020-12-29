@@ -18,6 +18,7 @@
 #include <boost/container/vector.hpp>
 #include <boost/container/scoped_allocator.hpp>
 
+#define METALL_USE_SORTED_BIN
 #ifdef METALL_USE_SORTED_BIN
 #include <boost/container/flat_set.hpp>
 #else
@@ -60,6 +61,7 @@ class bin_directory {
   using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
 #ifdef METALL_USE_SORTED_BIN
   using bin_allocator_type = other_allocator_type<value_type>;
+  // Sort values with descending order internally to simplify implementation
   using bin_type = boost::container::flat_set<value_type, std::greater<value_type>, bin_allocator_type>;
 #else
   using bin_allocator_type = other_allocator_type<value_type>;
