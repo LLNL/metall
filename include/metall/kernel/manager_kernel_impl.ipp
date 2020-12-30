@@ -163,10 +163,29 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy(char_ptr_holder_type name) {
   if (m_segment_storage.read_only()) return false;
 
   if (name.is_anonymous()) {
-    return false;
+    return false; // Cannot destroy anoymous object by name
   }
 
-  return priv_destroy_and_update_object_directory_by_name<T>(name);
+  T *ptr = nullptr;
+  size_type length = 0;
+
+  {
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+    lock_guard_type guard(m_object_directories_mutex);
+#endif
+
+    std::tie(ptr, length) = find<T>(name);
+    if (!ptr) {
+      return false; // This is not a critical error --- could have been destroyed by another thread already.
+    }
+    if (!priv_remove_attr_object_no_mutex(priv_to_offset(ptr))) {
+      return false;
+    }
+  }
+
+  priv_destruct_and_free_memory<T>(priv_to_offset(ptr), length);
+
+  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -175,7 +194,24 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy_ptr(const T *ptr) {
   assert(priv_initialized());
   if (m_segment_storage.read_only()) return false;
 
-  return priv_destroy_and_update_object_directory_by_offset<T>(priv_to_offset(ptr));
+  size_type length = 0;
+  {
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+    lock_guard_type guard(m_object_directories_mutex);
+#endif
+
+    length = get_instance_length(ptr);
+    if (length == 0) {
+      return false; // This is not a critical error --- could have been destroyed by another thread already.
+    }
+    if (!priv_remove_attr_object_no_mutex(priv_to_offset(ptr))) {
+      return false;
+    }
+  }
+
+  priv_destruct_and_free_memory<T>(priv_to_offset(ptr), length);
+
+  return true;
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -378,7 +414,7 @@ T *manager_kernel<chnk_no, chnk_sz>::generic_construct(char_ptr_holder_type name
                                                        const bool dothrow,
                                                        mdtl::in_place_interface &table) {
   assert(priv_initialized());
-  return priv_construct_and_update_object_directory<T>(name, num, try2find, dothrow, table);
+  return priv_generic_construct<T>(name, num, try2find, dothrow, table);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -747,11 +783,16 @@ template <typename chnk_no, std::size_t chnk_sz>
 template <typename T>
 T *
 manager_kernel<chnk_no, chnk_sz>::
-priv_construct_and_update_object_directory(char_ptr_holder_type name,
-                                           size_type length,
-                                           bool try2find,
-                                           bool, // This function does not throw
-                                           mdtl::in_place_interface &table) {
+priv_generic_construct(char_ptr_holder_type name,
+                       size_type length,
+                       bool try2find,
+                       bool, // This function does not throw
+                       mdtl::in_place_interface &table) {
+  // Check overflow for security
+  if (length > ((std::size_t)-1) / table.size) {
+    return nullptr;
+  }
+
   void *ptr = nullptr;
   {
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
@@ -764,13 +805,13 @@ priv_construct_and_update_object_directory(char_ptr_holder_type name,
         if (try2find) {
           return found_addr;
         }
-        return nullptr; // this is not error always --- could have been allocated by another thread.
+        return nullptr; // this is not a critical error always --- could have been allocated by another thread.
       }
     }
 
     ptr = allocate(length * sizeof(T));
     const auto offset = priv_to_offset(ptr);
-    if (!priv_update_object_directory_no_mutex<T>(name, offset, length)) {
+    if (!priv_register_attr_object_no_mutex<T>(name, offset, length)) {
       deallocate(ptr);
       return nullptr; // Critical error
     }
@@ -778,23 +819,30 @@ priv_construct_and_update_object_directory(char_ptr_holder_type name,
 
   // To prevent memory leak, deallocates the memory when array_construct throws exception
   std::unique_ptr<void, std::function<void(void *)>> ptr_holder(ptr, [this](void *const ptr) {
+    {
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+      lock_guard_type guard(m_object_directories_mutex);
+#endif
+      priv_remove_attr_object_no_mutex(priv_to_offset(ptr));
+    }
     deallocate(ptr);
   });
 
   // Constructs each object in the allocated memory
-  // When T's constructor throws execption, this function calls T's destrocutor and rethrows an exception
+  // When one of objects of T in the array throws execption,
+  // this function calls T's destrocutor for succesfully constructed objects and rethrows the exception
   mdtl::array_construct(ptr, length, table);
 
-  ptr_holder.release(); // release the poiter since the construction was successful
+  ptr_holder.release(); // release the poiter since the construction succeeded
 
   return static_cast<T *>(ptr);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 template <typename T>
-bool manager_kernel<chnk_no, chnk_sz>::priv_update_object_directory_no_mutex(char_ptr_holder_type name,
-                                                                             const difference_type offset,
-                                                                             size_type length) {
+bool manager_kernel<chnk_no, chnk_sz>::priv_register_attr_object_no_mutex(char_ptr_holder_type name,
+                                                                          difference_type offset,
+                                                                          size_type length) {
   if (name.is_anonymous()) {
     if (!m_anonymous_object_directory.insert("", offset, length, gen_type_id<T>())) {
       logger::out(logger::level::critical,
@@ -827,57 +875,16 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_update_object_directory_no_mutex(cha
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-template <typename T>
-bool manager_kernel<chnk_no, chnk_sz>::priv_destroy_and_update_object_directory_by_name(char_ptr_holder_type name) {
-  T *addr = nullptr;
-  size_type length = 0;
+bool manager_kernel<chnk_no, chnk_sz>::priv_remove_attr_object_no_mutex(difference_type offset) {
 
-  {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-    lock_guard_type guard(m_object_directories_mutex);
-#endif
-
-    std::tie(addr, length) = find<T>(name);
-    if (!addr) {
-      return false; // could have been destroyed by another thread.
-    }
-
-    if (!m_named_object_directory.erase(priv_to_offset(addr))
-        && !m_unique_object_directory.erase(priv_to_offset(addr))
-        && !m_anonymous_object_directory.erase(priv_to_offset(addr))) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to erase an entry from object directories");
-      return false;
-    }
+  // As the instance kind of the object is not given,
+  // just call the eranse functions in all tables to simplify implementation.
+  if (!m_named_object_directory.erase(offset)
+      && !m_unique_object_directory.erase(offset)
+      && !m_anonymous_object_directory.erase(offset)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to erase an entry from object directories");
+    return false;
   }
-
-  priv_destruct_and_free_memory<T>(priv_to_offset(addr), length);
-
-  return true;
-}
-
-template <typename chnk_no, std::size_t chnk_sz>
-template <typename T>
-bool manager_kernel<chnk_no, chnk_sz>::priv_destroy_and_update_object_directory_by_offset(difference_type offset) {
-  size_type length = 0;
-
-  {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-    lock_guard_type guard(m_object_directories_mutex);
-#endif
-    length = get_instance_length(priv_to_address(offset));
-    if (length == 0) {
-      return false;
-    }
-
-    if (!m_named_object_directory.erase(offset)
-        && !m_unique_object_directory.erase(offset)
-        && !m_anonymous_object_directory.erase(offset)) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to erase an entry from object directories");
-      return false;
-    }
-  }
-
-  priv_destruct_and_free_memory<T>(offset, length);
 
   return true;
 }
