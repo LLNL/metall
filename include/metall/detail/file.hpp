@@ -181,7 +181,7 @@ inline bool directory_exist(const std::string &dir_path) {
   if (::stat(dir_path.c_str(), &stat_buf) == -1) {
     return false;
   }
-  return (uint64_t)S_IFDIR & (uint64_t)(stat_buf.st_mode);
+  return S_ISDIR(stat_buf.st_mode);
 }
 
 inline bool create_file(const std::string &file_name) {
@@ -200,7 +200,7 @@ inline bool create_file(const std::string &file_name) {
 
 #if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
 /// \brief Creates directories recursively.
-/// \return Returns true if the directory was created or already exists, returns true.
+/// \return Returns true if the directory was created or already exists.
 /// Otherwise, returns false.
 inline bool create_directory(const std::string &dir_path) {
 
