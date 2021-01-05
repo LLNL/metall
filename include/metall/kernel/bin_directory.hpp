@@ -18,26 +18,25 @@
 #include <boost/container/vector.hpp>
 #include <boost/container/scoped_allocator.hpp>
 
-#define METALL_USE_SPACE_AWARE_BIN
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
 #include <boost/container/flat_set.hpp>
 #else
 #include <boost/container/deque.hpp>
 #endif
 
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
 
 namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 /// \brief A simple key-value store designed to store values related to memory address,
 /// such as free chunk numbers or free objects.
-/// Values are sorted with ascending order if METALL_USE_SPACE_AWARE_BIN is defined;
+/// Values are sorted with ascending order if METALL_USE_SORTED_BIN is defined;
 /// otherwise, values are stored in the FIFO order.
 /// \tparam _k_num_bins The number of bins
 /// \tparam _value_type The value type to store
@@ -51,7 +50,7 @@ class bin_directory {
   static constexpr std::size_t k_num_bins = _k_num_bins;
   using value_type = _value_type;
   using allocator_type = _allocator_type;
-  using bin_no_type = typename util::unsigned_variable_type<k_num_bins>::type;
+  using bin_no_type = typename mdtl::unsigned_variable_type<k_num_bins>::type;
 
  private:
   // -------------------------------------------------------------------------------- //
@@ -59,8 +58,9 @@ class bin_directory {
   // -------------------------------------------------------------------------------- //
   template <typename T>
   using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
   using bin_allocator_type = other_allocator_type<value_type>;
+  // Sort values with descending order internally to simplify implementation
   using bin_type = boost::container::flat_set<value_type, std::greater<value_type>, bin_allocator_type>;
 #else
   using bin_allocator_type = other_allocator_type<value_type>;
@@ -112,7 +112,7 @@ class bin_directory {
   value_type front(const bin_no_type bin_no) const {
     assert(bin_no < k_num_bins);
     assert(!empty(bin_no));
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
     return *(m_table[bin_no].end() - 1);
 #else
     return m_table[bin_no].front();
@@ -124,7 +124,7 @@ class bin_directory {
   /// \param value
   void insert(const bin_no_type bin_no, const value_type value) {
     assert(bin_no < k_num_bins);
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
     m_table[bin_no].insert(value);
 #else
     m_table[bin_no].emplace_front(value);
@@ -135,7 +135,7 @@ class bin_directory {
   /// \param bin_no
   void pop(const bin_no_type bin_no) {
     assert(bin_no < k_num_bins);
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
     m_table[bin_no].erase(m_table[bin_no].end() - 1);
 #else
     m_table[bin_no].pop_front();
@@ -148,7 +148,7 @@ class bin_directory {
   /// \return
   bool erase(const bin_no_type bin_no, const value_type value) {
     assert(bin_no < k_num_bins);
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
     const auto itr = m_table[bin_no].find(value);
     if (itr != m_table[bin_no].end()) {
       m_table[bin_no].erase(itr);
@@ -238,7 +238,7 @@ class bin_directory {
         logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
         return false;
       }
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
       m_table[bin_no].insert(value);
 #else
       m_table[bin_no].emplace_back(value);

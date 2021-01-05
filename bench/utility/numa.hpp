@@ -12,9 +12,10 @@
 #warning "Does not use NUMA"
 #endif
 
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utilities.hpp>
 
-namespace numa {
+namespace bench_utility::numa {
+
 bool available() noexcept {
 #ifdef METALL_USE_NUMA_LIB
   return ::numa_available();
@@ -55,7 +56,7 @@ int set_node([[maybe_unused]] const int thread_id) noexcept {
 
 int get_local_num_threads([[maybe_unused]] const int thread_id, const int num_threads) noexcept {
 #ifdef METALL_USE_NUMA_LIB
-  const auto range = metall::detail::utility::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
+  const auto range = metall::mtlldetail::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
   return range.second - range.first;
 #else
   return num_threads;
@@ -85,5 +86,5 @@ void free(void *start, [[maybe_unused]] const std::size_t size) noexcept {
   ::free(start);
 #endif
 }
-}
+} // namespace bench_utility::numa
 #endif //METALL_BENCH_UTILITY_NUMA_HPP

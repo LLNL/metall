@@ -8,7 +8,7 @@
 
 #include <jemalloc/jemalloc.h>
 
-namespace utility {
+namespace bench_utility {
 
 /// \brief A STL compatible allocator
 /// \tparam T The type of the object
@@ -114,6 +114,6 @@ inline bool operator!=(const jemalloc_allocator<T> &rhd, const jemalloc_allocato
   return !(rhd == lhd);
 }
 
-} // namespace utility
+} // namespace bench_utility
 
 #endif //METALL_BENCH_UTILITY_JEMALLOC_STL_ALLOCATOR_HPP

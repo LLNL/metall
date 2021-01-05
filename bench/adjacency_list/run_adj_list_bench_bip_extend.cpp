@@ -13,8 +13,8 @@
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/mmap.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/mmap.hpp>
 
 #include "../data_structure/multithread_adjacency_list.hpp"
 #include "bench_driver.hpp"
@@ -30,10 +30,10 @@ using allocator_type = bip::allocator<void, typename manager_type::segment_manag
 using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
 
 void *map_file(const std::string &backing_file_name, const size_t file_size) {
-  metall::detail::utility::create_file(backing_file_name);
-  metall::detail::utility::extend_file_size(backing_file_name, file_size);
+  metall::mtlldetail::create_file(backing_file_name);
+  metall::mtlldetail::extend_file_size(backing_file_name, file_size);
 
-  auto ret = metall::detail::utility::map_file_write_mode(backing_file_name,
+  auto ret = metall::mtlldetail::map_file_write_mode(backing_file_name,
                                                           nullptr,
                                                           file_size, 0);
   if (ret.first == -1) {
@@ -41,7 +41,7 @@ void *map_file(const std::string &backing_file_name, const size_t file_size) {
     std::abort();
   }
 
-  if (!metall::detail::utility::os_close(ret.first)) {
+  if (!metall::mtlldetail::os_close(ret.first)) {
     std::cerr << "Failed to close the file" << std::endl;
     std::abort();
   }
@@ -50,7 +50,7 @@ void *map_file(const std::string &backing_file_name, const size_t file_size) {
 }
 
 void *map_anonymous(const size_t file_size) {
-  void *ret = metall::detail::utility::os_mmap(nullptr,
+  void *ret = metall::mtlldetail::os_mmap(nullptr,
                                                file_size,
                                                PROT_READ | PROT_WRITE,
                                                MAP_PRIVATE | MAP_ANONYMOUS,
@@ -90,14 +90,14 @@ int main(int argc, char *argv[]) {
 
     run_bench(option, adj_list);
 
-    const auto start = metall::detail::utility::elapsed_time_sec();
-    metall::detail::utility::os_msync(addr, option.segment_size, true);
-    const auto elapsed_time = metall::detail::utility::elapsed_time_sec(start);
+    const auto start = metall::mtlldetail::elapsed_time_sec();
+    metall::mtlldetail::os_msync(addr, option.segment_size, true);
+    const auto elapsed_time = metall::mtlldetail::elapsed_time_sec(start);
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Segment usage (GB) "
               << static_cast<double>(manager.get_size() - manager.get_free_memory()) / (1ULL << 30) << std::endl;
-    metall::detail::utility::munmap(addr, option.segment_size, !option.datastore_path_list.empty());
+    metall::mtlldetail::munmap(addr, option.segment_size, !option.datastore_path_list.empty());
   }
 
   return 0;

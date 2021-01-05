@@ -25,7 +25,7 @@ TEST(BinDirectoryTest, Front) {
   ASSERT_EQ(obj.front(0), 1);
 
   obj.insert(0, 2);
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
   ASSERT_EQ(obj.front(0), 1);
 #else
   ASSERT_EQ(obj.front(0), 2);
@@ -35,7 +35,7 @@ TEST(BinDirectoryTest, Front) {
   ASSERT_EQ(obj.front(num_small_bins - 1), 3);
 
   obj.insert(num_small_bins - 1, 4);
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
   ASSERT_EQ(obj.front(num_small_bins - 1), 3);
 #else
   ASSERT_EQ(obj.front(num_small_bins - 1), 4);
@@ -121,7 +121,7 @@ TEST(BinDirectoryTest, Deserialize) {
     directory_type obj(allocator);
     ASSERT_TRUE(obj.deserialize(file.c_str()));
 
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
     ASSERT_EQ(obj.front(0), 1);
     obj.pop(0);
     ASSERT_EQ(obj.front(0), 2);
@@ -131,7 +131,7 @@ TEST(BinDirectoryTest, Deserialize) {
     ASSERT_EQ(obj.front(0), 1);
 #endif
 
-#ifdef METALL_USE_SPACE_AWARE_BIN
+#ifdef METALL_USE_SORTED_BIN
     ASSERT_EQ(obj.front(num_small_bins - 1), 3);
     obj.pop(num_small_bins - 1);
     ASSERT_EQ(obj.front(num_small_bins - 1), 4);

@@ -6,26 +6,26 @@
 #ifndef METALL_BENCH_DATA_STRUCTURE_MULTITHREAD_ADJACENCY_LIST_HPP
 #define METALL_BENCH_DATA_STRUCTURE_MULTITHREAD_ADJACENCY_LIST_HPP
 
-#include <vector>
-#include <unordered_map>
 #include <cassert>
 #include <mutex>
 #include <algorithm>
 #include <cstddef>
 
+#define METALL_USE_STL_CONTAINERS_IN_ADJLIST 0
+#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
+#include <vector>
+#include <unordered_map>
+#include <scoped_allocator>
+#else
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/container/scoped_allocator.hpp>
+#endif
 
-#include <metall_utility/hash.hpp>
-#include <metall_utility/mutex.hpp>
+#include <metall/utility/hash.hpp>
+#include <metall/utility/mutex.hpp>
 
 namespace data_structure {
-
-namespace {
-namespace bip = boost::interprocess;
-namespace bct = boost::container;
-}
 
 template <typename _key_type, typename _value_type, typename _base_allocator_type = std::allocator<std::byte>>
 class multithread_adjacency_list {
@@ -38,18 +38,41 @@ class multithread_adjacency_list {
   template <typename T>
   using other_allocator_type = typename std::allocator_traits<_base_allocator_type>::template rebind_alloc<T>;
 
+  template <typename T, typename A>
+  using vector_type =
+#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
+  std::vector<T, A>;
+#else
+  boost::container::vector<T, A>;
+#endif
+
+  template <typename A>
+  using scp_alloc_adp_type =
+#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
+  std::scoped_allocator_adaptor<A>;
+#else
+  boost::container::scoped_allocator_adaptor<A>;
+#endif
+
+  template <typename K, typename M, typename H, typename E, typename A>
+  using unordered_map_type =
+#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
+  std::unordered_map<K, M, H, E, A>;
+#else
+  boost::unordered_map<K, M, H, E, A>;
+#endif
+
   using list_allocator_type = other_allocator_type<value_type>;
-  using list_type = bip::vector<value_type, list_allocator_type>;
+  using list_type = vector_type<value_type, list_allocator_type>;
 
-  using key_table_allocator_type = bct::scoped_allocator_adaptor<other_allocator_type<std::pair<const key_type,
-                                                                                                list_type>>>;
-  using key_table_type = boost::unordered_map<key_type, list_type,
-                                              metall::utility::hash<key_type>,
-                                              std::equal_to<key_type>,
-                                              key_table_allocator_type>;
+  using key_table_allocator_type = scp_alloc_adp_type<other_allocator_type<std::pair<const key_type, list_type>>>;
+  using key_table_type = unordered_map_type<key_type, list_type,
+                                            metall::utility::hash<key_type>,
+                                            std::equal_to<key_type>,
+                                            key_table_allocator_type>;
 
-  using bank_table_allocator_type = bct::scoped_allocator_adaptor<other_allocator_type<key_table_type>>;
-  using bank_table_t = std::vector<key_table_type, bank_table_allocator_type>;
+  using bank_table_allocator_type = scp_alloc_adp_type<other_allocator_type<key_table_type>>;
+  using bank_table_t = vector_type<key_table_type, bank_table_allocator_type>;
 
   // Forward declaration
   class impl_const_key_iterator;
@@ -69,10 +92,14 @@ class multithread_adjacency_list {
   bool add(key_type key, value_type value) {
     auto guard = metall::utility::mutex::mutex_lock<k_num_banks>(bank_index(key));
 #ifdef __clang__
-    if (m_bank_table[bank_index(key)].count(key) == 0)
-      m_bank_table[bank_index(key)].try_emplace(key, m_bank_table.get_allocator());
-    m_bank_table[bank_index(key)].at(key).emplace_back(std::move(value));
+#if METALL_USE_STL_CONTAINERS_IN_ADJLIST
+    m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
 #else
+    m_bank_table[bank_index(key)].try_emplace(key, list_allocator_type(m_bank_table.get_allocator()));
+    m_bank_table[bank_index(key)].at(key).emplace_back(std::move(value));
+#endif
+#else
+    // MEMO: GCC does not work with STL Containers (tested with GCC 10.2.0 on MacOS)
     m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
 #endif
     return true;

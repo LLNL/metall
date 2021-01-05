@@ -8,7 +8,7 @@
 #include <boost/container/vector.hpp>
 
 #include <metall/metall.hpp>
-#include <metall_utility/fallback_allocator_adaptor.hpp>
+#include <metall/utility/fallback_allocator_adaptor.hpp>
 
 // The line below is the only change required to use fallback_allocator_adaptor.
 // Wraps up 'metall::manager::allocator_type<..>' with fallback_allocator_adaptor.

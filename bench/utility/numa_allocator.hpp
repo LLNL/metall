@@ -3,13 +3,13 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_UTILITY_NUMA_ALLOCATOR_HPP
-#define METALL_UTILITY_NUMA_ALLOCATOR_HPP
+#ifndef METALL_BENCH_UTILITY_NUMA_ALLOCATOR_HPP
+#define METALL_BENCH_UTILITY_NUMA_ALLOCATOR_HPP
 
 #include <memory>
 #include "numa.hpp"
 
-namespace numa {
+namespace bench_utility::numa {
 
 template <typename T>
 class numa_allocator {
@@ -113,5 +113,5 @@ bool operator!=(const numa_allocator<T> &rhd, const numa_allocator<T> &lhd) {
   return !(rhd == lhd);
 }
 
-}
+} // namespace bench_utility::numa
 #endif //METALL_UTILITY_NUMA_ALLOCATOR_HPP

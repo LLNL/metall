@@ -3,12 +3,10 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_TAGS_HPP
 #define METALL_TAGS_HPP
 
-#include <metall/detail/utility/char_ptr_holder.hpp>
+#include <metall/detail/char_ptr_holder.hpp>
 
 namespace metall {
 
@@ -33,10 +31,10 @@ struct open_read_only_t {};
 [[maybe_unused]] static const open_read_only_t open_read_only{};
 
 /// \brief Tag to construct anonymous instances.
-[[maybe_unused]] static const detail::utility::anonymous_instance_t *anonymous_instance = nullptr;
+[[maybe_unused]] static const mtlldetail::anonymous_instance_t *anonymous_instance = nullptr;
 
 /// \brief Tag to construct a unique instance of a type
-[[maybe_unused]] static const detail::utility::unique_instance_t *unique_instance = nullptr;
+[[maybe_unused]] static const mtlldetail::unique_instance_t *unique_instance = nullptr;
 }
 
 #endif //METALL_TAGS_HPP

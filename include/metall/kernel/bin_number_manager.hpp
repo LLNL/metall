@@ -10,7 +10,7 @@
 #include <type_traits>
 
 #include <metall/kernel/object_size_manager.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/utilities.hpp>
 
 namespace metall {
 namespace kernel {
@@ -28,7 +28,7 @@ class bin_number_manager {
   static constexpr size_type k_num_bins = k_num_small_bins + k_num_large_bins;
 
  public:
-  using bin_no_type = typename util::unsigned_variable_type<k_num_bins>::type;
+  using bin_no_type = typename mdtl::unsigned_variable_type<k_num_bins>::type;
 
   bin_number_manager() = delete;
   ~bin_number_manager() = delete;

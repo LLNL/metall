@@ -11,7 +11,7 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include <metall/metall.hpp>
-#include <metall_utility/fallback_allocator_adaptor.hpp>
+#include <metall/utility/fallback_allocator_adaptor.hpp>
 #include "../test_utility.hpp"
 
 template <typename T>

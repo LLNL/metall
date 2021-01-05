@@ -18,13 +18,20 @@ class logger {
 
   /// \brief Log message level
   enum struct level {
-    silent = 10, /// Silent logger message — never show logger message
-    critical = 5, /// Critical logger message — abort the execution unless disabled
-    error = 4,  /// Error logger message
-    warning = 3, /// Warning logger message
-    info = 2, /// Info logger message
-    debug = 1, /// Debug logger message
-    verbose = 0, /// Verbose (lowest priority) logger message
+    /// \brief Silent logger message — never show logger message
+    silent = 10,
+    /// \brief Critical logger message — abort the execution unless disabled
+    critical = 5,
+    /// \brief Error logger message
+    error = 4,
+    /// \brief Warning logger message
+    warning = 3,
+    /// \brief Info logger message
+    info = 2,
+    /// \brief Debug logger message
+    debug = 1,
+    /// \brief Verbose (lowest priority) logger message
+    verbose = 0,
   };
 
   /// \brief Set the minimum logger level to show message

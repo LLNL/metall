@@ -3,25 +3,11 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_UTILITY_HASH_HPP
-#define METALL_UTILITY_HASH_HPP
+#ifndef METALL_UTILITY_HASH_HPP_DEPRECATED
+#define METALL_UTILITY_HASH_HPP_DEPRECATED
 
-#include <metall/detail/utility/hash.hpp>
+#warning "All contents of this file have been moved to metall/utility/hash.hpp. This file will be removed soon."
 
-namespace metall::utility {
+#include <metall/utility/hash.hpp>
 
-/// \brief Hash a value of type T
-/// \tparam T The type of a value to hash
-/// \tparam seed A seed value used for hashing
-template <typename T, unsigned int seed = 123>
-using hash = metall::detail::utility::hash<T, seed>;
-
-/// \brief Hash string data
-/// \tparam string_type A string class
-/// \tparam seed A seed value used for hashing
-template <typename string_type, unsigned int seed = 123>
-using string_hash = metall::detail::utility::string_hash<string_type, seed>;
-
-} // namespace metall::utility
-
-#endif //METALL_UTILITY_HASH_HPP
+#endif //METALL_UTILITY_HASH_HPP_DEPRECATED

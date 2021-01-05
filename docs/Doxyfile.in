@@ -38,7 +38,7 @@ PROJECT_NAME           = "Metall"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = v0.7
+PROJECT_NUMBER         = v0.8
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -831,10 +831,10 @@ WARN_LOGFILE           =
 
 INPUT                  = ../include/metall \
                          ../include/metall/c_api \
+                         ../include/metall/container \
+                         ../include/metall/utility \
                          ../include/metall/detail/base_stl_allocator.hpp \
                          ../include/metall/detail/utility/named_proxy.hpp \
-                         ../include/metall_container \
-                         ../include/metall_utility \
                          ../example/graph_data_structure
 
 # This tag can be used to specify the character encoding of the source files

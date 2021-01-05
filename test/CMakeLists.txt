@@ -51,9 +51,9 @@ endmacro()
 #
 macro(link_gtest_lib target)
     if (DEFINED FOUND_LOCAL_GTEST)
-        target_link_libraries(${target} gtest_main)
+        target_link_libraries(${target} PUBLIC gtest_main)
     elseif (DEFINED FOUND_GLOBAL_GTEST)
-        target_link_libraries(${target} GTest::Main)
+        target_link_libraries(${target} PUBLIC GTest::Main)
     endif ()
 endmacro()
 

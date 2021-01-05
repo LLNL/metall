@@ -10,7 +10,7 @@
 #include <memory>
 #include <cstddef>
 
-#include <metall/detail/utility/bitset.hpp>
+#include <metall/detail/bitset.hpp>
 #include <metall/kernel/multilayer_bitset.hpp>
 
 namespace {

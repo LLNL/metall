@@ -6,17 +6,17 @@
 #include "gtest/gtest.h"
 #include <bitset>
 #include <random>
-#include <metall/detail/utility/bitset.hpp>
+#include <metall/detail/bitset.hpp>
 
 namespace {
 
 template <int num_bits>
-using block_type = typename metall::detail::utility::bitset_detail::block_type<num_bits>::type;
+using block_type = typename metall::mtlldetail::bitset_detail::block_type<num_bits>::type;
 
-using metall::detail::utility::bitset_detail::num_blocks;
-using metall::detail::utility::bitset_detail::get;
-using metall::detail::utility::bitset_detail::set;
-using metall::detail::utility::bitset_detail::reset;
+using metall::mtlldetail::bitset_detail::num_blocks;
+using metall::mtlldetail::bitset_detail::get;
+using metall::mtlldetail::bitset_detail::set;
+using metall::mtlldetail::bitset_detail::reset;
 
 TEST(BitsetTest, BaseType) {
   ASSERT_LE(0, sizeof(block_type<0>) * 8);

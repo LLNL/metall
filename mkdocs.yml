@@ -16,12 +16,13 @@ nav:
 - Getting Started:
   - 'Build and Install': 'getting_started/build_and_install.md'
 - 'Advanced Build':
-  - 'Build API doc, Example, Test, and Benchmark': 'advanced_build/example_test_bench.md'
+  - 'Build Executables': 'advanced_build/cmake.md'
   - 'Use Umap': 'advanced_build/umap.md'
   - 'Test Metall': 'advanced_build/test.md'
 - 'Metall 101':
   - 'Introduction': 'detail/introduction.md'
   - 'API': 'detail/api.md'
+  - 'Data Store ls': 'detail/ls.md'
   - 'Pointers in Persistent Memory': 'detail/pointer.md'
   - 'Persistence Policy': 'detail/persistence_policy.md'
   - 'Snapshot': 'detail/snapshot.md'

@@ -19,13 +19,13 @@
 #include <metall/kernel/bin_directory.hpp>
 #include <metall/kernel/chunk_directory.hpp>
 #include <metall/kernel/object_size_manager.hpp>
-#include <metall/detail/utility/char_ptr_holder.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/char_ptr_holder.hpp>
+#include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
 
 #define ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR 1
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-#include <metall/detail/utility/mutex.hpp>
+#include <metall/detail/mutex.hpp>
 #endif
 
 #ifndef METALL_DISABLE_OBJECT_CACHE
@@ -36,7 +36,7 @@ namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 template <typename _chunk_no_type,
@@ -66,7 +66,7 @@ class segment_allocator {
   static constexpr size_type k_num_small_bins = bin_no_mngr::num_small_bins();
 
   // For non-full chunk number bin (used to called 'bin directory')
-  // NOTE: we only manage the non-full chunk numbers of the small bins (small oject sizes)
+  // NOTE: we only manage the non-full chunk numbers of the small bins (small object sizes)
   using non_full_chunk_bin_type = bin_directory<k_num_small_bins, chunk_no_type>;
   static constexpr const char *k_non_full_chunk_bin_file_name = "non_full_chunk_bin";
 
@@ -81,8 +81,8 @@ class segment_allocator {
 #endif
 
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-  using mutex_type = util::mutex;
-  using lock_guard_type = util::mutex_lock_guard;
+  using mutex_type = mdtl::mutex;
+  using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
 
  public:
@@ -124,7 +124,7 @@ class segment_allocator {
     const auto offset = (priv_small_object_bin(bin_no)) ?
                         priv_allocate_small_object(bin_no) : priv_allocate_large_object(bin_no);
     assert(offset >= 0);
-    assert((difference_type)offset < (difference_type)size());
+    assert(offset < (difference_type)size());
 
     return offset;
   }
@@ -164,7 +164,7 @@ class segment_allocator {
   /// \param offset
   void deallocate(const difference_type offset) {
     assert(offset >= 0);
-    assert((difference_type)offset < (difference_type)size());
+    assert(offset < (difference_type)size());
 
     const chunk_no_type chunk_no = offset / k_chunk_size;
     const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
@@ -220,7 +220,7 @@ class segment_allocator {
   /// \tparam out_stream_type
   /// \param log_out
   template <typename out_stream_type>
-  void profile(out_stream_type *log_out) const {
+  void profile(out_stream_type *log_out) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     priv_clear_object_cache();
 #endif
@@ -429,7 +429,7 @@ class segment_allocator {
 
     // To simplify the implementation, free slots only when object_size is at least double of the page size
     const size_type
-        min_free_size = std::max((size_type)m_segment_storage->page_size() * 2, (size_type)min_free_size_hint);
+        min_free_size = std::max((size_type)m_segment_storage->page_size() * 2, min_free_size_hint);
     if (object_size < min_free_size) return;
 
     // This function assumes that small objects are equal to or smaller than the half chunk size
@@ -444,10 +444,10 @@ class segment_allocator {
       if (m_chunk_directory.slot_marked(chunk_no, slot_no - 1)) {
         // Round up to the next multiple of page size
         // The left region will be freed when the previous slot is freed
-        range_begin = util::round_up(range_begin, m_segment_storage->page_size());
+        range_begin = mdtl::round_up(range_begin, m_segment_storage->page_size());
       } else {
         // The previous slot is not used, so round down the range_begin to align it with the page size
-        range_begin = util::round_down(range_begin, m_segment_storage->page_size());
+        range_begin = mdtl::round_down(range_begin, m_segment_storage->page_size());
       }
     }
     assert(range_begin % m_segment_storage->page_size() == 0);
@@ -462,9 +462,9 @@ class segment_allocator {
       assert(object_size * (slot_no + 1) < k_chunk_size);
 
       if (m_chunk_directory.slot_marked(chunk_no, slot_no + 1)) {
-        range_end = util::round_down(range_end, m_segment_storage->page_size());
+        range_end = mdtl::round_down(range_end, m_segment_storage->page_size());
       } else {
-        range_end = util::round_up(range_end, m_segment_storage->page_size());
+        range_end = mdtl::round_up(range_end, m_segment_storage->page_size());
       }
     }
     assert(range_end % m_segment_storage->page_size() == 0);

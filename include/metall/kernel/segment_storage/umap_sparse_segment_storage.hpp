@@ -23,9 +23,9 @@ const size_t SPARSE_STORE_FILE_GRANULARITY_DEFAULT = 1073741824;
 #include <string>
 #include <iostream>
 #include <cassert>
-#include <metall/detail/utility/file.hpp>
-#include <metall/detail/utility/mmap.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/file.hpp>
+#include <metall/detail/mmap.hpp>
+#include <metall/detail/utilities.hpp>
 
 // #include "umap_sparse_store.hpp"
 
@@ -33,7 +33,7 @@ namespace metall {
 namespace kernel {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 template <typename different_type, typename size_type>
@@ -94,7 +94,7 @@ class umap_sparse_segment_storage {
   // -------------------------------------------------------------------------------- //
   /// \brief Check if there is a file that can be opened
   static bool openable(const std::string &base_path) {
-    return util::file_exist(priv_make_file_name(base_path));
+    return mdtl::file_exist(priv_make_file_name(base_path));
   }
 
   /// \brief Gets the size of an existing segment.
@@ -110,7 +110,7 @@ class umap_sparse_segment_storage {
         if (d_name_string.find("metadata") == std::string::npos
             && d_name_string.find(".") == std::string::npos
             && d_name_string.find("..") == std::string::npos){
-          total_size += util::get_file_size(directory_name + "/" + d_name_string);
+          total_size += mdtl::get_file_size(directory_name + "/" + d_name_string);
         }
       }
       closedir (dir);
@@ -177,7 +177,7 @@ class umap_sparse_segment_storage {
     m_read_only = read_only;
 
     const auto file_name = priv_make_file_name(m_base_path);
-    if (!util::file_exist(file_name)) {
+    if (!mdtl::file_exist(file_name)) {
       std::cerr << "Segment file does not exist" << std::endl;
       return false;
     } 
@@ -348,7 +348,7 @@ class umap_sparse_segment_storage {
   void priv_unmap_file() {
 
     const auto file_name = priv_make_file_name(m_base_path);
-    assert(util::file_exist(file_name));
+    assert(mdtl::file_exist(file_name));
 
     if (::uunmap(static_cast<char *>(m_segment), m_segment_size) != 0) {
       std::cerr << "Failed to unmap a Umap region" << std::endl;

@@ -8,11 +8,12 @@
 #include <cassert>
 #include <functional>
 #include <thread>
+#include <vector>
 
 #include "free_mmap_region.hpp"
 
 void commit_pages(const std::size_t size, void *const addr) {
-  const std::size_t page_size = util::get_page_size();
+  const std::size_t page_size = mdtl::get_page_size();
   assert(page_size > 0);
   assert(size % page_size == 0);
 
@@ -20,9 +21,9 @@ void commit_pages(const std::size_t size, void *const addr) {
   const auto num_threads = (int)std::min((std::size_t)num_pages, (std::size_t)std::thread::hardware_concurrency());
   std::vector<std::thread *> threads(num_threads, nullptr);
 
-  const auto start = util::elapsed_time_sec();
+  const auto start = mdtl::elapsed_time_sec();
   for (int t = 0; t < num_threads; ++t) {
-    const auto range = util::partial_range(num_pages, t, num_threads);
+    const auto range = mdtl::partial_range(num_pages, t, num_threads);
     threads[t] = new std::thread([range, page_size, addr]() {
       for (std::size_t p = range.first; p < range.second; ++p) {
         auto map = static_cast<char *>(addr);
@@ -33,22 +34,22 @@ void commit_pages(const std::size_t size, void *const addr) {
   for (auto &th : threads) {
     th->join();
   }
-  const auto elapsed_time = util::elapsed_time_sec(start);
+  const auto elapsed_time = mdtl::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
 void free_file_space(const std::size_t size,
                      const std::function<void(const std::size_t size, void *const addr)> &free_function,
                      void *const addr) {
-  const std::size_t page_size = util::get_page_size();
+  const std::size_t page_size = mdtl::get_page_size();
   assert(page_size > 0);
   assert(size % page_size == 0);
 
-  const auto start = util::elapsed_time_sec();
+  const auto start = mdtl::elapsed_time_sec();
   for (std::size_t offset = 0; offset < size; offset += page_size) {
     free_function(page_size, static_cast<char *>(addr) + offset);
   }
-  const auto elapsed_time = util::elapsed_time_sec(start);
+  const auto elapsed_time = mdtl::elapsed_time_sec(start);
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
@@ -64,13 +65,13 @@ int main(int, char *argv[]) {
   int fd = -1;
   void *map_addr = nullptr;
   std::tie(fd, map_addr) = map_file_share(file_path, map_size);
-  std::cout << "DRAM usage (GB)" << "\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-  std::cout << "DRAM cache usage (GB)" << "\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM usage (GB)" << "\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)" << "\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 
   commit_pages(map_size, map_addr);
   sync_mmap(map_addr, map_size);
-  std::cout << "DRAM usage (GB)" << "\t" << (double)util::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-  std::cout << "DRAM cache usage (GB)" << "\t" << (double)util::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM usage (GB)" << "\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)" << "\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
 
   if (mode == 0) {
     std::cout << "uncommit_shared_pages only" << std::endl;
@@ -78,7 +79,7 @@ int main(int, char *argv[]) {
     close_file(fd);
     free_file_space(map_size,
                     [](const std::size_t free_size, void *const free_addr) {
-                      if (!util::uncommit_shared_pages(free_addr, free_size)) {
+                      if (!mdtl::uncommit_shared_pages(free_addr, free_size)) {
                         std::cerr << "Failed to uncommit page" << std::endl;
                         std::abort();
                       }
@@ -91,12 +92,12 @@ int main(int, char *argv[]) {
 
     free_file_space(map_size,
                     [fd, map_addr](const std::size_t free_size, void *const free_addr) {
-                      if (!util::uncommit_shared_pages(free_addr, free_size)) {
+                      if (!mdtl::uncommit_shared_pages(free_addr, free_size)) {
                         std::cerr << "Failed to uncommit page" << std::endl;
                         std::abort();
                       }
                       const ssize_t offset = static_cast<char *>(free_addr) - static_cast<char *>(map_addr);
-                      if (!util::free_file_space(fd, offset, free_size)) {
+                      if (!mdtl::free_file_space(fd, offset, free_size)) {
                         std::cerr << "Failed to free file space" << std::endl;
                         std::abort();
                       }
@@ -111,7 +112,7 @@ int main(int, char *argv[]) {
     close_file(fd);
     free_file_space(map_size,
                     [](const std::size_t free_size, void *const free_addr) {
-                      if (!util::uncommit_file_backed_pages(free_addr, free_size)) {
+                      if (!mdtl::uncommit_file_backed_pages(free_addr, free_size)) {
                         std::cerr << "Failed to uncommit file backed page" << std::endl;
                         std::abort();
                       }
@@ -123,8 +124,8 @@ int main(int, char *argv[]) {
 
   unmap(map_addr, map_size);
 
-  std::cout << "File size (GB)\t" << (double)util::get_file_size(file_path) / (1ULL << 30ULL) << std::endl;
-  std::cout << "Actual file size (GB)\t" << (double)util::get_actual_file_size(file_path) / (1ULL << 30ULL) << std::endl;
+  std::cout << "File size (GB)\t" << (double)mdtl::get_file_size(file_path) / (1ULL << 30ULL) << std::endl;
+  std::cout << "Actual file size (GB)\t" << (double)mdtl::get_actual_file_size(file_path) / (1ULL << 30ULL) << std::endl;
 
   return 0;
 }

@@ -17,13 +17,13 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
-#include <metall/detail/utility/time.hpp>
-#include <metall/detail/utility/common.hpp>
+#include <metall/detail/time.hpp>
+#include <metall/detail/utilities.hpp>
 
 namespace simple_alloc_bench {
 
 namespace {
-namespace util = metall::detail::utility;
+namespace mdtl = metall::mtlldetail;
 }
 
 struct option_type {
@@ -86,7 +86,7 @@ void allocate_parallel(byte_allocator_type byte_allocator,
 
   std::vector<std::thread *> threads(std::thread::hardware_concurrency(), nullptr);
   for (std::size_t t = 0; t < threads.size(); ++t) {
-    const auto range = metall::detail::utility::partial_range(size_list.size(), t, threads.size());
+    const auto range = metall::mtlldetail::partial_range(size_list.size(), t, threads.size());
 
     threads[t] = new std::thread([range](byte_allocator_type byte_allocator,
                                          const std::vector<std::size_t> &size_list,
@@ -118,7 +118,7 @@ void deallocate_parallel(byte_allocator_type byte_allocator,
 
   std::vector<std::thread *> threads(std::thread::hardware_concurrency(), nullptr);
   for (std::size_t t = 0; t < threads.size(); ++t) {
-    const auto range = metall::detail::utility::partial_range(size_list.size(), t, threads.size());
+    const auto range = metall::mtlldetail::partial_range(size_list.size(), t, threads.size());
 
     threads[t] = new std::thread([range](byte_allocator_type byte_allocator,
                                          const std::vector<std::size_t> &size_list,
@@ -145,15 +145,15 @@ void measure_time(const int num_runs,
   std::vector<double> dealloc_times(num_runs, 0.0);
   for (int i = 0; i < num_runs; ++i) {
     {
-      const auto start = util::elapsed_time_sec();
+      const auto start = mdtl::elapsed_time_sec();
       alloc_func();
-      const auto elapsed_time = util::elapsed_time_sec(start);
+      const auto elapsed_time = mdtl::elapsed_time_sec(start);
       alloc_times[i] = elapsed_time;
     }
     {
-      const auto start = util::elapsed_time_sec();
+      const auto start = mdtl::elapsed_time_sec();
       dealloc_func();
-      const auto elapsed_time = util::elapsed_time_sec(start);
+      const auto elapsed_time = mdtl::elapsed_time_sec(start);
       dealloc_times[i] = elapsed_time;
     }
   }

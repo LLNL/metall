@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-/// \file
-
 #ifndef METALL_OFFSET_PTR_HPP
 #define METALL_OFFSET_PTR_HPP
 
@@ -13,7 +11,7 @@
 
 namespace metall {
 
-/// \tparam T The type of the pointee.
+/// \tparam T A type.
 /// \brief Holds an offset between the address pointing at and itself.
 template <typename T>
 using offset_ptr = boost::interprocess::offset_ptr<T>;
