@@ -56,4 +56,7 @@ using manager = basic_manager<>;
 /// \example object_attribute_api_list.cpp
 /// This is an example of how to use all API related to object attributes.
 
+/// \example metall_containers.cpp
+/// This is an example of how to use Metall containers.
+
 #endif //METALL_METALL_HPP
