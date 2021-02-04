@@ -2,7 +2,7 @@
 
 # Usage
 # cd metall/build/bench/bfs
-# sh ../../../bench/bfs/run_bench.sh -v 31 -f $((2**40)) -t 24 -s static[dynamic,10000] -g /dev/shm
+# sh run_bench.sh -v 31 -f $((2**40)) -t 24 -s static[dynamic,10000] -g /dev/shm
 
 # ----- Options----- #
 V=17

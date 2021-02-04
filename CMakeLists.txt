@@ -17,7 +17,7 @@ endif ()
 # Configuration for building test, benchmark, example, etc.
 # -------------------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
-project(Metall VERSION 0.7)
+project(Metall VERSION 0.9)
 configure_file(MetallConfig.h.in MetallConfig.h)
 
 include_directories(${PROJECT_BINARY_DIR})
@@ -41,6 +41,7 @@ option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
 option(LOGGING "Logging" OFF)
+option(USE_SORTED_BIN "Use VM space aware algorithm in the bin directory" OFF)
 
 set(DEFAULT_VM_RESERVE_SIZE "0" CACHE STRING
         "Set the default VM reserve size (use the internally defined value if 0 is specified)")
@@ -168,6 +169,11 @@ endif ()
 if (LOGGING)
     add_definitions(-DMETALL_ENABLE_LOGGING)
     message(STATUS "Enable logging")
+endif()
+
+if (USE_SORTED_BIN)
+    add_definitions(-DMETALL_USE_SORTED_BIN)
+    message(STATUS "Use VM space aware algorithm in the bin directory")
 endif()
 
 if (USE_PRIVATE_MAP_AND_MSYNC)

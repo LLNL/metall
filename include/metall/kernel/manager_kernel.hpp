@@ -475,23 +475,19 @@ class manager_kernel {
 
   // ---------------------------------------- For constructed objects ---------------------------------------- //
   template <typename T>
-  T *priv_construct_and_update_object_directory(char_ptr_holder_type name,
-                                                size_type length,
-                                                bool try2find,
-                                                bool do_throw, // ignored --- this function does not throw.
-                                                mdtl::in_place_interface &table);
+  T *priv_generic_construct(char_ptr_holder_type name,
+                            size_type length,
+                            bool try2find,
+                            bool do_throw, // ignored --- this function does not throw.
+                            mdtl::in_place_interface &table);
 
   template <typename T>
-  bool priv_update_object_directory_no_mutex(char_ptr_holder_type name, difference_type offset, size_type length);
+  bool priv_register_attr_object_no_mutex(char_ptr_holder_type name, difference_type offset, size_type length);
+
+  bool  priv_remove_attr_object_no_mutex(const difference_type offset);
 
   template <typename T>
-  bool priv_destroy_and_update_object_directory_by_name(char_ptr_holder_type name);
-
-  template <typename T>
-  bool priv_destroy_and_update_object_directory_by_offset(difference_type offset);
-
-  template <typename T>
-  void priv_destruct_and_free_memory(difference_type offset, size_type length);
+  void priv_destruct_and_free_memory(const difference_type offset, const size_type length);
 
   // ---------------------------------------- For segment ---------------------------------------- //
   bool priv_reserve_vm_region(size_type nbytes);

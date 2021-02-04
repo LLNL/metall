@@ -1,3 +1,4 @@
 add_executable(run_simple_allocation_bench_stl run_simple_allocation_bench_stl.cpp)
 add_executable(run_simple_allocation_bench_metall run_simple_allocation_bench_metall.cpp)
 add_executable(run_simple_allocation_bench_bip run_simple_allocation_bench_bip.cpp)
+configure_file(run_bench.sh run_bench.sh COPYONLY)

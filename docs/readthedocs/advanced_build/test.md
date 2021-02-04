@@ -9,7 +9,7 @@ There are two types of tests programs in Metall.
 ### Build
 
 To run tests using Google Test,
-please see [this page](./example_test_bench.md) about building the test programs.
+please see [this page](./cmake.md) about building the test programs.
 
 
 ### Run

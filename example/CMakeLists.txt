@@ -50,7 +50,7 @@ if (MPI_CXX_FOUND)
     add_executable(mpi_open mpi_open)
     target_link_libraries(mpi_open PUBLIC MPI::MPI_CXX)
     if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux")
-        target_link_libraries(mpi_create PUBLIC rt)
+        target_link_libraries(mpi_open PUBLIC rt)
     endif()
 
 else()

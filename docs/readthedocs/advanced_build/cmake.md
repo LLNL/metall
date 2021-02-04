@@ -61,9 +61,10 @@ For example,
 cd metall
 mkdir build
 cd build
-cmake ../ -DONLY_DOWNLOAD_GTEST=on # Use CMake to just download Google Test
+cmake ../ -DBUILD_TEST=ON -DONLY_DOWNLOAD_GTEST=on # Use CMake to just download Google Test
 # On a machine that does not have an internet access
 cd metall/build
+rm CMakeCache.txt
 cmake ../ -DBUILD_TEST=on -DSKIP_DOWNLOAD_GTEST=on # Add other options you want to use
 ```
 
@@ -71,7 +72,7 @@ cmake ../ -DBUILD_TEST=on -DSKIP_DOWNLOAD_GTEST=on # Add other options you want 
     * Experimental option
     * Only downloading Google Test (see more details below).
     * ON or OFF (default is OFF).
-    * If BUILD_TEST is OFF, this option does not do anything.
+    * If BUILD_TEST is OFF, this option does nothing.
 
 * SKIP_DOWNLOAD_GTEST
     * Experimental option

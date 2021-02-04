@@ -426,9 +426,13 @@ TEST(ManagerTest, ConstructException) {
     bool do_throw[2] = {false, true};
     bool wrong_destroy = false;
     bool *flags[2] = {&wrong_destroy, &wrong_destroy};
+
+    // make sure that the destructor is called for only successfully constructed objects.
     ASSERT_THROW(manager.construct_it<object>("obj")[2](&do_throw[0], &flags[0]), std::exception);
-    ASSERT_FALSE(wrong_destroy); // make sure that the destructor is called for only successfully constructed objects.
-    ASSERT_TRUE(manager.destroy<object>("obj")); // clean up the construction failed objects.
+    ASSERT_FALSE(wrong_destroy);
+
+    ASSERT_EQ(manager.find<object>("obj").first, nullptr);
+    ASSERT_EQ(manager.find<object>("obj").second, 0);
   }
 }
 

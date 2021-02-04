@@ -44,5 +44,7 @@ if (MEMKIND_ROOT)
     endif ()
 endif ()
 
+configure_file(run_bench.sh run_bench.sh COPYONLY)
+
 add_subdirectory(edge_generator)
 add_subdirectory(test)

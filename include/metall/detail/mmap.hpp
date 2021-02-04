@@ -254,19 +254,31 @@ inline bool mprotect_read_write(void *const addr, const size_t length) {
   return os_mprotect(addr, length, PROT_READ | PROT_WRITE);
 }
 
+// Does not log message because there are many situation where madvise fails
+inline bool os_madvise(void *const addr, const size_t length, const int advice, const std::size_t loop_safe_guard = 4) {
+  int ret = -1;
+  std::size_t loop_count = 0;
+  do {
+    ret = ::madvise(addr, length, advice);
+    ++loop_count;
+  } while (ret == -1 && errno == EAGAIN && loop_count < loop_safe_guard);
+
+  return (ret == 0);
+}
+
 // NOTE: the MADV_FREE operation can be applied only to private anonymous pages.
 inline bool uncommit_private_pages(void *const addr, const size_t length) {
 #ifdef MADV_FREE
-  if (::madvise(addr, length, MADV_FREE) != 0) {
-    logger::perror(logger::level::warning, __FILE__, __LINE__, "madvise MADV_FREE");
+  if (!os_madvise(addr, length, MADV_FREE)) {
+    logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_FREE");
     return false;
   }
 #else
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "MADV_FREE is not defined. Metall uses MADV_DONTNEED instead."
 #endif
-  if (::madvise(addr, length, MADV_DONTNEED) != 0) {
-    logger::perror(logger::level::warning, __FILE__, __LINE__, "madvise MADV_DONTNEED");
+  if (!os_madvise(addr, length, MADV_DONTNEED)) {
+    logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_DONTNEED");
     return false;
   }
 #endif
@@ -274,8 +286,8 @@ inline bool uncommit_private_pages(void *const addr, const size_t length) {
 }
 
 inline bool uncommit_shared_pages(void *const addr, const size_t length) {
-  if (::madvise(addr, length, MADV_DONTNEED) != 0) {
-    logger::perror(logger::level::warning, __FILE__, __LINE__, "madvise MADV_DONTNEED");
+  if (!os_madvise(addr, length, MADV_DONTNEED)) {
+    logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_DONTNEED");
     return false;
   }
   return true;
@@ -284,9 +296,9 @@ inline bool uncommit_shared_pages(void *const addr, const size_t length) {
 inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
                                        [[maybe_unused]] const size_t length) {
 #if !defined(METALL_DISABLE_FREE_FILE_SPACE) && defined(__linux__) && defined(MADV_REMOVE)
-  if (::madvise(addr, length, MADV_REMOVE) != 0) {
-    logger::perror(logger::level::warning, __FILE__, __LINE__, "madvise MADV_REMOVE");
-    return false;
+  if (!os_madvise(addr, length, MADV_REMOVE)) {
+    logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_REMOVE");
+    return uncommit_shared_pages(addr, length);
   }
   return true;
 #else

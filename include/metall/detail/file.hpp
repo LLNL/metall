@@ -100,7 +100,7 @@ inline bool fsync_recursive(const std::string &path) {
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "Cannot call fsync recursively"
 #endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-    return fsync(path);
+  return fsync(path);
 #endif
 }
 
@@ -153,8 +153,8 @@ inline bool extend_file_size(const int fd, const size_t file_size, const bool fi
   return ret;
 }
 
-inline bool extend_file_size(const std::string &file_name, const size_t file_size, const bool fill_with_zero = false) {
-  const int fd = ::open(file_name.c_str(), O_RDWR);
+inline bool extend_file_size(const std::string &file_path, const size_t file_size, const bool fill_with_zero = false) {
+  const int fd = ::open(file_path.c_str(), O_RDWR);
   if (fd == -1) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
@@ -167,6 +167,13 @@ inline bool extend_file_size(const std::string &file_name, const size_t file_siz
 }
 
 /// \brief Check if a file, any kinds of file including directory, exists
+/// \warning This implementation could return a wrong result due to metadata cache on NFS.
+/// The following code could fail:
+/// if (mpi_rank == 1) file_exist(path); // NFS creates metadata cache
+/// mpi_barrier();
+/// if (mpi_rank == 0) create_directory(path);
+/// mpi_barrier();
+/// if (mpi_rank == 1) assert(file_exist(path)); // Could fail due to the cached metadata.
 inline bool file_exist(const std::string &file_name) {
   std::string fixed_string(file_name);
   while (fixed_string.back() == '/') {
@@ -176,17 +183,18 @@ inline bool file_exist(const std::string &file_name) {
 }
 
 /// \brief Check if a directory exists
+/// \warning This implementation could return a wrong result due to metadata cache on NFS.
 inline bool directory_exist(const std::string &dir_path) {
   struct stat stat_buf;
   if (::stat(dir_path.c_str(), &stat_buf) == -1) {
     return false;
   }
-  return (uint64_t)S_IFDIR & (uint64_t)(stat_buf.st_mode);
+  return S_ISDIR(stat_buf.st_mode);
 }
 
-inline bool create_file(const std::string &file_name) {
+inline bool create_file(const std::string &file_path) {
 
-  const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  const int fd = ::open(file_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
@@ -195,36 +203,36 @@ inline bool create_file(const std::string &file_name) {
   if (!os_close(fd))
     return false;
 
-  return fsync_recursive(file_name);
+  return fsync_recursive(file_path);
 }
 
 #if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
 /// \brief Creates directories recursively.
-/// \return Returns true if the directory was created or already exists, returns true.
+/// \return Returns true if the directory was created or already exists.
 /// Otherwise, returns false.
 inline bool create_directory(const std::string &dir_path) {
 
-  if (directory_exist(dir_path)) {
-    return true;
-  }
-
-  bool success = true;
-  try {
-    std::string fixed_string = dir_path;
-
-    // MEMO: GCC bug 87846 (fixed in v8.3)
-    // "Calling std::filesystem::create_directories with a path with a trailing separator (e.g. "./a/b/")
-    // does not create any directory."
+  std::string fixed_string = dir_path;
+  // MEMO: GCC bug 87846 (fixed in v8.3)
+  // "Calling std::filesystem::create_directories with a path with a trailing separator (e.g. "./a/b/")
+  // does not create any directory."
 #if (defined(__GNUG__) && !defined(__clang__)) && (__GNUC__ < 8 || (__GNUC__ == 8 && __GNUC_MINOR__ < 3)) // Check if < GCC 8.3
-    // Remove trailing separator(s) if they exist:
+  // Remove trailing separator(s) if they exist:
     while (fixed_string.back() == '/') {
       fixed_string.pop_back();
     }
 #endif
 
+  bool success = true;
+  try {
     std::error_code ec;
     if (!fs::create_directories(fixed_string, ec)) {
-      // If the directory exist, create_directories returns false although error_code says 'Success'.
+      if (!ec) {
+        // if the directory exist, create_directories returns false.
+        // However, std::error_code is cleared and !ec returns true.
+        return true;
+      }
+
       logger::out(logger::level::error, __FILE__, __LINE__, ec.message());
       success = false;
     }
@@ -232,6 +240,7 @@ inline bool create_directory(const std::string &dir_path) {
     logger::out(logger::level::error, __FILE__, __LINE__, e.what());
     success = false;
   }
+
   return success;
 }
 #else
@@ -239,9 +248,6 @@ inline bool create_directory(const std::string &dir_path) {
 /// \return Returns true if the directory was created or already exists, returns true.
 /// Otherwise, returns false.
 inline bool create_directory(const std::string &dir_path) {
-  if (directory_exist(dir_path)) {
-    return true;
-  }
 
   std::string mkdir_command("mkdir -p " + dir_path);
   const int status = std::system(mkdir_command.c_str());
@@ -249,12 +255,12 @@ inline bool create_directory(const std::string &dir_path) {
 }
 #endif
 
-inline ssize_t get_file_size(const std::string &file_name) {
-  std::ifstream ifs(file_name, std::ifstream::binary | std::ifstream::ate);
+inline ssize_t get_file_size(const std::string &file_path) {
+  std::ifstream ifs(file_path, std::ifstream::binary | std::ifstream::ate);
   ssize_t size = ifs.tellg();
   if (size == -1) {
     std::stringstream ss;
-    ss << "Failed to get file size: " << file_name;
+    ss << "Failed to get file size: " << file_path;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
   }
 
@@ -264,10 +270,10 @@ inline ssize_t get_file_size(const std::string &file_name) {
 /// \brief
 /// Note that, according to GCC,
 /// the file system may use some blocks for internal record keeping
-inline ssize_t get_actual_file_size(const std::string &file_name) {
+inline ssize_t get_actual_file_size(const std::string &file_path) {
   struct stat stat_buf;
-  if (::stat(file_name.c_str(), &stat_buf) != 0) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "stat (" + file_name + ")");
+  if (::stat(file_path.c_str(), &stat_buf) != 0) {
+    logger::perror(logger::level::error, __FILE__, __LINE__, "stat (" + file_path + ")");
     return -1;
   }
   return stat_buf.st_blocks * 512LL;
@@ -386,4 +392,5 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 #endif
 
 } // namespace metall::mtlldetail
+
 #endif //METALL_DETAIL_UTILITY_FILE_HPP
