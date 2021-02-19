@@ -101,25 +101,7 @@ class umap_sparse_segment_storage {
   /// This is a static version of size() method.
   static size_type get_size(const std::string &base_path) {
     const auto directory_name = priv_make_file_name(base_path);
-    DIR *dir;
-    struct dirent *ent;
-    ssize_t total_size = 0;
-    if ((dir = opendir (directory_name.c_str())) != NULL) {
-      while ((ent = readdir (dir)) != NULL) {
-        std::string d_name_string(ent->d_name);
-        if (d_name_string.find("metadata") == std::string::npos
-            && d_name_string.find(".") == std::string::npos
-            && d_name_string.find("..") == std::string::npos){
-          total_size += mdtl::get_file_size(directory_name + "/" + d_name_string);
-        }
-      }
-      closedir (dir);
-    }
-    else {
-      perror ("");
-      return 0;
-    }
-    return total_size;
+    return Umap::SparseStore::get_capacity(directory_name);
   }
 
   /// \brief Creates a new segment by mapping file(s) to the given VM address.
@@ -182,9 +164,10 @@ class umap_sparse_segment_storage {
       return false;
     } 
     
-    m_segment_size = get_size(m_base_path);
+    // store = new Umap::SparseStore(file_name,read_only);
+    m_segment_size = get_size(base_path);// store->get_current_capacity(); 
     assert(m_segment_size % page_size() == 0);
-    if (!priv_map_file(file_name, m_segment_size, static_cast<char *>(m_segment), read_only)) {
+    if (!priv_map_file_open(file_name, m_segment_size, static_cast<char *>(m_segment), read_only)) { // , store)) {
       std::abort(); // Fatal error
     }
 
@@ -290,8 +273,7 @@ class umap_sparse_segment_storage {
     assert(!m_segment || static_cast<char *>(m_segment) + m_segment_size <= addr);
 
     const std::string file_name = priv_make_file_name(base_path);
-
-    if (!priv_map_file(file_name, file_size, addr, false)) {
+    if (!priv_map_file_create(file_name, file_size, addr)) {
       return false;
     }
     return true;
@@ -304,34 +286,30 @@ class umap_sparse_segment_storage {
       file_granularity = SPARSE_STORE_FILE_GRANULARITY_DEFAULT;
     }
     else{
-      std::cout << "FILE GRANULARITY STR: " << file_granularity_str << std::endl;
       file_granularity = (size_t) std::stol(file_granularity_str);
-      std::cout << "FILE GRANULARITY: " << file_granularity << std::endl;
     }
     return file_granularity; 
   }
 
-  bool priv_map_file(const std::string &path, const size_type file_size, void *const addr, const bool read_only) const {
+  bool priv_map_file_create(const std::string &path, const size_type file_size, void *const addr) const {
     assert(!path.empty());
     assert(file_size > 0);
     assert(addr);
 
-    // MEMO: one of the following options does not work on /tmp?
+    
 
     
-    size_t sparse_file_granularity = priv_get_sparsestore_file_granularity();// 230686720;/* 57713623; */ // file_size / 1024;
+    size_t sparse_file_granularity = priv_get_sparsestore_file_granularity();
     size_t page_size = umapcfg_get_umap_page_size();
     if (page_size == -1) {
       ::perror("umapcfg_get_umap_page_size failed");
       std::cerr << "errno: " << errno << std::endl;
     }
-
+    
+    
     store = new Umap::SparseStore(file_size,page_size,path,sparse_file_granularity);
-    if (store->get_directory_creation_status() != 0){
-       std::cout << "Error: Failed to create backing directory for SparseStore " << path << std::endl;
-       return false;
-     }
-    const int prot = PROT_READ | (read_only ? 0 : PROT_WRITE);
+    
+    const int prot = PROT_READ | PROT_WRITE;
     const int flags = UMAP_PRIVATE | MAP_FIXED;
     void *const region = Umap::umap_ex(addr, file_size, prot, flags, -1, 0,store);
     if (region == UMAP_FAILED) {
@@ -344,6 +322,36 @@ class umap_sparse_segment_storage {
  
     return true;
   }
+
+  bool priv_map_file_open(const std::string &path, const size_type file_size, void *const addr, const bool read_only){
+    assert(!path.empty());
+    assert(addr);
+
+    // MEMO: one of the following options does not work on /tmp?
+
+    size_t page_size = umapcfg_get_umap_page_size();
+    if (page_size == -1) {
+      ::perror("umapcfg_get_umap_page_size failed");
+      std::cerr << "errno: " << errno << std::endl;
+    }
+    
+    
+    store = new Umap::SparseStore(path,read_only);
+    uint64_t region_size = file_size;
+
+    const int prot = PROT_READ | (read_only ? 0 : PROT_WRITE);
+    const int flags = UMAP_PRIVATE | MAP_FIXED;
+    void *const region = Umap::umap_ex(addr, region_size, prot, flags, -1, 0,store);
+    if (region == UMAP_FAILED) {
+      std::ostringstream ss;
+      ss << "umap_mf of " << region_size << " bytes failed for " << path;
+      perror(ss.str().c_str());
+      return false;
+    }
+ 
+    return true;
+  }
+
 
   void priv_unmap_file() {
 
