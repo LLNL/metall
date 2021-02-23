@@ -16,6 +16,7 @@
 #include <metall/detail/mmap.hpp>
 #include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
+#include <metall/utility/pagemap.hpp>
 
 namespace metall {
 namespace kernel {
@@ -426,7 +427,8 @@ class mmap_segment_storage {
       while (true) {
         const auto block_no = block_no_count.fetch_add(1);
         if (block_no < m_block_fd_list.size()) {
-          priv_diff_msync(block_no);
+          // priv_diff_msync(block_no);
+          priv_pagemap_msync(block_no);
         } else {
           break;
         }
@@ -497,6 +499,29 @@ class mmap_segment_storage {
 
     return true;
   }
+
+  bool priv_pagemap_msync(const size_type block_no) const{
+    std::cout << "Welcome from pagemap msync :)" << std::endl;
+    const auto fd = m_block_fd_list[block_no];
+    const auto private_map = static_cast<char *>(m_segment) + block_no * m_block_size;
+
+    uint64_t pagesize = 4096;
+
+    uint64_t * pagemap_raw_data = utility::read_raw_pagemap((void*) private_map, m_block_size);
+
+    for (size_t page_index = 0; page_index < (m_block_size / pagesize); page_index++){
+
+      uint64_t pagemap_raw_data_entry = pagemap_raw_data[page_index];
+      utility::PagemapEntry pme = utility::parse_pagemap_entry(pagemap_raw_data_entry);
+      if(!pme.file_page && (pme.present || pme.swapped)){
+        pwrite(fd ,(private_map + page_index * pagesize), pagesize, (page_index * pagesize)); 
+      }
+    }
+    delete [] pagemap_raw_data;
+    return true;
+  }
+
+  
 
   bool priv_parallel_write_block() const {
     const auto num_threads = (int)std::min(m_block_fd_list.size(), (std::size_t)std::thread::hardware_concurrency());
