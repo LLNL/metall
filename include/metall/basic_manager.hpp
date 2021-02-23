@@ -11,6 +11,7 @@
 
 #include <metall/tags.hpp>
 #include <metall/stl_allocator.hpp>
+#include <metall/container/scoped_allocator.hpp>
 #include <metall/kernel/manager_kernel.hpp>
 #include <metall/detail/named_proxy.hpp>
 
@@ -50,6 +51,10 @@ class basic_manager {
   /// \brief Allocator type
   template <typename T>
   using allocator_type = stl_allocator<T, manager_kernel_type>;
+
+  /// \brief Allocator type wrapped by scoped_allocator_adaptor
+  template <typename OuterT, typename... InnerT>
+  using scoped_allocator_type = container::scoped_allocator_adaptor<allocator_type<OuterT>, allocator_type<InnerT>...>;
 
   /// \brief Construct proxy
   template <typename T>

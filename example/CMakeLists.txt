@@ -33,6 +33,8 @@ add_executable(static_mutex static_mutex)
 
 add_executable(concurrent_map concurrent_map)
 
+add_executable(metall_containers metall_containers)
+
 if (BUILD_C)
     add_executable(c_api c_api.c)
     target_link_libraries(c_api metall_c)
@@ -48,7 +50,7 @@ if (MPI_CXX_FOUND)
     add_executable(mpi_open mpi_open)
     target_link_libraries(mpi_open PUBLIC MPI::MPI_CXX)
     if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux")
-        target_link_libraries(mpi_create PUBLIC rt)
+        target_link_libraries(mpi_open PUBLIC rt)
     endif()
 
 else()
