@@ -44,10 +44,13 @@ class mmap_segment_storage {
         m_free_file_space(true),
         m_block_fd_list(),
         m_block_size(0) {
-#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC
+#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC is defined");
 #endif
 #ifdef METALL_USE_PRIVATE_MAP_AND_PWRITE
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
+#endif
+#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
 #endif
 
@@ -351,7 +354,7 @@ class mmap_segment_storage {
 
     const auto ret = (read_only) ?
                      mdtl::map_file_read_mode(path, map_addr, file_size, 0, MAP_FIXED) :
-                     #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+                     #if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF ||METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP || METALL_USE_PRIVATE_MAP_AND_PWRITE)
                      mdtl::map_file_write_private_mode(path, map_addr, file_size, 0, MAP_FIXED);
 #else
     mdtl::map_file_write_mode(path, map_addr, file_size, 0, MAP_FIXED | map_nosync);
@@ -396,9 +399,9 @@ class mmap_segment_storage {
       return;
     }
 
-#if METALL_USE_PRIVATE_MAP_AND_MSYNC
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP)
     logger::out(logger::level::info, __FILE__, __LINE__, "diff-msync for the application data segment");
-    priv_parallel_diff_msync();
+    priv_parallel_msync();
 #elif METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "pwrite() for the application data segment");
     priv_parallel_write_block();
@@ -418,7 +421,7 @@ class mmap_segment_storage {
     }
   }
 
-  bool priv_parallel_diff_msync() const {
+  bool priv_parallel_msync() const {
     const auto num_threads = (int)std::min(m_block_fd_list.size(), (std::size_t)std::thread::hardware_concurrency());
     std::vector<std::thread *> threads(num_threads, nullptr);
     std::atomic_uint_fast64_t block_no_count = 0;
@@ -427,8 +430,11 @@ class mmap_segment_storage {
       while (true) {
         const auto block_no = block_no_count.fetch_add(1);
         if (block_no < m_block_fd_list.size()) {
-          // priv_diff_msync(block_no);
+        #if METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
+          priv_diff_msync(block_no);
+        #elif METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
           priv_pagemap_msync(block_no);
+        #endif
         } else {
           break;
         }
@@ -501,7 +507,7 @@ class mmap_segment_storage {
   }
 
   bool priv_pagemap_msync(const size_type block_no) const{
-    std::cout << "Welcome from pagemap msync :)" << std::endl;
+
     const auto fd = m_block_fd_list[block_no];
     const auto private_map = static_cast<char *>(m_segment) + block_no * m_block_size;
 
