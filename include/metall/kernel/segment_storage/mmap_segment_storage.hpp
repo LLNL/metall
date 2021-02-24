@@ -515,12 +515,27 @@ class mmap_segment_storage {
 
     uint64_t * pagemap_raw_data = utility::read_raw_pagemap((void*) private_map, m_block_size);
 
+    if (pagemap_raw_data == nullptr){
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to read pagemap for block: " + std::to_string(block_no));
+      return false;
+    }
+
     for (size_t page_index = 0; page_index < (m_block_size / pagesize); page_index++){
 
       uint64_t pagemap_raw_data_entry = pagemap_raw_data[page_index];
       utility::PagemapEntry pme = utility::parse_pagemap_entry(pagemap_raw_data_entry);
       if(!pme.file_page && (pme.present || pme.swapped)){
-        pwrite(fd ,(private_map + page_index * pagesize), pagesize, (page_index * pagesize)); 
+        size_t written = pwrite(fd ,(private_map + page_index * pagesize), pagesize, (page_index * pagesize));
+        if (written == -1){
+          logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to write page with address: " + std::to_string((uint64_t)(private_map + page_index * pagesize)) +"For block: "+ std::to_string(block_no));
+          return false;
+        }
       }
     }
     delete [] pagemap_raw_data;

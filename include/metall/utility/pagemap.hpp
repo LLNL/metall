@@ -38,7 +38,7 @@ namespace metall::utility{
   uint64_t * read_raw_pagemap(void* vaddr, size_t length){
     int pagemap_fd = open("/proc/self/pagemap", O_RDONLY);
     if (pagemap_fd == -1){
-      std::cout << "Error: Failed to open /proc/self/pagemap - " << std::endl;
+      std::cout << "Error: Failed to open /proc/self/pagemap - " << strerror(errno) << std::endl;
       return nullptr;
     }
     
