@@ -513,6 +513,7 @@ class mmap_segment_storage {
 
     uint64_t pagesize = 4096;
 
+    // Get pagemap data for the entire block
     uint64_t * pagemap_raw_data = utility::read_raw_pagemap((void*) private_map, m_block_size);
 
     if (pagemap_raw_data == nullptr){
@@ -523,11 +524,14 @@ class mmap_segment_storage {
       return false;
     }
 
+    bool in_dirty_block = false;
+    uint64_t write_start;
+    uint64_t write_count;
     for (size_t page_index = 0; page_index < (m_block_size / pagesize); page_index++){
 
       uint64_t pagemap_raw_data_entry = pagemap_raw_data[page_index];
       utility::PagemapEntry pme = utility::parse_pagemap_entry(pagemap_raw_data_entry);
-      if(!pme.file_page && (pme.present || pme.swapped)){
+      /* if(!pme.file_page && (pme.present || pme.swapped)){
         size_t written = pwrite(fd ,(private_map + page_index * pagesize), pagesize, (page_index * pagesize));
         if (written == -1){
           logger::out(logger::level::critical,
@@ -536,13 +540,44 @@ class mmap_segment_storage {
                   "Failed to write page with address: " + std::to_string((uint64_t)(private_map + page_index * pagesize)) +"For block: "+ std::to_string(block_no));
           return false;
         }
+      } */
+      if(!pme.file_page && (pme.present || pme.swapped)){
+        if(!in_dirty_block){
+          in_dirty_block = true;
+          write_start = ((uint64_t) private_map) + page_index * pagesize;
+          write_count = pagesize;
+        }
+        else{
+          write_count += pagesize;
+        }
+
+        if(page_index == (m_block_size / pagesize - 1)){
+          size_t written = pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
+          if (written == -1){
+            logger::out(logger::level::critical,
+                    __FILE__,
+                    __LINE__,
+                    "Failed to write page with address: " + std::to_string(write_start) +"For block: "+ std::to_string(block_no));
+            return false;
+          }
+        }
+      }
+      else if(in_dirty_block){
+        size_t written = pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
+        if (written == -1){
+          logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to write page with address: " + std::to_string(write_start) +"For block: "+ std::to_string(block_no));
+          return false;
+        }
+        in_dirty_block = false;
       }
     }
     delete [] pagemap_raw_data;
     return true;
   }
 
-  
 
   bool priv_parallel_write_block() const {
     const auto num_threads = (int)std::min(m_block_fd_list.size(), (std::size_t)std::thread::hardware_concurrency());
