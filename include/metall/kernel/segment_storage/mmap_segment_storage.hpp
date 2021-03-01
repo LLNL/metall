@@ -514,6 +514,11 @@ class mmap_segment_storage {
     uint64_t pagesize = 4096;
 
     // Get pagemap data for the entire block
+
+    // Start: temp timer
+    const auto read_start = std::chrono::high_resolution_clock::now();
+    // End: temp timer
+
     uint64_t * pagemap_raw_data = utility::read_raw_pagemap((void*) private_map, m_block_size);
 
     if (pagemap_raw_data == nullptr){
@@ -523,6 +528,13 @@ class mmap_segment_storage {
                   "Failed to read pagemap for block: " + std::to_string(block_no));
       return false;
     }
+    // Start: temp timer
+    const auto read_duration_micro = std::chrono::high_resolution_clock::now() - read_start;
+    const auto read_duration = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(read_duration_micro).count()) / 1e6;
+    std::cout << "Reading raw pagemap too: " << read_duration << " seconds" << std::endl;
+    
+    const auto write_start_time = std::chrono::high_resolution_clock::now();
+    // End:  temp timer
 
     bool in_dirty_block = false;
     uint64_t write_start;
@@ -531,16 +543,7 @@ class mmap_segment_storage {
 
       uint64_t pagemap_raw_data_entry = pagemap_raw_data[page_index];
       utility::PagemapEntry pme = utility::parse_pagemap_entry(pagemap_raw_data_entry);
-      /* if(!pme.file_page && (pme.present || pme.swapped)){
-        size_t written = pwrite(fd ,(private_map + page_index * pagesize), pagesize, (page_index * pagesize));
-        if (written == -1){
-          logger::out(logger::level::critical,
-                  __FILE__,
-                  __LINE__,
-                  "Failed to write page with address: " + std::to_string((uint64_t)(private_map + page_index * pagesize)) +"For block: "+ std::to_string(block_no));
-          return false;
-        }
-      } */
+
       if(!pme.file_page && (pme.present || pme.swapped)){
         if(!in_dirty_block){
           in_dirty_block = true;
@@ -574,6 +577,13 @@ class mmap_segment_storage {
         in_dirty_block = false;
       }
     }
+
+    // Start: temp timer
+    const auto write_duration_micro = std::chrono::high_resolution_clock::now() - write_start_time;
+    const auto write_duration = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(write_duration_micro).count()) / 1e6;
+    std::cout << "Write took: " << write_duration  << " seconds" << std::endl;
+    // End:   temp timer
+
     delete [] pagemap_raw_data;
     return true;
   }
