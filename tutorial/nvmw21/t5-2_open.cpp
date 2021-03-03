@@ -21,6 +21,7 @@ int main() {
 
   if (metall::manager::consistent("/tmp/snapshot")) {
     metall::manager manager(metall::open_read_only, "/tmp/snapshot");
+    std::cout << "Opened /tmp/snapshot" << std::endl;
     auto *n = manager.find<int>("n").first;
     std::cout << *n << std::endl;
   } else {
