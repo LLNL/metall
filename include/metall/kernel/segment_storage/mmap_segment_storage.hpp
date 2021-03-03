@@ -255,7 +255,7 @@ class mmap_segment_storage {
     priv_sync_segment(sync);
   }
 
-  /// \brief Tries to free the specified region in DRAM and storage layers.
+  /// \brief Tries to free the specified region in DRAM and file(s).
   /// The actual behavior depends on the system running on.
   /// \param offset An offset to the region from the beginning of the segment.
   /// \param nbytes The size of the region.
@@ -571,12 +571,12 @@ class mmap_segment_storage {
     if (offset + nbytes > m_current_segment_size) return false;
 
     if (m_free_file_space)
-      return priv_free_file_backed_region(offset, nbytes);
+      return priv_uncommit_pages_and_free_file_space(offset, nbytes);
     else
       return priv_uncommit_pages(offset, nbytes);
   }
 
-  bool priv_free_file_backed_region(const different_type offset, const size_type nbytes) const {
+  bool priv_uncommit_pages_and_free_file_space(const different_type offset, const size_type nbytes) const {
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     // Uncommit pages in DRAM first
     if (!mdtl::uncommit_private_pages(static_cast<char *>(m_segment) + offset, nbytes)) return false;

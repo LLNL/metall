@@ -15,13 +15,14 @@ namespace mc = boost::container;
 }
 
 // An example of an allocator-aware data structure (2D array)
-// This data structure does not contain any code that is only required to Metall
+// It is to be emphasized that this data structure does not contain any code that is only dedicated for Metall
 template <typename T, typename Alloc = std::allocator<T>>
 class matrix {
  public:
   explicit matrix(Alloc alloc = Alloc()) :
       m_matrix(alloc) {}
 
+  // Change capacity
   void resize(int num_rows, int num_cols) {
     m_matrix.resize(num_rows);
     for (auto &vec : m_matrix) {
@@ -29,10 +30,12 @@ class matrix {
     }
   }
 
+  // Set a value
   void set(int row, int col, T value) {
     m_matrix[row][col] = value;
   }
 
+  // Returns a value
   T get(int row, int col) {
     return m_matrix[row][col];
   }
@@ -49,6 +52,9 @@ class matrix {
 };
 
 
+// --------------------
+//  Helper functions
+// --------------------
 template <typename matrix_t>
 void init_matrix(matrix_t& mx) {
   mx.resize(2, 2);

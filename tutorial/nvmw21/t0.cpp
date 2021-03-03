@@ -3,8 +3,10 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows how to allocate memory using Metall.
+
 #include <iostream>
-#include <metall/metall.hpp> // Only one header file is required to be included
+#include <metall/metall.hpp>
 
 int main() {
 
@@ -12,7 +14,7 @@ int main() {
 
   // Allocate 'sizeof(int)' bytes, like malloc(sizeof(int))
   // The object is allocated into persistent memory;
-  // however, one cannot reattached this object without storing its location.
+  // however, one cannot reattached this object without storing its address.
   int *n = (int *)manager.allocate(sizeof(int));
 
   *n = 10;

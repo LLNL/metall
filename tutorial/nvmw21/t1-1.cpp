@@ -3,11 +3,14 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program allocates an simple (int) object and reattaches it using Metall.
+
 #include <iostream>
-#include <metall/metall.hpp> // Only one header file is required to be included
+#include <metall/metall.hpp>
 
 int main() {
 
+  // Creating data into persistent memory
   {
     metall::manager manager(metall::create_only, "/tmp/dir");
 
@@ -16,6 +19,11 @@ int main() {
                     (10); // Call a constructor of the object
   }
 
+  // ----------------------------------------------------------------------------------------------------
+  // Assume that this program exits here and the following code block is executed as another run
+  // ----------------------------------------------------------------------------------------------------
+
+  // Reattaching the data
   {
     metall::manager manager(metall::open_only, "/tmp/dir");
 

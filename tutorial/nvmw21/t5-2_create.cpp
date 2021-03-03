@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows the crash consistency of Metall snapshot
+
 #include <iostream>
 #include <metall/metall.hpp>
 
@@ -13,8 +15,10 @@ int main() {
   *n = 10;
 
   manager.snapshot("/tmp/snapshot");
+  std::cout << "Created a snapshot" << std::endl;
 
   *n = 20;
+  std::cout << "Going to abort (simulating a fatal error)" << std::endl;
   std::abort(); // Assumes that a fatal error happens here, i.e., Metall "/tmp/dir" is not closed properly.
 
   return 0;

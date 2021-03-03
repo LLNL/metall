@@ -3,19 +3,24 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows how to make and use an allocator-aware data structure.
+
 #include <iostream>
 #include <metall/metall.hpp>
 #include "t4-2.hpp"
 
+using persit_matrix = matrix<float, metall::manager::allocator_type<float>>;
+
 int main() {
 
-  using persit_matrix = matrix<float, metall::manager::allocator_type<float>>;
+  // Creating data into persistent memory
   {
     metall::manager manager(metall::create_only, "/tmp/dir");
     auto *mx = manager.construct<persit_matrix>("mx")(manager.get_allocator());
     init_matrix(*mx);
   }
 
+  // Reattaching the data
   {
     metall::manager manager(metall::open_only, "/tmp/dir");
     auto* mx = manager.find<persit_matrix>("mx").first;

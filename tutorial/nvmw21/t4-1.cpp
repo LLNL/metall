@@ -3,20 +3,24 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows how to make and use an allocator-aware data structure.
+
 #include <iostream>
 #include <metall/metall.hpp>
 #include "t4-1.hpp"
 
+using persit_array = dynamic_array<int, metall::manager::allocator_type<int>>;
+
 int main() {
 
-  using persit_array = dynamic_array<int, metall::manager::allocator_type<int>>;
-
+  // Creating data into persistent memory
   {
     metall::manager manager(metall::create_only, "/tmp/dir");
     auto *array = manager.construct<persit_array>("array")(manager.get_allocator());
     init(*array);
   }
 
+  // Reattaching the data
   {
     metall::manager manager(metall::open_only, "/tmp/dir");
     auto* array = manager.find<persit_array>("array").first;

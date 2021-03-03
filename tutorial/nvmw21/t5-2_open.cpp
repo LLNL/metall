@@ -3,28 +3,31 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows how to open existing Metall data store, checking whether it is consistent
+// Please execute t5-2_create.cpp beforehand
+
 #include <iostream>
 #include <metall/metall.hpp>
-
-// Please execute t5-2_create beforehand.
 
 int main() {
 
   if (metall::manager::consistent("/tmp/dir")) {
     metall::manager manager(metall::open_read_only, "/tmp/dir");
+    std::cout << "Opened /tmp/dir" << std::endl;
     auto *n = manager.find<int>("n").first;
     std::cout << *n << std::endl;
   } else {
-    // This line will be executed since "/tmp/dir" was not closed properly.
-    std::cerr << "Inconsistent data --- /tmp/dir was not closed properly" << std::endl;
+    // This block will be executed since "/tmp/dir" was not closed properly.
+    std::cerr << "Inconsistent Metall data store --- /tmp/dir was not closed properly" << std::endl;
   }
 
   if (metall::manager::consistent("/tmp/snapshot")) {
     metall::manager manager(metall::open_read_only, "/tmp/snapshot");
+    std::cout << "Opened /tmp/snapshot" << std::endl;
     auto *n = manager.find<int>("n").first;
     std::cout << *n << std::endl;
   } else {
-    std::cerr << "Inconsistent data --- /tmp/snapshot was not closed properly" << std::endl;
+    std::cerr << "Inconsistent Metall data store --- /tmp/snapshot was not closed properly" << std::endl;
   }
 
   return 0;
