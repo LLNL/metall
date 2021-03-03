@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows the crash consistency of Metall snapshot
+
 #include <iostream>
 #include <metall/metall.hpp>
 

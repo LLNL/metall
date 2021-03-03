@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows how to use multi-layer STL containers with Metall
+
 #include <iostream>
 #include <metall/metall.hpp>
 #include <metall/container/vector.hpp>
@@ -13,7 +15,9 @@ using inner_vector_t = metall::container::vector<int>;
 // Vector of vectors with scoped allocator adaptor
 // In multi-level containers, one has to use scoped_allocator_adaptor in the most outer container
 // so that the inner containers obtain their allocator arguments from the outer container's scoped_allocator_adaptor
-// See: https://en.cppreference.com/w/cpp/memory/scoped_allocator_adaptor
+// (see details: https://en.cppreference.com/w/cpp/memory/scoped_allocator_adaptor)
+// metall::manager has an allocator that is already wrapped with scoped allocator adaptor so that
+// applications can use simple statements.
 using outer_vector_type = metall::container::vector<inner_vector_t,
                                                     metall::manager::scoped_allocator_type<inner_vector_t>>;
 

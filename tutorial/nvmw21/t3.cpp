@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-// This is an example shows how to store pointers in persistent memory using the offset pointer
+// This program shows how to store pointers in persistent memory using the offset pointer
 
 #include <iostream>
 #include <metall/metall.hpp>

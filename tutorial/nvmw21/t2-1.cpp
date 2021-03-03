@@ -3,8 +3,12 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+// This program shows how to use STL containers with Metall
+
 #include <iostream>
-#include <metall/metall.hpp> // Only one header file is required to be included
+#include <metall/metall.hpp>
+
+// Metall contains basic STL containers that use metall as their default allocators.
 #include <metall/container/vector.hpp>
 
 int main() {
