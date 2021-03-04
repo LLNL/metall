@@ -24,7 +24,7 @@ tar xvf boost_1_75_0.tar.gz
 export BOOST_ROOT=$PWD/boost_1_75_0
 
 git clone https://github.com/LLNL/metall
-cd metall/tutorial/nvmw21/hands_on
+cd metall/tutorial/nvmw21
 g++ -std=c++17 [tutorial_program.cpp] -lstdc++fs -I../../include -I${BOOST_ROOT}
 
 # All tutorial programs does not take command-line options
