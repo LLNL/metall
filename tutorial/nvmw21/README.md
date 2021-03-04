@@ -9,11 +9,13 @@
 ![](tutorial_flow.png)
 
 
-## 2-2. Build and Run Hands-on Programs
+## 2-2. Build and Run
 
-### 2-2-1. Required
+**Required**
+
 - GCC 8.1 or more
 
+**Build example**
 ```bash
 # Download Boost (Boost C++ Libraries 1.64 or more is required)
 # One can skip this step if Boost is already available.
@@ -30,7 +32,7 @@ g++ -std=c++17 [tutorial_program.cpp] -lstdc++fs -I../../include -I${BOOST_ROOT}
 ```
 
 
-###  2-2-2. Build using Clang (or Apple clang)
+## 2-3. (optional) Build using Clang or Apple clang
 
 Clang (or Apple clang) could be used instead of GCC to build Metall.
 However, please note that we haven't tested it intensively.
