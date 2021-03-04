@@ -1,9 +1,18 @@
-# Run Tutorial Programs
+# 1. Lecture Materials
 
-## Required
+* [metall_lecture_slides.pdf](metall_lecture_slides.pdf)
+
+# 2. Hands-on Programs
+
+## 2-1. Recommended Flow
+![Recommended flow to try hands-on programs](tutorial_programs_flow.png)
+
+
+## 2-2. Build and Run Hands-on Programs
+
+### 2-2-1. Required
 - GCC 8.1 or more
 
-## Build and Run
 ```bash
 # Download Boost (Boost C++ Libraries 1.64 or more is required)
 # One can skip this step if Boost is already available.
@@ -12,7 +21,7 @@ tar xvf boost_1_75_0.tar.gz
 export BOOST_ROOT=$PWD/boost_1_75_0
 
 git clone https://github.com/LLNL/metall
-cd metall/tutorial/nvmw21
+cd metall/tutorial/nvmw21/hands_on
 g++ -std=c++17 [tutorial_program.cpp] -lstdc++fs -I../../include -I${BOOST_ROOT}
 
 # All tutorial programs does not take command-line options
@@ -20,13 +29,13 @@ g++ -std=c++17 [tutorial_program.cpp] -lstdc++fs -I../../include -I${BOOST_ROOT}
 ```
 
 
-## Build using Clang (or Apple clang)
+###  2-2-2. Build using Clang (or Apple clang)
 
 Clang (or Apple clang) could be used instead of GCC to build Metall.
 However, please note that we haven't tested it intensively.
 
 
-### On macOS >= 10.15 or Linux
+**On macOS >= 10.15 or Linux**
 
 ```bash
 # Remove "-lstdc++fs" option
@@ -34,7 +43,7 @@ clang++ -std=c++17 [tutorial_program.cpp] -I../../include -I${BOOST_ROOT}
 ```
 
 
-### On macOS < 10.15
+**On macOS < 10.15**
 
 The C++17 <filesystem> library is not available on macOS < 10.15.
 One has to stop using C++17 <filesystem> library in Metall.
