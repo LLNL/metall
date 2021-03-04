@@ -5,7 +5,8 @@
 # 2. Hands-on Programs
 
 ## 2-1. Recommended Flow
-![Recommended flow to try hands-on programs](tutorial_programs_flow.png)
+
+![](tutorial_flow.png)
 
 
 ## 2-2. Build and Run Hands-on Programs
