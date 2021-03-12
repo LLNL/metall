@@ -53,7 +53,7 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
 # ---------- Experimental options ---------- #
 option(USE_PRIVATE_MAP_AND_PWRITE "Use the private map segment storage and pwrite to sync data" OFF)
 option(USE_PRIVATE_MAP_AND_MSYNC_DIFF "Use the private map segment storage and msync to sync data" OFF)
-option(USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP "Use the private map segment storage and msync to sync data by querying /proc/self/pagemap")
+option(USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP "Use the private map segment storage and msync to sync data by querying /proc/self/pagemap" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)

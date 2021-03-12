@@ -515,10 +515,6 @@ class mmap_segment_storage {
 
     // Get pagemap data for the entire block
 
-    // Start: temp timer
-    const auto read_start = std::chrono::high_resolution_clock::now();
-    // End: temp timer
-
     uint64_t * pagemap_raw_data = utility::read_raw_pagemap((void*) private_map, m_block_size);
 
     if (pagemap_raw_data == nullptr){
@@ -528,13 +524,6 @@ class mmap_segment_storage {
                   "Failed to read pagemap for block: " + std::to_string(block_no));
       return false;
     }
-    // Start: temp timer
-    const auto read_duration_micro = std::chrono::high_resolution_clock::now() - read_start;
-    const auto read_duration = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(read_duration_micro).count()) / 1e6;
-    std::cout << "Reading raw pagemap too: " << read_duration << " seconds" << std::endl;
-    
-    const auto write_start_time = std::chrono::high_resolution_clock::now();
-    // End:  temp timer
 
     bool in_dirty_block = false;
     uint64_t write_start;
@@ -578,11 +567,14 @@ class mmap_segment_storage {
       }
     }
 
-    // Start: temp timer
-    const auto write_duration_micro = std::chrono::high_resolution_clock::now() - write_start_time;
-    const auto write_duration = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(write_duration_micro).count()) / 1e6;
-    std::cout << "Write took: " << write_duration  << " seconds" << std::endl;
-    // End:   temp timer
+    // Re-map the file to discard page cache
+    if (!mdtl::map_file_write_private_mode(fd, private_map, m_block_size, 0, MAP_FIXED)) {
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to re-map " + std::to_string(block_no) + "th block with MAP_SHARED");
+      return false;
+    }
 
     delete [] pagemap_raw_data;
     return true;
