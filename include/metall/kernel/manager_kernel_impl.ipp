@@ -1112,10 +1112,9 @@ manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &src_ba
     return false;
   }
 
-  const std::string dst_datastore_dir_path = priv_make_top_dir_path(dst_base_dir_path);
-
   assert(*(src_datastore_dir_path.end()) != '/');
-  return mdtl::clone_file(src_datastore_dir_path, dst_datastore_dir_path, true);
+  // Let the cp command used in the function below create "dst_base_dir_path/k_datastore_top_dir_name"
+  return mdtl::clone_file(src_datastore_dir_path, dst_base_dir_path, true);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
