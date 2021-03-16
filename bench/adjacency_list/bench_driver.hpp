@@ -51,6 +51,10 @@ struct bench_options {
   std::string adj_list_dump_file_name;
   std::string edge_list_dump_file_name;
 
+  bool append{false}; // Append existing data store
+
+  std::string staging_location; // Copy data store
+
   bool verbose{false};
 };
 
@@ -66,6 +70,10 @@ inline void disp_options(const bench_options &option) {
     }
   }
   std::cout << "segment_size (for Boost) : " << option.segment_size << std::endl;
+
+  std::cout << "Append existing data store : " << static_cast<int>(option.append) << std::endl;
+
+  std::cout << "Staging location : " << option.staging_location << std::endl;
 
   if (option.input_file_name_list.empty()) {
     std::cout << "seed: " << option.rmat.seed
@@ -86,7 +94,7 @@ inline void disp_options(const bench_options &option) {
 
 inline auto parse_options(int argc, char **argv, bench_options *option) {
   int p;
-  while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:D:V")) != -1) {
+  while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:D:VAS:")) != -1) {
     switch (p) {
       case 'o':option->datastore_path_list.clear();
         boost::split(option->datastore_path_list, optarg, boost::is_any_of(":"));
@@ -123,6 +131,12 @@ inline auto parse_options(int argc, char **argv, bench_options *option) {
         break;
 
       case 'u':option->rmat.undirected = static_cast<bool>(std::stoi(optarg));
+        break;
+
+      case 'A': option->append = true;
+        break;
+
+      case 'S': option->staging_location = optarg;
         break;
 
       case 'd': // dump constructed adjacency list at the end of benchmark
