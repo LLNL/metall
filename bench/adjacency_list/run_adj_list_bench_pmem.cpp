@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <cstddef>
-#include <fstream>
 
 #include <pmem_allocator.h>
 
@@ -21,7 +20,7 @@ using key_type = uint64_t;
 using value_type = uint64_t;
 
 using allocator_type = libmemkind::pmem::allocator<std::byte>;
-using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
+using adjacency_list_type = data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
 
 std::string run_command(const std::string &cmd) {
   std::cout << cmd << std::endl;
@@ -55,7 +54,6 @@ int main(int argc, char *argv[]) {
     std::abort();
   }
 
-  metall::mtlldetail::create_directory(option.datastore_path_list[0]);
 
   allocator_type allocator(option.datastore_path_list[0].c_str(), option.segment_size);
   adjacency_list_type adj_list(allocator);
