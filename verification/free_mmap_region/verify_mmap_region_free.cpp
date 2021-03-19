@@ -92,12 +92,12 @@ int main() {
   std::cout << "\n------------------------------" << std::endl;
   std::cout << "\nMap Shared" << std::endl;
   std::cout << "\n------------------------------" << std::endl;
-  free_file_backed_mmap(file_name, file_size, map_file_share, mdtl::uncommit_file_backed_pages);
+  free_file_backed_mmap(file_name, file_size, map_file_share, mdtl::uncommit_shared_pages_free_file_space);
 
   std::cout << "\n------------------------------" << std::endl;
   std::cout << "\nMap Private" << std::endl;
   std::cout << "\n------------------------------" << std::endl;
-  free_file_backed_mmap(file_name, file_size, map_file_private, mdtl::uncommit_private_pages);
+  free_file_backed_mmap(file_name, file_size, map_file_private, mdtl::uncommit_private_nonanonymous_pages);
 
   return 0;
 }

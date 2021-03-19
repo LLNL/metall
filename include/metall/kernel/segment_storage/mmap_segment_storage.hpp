@@ -618,7 +618,7 @@ class mmap_segment_storage {
   bool priv_uncommit_pages_and_free_file_space(const different_type offset, const size_type nbytes) const {
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     // Uncommit pages in DRAM first
-    if (!mdtl::uncommit_private_pages(static_cast<char *>(m_segment) + offset, nbytes)) return false;
+    if (!mdtl::uncommit_private_nonanonymous_pages(static_cast<char *>(m_segment) + offset, nbytes)) return false;
 
     // Free space in file
     auto sub_offset = offset;
@@ -636,13 +636,13 @@ class mmap_segment_storage {
 
     return true;
 #else
-    return mdtl::uncommit_file_backed_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    return mdtl::uncommit_shared_pages_free_file_space(static_cast<char *>(m_segment) + offset, nbytes);
 #endif
   }
 
   bool priv_uncommit_pages(const different_type offset, const size_type nbytes) const {
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
-    return mdtl::uncommit_private_pages(static_cast<char *>(m_segment) + offset, nbytes);
+    return mdtl::uncommit_private_nonanonymous_pages(static_cast<char *>(m_segment) + offset, nbytes);
 #else
     return mdtl::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
 #endif
@@ -682,9 +682,9 @@ class mmap_segment_storage {
     char *buf = static_cast<char *>(ret.second);
     buf[0] = 0;
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
-    if (mdtl::uncommit_private_pages(ret.second, file_size) && mdtl::free_file_space(ret.first, 0, file_size)) {
+    if (mdtl::uncommit_private_nonanonymous_pages(ret.second, file_size) && mdtl::free_file_space(ret.first, 0, file_size)) {
 #else
-    if (mdtl::uncommit_file_backed_pages(ret.second, file_size)) {
+    if (mdtl::uncommit_shared_pages_free_file_space(ret.second, file_size)) {
 #endif
       m_free_file_space = true;
     } else {
