@@ -60,6 +60,9 @@ option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
 set(FREE_SMALL_OBJECT_SIZE_HINT "0" CACHE STRING
         "Try to free the associated pages and file space when objects equal to or larger than that is deallocated")
+
+set(MAX_COPY_THREADS "0" CACHE STRING
+        "The maximum number of threads to use to copy/clone files (use the internally defined value if 0 is specified)")
 # -------------------------------------------------------------------------------- #
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -197,6 +200,11 @@ if (USE_PRIVATE_MAP_AND_PWRITE)
     add_definitions(-DMETALL_USE_PRIVATE_MAP_AND_PWRITE)
     message(STATUS "Use the private map segment storage")
 endif()
+
+if (MAX_COPY_THREADS GREATER 0)
+    add_definitions(-DMETALL_MAX_COPY_THREADS=${MAX_COPY_THREADS})
+    message(STATUS "METALL_MAX_COPY_THREADS=${MAX_COPY_THREADS}")
+endif ()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)

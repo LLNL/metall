@@ -28,7 +28,7 @@
 /// \brief The max number of threads to use to copy files
 /// This is a temporary implementation.
 #ifndef METALL_MAX_COPY_THREADS
-#define METALL_MAX_COPY_THREADS 8
+#define METALL_MAX_COPY_THREADS 1
 #endif
 
 #endif //METALL_KERNEL_MANAGER_KERNEL_DEFS_HPP

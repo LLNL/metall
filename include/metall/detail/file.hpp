@@ -448,7 +448,7 @@ inline bool get_regular_file_names(const std::string &dir_path, std::vector<std:
 /// \param source_dir_path A path to source directory.
 /// \param destination_dir_path A path to destination directory.
 /// \param max_num_threads The maximum number of threads to use.
-/// If 0 is given, it is automatically determined.
+/// If <= 0 is given, the value is automatically determined.
 /// \param copy_func The actual copy function.
 /// \return  On success, returns true. On error, returns false.
 inline bool
