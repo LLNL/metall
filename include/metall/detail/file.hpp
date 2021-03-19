@@ -11,6 +11,7 @@
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #ifdef __linux__
 #include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
@@ -425,9 +426,19 @@ inline bool get_regular_file_names(const std::string &dir_path, std::vector<std:
   return true;
 
 #else
-  // TODO: Implement
-  file_list->clear();
-  return false;
+  DIR *d = ::opendir(dir_path.c_str());
+  if (!d) {
+    return false;
+  }
+
+  for (dirent *dir; (dir = ::readdir(d)) != nullptr;) {
+    if (dir->d_type == DT_REG) {
+      file_list->push_back(dir->d_name);
+    }
+  }
+  ::closedir(d);
+
+  return true;
 #endif
 }
 
