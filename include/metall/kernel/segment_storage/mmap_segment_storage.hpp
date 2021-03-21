@@ -401,7 +401,7 @@ class mmap_segment_storage {
 #endif
     if (ret.first == -1 || !ret.second) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map a file: " + path);
-      if (ret.first == -1) {
+      if (ret.first != -1) {
         mdtl::os_close(ret.first);
       }
       return false;
@@ -760,7 +760,7 @@ class mmap_segment_storage {
     const auto ret = mdtl::map_file_write_mode(file_path, nullptr, file_size, 0);
     if (ret.first == -1 || !ret.second) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map file: " + file_path);
-      if (ret.first == -1) mdtl::os_close(ret.first);
+      if (ret.first != -1) mdtl::os_close(ret.first);
       return;
     }
 
