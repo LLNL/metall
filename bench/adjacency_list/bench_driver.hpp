@@ -69,7 +69,7 @@ inline void disp_options(const bench_options &option) {
       std::cout << " " << name << std::endl;
     }
   }
-  std::cout << "segment_size (for Boost) : " << option.segment_size << std::endl;
+  std::cout << "segment_size (for Boost and pmem) : " << option.segment_size << std::endl;
 
   std::cout << "Append existing data store : " << static_cast<int>(option.append) << std::endl;
 

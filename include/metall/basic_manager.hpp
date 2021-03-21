@@ -606,6 +606,7 @@ class basic_manager {
   }
 
   /// \brief Copies data store synchronously.
+  /// The behavior of copying a data store that is open without the read-only mode is undefined.
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
   /// \return If succeeded, returns true; other false.
@@ -614,6 +615,7 @@ class basic_manager {
   }
 
   /// \brief Copies data store asynchronously.
+  /// The behavior of copying a data store that is open without the read-only mode is undefined.
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
   /// \return Returns an object of std::future.

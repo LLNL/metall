@@ -11,6 +11,7 @@
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #ifdef __linux__
 #include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
@@ -21,6 +22,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <vector>
+#include <thread>
+#include <atomic>
+#include <functional>
 
 #ifdef __has_include
 // Check if the Filesystem library is available
@@ -391,6 +397,112 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 
 #endif
 
+/// \brief Get the file names in a directory.
+/// This function does not list files recursively.
+/// Only regular files are returned.
+/// \param dir_path A directory path.
+/// \param file_list A buffer to put results.
+/// \return Returns true if there is no error (empty directory returns true as long as the operation does not fail).
+/// Returns false on error.
+inline bool get_regular_file_names(const std::string &dir_path, std::vector<std::string> *file_list) {
+#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+
+  if (!directory_exist(dir_path)) {
+    return false;
+  }
+
+  try {
+    file_list->clear();
+    for (auto &p: fs::directory_iterator(dir_path)) {
+      if (p.is_regular_file()) {
+        file_list->push_back(p.path().filename().string());
+      }
+    }
+  } catch (...) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Exception was thrown");
+    return false;
+  }
+
+  return true;
+
+#else
+  DIR *d = ::opendir(dir_path.c_str());
+  if (!d) {
+    return false;
+  }
+
+  for (dirent *dir; (dir = ::readdir(d)) != nullptr;) {
+    if (dir->d_type == DT_REG) {
+      file_list->push_back(dir->d_name);
+    }
+  }
+  ::closedir(d);
+
+  return true;
+#endif
+}
+
+/// \brief Copy files in a directory.
+/// This function does not copy files in subdirectories.
+/// This function does not also copy directories.
+/// \param source_dir_path A path to source directory.
+/// \param destination_dir_path A path to destination directory.
+/// \param max_num_threads The maximum number of threads to use.
+/// If <= 0 is given, the value is automatically determined.
+/// \param copy_func The actual copy function.
+/// \return  On success, returns true. On error, returns false.
+inline bool
+copy_files_in_directory_in_parallel_helper(const std::string &source_dir_path,
+                                           const std::string &destination_dir_path,
+                                           const int max_num_threads,
+                                           const std::function<bool(const std::string &,
+                                                                    const std::string &)> &copy_func) {
+
+  std::vector<std::string> src_file_names;
+  if (!get_regular_file_names(source_dir_path, &src_file_names)) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to get file list");
+    return false;
+  }
+
+  std::atomic_uint_fast64_t num_successes = 0;
+  std::atomic_uint_fast64_t file_no_cnt = 0;
+  auto copy_lambda = [&file_no_cnt, &num_successes, &source_dir_path, &src_file_names, &destination_dir_path, &copy_func]() {
+    while (true) {
+      const auto file_no = file_no_cnt.fetch_add(1);
+      if (file_no >= src_file_names.size()) break;
+      const std::string &src_file_path = source_dir_path + "/" + src_file_names[file_no];
+      const std::string &dst_file_path = destination_dir_path + "/" + src_file_names[file_no];
+      num_successes.fetch_add(copy_func(src_file_path, dst_file_path) ? 1 : 0);
+    }
+  };
+
+  const auto num_threads = (int)std::min(src_file_names.size(),
+                                         (std::size_t)(max_num_threads > 0 ? max_num_threads
+                                                                           : std::thread::hardware_concurrency()));
+  std::vector<std::thread *> threads(num_threads, nullptr);
+  for (auto &th : threads) {
+    th = new std::thread(copy_lambda);
+  }
+
+  for (auto &th : threads) {
+    th->join();
+  }
+
+  return num_successes == src_file_names.size();
+}
+
+/// \brief Copy files in a directory.
+/// This function does not copy files in subdirectories.
+/// \param source_dir_path A path to source directory.
+/// \param destination_dir_path A path to destination directory.
+/// \param max_num_threads The maximum number of threads to use.
+/// If 0 is given, it is automatically determined.
+/// \return  On success, returns true. On error, returns false.
+inline bool copy_files_in_directory_in_parallel(const std::string &source_dir_path,
+                                                const std::string &destination_dir_path,
+                                                const int max_num_threads) {
+  return copy_files_in_directory_in_parallel_helper(source_dir_path, destination_dir_path, max_num_threads, copy_file);
+}
 } // namespace metall::mtlldetail
 
 #endif //METALL_DETAIL_UTILITY_FILE_HPP

@@ -91,7 +91,7 @@ int main([[maybe_unused]] int argc, char *argv[]) {
   init_file(source_file_path, file_size);
 
   std::cout << "\nClone the file" << std::endl;
-  if (!mdtl::clone_file(source_file_path, destination_file_path, true)) {
+  if (!mdtl::clone_file(source_file_path, destination_file_path)) {
     std::cerr << "Failed to clone file: " << source_file_path << " to " << destination_file_path << std::endl;
     std::abort();
   }
