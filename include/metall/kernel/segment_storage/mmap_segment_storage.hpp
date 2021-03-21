@@ -17,6 +17,7 @@
 #include <metall/detail/mmap.hpp>
 #include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
+#include <metall/utility/pagemap.hpp>
 
 namespace metall {
 namespace kernel {
@@ -44,10 +45,13 @@ class mmap_segment_storage {
         m_free_file_space(true),
         m_block_fd_list(),
         m_block_size(0) {
-#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC
+#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC is defined");
 #endif
 #ifdef METALL_USE_PRIVATE_MAP_AND_PWRITE
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
+#endif
+#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
 #endif
 
@@ -390,7 +394,7 @@ class mmap_segment_storage {
 
     const auto ret = (read_only) ?
                      mdtl::map_file_read_mode(path, map_addr, file_size, 0, MAP_FIXED) :
-                     #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+                     #if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF ||METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP || METALL_USE_PRIVATE_MAP_AND_PWRITE)
                      mdtl::map_file_write_private_mode(path, map_addr, file_size, 0, MAP_FIXED);
                      #else
                      mdtl::map_file_write_mode(path, map_addr, file_size, 0, MAP_FIXED | map_nosync);
@@ -435,9 +439,9 @@ class mmap_segment_storage {
       return;
     }
 
-#if METALL_USE_PRIVATE_MAP_AND_MSYNC
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP)
     logger::out(logger::level::info, __FILE__, __LINE__, "diff-msync for the application data segment");
-    priv_parallel_diff_msync();
+    priv_parallel_msync();
 #elif METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "pwrite() for the application data segment");
     priv_parallel_write_block();
@@ -457,7 +461,7 @@ class mmap_segment_storage {
     }
   }
 
-  bool priv_parallel_diff_msync() const {
+  bool priv_parallel_msync() const {
 
     std::atomic_uint_fast64_t block_no_count = 0;
     std::atomic_uint_fast64_t num_successes = 0;
@@ -465,7 +469,11 @@ class mmap_segment_storage {
       while (true) {
         const auto block_no = block_no_count.fetch_add(1);
         if (block_no < m_block_fd_list.size()) {
+        #if METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
           num_successes.fetch_add(priv_diff_msync(block_no) ? 1 : 0);
+        #elif METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
+          num_successes.fetch_add(priv_pagemap_msync(block_no) ? 1 : 0);
+        #endif
         } else {
           break;
         }
@@ -536,6 +544,81 @@ class mmap_segment_storage {
 
     return true;
   }
+
+  bool priv_pagemap_msync(const size_type block_no) const{
+
+    const auto fd = m_block_fd_list[block_no];
+    const auto private_map = static_cast<char *>(m_segment) + block_no * m_block_size;
+
+    uint64_t pagesize = 4096;
+
+    // Get pagemap data for the entire block
+
+    uint64_t * pagemap_raw_data = utility::read_raw_pagemap((void*) private_map, m_block_size);
+
+    if (pagemap_raw_data == nullptr){
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to read pagemap for block: " + std::to_string(block_no));
+      return false;
+    }
+
+    bool in_dirty_block = false;
+    uint64_t write_start;
+    uint64_t write_count;
+    for (size_t page_index = 0; page_index < (m_block_size / pagesize); page_index++){
+
+      uint64_t pagemap_raw_data_entry = pagemap_raw_data[page_index];
+      utility::PagemapEntry pme = utility::parse_pagemap_entry(pagemap_raw_data_entry);
+
+      if(!pme.file_page && (pme.present || pme.swapped)){
+        if(!in_dirty_block){
+          in_dirty_block = true;
+          write_start = ((uint64_t) private_map) + page_index * pagesize;
+          write_count = pagesize;
+        }
+        else{
+          write_count += pagesize;
+        }
+
+        if(page_index == (m_block_size / pagesize - 1)){
+          size_t written = pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
+          if (written == -1){
+            logger::out(logger::level::critical,
+                    __FILE__,
+                    __LINE__,
+                    "Failed to write page with address: " + std::to_string(write_start) +"For block: "+ std::to_string(block_no));
+            return false;
+          }
+        }
+      }
+      else if(in_dirty_block){
+        size_t written = pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
+        if (written == -1){
+          logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to write page with address: " + std::to_string(write_start) +"For block: "+ std::to_string(block_no));
+          return false;
+        }
+        in_dirty_block = false;
+      }
+    }
+
+    // Re-map the file to discard page cache
+    if (!mdtl::map_file_write_private_mode(fd, private_map, m_block_size, 0, MAP_FIXED)) {
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to re-map " + std::to_string(block_no) + "th block with MAP_SHARED");
+      return false;
+    }
+
+    delete [] pagemap_raw_data;
+    return true;
+  }
+
 
   bool priv_parallel_write_block() const {
 
