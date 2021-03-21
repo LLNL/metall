@@ -719,7 +719,7 @@ class mmap_segment_storage {
 
     return true;
 #else
-    return mdtl::uncommit_shared_pages_free_file_space(static_cast<char *>(m_segment) + offset, nbytes);
+    return mdtl::uncommit_shared_pages_and_free_file_space(static_cast<char *>(m_segment) + offset, nbytes);
 #endif
   }
 
@@ -741,7 +741,7 @@ class mmap_segment_storage {
   }
 
   void priv_test_file_space_free(const std::string &base_path) {
-#ifdef DISABLE_FREE_FILE_SPACE
+#ifdef METALL_DISABLE_FREE_FILE_SPACE
     m_free_file_space = false;
     return;
 #endif
@@ -767,7 +767,7 @@ class mmap_segment_storage {
 #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     if (mdtl::uncommit_private_nonanonymous_pages(ret.second, file_size) && mdtl::free_file_space(ret.first, 0, file_size)) {
 #else
-    if (mdtl::uncommit_shared_pages_free_file_space(ret.second, file_size)) {
+    if (mdtl::uncommit_shared_pages_and_free_file_space(ret.second, file_size)) {
 #endif
       m_free_file_space = true;
     } else {
