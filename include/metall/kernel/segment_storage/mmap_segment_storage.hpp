@@ -583,23 +583,26 @@ class mmap_segment_storage {
         }
 
         if(page_index == (m_block_size / pagesize - 1)){
-          size_t written = pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
+          const auto written = ::pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
           if (written == -1){
-            logger::out(logger::level::critical,
-                    __FILE__,
-                    __LINE__,
-                    "Failed to write page with address: " + std::to_string(write_start) +"For block: "+ std::to_string(block_no));
+            logger::perror(logger::level::critical,
+                           __FILE__,
+                           __LINE__,
+                           "Failed to write page with address: " + std::to_string(write_start) + "For block: "
+                               + std::to_string(block_no));
+
             return false;
           }
         }
       }
       else if(in_dirty_block){
-        size_t written = pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
+        const auto written = ::pwrite(fd ,(void*) write_start, write_count, write_start - (uint64_t)private_map);
         if (written == -1){
-          logger::out(logger::level::critical,
-                  __FILE__,
-                  __LINE__,
-                  "Failed to write page with address: " + std::to_string(write_start) +"For block: "+ std::to_string(block_no));
+          logger::perror(logger::level::critical,
+                         __FILE__,
+                         __LINE__,
+                         "Failed to write page with address: " + std::to_string(write_start) + "For block: "
+                             + std::to_string(block_no));
           return false;
         }
         in_dirty_block = false;
