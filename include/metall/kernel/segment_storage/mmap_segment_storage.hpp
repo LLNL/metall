@@ -46,7 +46,7 @@ class mmap_segment_storage {
         m_block_fd_list(),
         m_block_size(0) {
 #ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
-    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC is defined");
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF is defined");
 #endif
 #ifdef METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
@@ -699,7 +699,7 @@ class mmap_segment_storage {
   }
 
   bool priv_uncommit_pages_and_free_file_space(const different_type offset, const size_type nbytes) const {
-#if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF ||METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     // Uncommit pages in DRAM first
     if (!mdtl::uncommit_private_nonanonymous_pages(static_cast<char *>(m_segment) + offset, nbytes)) return false;
 
@@ -724,7 +724,7 @@ class mmap_segment_storage {
   }
 
   bool priv_uncommit_pages(const different_type offset, const size_type nbytes) const {
-#if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF ||METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     return mdtl::uncommit_private_nonanonymous_pages(static_cast<char *>(m_segment) + offset, nbytes);
 #else
     return mdtl::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
