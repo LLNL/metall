@@ -54,7 +54,7 @@ class mmap_segment_storage {
 #endif
 
 #ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
-    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP is defined");
 #endif
 
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
@@ -492,8 +492,11 @@ class mmap_segment_storage {
       return;
     }
 
-#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP)
+#if METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
     logger::out(logger::level::info, __FILE__, __LINE__, "diff-msync for the application data segment");
+    priv_parallel_msync();
+#elif METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
+    logger::out(logger::level::info, __FILE__, __LINE__, "pagemap-diff-msync for the application data segment");
     priv_parallel_msync();
 #elif METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "pwrite() for the application data segment");
