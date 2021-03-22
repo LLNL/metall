@@ -54,6 +54,7 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
 option(USE_PRIVATE_MAP_AND_PWRITE "Use the private map segment storage and pwrite to sync data" OFF)
 option(USE_PRIVATE_MAP_AND_MSYNC_DIFF "Use the private map segment storage and msync to sync data" OFF)
 option(USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP "Use the private map segment storage and msync to sync data by querying /proc/self/pagemap" OFF)
+option(USE_ANONYMOUS_NEW_MAP "Use the anonymous map when creating a new map region" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
@@ -217,6 +218,19 @@ if (USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP)
     endif()
     add_definitions(-DMETALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP)
     message(STATUS "Use the private map segment storage")
+endif()
+
+if (USE_ANONYMOUS_NEW_MAP)
+    if (USE_ANONYMOUS_NEW_MAP AND UMAP_ROOT)
+        message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
+    endif()
+
+    if (NOT (USE_PRIVATE_MAP_AND_MSYNC_DIFF OR USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP OR USE_PRIVATE_MAP_AND_PWRITE))
+        message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP must be used with a private map mode")
+    endif()
+
+    add_definitions(-DMETALL_USE_ANONYMOUS_NEW_MAP)
+    message(STATUS "Use the anonymous map for new map region")
 endif()
 
 if (MAX_COPY_THREADS GREATER 0)

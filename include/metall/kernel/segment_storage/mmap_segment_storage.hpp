@@ -48,11 +48,20 @@ class mmap_segment_storage {
 #ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF is defined");
 #endif
+
 #ifdef METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
 #endif
+
 #ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
+#endif
+
+#ifdef METALL_USE_ANONYMOUS_NEW_MAP
+#if !(METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_PWRITE || METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP)
+#error "METALL_USE_ANONYMOUS_NEW_MAP must be used with a private map mode."
+#endif
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_ANONYMOUS_NEW_MAP is defined");
 #endif
 
     priv_load_system_page_size();
@@ -365,9 +374,16 @@ class mmap_segment_storage {
       return false;
     }
 
+#ifdef METALL_USE_ANONYMOUS_NEW_MAP
+    if (!priv_map_anonymous(file_name, file_size, segment_offset)) {
+      return false;
+    }
+#else
     if (!priv_map_file(file_name, file_size, segment_offset, false)) {
       return false;
     }
+#endif
+
     return true;
   }
 
@@ -394,9 +410,9 @@ class mmap_segment_storage {
 
     const auto ret = (read_only) ?
                      mdtl::map_file_read_mode(path, map_addr, file_size, 0, MAP_FIXED) :
-                     #if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF ||METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF ||METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP || METALL_USE_PRIVATE_MAP_AND_PWRITE)
                      mdtl::map_file_write_private_mode(path, map_addr, file_size, 0, MAP_FIXED);
-                     #else
+#else
                      mdtl::map_file_write_mode(path, map_addr, file_size, 0, MAP_FIXED | map_nosync);
 #endif
     if (ret.first == -1 || !ret.second) {
@@ -408,6 +424,43 @@ class mmap_segment_storage {
     }
 
     m_block_fd_list.emplace_back(ret.first);
+
+    return true;
+  }
+
+  bool priv_map_anonymous(const std::string &path,
+                          const size_type region_size,
+                          const different_type segment_offset) {
+    assert(!path.empty());
+    assert(region_size > 0);
+    assert(segment_offset >= 0);
+    assert(segment_offset + region_size <= m_vm_region_size);
+
+    const auto map_addr = static_cast<char *>(m_segment) + segment_offset;
+    logger::out(logger::level::info, __FILE__, __LINE__,
+                "Map an anonymous region at " + std::to_string(segment_offset) + " with "
+                    + std::to_string(region_size));
+
+    const auto *addr = mdtl::map_anonymous_write_mode(map_addr, region_size, MAP_FIXED);
+    if (!addr) {
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to map an anonymous region at " + std::to_string(segment_offset));
+      return false;
+    }
+
+    // Although we do not map the file, we still open it so that other functions in this class work.
+    const int fd = ::open(path.c_str(), O_RDWR);
+    if (fd == -1) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "open");
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to open a file " + path);
+    }
+
+    m_block_fd_list.emplace_back(fd);
 
     return true;
   }
