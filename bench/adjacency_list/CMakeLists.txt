@@ -28,9 +28,9 @@ if (OpenMP_CXX_FOUND)
     target_link_libraries(run_adj_list_bench_reflink_snapshot PUBLIC OpenMP::OpenMP_CXX)
 endif ()
 
-add_executable(run_inc_adj_list_backup_bench run_inc_adj_list_backup_bench.cpp)
+add_executable(run_adj_list_backup_bench run_adj_list_backup_bench.cpp)
 if (OpenMP_CXX_FOUND)
-    target_link_libraries(run_inc_adj_list_backup_bench PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(run_adj_list_backup_bench PUBLIC OpenMP::OpenMP_CXX)
 endif ()
 
 if (MEMKIND_ROOT)

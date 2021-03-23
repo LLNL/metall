@@ -8,8 +8,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <sstream>
-#include <iomanip>
 #include <metall/metall.hpp>
 #include <metall/detail/time.hpp>
 #include <metall/detail/file_clone.hpp>
@@ -81,7 +79,7 @@ int main(int argc, char *argv[]) {
 
       const auto backup_dir = option.datastore_path_list[0] + "-backup";
       const auto start = mdtl::elapsed_time_sec();
-      const bool clone = (iteration_no % 4 != 0);
+      const bool clone = true; //(iteration_no % 4 != 0);
       manager.snapshot(backup_dir.c_str(), clone);
       const auto elapsed_time = mdtl::elapsed_time_sec(start);
       std::cout << "Snapshot took (s)\t" << elapsed_time << std::endl;
