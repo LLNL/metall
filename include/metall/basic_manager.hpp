@@ -601,8 +601,8 @@ class basic_manager {
   /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
   /// \param destination_dir_path Path to store a snapshot.
   /// \return Returns true on success; other false.
-  bool snapshot(const char_type *destination_dir_path) {
-    return m_kernel.snapshot(destination_dir_path);
+  bool snapshot(const char_type *destination_dir_path, const bool clone = true) {
+    return m_kernel.snapshot(destination_dir_path, clone);
   }
 
   /// \brief Copies data store synchronously.

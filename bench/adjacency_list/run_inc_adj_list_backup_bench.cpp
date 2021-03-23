@@ -70,42 +70,40 @@ int main(int argc, char *argv[]) {
   std::cout << "Turn on the VERBOSE mode automatically" << std::endl;
   option.verbose = true;
 
+  metall::logger::set_log_level(metall::logger::level::verbose);
+
   {
     metall::manager manager(metall::create_only, option.datastore_path_list[0].c_str());
 
-    // This function is called after inserting each chunk
-    std::size_t snapshot_num = 0;
-    auto snapshot_func = [&option, &manager, &snapshot_num]() {
-      {
-        const auto start = mdtl::elapsed_time_sec();
-        manager.flush();
-        const auto elapsed_time = mdtl::elapsed_time_sec(start);
-        std::cout << "Flush took (s)\t" << elapsed_time << std::endl;
-      }
-      std::cout << "Original datastore size (GB)\t"
-                << get_directory_size_gb(option.datastore_path_list[0]) << std::endl;
+    std::size_t iteration_no = 0;
+    auto backup_func = [&option, &manager, &iteration_no]() {
+      if (iteration_no == 0) return;
 
-      std::stringstream snapshot_id;
-      snapshot_id << std::setw(4) << std::setfill('0') << std::to_string(snapshot_num);
+      const auto backup_dir = option.datastore_path_list[0] + "-backup";
+      const auto start = mdtl::elapsed_time_sec();
+      const bool clone = (iteration_no % 4 != 0);
+      manager.snapshot(backup_dir.c_str(), clone);
+      const auto elapsed_time = mdtl::elapsed_time_sec(start);
+      std::cout << "Snapshot took (s)\t" << elapsed_time << std::endl;
+      std::cout << "Snapshot datastore size (GB)\t" << get_directory_size_gb(backup_dir) << std::endl;
+      run_df(backup_dir);
+    };
 
-      {
-        const auto snapshot_dir = option.datastore_path_list[0] + "-snapshot-" + snapshot_id.str();
-        const auto start = mdtl::elapsed_time_sec();
-        // Use copy() so that flush() is not called again
-        metall::manager::copy(option.datastore_path_list[0].c_str(), snapshot_dir.c_str());
-        const auto elapsed_time = mdtl::elapsed_time_sec(start);
-        std::cout << "Snapshot took (s)\t" << elapsed_time << std::endl;
-        std::cout << "Snapshot datastore size (GB)\t"
-                  << get_directory_size_gb(snapshot_dir) << std::endl;
-        std::string out_file_name("storage-usage-snapshot-" + snapshot_id.str());
-        run_df(snapshot_dir);
-      }
-      ++snapshot_num;
+    auto closing_func = [&option, &manager, &iteration_no]() {
+      const auto start = mdtl::elapsed_time_sec();
+      manager.flush();
+      const auto elapsed_time = mdtl::elapsed_time_sec(start);
+      std::cout << "Flush took (s)\t" << elapsed_time << std::endl;
+
+      const auto backup_dir = option.datastore_path_list[0] + "-backup";
+      std::cout << "Remove backup" << std::endl;
+      metall::manager::remove(backup_dir.c_str());
+      ++iteration_no;
     };
 
     auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())(manager.get_allocator<>());
 
-    run_bench(option, adj_list, std::function<void()>{}, snapshot_func);
+    run_bench(option, adj_list, backup_func, closing_func);
   }
 
   return 0;

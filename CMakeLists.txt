@@ -55,6 +55,7 @@ option(USE_PRIVATE_MAP_AND_PWRITE "Use the private map segment storage and pwrit
 option(USE_PRIVATE_MAP_AND_MSYNC_DIFF "Use the private map segment storage and msync to sync data" OFF)
 option(USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP "Use the private map segment storage and msync to sync data by querying /proc/self/pagemap" OFF)
 option(USE_ANONYMOUS_NEW_MAP "Use the anonymous map when creating a new map region" OFF)
+option(DISABLE_REFLINK "Disable reflink" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
@@ -237,6 +238,11 @@ if (MAX_COPY_THREADS GREATER 0)
     add_definitions(-DMETALL_MAX_COPY_THREADS=${MAX_COPY_THREADS})
     message(STATUS "METALL_MAX_COPY_THREADS=${MAX_COPY_THREADS}")
 endif ()
+
+if (DISABLE_REFLINK)
+    add_definitions(-DMETALL_DISABLE_REFLINK)
+    message(STATUS "Disable reflink")
+endif()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)

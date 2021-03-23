@@ -143,8 +143,10 @@ class mmap_segment_storage {
     }
 
     if (clone) {
+      logger::out(logger::level::info, __FILE__, __LINE__, "Clone: " + source_path);
       return mdtl::clone_files_in_directory_in_parallel(source_path, destination_path, max_num_threads);
     } else {
+      logger::out(logger::level::info, __FILE__, __LINE__, "Copy: " + source_path);
       return mdtl::copy_files_in_directory_in_parallel(source_path, destination_path, max_num_threads);
     }
     assert(false);
