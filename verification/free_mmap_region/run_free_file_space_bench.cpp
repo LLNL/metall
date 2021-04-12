@@ -107,12 +107,12 @@ int main(int, char *argv[]) {
     sync_mmap(map_addr, map_size);
     sync_file(file_path);
   } else if (mode == 2) {
-    std::cout << "uncommit_file_backed_pages" << std::endl;
+    std::cout << "uncommit_shared_pages_and_free_file_space" << std::endl;
 
     close_file(fd);
     free_file_space(map_size,
                     [](const std::size_t free_size, void *const free_addr) {
-                      if (!mdtl::uncommit_file_backed_pages(free_addr, free_size)) {
+                      if (!mdtl::uncommit_shared_pages_and_free_file_space(free_addr, free_size)) {
                         std::cerr << "Failed to uncommit file backed page" << std::endl;
                         std::abort();
                       }

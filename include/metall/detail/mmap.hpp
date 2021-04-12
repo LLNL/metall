@@ -267,7 +267,7 @@ inline bool os_madvise(void *const addr, const size_t length, const int advice, 
 }
 
 // NOTE: the MADV_FREE operation can be applied only to private anonymous pages.
-inline bool uncommit_private_pages(void *const addr, const size_t length) {
+inline bool uncommit_private_anonymous_pages(void *const addr, const size_t length) {
 #ifdef MADV_FREE
   if (!os_madvise(addr, length, MADV_FREE)) {
     logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_FREE");
@@ -285,6 +285,16 @@ inline bool uncommit_private_pages(void *const addr, const size_t length) {
   return true;
 }
 
+inline bool uncommit_private_nonanonymous_pages(void *const addr, const size_t length) {
+
+  if (!os_madvise(addr, length, MADV_DONTNEED)) {
+    logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_DONTNEED");
+    return false;
+  }
+
+  return true;
+}
+
 inline bool uncommit_shared_pages(void *const addr, const size_t length) {
   if (!os_madvise(addr, length, MADV_DONTNEED)) {
     logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_DONTNEED");
@@ -293,21 +303,16 @@ inline bool uncommit_shared_pages(void *const addr, const size_t length) {
   return true;
 }
 
-inline bool uncommit_file_backed_pages([[maybe_unused]] void *const addr,
-                                       [[maybe_unused]] const size_t length) {
-#if !defined(METALL_DISABLE_FREE_FILE_SPACE) && defined(__linux__) && defined(MADV_REMOVE)
+inline bool uncommit_shared_pages_and_free_file_space([[maybe_unused]] void *const addr,
+                                                      [[maybe_unused]] const size_t length) {
+#ifdef MADV_REMOVE
   if (!os_madvise(addr, length, MADV_REMOVE)) {
     logger::perror(logger::level::info, __FILE__, __LINE__, "madvise MADV_REMOVE");
     return uncommit_shared_pages(addr, length);
   }
   return true;
 #else
-
-#if !defined(METALL_DISABLE_FREE_FILE_SPACE) && defined (METALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
-#warning "MADV_REMOVE is not supported. Metall cannot free file space."
-#endif
-
-  return uncommit_shared_pages(addr, length);
+  return false;
 #endif
 }
 

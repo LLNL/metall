@@ -430,39 +430,8 @@ manager_kernel<chnk_no, chnk_sz>::get_segment() const {
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::snapshot(const char *destination_base_dir_path) {
-  assert(priv_initialized());
-  m_segment_storage.sync(true);
-  priv_serialize_management_data();
-
-  if (!mdtl::create_directory(priv_make_top_dir_path(destination_base_dir_path))) {
-    logger::out(logger::level::error, __FILE__, __LINE__,
-                "Failed to create directory: " + std::string(destination_base_dir_path));
-    return false;
-  }
-
-  // Copy only core directory first
-  if (!mdtl::clone_file(priv_make_core_dir_path(m_base_dir_path),
-                        priv_make_core_dir_path(destination_base_dir_path), true)) {
-    std::stringstream ss;
-    ss << "Failed to copy " << priv_make_top_dir_path(m_base_dir_path) << " to "
-       << priv_make_top_dir_path(destination_base_dir_path);
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
-  }
-
-  // Make a new metadata
-  json_store meta_data;
-  if (!priv_set_uuid(&meta_data)) return false;
-  if (!priv_set_version(&meta_data)) return false;
-  if (!priv_write_management_metadata(destination_base_dir_path, meta_data)) return false;
-
-  // Finally, mark it as properly-closed
-  if (!priv_mark_properly_closed(destination_base_dir_path)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create a properly closed mark");
-    return false;
-  }
-
-  return true;
+bool manager_kernel<chnk_no, chnk_sz>::snapshot(const char *destination_base_dir_path, const bool clone) {
+  return priv_snapshot(destination_base_dir_path, clone);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -1087,6 +1056,60 @@ manager_kernel<chnk_no, chnk_sz>::priv_deserialize_management_data() {
 
   if (!m_segment_memory_allocator.deserialize(priv_make_core_file_name(m_base_dir_path,
                                                                        k_segment_memory_allocator_prefix))) {
+    return false;
+  }
+
+  return true;
+}
+
+// ---------------------------------------- snapshot ---------------------------------------- //
+template <typename chnk_no, std::size_t chnk_sz>
+bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_base_dir_path, const bool clone) {
+  assert(priv_initialized());
+  m_segment_storage.sync(true);
+  priv_serialize_management_data();
+
+  const auto dst_top_dir = priv_make_top_dir_path(destination_base_dir_path);
+  if (!mdtl::create_directory(dst_top_dir)) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create a directory: " + dst_top_dir);
+    return false;
+  }
+
+  // Copy segment directory
+  const auto src_seg_dir = priv_make_segment_dir_path(m_base_dir_path);
+  const auto dst_seg_dir = priv_make_segment_dir_path(destination_base_dir_path);
+  if (!mdtl::create_directory(dst_seg_dir)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + dst_seg_dir);
+    return false;
+  }
+  if (!m_segment_storage.copy(src_seg_dir, dst_seg_dir, clone, METALL_MAX_COPY_THREADS)) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to copy " + src_seg_dir + " to " + dst_seg_dir);
+    return false;
+  }
+
+  // Copy management dircotry
+  const auto src_mng_dir = priv_make_management_dir_path(m_base_dir_path);
+  const auto dst_mng_dir = priv_make_management_dir_path(destination_base_dir_path);
+  if (!mdtl::create_directory(dst_mng_dir)) {
+    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + dst_mng_dir);
+    return false;
+  }
+  // Use a normal copy instead of reflink.
+  // reflink might slow down if there are many reflink copied files.
+  if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir, METALL_MAX_COPY_THREADS)) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to copy " + src_mng_dir + " to " + dst_mng_dir);
+    return false;
+  }
+
+  // Make a new management metadata
+  json_store meta_data;
+  if (!priv_set_uuid(&meta_data)) return false;
+  if (!priv_set_version(&meta_data)) return false;
+  if (!priv_write_management_metadata(destination_base_dir_path, meta_data)) return false;
+
+  // Finally, mark it as properly-closed
+  if (!priv_mark_properly_closed(destination_base_dir_path)) {
+    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create a properly closed mark");
     return false;
   }
 

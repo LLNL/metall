@@ -502,6 +502,10 @@ class manager_kernel {
   bool priv_serialize_management_data();
   bool priv_deserialize_management_data();
 
+  // ---------------------------------------- snapshot ---------------------------------------- //
+  /// \brief Takes a snapshot. The snapshot has a different UUID.
+  bool priv_snapshot(const char *destination_base_dir_path, const bool clone);
+
   // ---------------------------------------- File operations ---------------------------------------- //
   /// \brief Copies all backing files using reflink if possible
   static bool priv_copy_data_store(const std::string &src_base_dir_path,
