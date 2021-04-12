@@ -98,7 +98,7 @@ class mmap_segment_storage {
   // -------------------------------------------------------------------------------- //
   /// \brief Checks if there is a file that can be opened
   static bool openable(const std::string &base_path) {
-    const auto file_name = priv_make_file_name(base_path, 0);
+    const auto file_name = priv_make_block_file_name(base_path, 0);
     return mdtl::file_exist(file_name);
   }
 
@@ -108,7 +108,7 @@ class mmap_segment_storage {
     int block_no = 0;
     size_type total_file_size = 0;
     while (true) {
-      const auto file_name = priv_make_file_name(base_path, block_no);
+      const auto file_name = priv_make_block_file_name(base_path, block_no);
       if (!mdtl::file_exist(file_name)) {
         break;
       }
@@ -212,7 +212,7 @@ class mmap_segment_storage {
 
     m_num_blocks = 0;
     while (true) {
-      const auto file_name = priv_make_file_name(m_base_path, m_num_blocks);
+      const auto file_name = priv_make_block_file_name(m_base_path, m_num_blocks);
       if (!mdtl::file_exist(file_name)) {
         break;
       }
@@ -330,8 +330,8 @@ class mmap_segment_storage {
   // -------------------------------------------------------------------------------- //
   // Private methods (not designed to be used by the base class)
   // -------------------------------------------------------------------------------- //
-  static std::string priv_make_file_name(const std::string &base_path, const size_type n) {
-    return base_path + "_block-" + std::to_string(n);
+  static std::string priv_make_block_file_name(const std::string &base_path, const size_type n) {
+    return base_path + "/block-" + std::to_string(n);
   }
 
   void priv_reset() {
@@ -352,7 +352,7 @@ class mmap_segment_storage {
                                 const size_type block_number,
                                 const size_type file_size,
                                 const different_type segment_offset) {
-    const std::string file_name = priv_make_file_name(base_path, block_number);
+    const std::string file_name = priv_make_block_file_name(base_path, block_number);
     logger::out(logger::level::info, __FILE__, __LINE__,
                 "Create and extend a file " + file_name + " with " + std::to_string(file_size) + " bytes");
 
@@ -399,7 +399,7 @@ class mmap_segment_storage {
 #endif
     if (ret.first == -1 || !ret.second) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map a file: " + path);
-      if (ret.first == -1) {
+      if (ret.first != -1) {
         mdtl::os_close(ret.first);
       }
       return false;
@@ -661,13 +661,13 @@ class mmap_segment_storage {
   }
 
   void priv_test_file_space_free(const std::string &base_path) {
-#ifdef DISABLE_FREE_FILE_SPACE
+#ifdef METALL_DISABLE_FREE_FILE_SPACE
     m_free_file_space = false;
     return;
 #endif
 
     assert(m_system_page_size > 0);
-    const std::string file_path(base_path + "_test");
+    const std::string file_path(base_path + "/test");
     const size_type file_size = m_system_page_size * 2;
 
     if (!mdtl::create_file(file_path)) return;
@@ -677,7 +677,7 @@ class mmap_segment_storage {
     const auto ret = mdtl::map_file_write_mode(file_path, nullptr, file_size, 0);
     if (ret.first == -1 || !ret.second) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map file: " + file_path);
-      if (ret.first == -1) mdtl::os_close(ret.first);
+      if (ret.first != -1) mdtl::os_close(ret.first);
       return;
     }
 
