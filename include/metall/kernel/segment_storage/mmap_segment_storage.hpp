@@ -52,6 +52,13 @@ class mmap_segment_storage {
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
 #endif
 
+#ifdef METALL_USE_ANONYMOUS_NEW_MAP
+#if !(METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+#error "METALL_USE_ANONYMOUS_NEW_MAP must be used with a private map mode."
+#endif
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_ANONYMOUS_NEW_MAP is defined");
+#endif
+
     priv_load_system_page_size();
   }
 
@@ -364,9 +371,16 @@ class mmap_segment_storage {
       return false;
     }
 
+#ifdef METALL_USE_ANONYMOUS_NEW_MAP
+    if (!priv_map_anonymous(file_name, file_size, segment_offset)) {
+      return false;
+    }
+#else
     if (!priv_map_file(file_name, file_size, segment_offset, false)) {
       return false;
     }
+#endif
+
     return true;
   }
 
@@ -393,10 +407,10 @@ class mmap_segment_storage {
 
     const auto ret = (read_only) ?
                      mdtl::map_file_read_mode(path, map_addr, file_size, 0, MAP_FIXED) :
-                     #if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_PWRITE)
                      mdtl::map_file_write_private_mode(path, map_addr, file_size, 0, MAP_FIXED);
 #else
-    mdtl::map_file_write_mode(path, map_addr, file_size, 0, MAP_FIXED | map_nosync);
+                     mdtl::map_file_write_mode(path, map_addr, file_size, 0, MAP_FIXED | map_nosync);
 #endif
     if (ret.first == -1 || !ret.second) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map a file: " + path);
@@ -478,9 +492,6 @@ class mmap_segment_storage {
 #if METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
     logger::out(logger::level::info, __FILE__, __LINE__, "diff-msync for the application data segment");
     priv_parallel_msync();
-#elif METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
-    logger::out(logger::level::info, __FILE__, __LINE__, "pagemap-diff-msync for the application data segment");
-    priv_parallel_msync();
 #elif METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "pwrite() for the application data segment");
     priv_parallel_write_block();
@@ -510,8 +521,6 @@ class mmap_segment_storage {
         if (block_no < m_block_fd_list.size()) {
         #if METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
           num_successes.fetch_add(priv_diff_msync(block_no) ? 1 : 0);
-        #elif METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
-          num_successes.fetch_add(priv_pagemap_msync(block_no) ? 1 : 0);
         #endif
         } else {
           break;
@@ -663,7 +672,7 @@ class mmap_segment_storage {
   }
 
   bool priv_uncommit_pages_and_free_file_space(const different_type offset, const size_type nbytes) const {
-#if (METALL_USE_PRIVATE_MAP_AND_MSYNC || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     // Uncommit pages in DRAM first
     if (!mdtl::uncommit_private_nonanonymous_pages(static_cast<char *>(m_segment) + offset, nbytes)) return false;
 
@@ -688,7 +697,7 @@ class mmap_segment_storage {
   }
 
   bool priv_uncommit_pages(const different_type offset, const size_type nbytes) const {
-#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF ||METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP || METALL_USE_PRIVATE_MAP_AND_PWRITE)
+#if (METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF || METALL_USE_PRIVATE_MAP_AND_PWRITE)
     return mdtl::uncommit_private_nonanonymous_pages(static_cast<char *>(m_segment) + offset, nbytes);
 #else
     return mdtl::uncommit_shared_pages(static_cast<char *>(m_segment) + offset, nbytes);
