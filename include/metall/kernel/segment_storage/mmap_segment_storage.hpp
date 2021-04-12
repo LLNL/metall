@@ -13,6 +13,7 @@
 #include <atomic>
 
 #include <metall/detail/file.hpp>
+#include <metall/detail/file_clone.hpp>
 #include <metall/detail/mmap.hpp>
 #include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
@@ -117,7 +118,34 @@ class mmap_segment_storage {
     return total_file_size;
   }
 
+  /// \brief Copies segment to another location.
+  static bool copy(const std::string &source_path,
+                   const std::string &destination_path,
+                   const bool clone,
+                   const int max_num_threads) {
+    if (!mdtl::directory_exist(destination_path)) {
+      if (!mdtl::create_directory(destination_path)) {
+        logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot create a directory: " + destination_path);
+      }
+    }
+
+    if (clone) {
+      logger::out(logger::level::info, __FILE__, __LINE__, "Clone: " + source_path);
+      return mdtl::clone_files_in_directory_in_parallel(source_path, destination_path, max_num_threads);
+    } else {
+      logger::out(logger::level::info, __FILE__, __LINE__, "Copy: " + source_path);
+      return mdtl::copy_files_in_directory_in_parallel(source_path, destination_path, max_num_threads);
+    }
+    assert(false);
+    return false;
+  }
+
   /// \brief Creates a new segment
+  /// \base_path Base directory path to create this segment
+  /// \param vm_region_size VM size
+  /// \param vm_region Address of the VM region
+  /// \block_size Block size
+  /// \return Return true if success; otherwise, false.
   bool create(const std::string &base_path,
               const size_type vm_region_size,
               void *const vm_region,
@@ -125,7 +153,13 @@ class mmap_segment_storage {
     assert(!priv_inited());
     m_block_size = std::min(vm_region_size, block_size);
 
-    logger::out(logger::level::info, __FILE__, __LINE__, "Create a file with prefix " + base_path);
+    logger::out(logger::level::info, __FILE__, __LINE__, "Create a segment under: " + base_path);
+
+    if (!mdtl::directory_exist(base_path)) {
+      if (!mdtl::create_directory(base_path)) {
+        logger::out(logger::level::critical, __FILE__, __LINE__, "Cannot create a directory: " + base_path);
+      }
+    }
 
     // TODO: align those values to the page size instead of aborting
     if (m_block_size % page_size() != 0 || vm_region_size % page_size() != 0
@@ -155,10 +189,15 @@ class mmap_segment_storage {
   }
 
   /// \brief Opens an existing segment
+  /// \base_path Base directory path to create this segment
+  /// \param vm_region_size VM size
+  /// \param vm_region Address of the VM region
+  /// \param read_only If true, this segment is read only
+  /// \return Return true if success; otherwise, false.
   bool open(const std::string &base_path, const size_type vm_region_size, void *const vm_region, const bool read_only) {
     assert(!priv_inited());
 
-    logger::out(logger::level::info, __FILE__, __LINE__, "Open a file with prefix " + base_path);
+    logger::out(logger::level::info, __FILE__, __LINE__, "Open a segment under: " + base_path);
 
     // TODO: align those values to the page size instead of aborting
     if (vm_region_size % page_size() != 0 || (uint64_t)vm_region % page_size() != 0) {
@@ -190,7 +229,10 @@ class mmap_segment_storage {
                          m_block_size,
                          m_current_segment_size,
                          read_only)) {
-        logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to map a file " + std::to_string(m_block_size));
+        logger::out(logger::level::critical,
+                    __FILE__,
+                    __LINE__,
+                    "Failed to map a file " + std::to_string(m_block_size));
         return false;
       }
       m_current_segment_size += m_block_size;

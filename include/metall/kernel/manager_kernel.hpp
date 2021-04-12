@@ -81,7 +81,8 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   using self_type = manager_kernel<_chunk_no_type, _chunk_size>;
   static constexpr const char *k_datastore_top_dir_name = "metall_datastore";
-  static constexpr const char *k_datastore_core_dir_name = "core";
+  static constexpr const char *k_datastore_management_dir_name = "management";
+  static constexpr const char *k_datastore_segment_dir_name = "segment";
 
   // For segment
   static constexpr size_type k_default_vm_reserve_size = METALL_DEFAULT_VM_RESERVE_SIZE;
@@ -95,8 +96,6 @@ class manager_kernel {
   static_assert(k_initial_segment_size <= k_default_vm_reserve_size,
                 "k_initial_segment_size must be <= k_default_vm_reserve_size");
   static_assert(k_chunk_size <= k_initial_segment_size, "Chunk size must be <= k_initial_segment_size");
-
-  static constexpr const char *k_segment_prefix = "segment";
 
   using segment_header_type = segment_header;
   static constexpr size_type k_segment_header_size = mdtl::round_up(sizeof(segment_header_type), k_chunk_size);
@@ -347,21 +346,26 @@ class manager_kernel {
 
   /// \brief Takes a snapshot. The snapshot has a different UUID.
   /// \param destination_dir_path Destination path
+  /// \param clone Use clone (reflink) to copy data.
   /// \return If succeeded, returns True; other false
-  bool snapshot(const char *destination_dir_path);
+  bool snapshot(const char *destination_dir_path, const bool clone = true);
 
   /// \brief Copies a data store synchronously, keeping the same UUID.
-  /// \param source_dir_path Destination path
-  /// \param destination_dir_path
-  /// \return If succeeded, returns True; other false
-  static bool copy(const char *source_dir_path, const char *destination_dir_path);
+  /// \param source_dir_path Source path.
+  /// \param destination_dir_path Destination path.
+  /// \param clone Use clone (reflink) to copy data.
+  /// \return If succeeded, returns True; other false.
+  static bool copy(const char *source_dir_path, const char *destination_dir_path, const bool clone = true);
 
   /// \brief Copies a data store asynchronously, keeping the same UUID.
-  /// \param source_dir_path Destination path
-  /// \param destination_dir_path
-  /// \return Returns an object of std::future
-  /// If succeeded, its get() returns True; other false
-  static std::future<bool> copy_async(const char *source_dir_path, const char *destination_dir_path);
+  /// \param source_dir_path Source path.
+  /// \param destination_dir_path Destination path.
+  /// \param clone Use clone (reflink) to copy data.
+  /// \return Returns an object of std::future.
+  /// If succeeded, its get() returns True; other false.
+  static std::future<bool> copy_async(const char *source_dir_path,
+                                      const char *destination_dir_path,
+                                      const bool clone = true);
 
   /// \brief Remove a data store synchronously
   /// \param base_dir_path
@@ -456,14 +460,16 @@ class manager_kernel {
   // Directory structure:
   // base_dir_path/ <- this path is given by user
   //  top_dir/
-  //    some top-level file
-  //    core_dir/
-  //      many core files
-  //      many directories
+  //    some top-level files
+  //    management_dir/
+  //      directories and files for allocation management
+  //    segment_dir/
+  //      directories and files for application data segment
   static std::string priv_make_top_dir_path(const std::string &base_dir_path);
   static std::string priv_make_top_level_file_name(const std::string &base_dir_path, const std::string &item_name);
-  static std::string priv_make_core_dir_path(const std::string &base_dir_path);
-  static std::string priv_make_core_file_name(const std::string &base_dir_path, const std::string &item_name);
+  static std::string priv_make_management_dir_path(const std::string &base_dir_path);
+  static std::string priv_make_management_file_name(const std::string &base_dir_path, const std::string &item_name);
+  static std::string priv_make_segment_dir_path(const std::string &base_dir_path);
   static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   // ---------------------------------------- For consistence support ---------------------------------------- //
@@ -510,7 +516,7 @@ class manager_kernel {
   /// \brief Copies all backing files using reflink if possible
   static bool priv_copy_data_store(const std::string &src_base_dir_path,
                                    const std::string &dst_base_dir_path,
-                                   bool overwrite);
+                                   const bool clone);
 
   /// \brief Removes all backing files
   static bool priv_remove_data_store(const std::string &dir_path);
