@@ -26,58 +26,17 @@ namespace metall::mtlldetail {
 namespace file_clone_detail {
 #ifdef __linux__
 inline bool clone_file_linux(const std::string& source_path, const std::string& destination_path) {
-#if 0
-#ifdef FICLONE
-  const int source_fd = ::open(source_path.c_str(), O_RDONLY);
-  if (source_fd == -1) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "open " + source_path);
-    return false;
-  }
-
-  const int destination_fd = ::open(destination_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-  if (destination_fd == -1) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "open " + destination_path);
-    return false;
-  }
-
-  if (::ioctl(destination_fd, FICLONE, source_fd) == -1) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "ioctl + FICLONE");
-    return false;
-  }
-
-  int ret = true;
-  ret &= os_close(source_fd);
-  ret &= os_close(destination_fd);
-
-  return ret;
-#else
-#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "ioctl_ficlone is not supported"
-  return copy_file(source_path, destination_path); // Copy normally
-#endif
-#endif
-#else
   std::string command("cp --reflink=auto -R " + source_path + " " + destination_path);
   const int status = std::system(command.c_str());
   return (status != -1) && !!(WIFEXITED(status));
-#endif
-  return true;
 }
 #endif
 
 #ifdef __APPLE__
 inline bool clone_file_macos(const std::string &source_path, const std::string &destination_path) {
-#if 0
-  if (::clonefile(source_path.c_str(), destination_path.c_str(), 0) == -1) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "clonefile");
-    return false;
-  }
-  return true;
-#else
   std::string command("cp -cR " + source_path + " " + destination_path);
   const int status = std::system(command.c_str());
   return (status != -1) && !!(WIFEXITED(status));
-#endif
 }
 #endif
 }// namespace file_clone_detail
