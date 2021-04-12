@@ -44,9 +44,10 @@ class mmap_segment_storage {
         m_free_file_space(true),
         m_block_fd_list(),
         m_block_size(0) {
-#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC
-    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC is defined");
+#ifdef METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
+    logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF is defined");
 #endif
+
 #ifdef METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_PRIVATE_MAP_AND_PWRITE is defined");
 #endif
@@ -410,6 +411,43 @@ class mmap_segment_storage {
     return true;
   }
 
+  bool priv_map_anonymous(const std::string &path,
+                          const size_type region_size,
+                          const different_type segment_offset) {
+    assert(!path.empty());
+    assert(region_size > 0);
+    assert(segment_offset >= 0);
+    assert(segment_offset + region_size <= m_vm_region_size);
+
+    const auto map_addr = static_cast<char *>(m_segment) + segment_offset;
+    logger::out(logger::level::info, __FILE__, __LINE__,
+                "Map an anonymous region at " + std::to_string(segment_offset) + " with "
+                    + std::to_string(region_size));
+
+    const auto *addr = mdtl::map_anonymous_write_mode(map_addr, region_size, MAP_FIXED);
+    if (!addr) {
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to map an anonymous region at " + std::to_string(segment_offset));
+      return false;
+    }
+
+    // Although we do not map the file, we still open it so that other functions in this class work.
+    const int fd = ::open(path.c_str(), O_RDWR);
+    if (fd == -1) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "open");
+      logger::out(logger::level::critical,
+                  __FILE__,
+                  __LINE__,
+                  "Failed to open a file " + path);
+    }
+
+    m_block_fd_list.emplace_back(fd);
+
+    return true;
+  }
+
   void priv_destroy_segment() {
     if (!priv_inited()) return;
 
@@ -437,9 +475,12 @@ class mmap_segment_storage {
       return;
     }
 
-#if METALL_USE_PRIVATE_MAP_AND_MSYNC
+#if METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
     logger::out(logger::level::info, __FILE__, __LINE__, "diff-msync for the application data segment");
-    priv_parallel_diff_msync();
+    priv_parallel_msync();
+#elif METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
+    logger::out(logger::level::info, __FILE__, __LINE__, "pagemap-diff-msync for the application data segment");
+    priv_parallel_msync();
 #elif METALL_USE_PRIVATE_MAP_AND_PWRITE
     logger::out(logger::level::info, __FILE__, __LINE__, "pwrite() for the application data segment");
     priv_parallel_write_block();
@@ -459,35 +500,38 @@ class mmap_segment_storage {
     }
   }
 
-  bool priv_parallel_diff_msync() const {
-    const auto num_threads = (int)std::min(m_block_fd_list.size(), (std::size_t)std::thread::hardware_concurrency());
-    std::vector<std::thread *> threads(num_threads, nullptr);
-    std::atomic_uint_fast64_t block_no_count = 0;
+  bool priv_parallel_msync() const {
 
-    auto diff_sync = [&block_no_count, this]() {
+    std::atomic_uint_fast64_t block_no_count = 0;
+    std::atomic_uint_fast64_t num_successes = 0;
+    auto diff_sync = [&block_no_count, &num_successes, this]() {
       while (true) {
         const auto block_no = block_no_count.fetch_add(1);
         if (block_no < m_block_fd_list.size()) {
-          priv_diff_msync(block_no);
+        #if METALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF
+          num_successes.fetch_add(priv_diff_msync(block_no) ? 1 : 0);
+        #elif METALL_USE_PRIVATE_MAP_AND_MSYNC_PAGEMAP
+          num_successes.fetch_add(priv_pagemap_msync(block_no) ? 1 : 0);
+        #endif
         } else {
           break;
         }
       }
     };
 
-    logger::out(logger::level::info,
-                __FILE__,
-                __LINE__,
+    const auto num_threads = (int)std::min(m_block_fd_list.size(), (std::size_t)std::thread::hardware_concurrency());
+    logger::out(logger::level::info, __FILE__, __LINE__,
                 "Sync files with " + std::to_string(num_threads) + " threads");
-    for (int t = 0; t < num_threads; ++t) {
-      threads[t] = new std::thread(diff_sync);
+    std::vector<std::thread *> threads(num_threads, nullptr);
+    for (auto &th : threads) {
+      th = new std::thread(diff_sync);
     }
 
     for (auto &th : threads) {
       th->join();
     }
 
-    return true;
+    return num_successes == m_block_fd_list.size();
   }
 
   bool priv_diff_msync(const size_type block_no) const {
@@ -541,25 +585,25 @@ class mmap_segment_storage {
   }
 
   bool priv_parallel_write_block() const {
-    const auto num_threads = (int)std::min(m_block_fd_list.size(), (std::size_t)std::thread::hardware_concurrency());
-    std::vector<std::thread *> threads(num_threads, nullptr);
-    std::atomic_uint_fast64_t block_no_count = 0;
 
-    auto write_block = [&block_no_count, this]() {
+    std::atomic_uint_fast64_t block_no_count = 0;
+    std::atomic_uint_fast64_t num_successes = 0;
+    auto write_block = [&block_no_count, &num_successes, this]() {
       while (true) {
         const auto block_no = block_no_count.fetch_add(1);
         if (block_no < m_block_fd_list.size()) {
           priv_write_block(block_no);
+          num_successes.fetch_add(priv_write_block(block_no) ? 1 : 0);
         } else {
           break;
         }
       }
     };
 
-    logger::out(logger::level::info,
-                __FILE__,
-                __LINE__,
+    const auto num_threads = (int)std::min(m_block_fd_list.size(), (std::size_t)std::thread::hardware_concurrency());
+    logger::out(logger::level::info, __FILE__, __LINE__,
                 "Write blocks with " + std::to_string(num_threads) + " threads");
+    std::vector<std::thread *> threads(num_threads, nullptr);
     for (int t = 0; t < num_threads; ++t) {
       threads[t] = new std::thread(write_block);
     }
@@ -568,7 +612,7 @@ class mmap_segment_storage {
       th->join();
     }
 
-    return true;
+    return num_successes == m_block_fd_list.size();
   }
 
   bool priv_write_block(const size_type block_no) const {
