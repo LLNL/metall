@@ -327,6 +327,11 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     logger::out(logger::level::error, __FILE__, __LINE__, e.what());
     success = false;
   }
+
+  if (success) {
+    success &= metall::mtlldetail::fsync(destination_path);
+  }
+
   return success;
 }
 
@@ -373,6 +378,10 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     }
 
     destination.close();
+
+    if (!metall::mtlldetail::fsync(destination_path)) {
+      return false;
+    }
   }
 
   {
