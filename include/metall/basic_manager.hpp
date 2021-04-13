@@ -600,26 +600,31 @@ class basic_manager {
   // -------------------- Snapshot, copy, data store management -------------------- //
   /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
   /// \param destination_dir_path Path to store a snapshot.
+  /// \param clone Use the file clone mechanism (reflink) instead of normal copy if it is available.
   /// \return Returns true on success; other false.
-  bool snapshot(const char_type *destination_dir_path) {
-    return m_kernel.snapshot(destination_dir_path);
+  bool snapshot(const char_type *destination_dir_path, const bool clone = true) {
+    return m_kernel.snapshot(destination_dir_path, clone);
   }
 
   /// \brief Copies data store synchronously.
+  /// The behavior of copying a data store that is open without the read-only mode is undefined.
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
+  /// \param clone Use the file clone mechanism (reflink) instead of normal copy if it is available.
   /// \return If succeeded, returns true; other false.
-  static bool copy(const char_type *source_dir_path, const char_type *destination_dir_path) {
-    return manager_kernel_type::copy(source_dir_path, destination_dir_path);
+  static bool copy(const char_type *source_dir_path, const char_type *destination_dir_path, const bool clone = true) {
+    return manager_kernel_type::copy(source_dir_path, destination_dir_path, clone);
   }
 
   /// \brief Copies data store asynchronously.
+  /// The behavior of copying a data store that is open without the read-only mode is undefined.
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
+  /// \param clone Use the file clone mechanism (reflink) instead of normal copy if it is available.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns true; other false.
-  static auto copy_async(const char_type *source_dir_path, const char_type *destination_dir_path) {
-    return manager_kernel_type::copy_async(source_dir_path, destination_dir_path);
+  static auto copy_async(const char_type *source_dir_path, const char_type *destination_dir_path, const bool clone = true) {
+    return manager_kernel_type::copy_async(source_dir_path, destination_dir_path, clone);
   }
 
   /// \brief Removes data store synchronously.

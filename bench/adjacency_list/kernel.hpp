@@ -55,17 +55,26 @@ inline auto allocate_key_value_input_storage() {
   return key_value_input_storage_t<adjacency_list_type>(num_threads);
 }
 
-using closing_function_type = std::function<void()>;
-
 template <typename adjacency_list_type>
 inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_type> &input,
-                              const closing_function_type& closing_function,
+                              const std::function<void()>& preprocess,
+                              const std::function<void()>& postprocess,
                               adjacency_list_type *const adj_list,
                               const bool verbose = false) {
   if (verbose) print_current_num_page_faults();
 
+  if (preprocess) {
+    if (verbose) std::cout << "----- Pre-process -----" << std::endl;
+    const auto start = mdtl::elapsed_time_sec();
+    preprocess();
+    const auto elapsed_time = mdtl::elapsed_time_sec(start);
+    if (verbose) std::cout << "Pre-process time (s)\t" << elapsed_time << std::endl;
+  }
+
+  if (verbose) std::cout << "----- Ingest Main -----" << std::endl;
+  // Ingest edges main
   std::size_t num_inserted = 0;
-  const auto start = mdtl::elapsed_time_sec();
+  const auto ingest_start = mdtl::elapsed_time_sec();
   OMP_DIRECTIVE(parallel reduction(+:num_inserted))
   {
     assert((int)input.size() == (int)omp::get_num_threads());
@@ -75,20 +84,25 @@ inline auto ingest_key_values(const key_value_input_storage_t<adjacency_list_typ
     }
     num_inserted += key_value_list.size();
   }
-  if (closing_function) {
-    closing_function();
-  }
-  const auto elapsed_time = mdtl::elapsed_time_sec(start);
+  const auto ingest_elapsed_time = mdtl::elapsed_time_sec(ingest_start);
 
   if (verbose) {
     std::cout << "#of inserted elements\t" << num_inserted << std::endl;
-    std::cout << "Elapsed time (s)\t" << elapsed_time << std::endl;
+    std::cout << "Ingest elapsed time (s)\t" << ingest_elapsed_time << std::endl;
     std::cout << "DRAM usage (GB)\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
     std::cout << "DRAM cache usage (GB)\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL) << std::endl;
     print_current_num_page_faults();
   }
 
-  return elapsed_time;
+  if (postprocess) {
+    if (verbose) std::cout << "----- Post-process -----" << std::endl;
+    const auto start = mdtl::elapsed_time_sec();
+    postprocess();
+    const auto elapsed_time = mdtl::elapsed_time_sec(start);
+    if (verbose) std::cout << "Post-process time (s)\t" << elapsed_time << std::endl;
+  }
+
+  return ingest_elapsed_time;
 }
 }
 

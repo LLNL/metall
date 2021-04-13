@@ -10,7 +10,7 @@
 # Options
 # ------------------------- #
 VERTEX_SCALE=17        # RMAT graph SCALE
-FILE_SIZE=$((2 ** 30)) # File size for Boost.Interprocess
+FILE_SIZE=$((2 ** 30)) # File size for Boost.Interprocess and MEMKIND (pmem kind)
 LOG_FILE_PREFIX="out_adj_bench"
 NUM_THREADS=""
 OMP_SCHEDULE=""
