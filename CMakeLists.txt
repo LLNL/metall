@@ -235,6 +235,8 @@ endif ()
 # -------------------------------------------------------------------------------- #
 # Executables
 # -------------------------------------------------------------------------------- #
+include_directories(include)
+
 # Requirements for GCC
 if (NOT RUN_BUILD_AND_TEST_WITH_CI)
     if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
@@ -283,6 +285,10 @@ endif ()
 
 
 # ---------- Boost ---------- #
+# Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
+# there is a tricky behavior/issue especially in Boost 1.70.0.
+set (Boost_NO_BOOST_CMAKE ON)
+
 if (RUN_BUILD_AND_TEST_WITH_CI)
     find_package(Boost)
 else ()
@@ -290,8 +296,12 @@ else ()
 endif ()
 
 if (Boost_FOUND)
+
+    # Just a sanity check
+    if (NOT Boost_INCLUDE_DIRS)
+        message(FATAL_ERROR "Something is wrong: Boost_INCLUDE_DIRS is empty although Boost_FOUND is true.")
+    endif()
     include_directories(${Boost_INCLUDE_DIRS})
-    include_directories(include)
 
     add_subdirectory(src)
     add_subdirectory(example)
