@@ -51,6 +51,10 @@ struct bench_options {
   std::string adj_list_dump_file_name;
   std::string edge_list_dump_file_name;
 
+  bool append{false}; // Append existing data store
+
+  std::string staging_location; // Copy data store
+
   bool verbose{false};
 };
 
@@ -65,7 +69,11 @@ inline void disp_options(const bench_options &option) {
       std::cout << " " << name << std::endl;
     }
   }
-  std::cout << "segment_size (for Boost) : " << option.segment_size << std::endl;
+  std::cout << "segment_size (for Boost and pmem) : " << option.segment_size << std::endl;
+
+  std::cout << "Append existing data store : " << static_cast<int>(option.append) << std::endl;
+
+  std::cout << "Staging location : " << option.staging_location << std::endl;
 
   if (option.input_file_name_list.empty()) {
     std::cout << "seed: " << option.rmat.seed
@@ -86,7 +94,7 @@ inline void disp_options(const bench_options &option) {
 
 inline auto parse_options(int argc, char **argv, bench_options *option) {
   int p;
-  while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:D:V")) != -1) {
+  while ((p = ::getopt(argc, argv, "o:k:n:f:s:v:e:a:b:c:r:u:d:D:VAS:")) != -1) {
     switch (p) {
       case 'o':option->datastore_path_list.clear();
         boost::split(option->datastore_path_list, optarg, boost::is_any_of(":"));
@@ -125,6 +133,12 @@ inline auto parse_options(int argc, char **argv, bench_options *option) {
       case 'u':option->rmat.undirected = static_cast<bool>(std::stoi(optarg));
         break;
 
+      case 'A': option->append = true;
+        break;
+
+      case 'S': option->staging_location = optarg;
+        break;
+
       case 'd': // dump constructed adjacency list at the end of benchmark
         option->adj_list_dump_file_name = optarg;
         break;
@@ -156,7 +170,8 @@ inline auto parse_options(int argc, char **argv, bench_options *option) {
 template <typename adjacency_list_type>
 inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_list,
                               const std::size_t chunk_size,
-                              const closing_function_type &closing_function,
+                              const std::function<void()> &preprocess,
+                              const std::function<void()> &postprocess,
                               adjacency_list_type *adj_list,
                               std::ofstream *const ofs_save_edge,
                               const bool verbose = false) {
@@ -183,7 +198,7 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
 
     if (count_read == 0) break;
 
-    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list, verbose);
+    total_elapsed_time += ingest_key_values(input_storage, preprocess, postprocess, adj_list, verbose);
 
     if (ofs_save_edge) {
       for (const auto &list : input_storage) {
@@ -205,7 +220,8 @@ inline auto run_bench_kv_file(const std::vector<std::string> &input_file_name_li
 template <typename adjacency_list_type>
 inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
                                 const std::size_t chunk_size,
-                                const closing_function_type &closing_function,
+                                const std::function<void()> &preprocess,
+                                const std::function<void()> &postprocess,
                                 adjacency_list_type *adj_list,
                                 std::ofstream *const ofs_save_edge,
                                 const bool verbose = false) {
@@ -251,7 +267,7 @@ inline auto run_bench_rmat_edge(const bench_options::rmat_option &rmat_option,
       }
     }
 
-    total_elapsed_time += ingest_key_values(input_storage, closing_function, adj_list, verbose);
+    total_elapsed_time += ingest_key_values(input_storage, preprocess, postprocess, adj_list, verbose);
 
     if (ofs_save_edge) {
       for (const auto &list : input_storage) {
@@ -297,11 +313,14 @@ inline void dump_adj_list(const adjacency_list_type &adj_list, const std::string
 /// \brief Run Key-value insertion benchmark.
 /// \tparam adjacency_list_type A type of the adjacent-list type to use.
 /// \param options Benchmark options.
-/// \param closing_function A function that is called after each chunk is inserted.
-/// if '!closing_function' is true, it won't be called.
+/// \param preprocess A function that is called after each chunk is inserted.
+/// if '!preprocess' is true, it won't be called.
 /// \param adj_list A pointer to a adjacently list object.
 template <typename adjacency_list_type>
-void run_bench(const bench_options &options, closing_function_type closing_function, adjacency_list_type *adj_list) {
+void run_bench(const bench_options &options,
+               adjacency_list_type *adj_list,
+               const std::function<void()>& preprocess = std::function<void()>{},
+               const std::function<void()>& postprocess = std::function<void()>{}) {
 
   std::cout << "Start key-value data ingestion" << std::endl;
   print_omp_configuration();
@@ -321,7 +340,8 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
     std::cout << "Get inputs from an R-MAT edge generator (graph data)" << std::endl;
     elapsed_time_sec = run_bench_rmat_edge(options.rmat,
                                            options.chunk_size,
-                                           closing_function,
+                                           preprocess,
+                                           postprocess,
                                            adj_list,
                                            &ofs_save_edge,
                                            options.verbose);
@@ -329,7 +349,8 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
     std::cout << "Get inputs from key-value files" << std::endl;
     elapsed_time_sec = run_bench_kv_file(options.input_file_name_list,
                                          options.chunk_size,
-                                         closing_function,
+                                         preprocess,
+                                         postprocess,
                                          adj_list,
                                          &ofs_save_edge,
                                          options.verbose);
@@ -347,16 +368,6 @@ void run_bench(const bench_options &options, closing_function_type closing_funct
   if (!options.adj_list_dump_file_name.empty()) {
     dump_adj_list(*adj_list, options.adj_list_dump_file_name);
   }
-}
-
-/// \brief Run Key-value insertion benchmark.
-/// \tparam adjacency_list_type A type of the adjacent-list type to use.
-/// \param options Benchmark options.
-/// \param adj_list A pointer to a adjacently list object.
-template <typename adjacency_list_type>
-void run_bench(const bench_options &options, adjacency_list_type *adj_list) {
-  // Pass 'NULL' of closing_function_type so that it won't be called.
-  run_bench(options, closing_function_type(), adj_list);
 }
 
 }
