@@ -34,7 +34,6 @@
 #include <metall/detail/file.hpp>
 #include <metall/detail/file_clone.hpp>
 #include <metall/detail/char_ptr_holder.hpp>
-#include <metall/detail/soft_dirty_page.hpp>
 #include <metall/detail/uuid.hpp>
 #include <metall/detail/ptree.hpp>
 
@@ -321,14 +320,16 @@ class manager_kernel {
   /// \return
   const_anonymous_iterator anonymous_end() const;
 
-  /// \brief Generic named/anonymous new function. This method is required by construct_proxy and construct_iter_proxy
-  /// \tparam T Type of the object(s)
-  /// \param name Name of the object(s)
-  /// \param num Number of objects to be constructed
-  /// \param try2find If true, tries to find already constructed object(s) with the same name
-  /// \param do_throw Ignored --- this method does not throw its own exception
-  /// \param table Reference to an in_place_interface object
-  /// \return Returns a pointer to the constructed object(s)
+  /// \brief Generic named/anonymous new function. This method is required by construct_proxy and construct_iter_proxy.
+  /// \tparam T Type of the object(s).
+  /// \param name Name of the object(s).
+  /// \param num Number of objects to be constructed.
+  /// \param try2find If true, tries to find already constructed object(s) with the same name.
+  /// \param do_throw Ignored. This method does not throw its own exception ---
+  /// this function throws an exception thrown by the constructor of the object.
+  /// This is how Boost.Interprocess treats this parameter.
+  /// \param table Reference to an in_place_interface object.
+  /// \return Returns a pointer to the constructed object(s).
   template <typename T>
   T *generic_construct(char_ptr_holder_type name,
                        size_type num,
@@ -340,9 +341,13 @@ class manager_kernel {
   /// \return Returns the address of the segment header.
   const segment_header_type *get_segment_header() const;
 
-  /// \brief Get the address of the application segment.
-  /// \return Returns the address of the application segment.
+  /// \brief Get the address of the application segment segment.
+  /// \return Returns the address of the application segment segment.
   const void *get_segment() const;
+
+  /// \brief Get the size of the application data segment.
+  /// \return Returns the size of the application data segment.
+  size_type get_segment_size() const;
 
   /// \brief Takes a snapshot. The snapshot has a different UUID.
   /// \param destination_dir_path Destination path
@@ -484,7 +489,6 @@ class manager_kernel {
   T *priv_generic_construct(char_ptr_holder_type name,
                             size_type length,
                             bool try2find,
-                            bool do_throw, // ignored --- this function does not throw.
                             mdtl::in_place_interface &table);
 
   template <typename T>
@@ -540,17 +544,17 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   std::string m_base_dir_path;
   size_type m_vm_region_size;
-  void *m_vm_region;
-  segment_header_type *m_segment_header;
+  void *m_vm_region{nullptr};
+  segment_header_type *m_segment_header{nullptr};
   attributed_object_directory_type m_named_object_directory;
   attributed_object_directory_type m_unique_object_directory;
   attributed_object_directory_type m_anonymous_object_directory;
   segment_storage_type m_segment_storage;
   segment_memory_allocator m_segment_memory_allocator;
-  json_store m_manager_metadata;
+  std::unique_ptr<json_store> m_manager_metadata{nullptr};
 
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-  mutex_type m_object_directories_mutex;
+  std::unique_ptr<mutex_type> m_object_directories_mutex{nullptr};
 #endif
 };
 

@@ -7,7 +7,6 @@
 #define METALL_DETAIL_KERNEL_MANAGER_KERNEL_IMPL_IPP
 
 #include <metall/kernel/manager_kernel_fwd.hpp>
-#include <metall/logger.hpp>
 
 namespace metall {
 namespace kernel {
@@ -26,11 +25,16 @@ manager_kernel<chnk_no, chnk_sz>::manager_kernel()
       m_anonymous_object_directory(),
       m_segment_storage(),
       m_segment_memory_allocator(&m_segment_storage),
-      m_manager_metadata()
+      m_manager_metadata(nullptr)
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-    , m_object_directories_mutex()
+    , m_object_directories_mutex(nullptr)
 #endif
 {
+  m_manager_metadata = std::make_unique<json_store>();
+
+#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+  m_object_directories_mutex = std::make_unique<mutex_type>();
+#endif
   priv_validate_runtime_configuration();
 }
 
@@ -91,6 +95,9 @@ allocate(const manager_kernel<chnk_no, chnk_sz>::size_type nbytes) {
   if (m_segment_storage.read_only()) return nullptr;
 
   const auto offset = m_segment_memory_allocator.allocate(nbytes);
+  if (offset == segment_memory_allocator::k_null_offset) {
+    return nullptr;
+  }
   assert(offset >= 0);
   assert(offset + nbytes <= m_segment_storage.size());
   return priv_to_address(offset);
@@ -108,7 +115,7 @@ allocate_aligned(const manager_kernel<chnk_no, chnk_sz>::size_type nbytes,
   if (alignment > k_chunk_size) return nullptr;
 
   const auto offset = m_segment_memory_allocator.allocate_aligned(nbytes, alignment);
-  if (offset == m_segment_memory_allocator.k_null_offset) {
+  if (offset == segment_memory_allocator::k_null_offset) {
     return nullptr;
   }
   assert(offset >= 0);
@@ -171,7 +178,7 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy(char_ptr_holder_type name) {
 
   {
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-    lock_guard_type guard(m_object_directories_mutex);
+    lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
     std::tie(ptr, length) = find<T>(name);
@@ -197,7 +204,7 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy_ptr(const T *ptr) {
   size_type length = 0;
   {
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-    lock_guard_type guard(m_object_directories_mutex);
+    lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
     length = get_instance_length(ptr);
@@ -411,10 +418,10 @@ template <typename T>
 T *manager_kernel<chnk_no, chnk_sz>::generic_construct(char_ptr_holder_type name,
                                                        const size_type num,
                                                        const bool try2find,
-                                                       const bool dothrow,
+                                                       [[maybe_unused]] const bool do_throw,
                                                        mdtl::in_place_interface &table) {
   assert(priv_initialized());
-  return priv_generic_construct<T>(name, num, try2find, dothrow, table);
+  return priv_generic_construct<T>(name, num, try2find, table);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -427,6 +434,12 @@ template <typename chnk_no, std::size_t chnk_sz>
 const void *
 manager_kernel<chnk_no, chnk_sz>::get_segment() const {
   return m_segment_storage.get_segment();
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+typename manager_kernel<chnk_no, chnk_sz>::size_type
+manager_kernel<chnk_no, chnk_sz>::get_segment_size() const {
+  return m_segment_storage.size();
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -473,10 +486,9 @@ template <typename chnk_no, std::size_t chnk_sz>
 std::string manager_kernel<chnk_no, chnk_sz>::get_uuid(const char *dir_path) {
   json_store meta_data;
   if (!priv_read_management_metadata(dir_path, &meta_data)) {
-    logger::out(logger::level::error,
-                __FILE__,
-                __LINE__,
-                "Cannot read management metadata in " + std::string(dir_path));
+    std::stringstream ss;
+    ss << "Cannot read management metadata in " << dir_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return "";
   }
   return priv_get_uuid(meta_data);
@@ -491,10 +503,9 @@ template <typename chnk_no, std::size_t chnk_sz>
 version_type manager_kernel<chnk_no, chnk_sz>::get_version(const char *dir_path) {
   json_store meta_data;
   if (!priv_read_management_metadata(dir_path, &meta_data)) {
-    logger::out(logger::level::error,
-                __FILE__,
-                __LINE__,
-                "Cannot read management metadata in " + std::string(dir_path));
+    std::stringstream ss;
+    ss << "Cannot read management metadata in " << dir_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return 0;
   }
   const auto version = priv_get_version(meta_data);
@@ -594,30 +605,28 @@ bool
 manager_kernel<chnk_no, chnk_sz>::priv_init_datastore_directory(const std::string &base_dir_path) {
   // Create the base directory if needed
   if (!mdtl::create_directory(base_dir_path)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + base_dir_path);
+    std::string s("Failed to create directory: " + base_dir_path);
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
   // Remove existing directory to certainly create a new data store
   if (!remove(base_dir_path.c_str())) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to remove a directory: " + base_dir_path);
+    std::string s("Failed to remove a directory: " + base_dir_path);
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
   // Create internal directories if needed
   if (!mdtl::create_directory(priv_make_management_dir_path(base_dir_path))) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Failed to create directory: " + priv_make_management_dir_path(base_dir_path));
+    std::string s("Failed to create directory: " + priv_make_management_dir_path(base_dir_path));
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
   if (!mdtl::create_directory(priv_make_segment_dir_path(base_dir_path))) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Failed to create directory: " + priv_make_segment_dir_path(base_dir_path));
+    std::string s("Failed to create directory: " + priv_make_segment_dir_path(base_dir_path));
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
@@ -704,10 +713,9 @@ manager_kernel<chnk_no, chnk_sz>::priv_reserve_vm_region(const size_type nbytes)
   m_vm_region_size = mdtl::round_up(nbytes, alignment);
   m_vm_region = mdtl::reserve_aligned_vm_region(alignment, m_vm_region_size);
   if (!m_vm_region) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Cannot reserve a VM region " + std::to_string(nbytes) + " bytes");
+    std::stringstream ss;
+    ss << "Cannot reserve a VM region " << nbytes << " bytes";
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     m_vm_region_size = 0;
     return false;
   }
@@ -721,11 +729,9 @@ bool
 manager_kernel<chnk_no, chnk_sz>::priv_release_vm_region() {
 
   if (!mdtl::munmap(m_vm_region, m_vm_region_size, false)) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Cannot release a VM region " + std::to_string((uint64_t)m_vm_region) + ", "
-                    + std::to_string(m_vm_region_size) + " bytes.");
+    std::stringstream ss;
+    ss << "Cannot release a VM region " << (uint64_t)m_vm_region << ", " << m_vm_region_size << " bytes.";
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
   m_vm_region = nullptr;
@@ -773,7 +779,6 @@ manager_kernel<chnk_no, chnk_sz>::
 priv_generic_construct(char_ptr_holder_type name,
                        size_type length,
                        bool try2find,
-                       bool, // This function does not throw
                        mdtl::in_place_interface &table) {
   // Check overflow for security
   if (length > ((std::size_t)-1) / table.size) {
@@ -781,9 +786,9 @@ priv_generic_construct(char_ptr_holder_type name,
   }
 
   void *ptr = nullptr;
-  {
+  try {
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-    lock_guard_type guard(m_object_directories_mutex);
+    lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
     if (!name.is_anonymous()) {
@@ -797,30 +802,42 @@ priv_generic_construct(char_ptr_holder_type name,
     }
 
     ptr = allocate(length * sizeof(T));
+    if (!ptr) return nullptr;
+
     const auto offset = priv_to_offset(ptr);
     if (!priv_register_attr_object_no_mutex<T>(name, offset, length)) {
       deallocate(ptr);
-      return nullptr; // Critical error
+      return nullptr;
     }
+  } catch (...) {
+    logger::out(logger::level::critical,
+                __FILE__,
+                __LINE__,
+                "Exception was thrown when finding or allocating an attribute object");
+    return nullptr;
   }
 
   // To prevent memory leak, deallocates the memory when array_construct throws exception
   std::unique_ptr<void, std::function<void(void *)>> ptr_holder(ptr, [this](void *const ptr) {
-    {
+    try {
+      {
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-      lock_guard_type guard(m_object_directories_mutex);
+        lock_guard_type guard(*m_object_directories_mutex);
 #endif
-      priv_remove_attr_object_no_mutex(priv_to_offset(ptr));
+        priv_remove_attr_object_no_mutex(priv_to_offset(ptr));
+      }
+      deallocate(ptr);
+    } catch (...) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when cleaning up an object");
     }
-    deallocate(ptr);
   });
 
   // Constructs each object in the allocated memory
-  // When one of objects of T in the array throws execption,
-  // this function calls T's destrocutor for succesfully constructed objects and rethrows the exception
+  // When one of objects of T in the array throws exception,
+  // this function calls T's destructor for successfully constructed objects and rethrows the exception
   mdtl::array_construct(ptr, length, table);
 
-  ptr_holder.release(); // release the poiter since the construction succeeded
+  ptr_holder.release(); // release the pointer since the construction succeeded
 
   return static_cast<T *>(ptr);
 }
@@ -848,7 +865,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_register_attr_object_no_mutex(char_p
     }
   } else {
     if (std::string(name.get()).empty()) {
-      logger::out(logger::level::warning, __FILE__, __LINE__, "Empty name is invalid for nambed object");
+      logger::out(logger::level::warning, __FILE__, __LINE__, "Empty name is invalid for named object");
       return false;
     }
 
@@ -895,16 +912,16 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_open(const char *base_dir_path,
     return false;
   }
 
-  if (!priv_read_management_metadata(base_dir_path, &m_manager_metadata)) {
+  if (!priv_read_management_metadata(base_dir_path, m_manager_metadata.get())) {
     logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to read management metadata");
     return false;
   }
 
-  if (!priv_check_version(m_manager_metadata)) {
+  if (!priv_check_version(*m_manager_metadata)) {
     std::stringstream ss;
-    ss << "Invalid version — it was created by Metall v" << to_version_string(priv_get_version(m_manager_metadata))
+    ss << "Invalid version — it was created by Metall v" << to_version_string(priv_get_version(*m_manager_metadata))
        << " (currently using v" << to_version_string(METALL_VERSION) << ")";
-    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -968,20 +985,18 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_create(const char *base_dir_path,
   }
 
   if (vm_reserve_size > k_max_segment_size) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Too large VM region size is requested " + std::to_string(vm_reserve_size) + " byte.");
+    std::stringstream ss;
+    ss << "Too large VM region size is requested " << vm_reserve_size << " byte.";
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
   m_base_dir_path = base_dir_path;
 
   if (!priv_unmark_properly_closed(m_base_dir_path) || !priv_init_datastore_directory(base_dir_path)) {
-    logger::out(logger::level::critical,
-                __FILE__,
-                __LINE__,
-                "Failed to initialize datastore directory under " + std::string(base_dir_path));
+    std::stringstream ss;
+    ss << "Failed to initialize datastore directory under " << base_dir_path;
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -1004,8 +1019,8 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_create(const char *base_dir_path,
     return false;
   }
 
-  if (!priv_set_uuid(&m_manager_metadata) || !priv_set_version(&m_manager_metadata)
-      || !priv_write_management_metadata(m_base_dir_path, m_manager_metadata)) {
+  if (!priv_set_uuid(m_manager_metadata.get()) || !priv_set_version(m_manager_metadata.get())
+      || !priv_write_management_metadata(m_base_dir_path, *m_manager_metadata)) {
     m_segment_storage.destroy();
     priv_deallocate_segment_header();
     priv_release_vm_region();
@@ -1087,7 +1102,9 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_bas
 
   const auto dst_top_dir = priv_make_top_dir_path(destination_base_dir_path);
   if (!mdtl::create_directory(dst_top_dir)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create a directory: " + dst_top_dir);
+    std::stringstream ss;
+    ss << "Failed to create a directory: " << dst_top_dir;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -1095,11 +1112,15 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_bas
   const auto src_seg_dir = priv_make_segment_dir_path(m_base_dir_path);
   const auto dst_seg_dir = priv_make_segment_dir_path(destination_base_dir_path);
   if (!mdtl::create_directory(dst_seg_dir)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + dst_seg_dir);
+    std::stringstream ss;
+    ss << "Failed to create directory: " << dst_seg_dir;
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
   if (!m_segment_storage.copy(src_seg_dir, dst_seg_dir, clone, METALL_MAX_COPY_THREADS)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to copy " + src_seg_dir + " to " + dst_seg_dir);
+    std::stringstream ss;
+    ss << "Failed to copy " << src_seg_dir << " to " << dst_seg_dir;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -1107,13 +1128,17 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_bas
   const auto src_mng_dir = priv_make_management_dir_path(m_base_dir_path);
   const auto dst_mng_dir = priv_make_management_dir_path(destination_base_dir_path);
   if (!mdtl::create_directory(dst_mng_dir)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + dst_mng_dir);
+    std::stringstream ss;
+    ss << "Failed to create directory: " << dst_mng_dir;
+    logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
   // Use a normal copy instead of reflink.
   // reflink might slow down if there are many reflink copied files.
   if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir, METALL_MAX_COPY_THREADS)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to copy " + src_mng_dir + " to " + dst_mng_dir);
+    std::stringstream ss;
+    ss << "Failed to copy " << src_mng_dir << " to " << dst_mng_dir;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -1139,14 +1164,14 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &s
                                                             const bool use_clone) {
   const std::string src_top_dir = priv_make_top_dir_path(src_base_dir_path);
   if (!mdtl::directory_exist(src_top_dir)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__,
-                "Source directory does not exist: " + src_top_dir);
+    std::string s("Source directory does not exist: " + src_top_dir);
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
   if (!mdtl::create_directory(priv_make_top_dir_path(dst_base_dir_path))) {
-    logger::out(logger::level::critical, __FILE__, __LINE__,
-                "Failed to create directory: " + dst_base_dir_path);
+    std::string s("Failed to create directory: " + dst_base_dir_path);
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
@@ -1154,13 +1179,14 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &s
   const auto src_seg_dir = priv_make_segment_dir_path(src_base_dir_path);
   const auto dst_seg_dir = priv_make_segment_dir_path(dst_base_dir_path);
   if (!mdtl::create_directory(dst_seg_dir)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + dst_seg_dir);
+    std::string s("Failed to create directory: " + dst_seg_dir);
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
   if (!segment_storage_type::copy(src_seg_dir, dst_seg_dir, use_clone, METALL_MAX_COPY_THREADS)) {
     std::stringstream ss;
     ss << "Failed to copy " << src_seg_dir << " to " << dst_seg_dir;
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -1168,7 +1194,8 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &s
   const auto src_mng_dir = priv_make_management_dir_path(src_base_dir_path);
   const auto dst_mng_dir = priv_make_management_dir_path(dst_base_dir_path);
   if (!mdtl::create_directory(dst_mng_dir)) {
-    logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to create directory: " + dst_mng_dir);
+    std::string s("Failed to create directory: " + dst_mng_dir);
+    logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
   // Use a normal copy instead of reflink.
@@ -1176,7 +1203,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &s
   if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir, METALL_MAX_COPY_THREADS)) {
     std::stringstream ss;
     ss << "Failed to copy " << src_mng_dir << " to " << dst_mng_dir;
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -1284,20 +1311,16 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_read_description(const std::string &
     return false; // This is not an error
   }
 
-  try {
-    std::ifstream ifs(file_name);
-    if (!ifs.is_open()) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to open: " + file_name);
-      return false;
-    }
-
-    description->assign((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-
-    ifs.close();
-  } catch (const std::ios_base::failure &e) {
-    logger::out(logger::level::error, __FILE__, __LINE__, std::string("Exception was thrown: ") + e.what());
+  std::ifstream ifs(file_name);
+  if (!ifs.is_open()) {
+    std::string s("Failed to open: " + file_name);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
+
+  description->assign((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+
+  ifs.close();
 
   return true;
 }
@@ -1308,23 +1331,20 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_write_description(const std::string 
 
   const auto &file_name = priv_make_management_file_name(base_dir_path, k_description_file_name);
 
-  try {
-    std::ofstream ofs(file_name);
-    if (!ofs.is_open()) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to open: " + file_name);
-      return false;
-    }
-
-    if (!(ofs << description)) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to write data:" + file_name);
-      return false;
-    }
-
-    ofs.close();
-  } catch (const std::ios_base::failure &e) {
-    logger::out(logger::level::error, __FILE__, __LINE__, std::string("Exception was thrown: ") + e.what());
+  std::ofstream ofs(file_name);
+  if (!ofs.is_open()) {
+    std::string s("Failed to open: " + file_name);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
+
+  if (!(ofs << description)) {
+    std::string s("Failed to write data:" + file_name);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+
+  ofs.close();
 
   return true;
 }

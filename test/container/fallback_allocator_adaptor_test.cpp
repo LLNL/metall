@@ -149,8 +149,7 @@ TEST(FallbackAllocatorAdaptorTest, NestedContainer) {
     map_type map;
     for (uint64_t i = 0; i < 1024; ++i) {
 #ifdef __clang__
-      if (map.count(i % 8) == 0)
-        map.try_emplace(i % 8, map.get_allocator());
+      map.try_emplace(i % 8, map.get_allocator());
       map.at(i % 8).emplace_back(i);
 #else
       map[i % 8].push_back(i);
@@ -248,7 +247,7 @@ TEST(FallbackAllocatorAdaptorTest, PersistentNestedContainer) {
   using map_type = boost::unordered_map<element_type, // Key
                                         vector_type, // Value
                                         std::hash<element_type>, // Hash function
-                                        std::equal_to<element_type>, // Equal function
+                                        std::equal_to<>, // Equal function
                                         map_alloc_type>;
 
   {

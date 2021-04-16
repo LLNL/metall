@@ -49,23 +49,26 @@ inline bool clone_file(const std::string &source_path, const std::string &destin
   bool ret = false;
 #if defined(__linux__)
   ret = file_clone_detail::clone_file_linux(source_path, destination_path);
-  if (!ret)
-      logger::out(logger::level::error, __FILE__, __LINE__, "On Linux, Failed to clone " + source_path + " to " + destination_path);
+  if (!ret) {
+    std::string s("On Linux, Failed to clone " + source_path + " to " + destination_path);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+  }
 #elif defined(__APPLE__)
   ret = file_clone_detail::clone_file_macos(source_path, destination_path);
-  if (!ret)
-    logger::out(logger::level::error,
-                __FILE__,
-                __LINE__,
-                "On MacOS, Failed to clone " + source_path + " to " + destination_path);
+  if (!ret) {
+    std::string s("On MacOS, Failed to clone " + source_path + " to " + destination_path);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+  }
 #else
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "Copy file normally instead of cloning"
 #endif
   logger::out(logger::level::warning, __FILE__, __LINE__, "Use normal copy instead of clone");
   ret = copy_file(source_path, destination_path); // Copy normally
-  if (!ret)
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to copy " + source_path + " to " + destination_path);
+  if (!ret) {
+    std::string s("Failed to copy " + source_path + " to " + destination_path);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+  }
 #endif
 
   if (ret) {

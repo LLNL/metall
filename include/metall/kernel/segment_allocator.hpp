@@ -97,12 +97,17 @@ class segment_allocator {
       , m_object_cache()
 #endif
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-      , m_chunk_mutex(),
-        m_bin_mutex()
+      , m_chunk_mutex(nullptr),
+        m_bin_mutex(nullptr)
 #endif
-  {}
+  {
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+    m_chunk_mutex = std::make_unique<mutex_type>();
+    m_bin_mutex = std::make_unique<std::array<mutex_type, k_num_small_bins>>();
+#endif
+  }
 
-  ~segment_allocator() = default;
+  ~segment_allocator() noexcept = default;
 
   segment_allocator(const segment_allocator &) = delete;
   segment_allocator &operator=(const segment_allocator &) = delete;
@@ -117,14 +122,15 @@ class segment_allocator {
 
   /// \brief Allocates memory space
   /// \param nbytes
-  /// \return
+  /// \return The offset of an allocated memory.
+  /// On error, k_null_offset is returned.
   difference_type allocate(const size_type nbytes) {
     const bin_no_type bin_no = bin_no_mngr::to_bin_no(nbytes);
 
     const auto offset = (priv_small_object_bin(bin_no)) ?
                         priv_allocate_small_object(bin_no) : priv_allocate_large_object(bin_no);
-    assert(offset >= 0);
-    assert(offset < (difference_type)size());
+    assert(offset >= 0 || offset == k_null_offset);
+    assert(offset < (difference_type)size() || offset == k_null_offset);
 
     return offset;
   }
@@ -155,7 +161,7 @@ class segment_allocator {
 
     // As long as the above requirements are satisfied, just calling the normal allocate function is enough
     const auto offset = allocate(nbytes);
-    assert(offset % alignment == 0);
+    assert(offset % alignment == 0 || offset == k_null_offset);
 
     return offset;
   }
@@ -163,6 +169,8 @@ class segment_allocator {
   /// \brief Deallocates
   /// \param offset
   void deallocate(const difference_type offset) {
+    if (offset == k_null_offset) return;
+
     assert(offset >= 0);
     assert(offset < (difference_type)size());
 
@@ -287,14 +295,14 @@ class segment_allocator {
   difference_type priv_allocate_small_object(const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     if (bin_no <= small_object_cache_type::max_bin_no()) {
-      auto global_allocator = [this](const bin_no_type a,
-                                     const unsigned int b,
-                                     difference_type *const c) {
-        priv_allocate_small_objects_from_global(a, b, c);
+      auto global_allocator = [this](const bin_no_type _bin_no,
+                                     const unsigned int _num_allocates,
+                                     difference_type *const _allocated_offsets) {
+        priv_allocate_small_objects_from_global(_bin_no, _num_allocates, _allocated_offsets);
       };
 
       const auto offset = m_object_cache.get(bin_no, global_allocator);
-      assert(offset >= 0);
+      assert(offset >= 0 || offset == k_null_offset);
       return offset;
     }
 #endif
@@ -306,7 +314,7 @@ class segment_allocator {
   void priv_allocate_small_objects_from_global(const bin_no_type bin_no, const size_type num_allocates,
                                                difference_type *const allocated_offsets) {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-    lock_guard_type bin_guard(m_bin_mutex[bin_no]);
+    lock_guard_type bin_guard(m_bin_mutex->at(bin_no));
 #endif
     for (size_type i = 0; i < num_allocates; ++i) {
       allocated_offsets[i] = priv_allocate_small_object_from_global_without_bin_lock(bin_no);
@@ -320,10 +328,12 @@ class segment_allocator {
       chunk_no_type new_chunk_no;
       {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-        lock_guard_type chunk_guard(m_chunk_mutex);
+        lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
         new_chunk_no = m_chunk_directory.insert(bin_no);
-        priv_extend_segment(new_chunk_no, 1);
+        if (!priv_extend_segment(new_chunk_no, 1)) {
+          return k_null_offset;
+        }
         m_non_full_chunk_bin.insert(bin_no, new_chunk_no);
       }
     }
@@ -344,37 +354,42 @@ class segment_allocator {
 
   difference_type priv_allocate_large_object(const bin_no_type bin_no) {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-    lock_guard_type chunk_guard(m_chunk_mutex);
+    lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
     const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
     const size_type num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
-    priv_extend_segment(new_chunk_no, num_chunks);
+    if (!priv_extend_segment(new_chunk_no, num_chunks)) {
+      m_chunk_directory.erase(new_chunk_no);
+      return k_null_offset;
+    }
     const difference_type offset = k_chunk_size * new_chunk_no;
     return offset;
   }
 
-  void priv_extend_segment(const chunk_no_type head_chunk_no, const size_type num_chunks) {
+  bool priv_extend_segment(const chunk_no_type head_chunk_no, const size_type num_chunks) {
     const size_type required_segment_size = (head_chunk_no + num_chunks) * k_chunk_size;
     if (required_segment_size <= m_segment_storage->size()) {
-      return;
+      return true; // Has an enough segment size already
     }
+
     if (!m_segment_storage->extend(required_segment_size)) {
-      logger::out(logger::level::critical,
-                  __FILE__,
-                  __LINE__,
-                  "Failed to extend the segment to " + std::to_string(required_segment_size) + " bytes");
-      std::abort();
+      std::stringstream ss;
+      ss << "Failed to extend the segment to " << required_segment_size << " bytes";
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+      return false;
     }
+
+    return true;
   }
 
   // ---------------------------------------- For deallocation ---------------------------------------- //
   void priv_deallocate_small_object(const difference_type offset, const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     if (bin_no <= small_object_cache_type::max_bin_no()) {
-      auto global_deallocator = [this](const bin_no_type a,
-                                       const unsigned int b,
-                                       const difference_type *const c) {
-        priv_deallocate_small_objects_from_global(a, b, c);
+      auto global_deallocator = [this](const bin_no_type _bin_no,
+                                       const unsigned int _num_deallocates,
+                                       const difference_type *const _offsets) {
+        priv_deallocate_small_objects_from_global(_bin_no, _num_deallocates, _offsets);
       };
       [[maybe_unused]] const bool ret = m_object_cache.insert(bin_no, offset, global_deallocator);
       assert(ret);
@@ -387,7 +402,7 @@ class segment_allocator {
   void priv_deallocate_small_objects_from_global(const bin_no_type bin_no, const size_type num_deallocates,
                                                  const difference_type *const offsets) {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-    lock_guard_type bin_guard(m_bin_mutex[bin_no]);
+    lock_guard_type bin_guard(m_bin_mutex->at(bin_no));
 #endif
     for (size_type i = 0; i < num_deallocates; ++i) {
       priv_deallocate_small_object_from_global_without_bin_lock(offsets[i], bin_no);
@@ -396,6 +411,8 @@ class segment_allocator {
 
   void priv_deallocate_small_object_from_global_without_bin_lock(const difference_type offset,
                                                                  const bin_no_type bin_no) {
+    if (offset == k_null_offset) return;
+
     const size_type object_size = bin_no_mngr::to_object_size(bin_no);
     const chunk_no_type chunk_no = offset / k_chunk_size;
     const auto slot_no = static_cast<chunk_slot_no_type>((offset % k_chunk_size) / object_size);
@@ -407,7 +424,7 @@ class segment_allocator {
       // All slots in the chunk are not used, deallocate it
       {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-        lock_guard_type chunk_guard(m_chunk_mutex);
+        lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
         m_chunk_directory.erase(chunk_no);
         priv_free_chunk(chunk_no, 1);
@@ -479,7 +496,7 @@ class segment_allocator {
 
   void priv_deallocate_large_object(const chunk_no_type chunk_no, const bin_no_type bin_no) {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-    lock_guard_type chunk_guard(m_chunk_mutex);
+    lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
     m_chunk_directory.erase(chunk_no);
     const size_type num_chunks = (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
@@ -513,15 +530,15 @@ class segment_allocator {
   // -------------------------------------------------------------------------------- //
   non_full_chunk_bin_type m_non_full_chunk_bin;
   chunk_directory_type m_chunk_directory;
-  segment_storage_type *m_segment_storage;
+  segment_storage_type *m_segment_storage{nullptr};
 
 #ifndef METALL_DISABLE_OBJECT_CACHE
   small_object_cache_type m_object_cache;
 #endif
 
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-  mutex_type m_chunk_mutex;
-  std::array<mutex_type, k_num_small_bins> m_bin_mutex;
+  std::unique_ptr<mutex_type> m_chunk_mutex{nullptr};
+  std::unique_ptr<std::array<mutex_type, k_num_small_bins>> m_bin_mutex{nullptr};
 #endif
 };
 
