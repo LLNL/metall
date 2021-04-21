@@ -81,7 +81,7 @@ class chunk_directory {
     priv_allocate(max_num_chunks);
   }
 
-  ~chunk_directory() {
+  ~chunk_directory() noexcept {
     priv_destroy();
   }
 
@@ -258,7 +258,9 @@ class chunk_directory {
   bool serialize(const char *path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, std::string("Cannot open: ") + path);
+      std::stringstream ss;
+      ss << "Cannot open: " << path;
+      logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
 
@@ -271,10 +273,9 @@ class chunk_directory {
           << " " << static_cast<uint64_t>(m_table[chunk_no].bin_no)
           << " " << static_cast<uint64_t>(m_table[chunk_no].type);
       if (!ofs) {
-        logger::out(logger::level::critical,
-                    __FILE__,
-                    __LINE__,
-                    std::string("Something happened in the ofstream: ") + path);
+        std::stringstream ss;
+        ss << "Something happened in the ofstream: " << path;
+        logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
         return false;
       }
 
@@ -283,10 +284,9 @@ class chunk_directory {
         ofs << " " << static_cast<uint64_t>(m_table[chunk_no].num_occupied_slots)
             << " " << m_table[chunk_no].slot_occupancy.serialize(num_slots) << "\n";
         if (!ofs) {
-          logger::out(logger::level::critical,
-                      __FILE__,
-                      __LINE__,
-                      std::string("Something happened in the ofstream: ") + path);
+          std::stringstream ss;
+          ss << "Something happened in the ofstream: " << path;
+          logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
           return false;
         }
 
@@ -294,10 +294,9 @@ class chunk_directory {
           || m_table[chunk_no].type == chunk_type::large_chunk_body) {
         ofs << "\n";
         if (!ofs) {
-          logger::out(logger::level::critical,
-                      __FILE__,
-                      __LINE__,
-                      std::string("Something happened in the ofstream: ") + path);
+          std::stringstream ss;
+          ss << "Something happened in the ofstream: " << path;
+          logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
           return false;
         }
 
@@ -318,7 +317,9 @@ class chunk_directory {
   bool deserialize(const char *path) {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, std::string("Cannot open: ") + path);
+      std::stringstream ss;
+      ss << "Cannot open: " << path;
+      logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
 
@@ -346,14 +347,15 @@ class chunk_directory {
       if (m_table[chunk_no].type == chunk_type::small_chunk) {
         const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no));
         if (!(ifs >> buf1)) {
-          logger::out(logger::level::critical, __FILE__, __LINE__, std::string("Cannot read a file: ") + path);
+          std::stringstream ss;
+          ss << "Cannot read a file: " << path;
+          logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
           return false;
         }
         if (num_slots < buf1) {
-          logger::out(logger::level::critical,
-                      __FILE__,
-                      __LINE__,
-                      std::string("Invalid num_occupied_slots: ") + std::to_string(buf1));
+          std::stringstream ss;
+          ss << "Invalid num_occupied_slots: " << std::to_string(buf1);
+          logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
           return false;
         }
         m_table[chunk_no].num_occupied_slots = buf1;
@@ -361,20 +363,18 @@ class chunk_directory {
         std::string bitset_buf;
         std::getline(ifs, bitset_buf);
         if (bitset_buf.empty() || bitset_buf[0] != ' ') {
-          logger::out(logger::level::critical,
-                      __FILE__,
-                      __LINE__,
-                      "Invalid input for slot_occupancy: " + bitset_buf);
+          std::stringstream ss;
+          ss << "Invalid input for slot_occupancy: " << bitset_buf;
+          logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
           return false;
         }
         bitset_buf.erase(0, 1);
 
         m_table[chunk_no].slot_occupancy.allocate(num_slots);
         if (!m_table[chunk_no].slot_occupancy.deserialize(num_slots, bitset_buf)) {
-          logger::out(logger::level::critical,
-                      __FILE__,
-                      __LINE__,
-                      "Invalid input for slot_occupancy: " + bitset_buf);
+          std::stringstream ss;
+          ss << "Invalid input for slot_occupancy: " << bitset_buf;
+          logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
           return false;
         }
       }
@@ -383,10 +383,9 @@ class chunk_directory {
     }
 
     if (!ifs.eof()) {
-      logger::out(logger::level::critical,
-                  __FILE__,
-                  __LINE__,
-                  std::string("Something happened in the ifstream: ") + path);
+      std::stringstream ss;
+      ss << "Something happened in the ifstream: " << path;
+      logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
 
@@ -432,9 +431,13 @@ class chunk_directory {
     return true;
   }
 
-  void priv_destroy() {
+  void priv_destroy() noexcept {
     for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
-      erase(chunk_no);
+      try {
+        erase(chunk_no);
+      } catch (...) {
+        logger::perror(logger::level::critical, __FILE__, __LINE__, "An exception was thrown");
+      }
     }
     mdtl::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
     m_table = nullptr;

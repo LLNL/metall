@@ -118,7 +118,9 @@ inline std::pair<std::size_t, std::size_t> get_num_page_faults() {
     // 0:pid 1:comm 2:state 3:ppid 4:pgrp 5:session 6:tty_nr 7:tpgid 8:flags 9:minflt 10:cminflt 11:majflt
     int ret;
     if ((ret = ::fscanf(f,"%*d %*s %*c %*d %*d %*d %*d %*d %*u %lu %*u %lu", &minflt, &majflt)) != 2) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to reading #of page faults " + std::to_string(ret));
+      std::stringstream ss;
+      ss << "Failed to reading #of page faults " << ret;
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       minflt = majflt = 0;
     }
   }

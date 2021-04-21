@@ -188,7 +188,7 @@ class metall_mpi_adaptor {
         correct_mpi_size = false;
         std::stringstream ss;
         ss << " Invalid number of MPI processes (provided " << size << ", " << "expected " << correct_mpi_size << ")";
-        logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+        logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       }
     }
     if (!priv_global_and(correct_mpi_size, comm)) {
@@ -201,10 +201,8 @@ class metall_mpi_adaptor {
       if (i == rank) {
         if (metall::mtlldetail::file_exist(ds::make_root_dir_path(root_dir_prefix))
             && !metall::mtlldetail::remove_file(ds::make_root_dir_path(root_dir_prefix))) {
-          logger::out(logger::level::error,
-                      __FILE__,
-                      __LINE__,
-                      "Failed to remove directory: " + ds::make_root_dir_path(root_dir_prefix));
+          std::string s("Failed to remove directory: " + ds::make_root_dir_path(root_dir_prefix));
+          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
           ret = false;
         }
       }
@@ -238,8 +236,8 @@ class metall_mpi_adaptor {
     const auto local_ret = metall::mtlldetail::file_exist(root_dir_path);
     if (priv_global_or(local_ret, comm)) {
       if (rank == 0) {
-        logger::out(logger::level::error, __FILE__, __LINE__,
-                    "Root directory (or a file with the same name) already exists: " + root_dir_path);
+        std::string s("Root directory (or a file with the same name) already exists: " + root_dir_path);
+        logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
         ::MPI_Abort(comm, -1);
       }
     }
@@ -248,13 +246,15 @@ class metall_mpi_adaptor {
     for (int i = 0; i < size; ++i) {
       if (i == rank && !metall::mtlldetail::directory_exist(root_dir_path)) {
         if (!metall::mtlldetail::create_directory(root_dir_path)) {
-          logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create directory: " + root_dir_path);
+          std::string s("Failed to create directory: " + root_dir_path);
+          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
           ::MPI_Abort(comm, -1);
         }
 
         const std::string mark_file = root_dir_path + "/" + k_datastore_mark_file_name;
         if (!metall::mtlldetail::create_file(mark_file)) {
-          logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create file: " + mark_file);
+          std::string s("Failed to create file: " + mark_file);
+          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
           ::MPI_Abort(comm, -1);
         }
 
@@ -270,12 +270,14 @@ class metall_mpi_adaptor {
 
     std::ofstream ofs(path);
     if (!ofs) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to create a file: " + path);
+      std::string s("Failed to create a file: " + path);
+      logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
       ::MPI_Abort(comm, -1);
     }
     ofs << size;
     if (!ofs) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to write data to a file: " + path);
+      std::string s("Failed to write data to a file: " + path);
+      logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
       ::MPI_Abort(comm, -1);
     }
     ofs.close();
@@ -285,12 +287,14 @@ class metall_mpi_adaptor {
     const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
     std::ifstream ifs(path);
     if (!ifs) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to open a file: " + path);
+      std::string s("Failed to open a file: " + path);
+      logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
       ::MPI_Abort(comm, -1);
     }
     int read_size = -1;
     if (!(ifs >> read_size)) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to read data from: " + path);
+      std::string s("Failed to read data from: " + path);
+      logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
       ::MPI_Abort(comm, -1);
     }
 

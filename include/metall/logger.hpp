@@ -35,21 +35,23 @@ class logger {
   };
 
   /// \brief Set the minimum logger level to show message
-  static void set_log_level(const level lvl) {
+  static void set_log_level(const level lvl) noexcept {
     log_message_out_level = lvl;
   }
 
   /// \brief If true is specified, enable an abort at a critical logger message
-  static void abort_on_critical_error(const bool enable) {
+  static void abort_on_critical_error(const bool enable) noexcept {
     abort_on_critical = enable;
   }
 
   /// \brief Log a message to std::cerr if the specified logger level is equal to or higher than the pre-set logger level.
-  static void out(const level lvl, const std::string &file_name, const int line_no, const std::string &message) {
+  static void out(const level lvl, const char* const file_name, const int line_no, const char* const message) noexcept {
     if (log_message_out_level == level::silent || lvl == level::silent || lvl < log_message_out_level)
       return;
 
-    std::cerr << file_name << " at line " << line_no << " --- " << message << std::endl;
+    try {
+      std::cerr << file_name << " at line " << line_no << " --- " << message << std::endl;
+    } catch (...) {}
 
     if (lvl == level::critical && abort_on_critical) {
       std::abort();
@@ -57,18 +59,28 @@ class logger {
   }
 
   /// \brief Log a message about errno if the specified logger level is equal to or higher than the pre-set logger level.
-  static void perror(const level lvl, const std::string &file_name, const int line_no, const std::string &message) {
+  static void perror(const level lvl, const char* const file_name, const int line_no, const char* const message) noexcept {
     if (log_message_out_level == level::silent || lvl == level::silent || lvl < log_message_out_level)
       return;
 
-    std::cerr << file_name << " at line " << line_no << " --- ";
-    std::perror(message.c_str());
+    try {
+      std::cerr << file_name << " at line " << line_no << " --- ";
+      std::perror(message);
+    } catch (...) {}
+
     // std::out << "errno is " << errno << std::endl;
 
     if (lvl == level::critical && abort_on_critical) {
       std::abort();
     }
   }
+
+  logger() = delete;
+  ~logger() = delete;
+  logger(const logger&) = delete;
+  logger(logger&&) = delete;
+  logger& operator=(const logger&) = delete;
+  logger& operator=(logger&&) = delete;
 
  private:
   static level log_message_out_level;

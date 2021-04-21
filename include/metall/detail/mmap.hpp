@@ -46,14 +46,14 @@ inline void *os_mmap(void *const addr, const size_t length, const int protection
   if ((ptrdiff_t)addr % page_size != 0) {
     std::stringstream ss;
     ss << "address (" << addr << ") is not page aligned (" << ::sysconf(_SC_PAGE_SIZE) << ")";
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return nullptr;
   }
 
   if (offset % page_size != 0) {
     std::stringstream ss;
     ss << "offset (" << offset << ") is not a multiple of the page size (" << ::sysconf(_SC_PAGE_SIZE) << ")";
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return nullptr;
   }
 
@@ -67,7 +67,7 @@ inline void *os_mmap(void *const addr, const size_t length, const int protection
   if ((ptrdiff_t)mapped_addr % page_size != 0) {
     std::stringstream ss;
     ss << "mapped address (" << mapped_addr << ") is not page aligned (" << ::sysconf(_SC_PAGE_SIZE) << ")";
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return nullptr;
   }
 
@@ -338,14 +338,14 @@ inline void *reserve_aligned_vm_region(const size_t alignment, const size_t leng
   if (alignment % page_size != 0) {
     std::stringstream ss;
     ss << "alignment (" << alignment << ") is not a multiple of the page size (" << ::sysconf(_SC_PAGE_SIZE) << ")";
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return nullptr;
   }
 
   if (length % alignment != 0) {
     std::stringstream ss;
     ss << "length (" << length << ") is not a multiple of alignment (" << ::sysconf(_SC_PAGE_SIZE) << ")";
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return nullptr;
   }
 

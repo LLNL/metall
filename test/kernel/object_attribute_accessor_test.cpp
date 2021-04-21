@@ -145,8 +145,8 @@ TEST(ObjectAttributeAccessorTest, Iterator) {
     mngr.construct<int>(unique_instance)();
     mngr.construct<float>(unique_instance)();
 
-    anony_off_obj1 = reinterpret_cast<char *>(mngr.construct<int>(anonymous_instance)()) - reinterpret_cast<const char*>(mngr.get_kernel()->get_segment());
-    anony_off_obj2 = reinterpret_cast<char *>(mngr.construct<float>(anonymous_instance)()) - reinterpret_cast<const char*>(mngr.get_kernel()->get_segment());
+    anony_off_obj1 = reinterpret_cast<char *>(mngr.construct<int>(anonymous_instance)()) - reinterpret_cast<const char*>(mngr.get_address());
+    anony_off_obj2 = reinterpret_cast<char *>(mngr.construct<float>(anonymous_instance)()) - reinterpret_cast<const char*>(mngr.get_address());
   }
 
   {

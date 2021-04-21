@@ -14,6 +14,7 @@
 #include <functional>
 #include <tuple>
 #include <sstream>
+#include <memory>
 
 #include <boost/container/string.hpp>
 #include <boost/unordered_map.hpp>
@@ -59,7 +60,7 @@ class attributed_object_directory {
 
   class entry_type {
    public:
-    entry_type() = default;
+    entry_type() noexcept = default;
     entry_type(const name_type &name, const offset_type &offset, const length_type &length,
                const type_id_type &type_id, const description_type &description)
         : m_name(name),
@@ -68,49 +69,49 @@ class attributed_object_directory {
           m_type_id(type_id),
           m_description(description) {}
 
-    ~entry_type() = default;
+    ~entry_type() noexcept = default;
 
-    entry_type(const entry_type &) = default;
+    entry_type(const entry_type &) noexcept = default;
     entry_type(entry_type &&) noexcept = default;
 
-    entry_type &operator=(const entry_type &) = default;
+    entry_type &operator=(const entry_type &) noexcept = default;
     entry_type &operator=(entry_type &&) noexcept = default;
 
-    const auto &name() const {
+    const auto &name() const noexcept {
       return m_name;
     }
 
-    const auto &offset() const {
+    const auto &offset() const noexcept {
       return m_offset;
     }
 
-    const auto &length() const {
+    const auto &length() const noexcept {
       return m_length;
     }
 
-    const auto &type_id() const {
+    const auto &type_id() const noexcept {
       return m_type_id;
     }
 
-    const auto &description() const {
+    const auto &description() const noexcept {
       return m_description;
     }
 
-    auto &description() {
+    auto &description() noexcept {
       return m_description;
     }
 
     template <typename T>
-    bool is_type() const {
+    bool is_type() const noexcept {
       return m_type_id == gen_type_id<T>();
     }
 
    private:
-    name_type m_name;
-    offset_type m_offset;
-    length_type m_length;
-    type_id_type m_type_id;
-    description_type m_description;
+    name_type m_name{};
+    offset_type m_offset{};
+    length_type m_length{};
+    type_id_type m_type_id{};
+    description_type m_description{};
   };
 
  private:
@@ -136,16 +137,34 @@ class attributed_object_directory {
   // -------------------------------------------------------------------------------- //
   // Constructor & assign operator
   // -------------------------------------------------------------------------------- //
-  attributed_object_directory() = default;
+  attributed_object_directory() noexcept {
+    priv_allocate_core_data();
+  }
+
   ~attributed_object_directory() noexcept = default;
-  attributed_object_directory(const attributed_object_directory &) = default;
+
+  attributed_object_directory(const attributed_object_directory &other) noexcept {
+    if (priv_allocate_core_data()) {
+      priv_deep_copy(other);
+    }
+  }
+
   attributed_object_directory(attributed_object_directory &&) noexcept = default;
-  attributed_object_directory &operator=(const attributed_object_directory &) = default;
+
+  attributed_object_directory &operator=(const attributed_object_directory &other) noexcept {
+    priv_deep_copy(other);
+    return *this;
+  }
+
   attributed_object_directory &operator=(attributed_object_directory &&) noexcept = default;
 
   // -------------------------------------------------------------------------------- //
   // Public methods
   // -------------------------------------------------------------------------------- //
+  bool good() const noexcept {
+    return m_entry_table && m_offset_index_table && m_name_index_table;
+  }
+
   /// \brief
   /// \param name (can be empty)
   /// \param offset
@@ -157,25 +176,26 @@ class attributed_object_directory {
               const offset_type offset,
               const length_type length,
               const type_id_type type_id,
-              const description_type &description = std::string()) {
+              const description_type &description = std::string()) noexcept {
+    if (!good()) return false;
 
-    if (m_offset_index_table.count(offset) > 0) {
-      assert(name.empty() || m_name_index_table.count(name) > 0);
+    if (m_offset_index_table->count(offset) > 0) {
+      assert(name.empty() || m_name_index_table->count(name) > 0);
       return false;
     }
-    assert(name.empty() || m_name_index_table.count(name) == 0);
+    assert(name.empty() || m_name_index_table->count(name) == 0);
 
     try {
-      auto inserted_itr = m_entry_table.emplace(m_entry_table.end(),
-                                                entry_type{name, offset, length, type_id, description});
+      auto inserted_itr = m_entry_table->emplace(m_entry_table->end(),
+                                                 entry_type{name, offset, length, type_id, description});
       {
-        [[maybe_unused]] const auto ret = m_offset_index_table.emplace(offset, inserted_itr);
-        assert(ret.first != m_offset_index_table.end());
+        [[maybe_unused]] const auto ret = m_offset_index_table->emplace(offset, inserted_itr);
+        assert(ret.first != m_offset_index_table->end());
         assert(ret.second);
       }
       if (!name.empty()) {
-        [[maybe_unused]] const auto ret = m_name_index_table.emplace(name, inserted_itr);
-        assert(ret.first != m_name_index_table.end());
+        [[maybe_unused]] const auto ret = m_name_index_table->emplace(name, inserted_itr);
+        assert(ret.first != m_name_index_table->end());
         assert(ret.second);
       }
     } catch (...) {
@@ -190,13 +210,19 @@ class attributed_object_directory {
   /// \param position
   /// \param description
   /// \return
-  bool set_description(const_iterator position, const description_type &description) {
-    if (position == m_entry_table.cend()) return false;
+  bool set_description(const_iterator position, const description_type &description) noexcept {
+    if (!good()) return false;
 
-    auto entry_itr = m_offset_index_table.find(position->offset())->second;
-    assert(entry_itr != m_entry_table.end());
+    if (position == m_entry_table->cend()) return false;
 
-    entry_itr->description() = description;
+    try {
+      auto entry_itr = m_offset_index_table->find(position->offset())->second;
+      assert(entry_itr != m_entry_table->end());
+
+      entry_itr->description() = description;
+    } catch (...) {
+      return false;
+    }
 
     return true;
   }
@@ -205,84 +231,126 @@ class attributed_object_directory {
   /// \param position
   /// \param description
   /// \return
-  bool get_description(const_iterator position, description_type *description) const {
-    if (position == m_entry_table.cend()) return false;
+  bool get_description(const_iterator position, description_type *description) const noexcept {
+    if (!good()) return false;
 
-    auto entry_itr = m_offset_index_table.find(position->offset())->second;
-    assert(entry_itr != m_entry_table.end());
+    if (position == m_entry_table->cend()) return false;
 
-    description->assign(entry_itr->description());
+    try {
+      auto entry_itr = m_offset_index_table->find(position->offset())->second;
+      assert(entry_itr != m_entry_table->end());
+
+      description->assign(entry_itr->description());
+    } catch (...) {
+      return false;
+    }
 
     return true;
   }
 
   /// \brief
   /// \return
-  size_type size() const {
-    return m_entry_table.size();
+  size_type size() const noexcept {
+    if (!good()) return 0;
+
+    return m_entry_table->size();
   }
 
   /// \brief Counts by name
   /// \param name
   /// \return
-  size_type count(const name_type &name) const {
-    return m_name_index_table.count(name);
+  size_type count(const name_type &name) const noexcept {
+    if (!good()) return 0;
+
+    return m_name_index_table->count(name);
   }
 
   /// \brief Count by offset
   /// \param offset
   /// \return
-  size_type count(const offset_type &offset) const {
-    return m_offset_index_table.count(offset);
+  size_type count(const offset_type &offset) const noexcept {
+    if (!good()) return 0;
+
+    return m_offset_index_table->count(offset);
   }
 
   /// \brief Finds by name
   /// \param name
   /// \return
-  const_iterator find(const name_type &name) const {
-    if (count(name) > 0) {
-      auto itr = m_name_index_table.find(name);
-      assert(itr->second != m_entry_table.end());
-      return const_iterator(itr->second);
+  const_iterator find(const name_type &name) const noexcept {
+    if (!good()) {
+      const_iterator();
     }
-    return m_entry_table.cend();
+
+    try {
+      if (count(name) > 0) {
+        auto itr = m_name_index_table->find(name);
+        assert(itr->second != m_entry_table->end());
+        return const_iterator(itr->second);
+      }
+    } catch (...) {
+      return const_iterator();
+    }
+    return m_entry_table->cend();
   }
 
   /// \brief Finds by offset
   /// \param offset
   /// \return
-  const_iterator find(const offset_type &offset) const {
-    if (count(offset) > 0) {
-      auto itr = m_offset_index_table.find(offset);
-      assert(itr->second != m_entry_table.end());
-      return const_iterator(itr->second);
+  const_iterator find(const offset_type &offset) const noexcept {
+    if (!good()) {
+      const_iterator();
     }
-    return m_entry_table.cend();
+
+    try {
+      if (count(offset) > 0) {
+        auto itr = m_offset_index_table->find(offset);
+        assert(itr->second != m_entry_table->end());
+        return const_iterator(itr->second);
+      }
+    } catch (...) {
+      return const_iterator();
+    }
+
+    return m_entry_table->cend();
   }
 
   /// \brief
   /// \return
-  const_iterator begin() const {
-    return m_entry_table.cbegin();
+  const_iterator begin() const noexcept {
+    if (!good()) {
+      const_iterator();
+    }
+
+    return m_entry_table->cbegin();
   }
 
   /// \brief
   /// \return
-  const_iterator end() const {
-    return m_entry_table.cend();
+  const_iterator end() const noexcept {
+    if (!good()) {
+      const_iterator();
+    }
+
+    return m_entry_table->cend();
   }
 
   /// \brief Erase by iterator
   /// \param position
   /// \return
-  size_type erase(const_iterator position) {
-    if (position == m_entry_table.end())
+  size_type erase(const_iterator position) noexcept {
+    if (!good()) {
       return 0;
+    }
+
+    if (position == m_entry_table->end()) {
+      return 0;
+    }
 
     try {
-      m_offset_index_table.erase(position->offset());
-      m_entry_table.erase(position);
-      if (!position->name().empty()) m_name_index_table.erase(position->name());
+      m_offset_index_table->erase(position->offset());
+      m_entry_table->erase(position);
+      if (!position->name().empty()) m_name_index_table->erase(position->name());
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
       return 0;
@@ -294,15 +362,20 @@ class attributed_object_directory {
   /// \brief Erase by name
   /// \param name
   /// \return
-  size_type erase(const name_type &name) {
-    if (count(name) == 0)
+  size_type erase(const name_type &name) noexcept {
+    if (!good()) {
       return 0;
+    }
+
+    if (count(name) == 0) {
+      return 0;
+    }
 
     try {
       auto itr = find(name);
-      m_offset_index_table.erase(itr->offset());
-      m_entry_table.erase(itr);
-      if (!name.empty()) m_name_index_table.erase(name);
+      m_offset_index_table->erase(itr->offset());
+      m_entry_table->erase(itr);
+      if (!name.empty()) m_name_index_table->erase(name);
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
       return 0;
@@ -314,15 +387,20 @@ class attributed_object_directory {
   /// \brief Erase offset
   /// \param offset
   /// \return
-  size_type erase(const offset_type &offset) {
-    if (count(offset) == 0)
+  size_type erase(const offset_type &offset) noexcept {
+    if (!good()) {
+      return false;
+    }
+
+    if (count(offset) == 0) {
       return 0;
+    }
 
     try {
       auto itr = find(offset);
-      m_offset_index_table.erase(itr->offset());
-      m_entry_table.erase(itr);
-      if (!itr->name().empty()) m_name_index_table.erase(itr->name());
+      m_offset_index_table->erase(itr->offset());
+      m_entry_table->erase(itr);
+      if (!itr->name().empty()) m_name_index_table->erase(itr->name());
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
       return 0;
@@ -333,11 +411,15 @@ class attributed_object_directory {
 
   /// \brief Clears tables
   /// \return
-  bool clear() {
+  bool clear() noexcept {
+    if (!good()) {
+      return false;
+    }
+
     try {
-      m_offset_index_table.clear();
-      m_name_index_table.clear();
-      m_entry_table.clear();
+      m_offset_index_table->clear();
+      m_name_index_table->clear();
+      m_entry_table->clear();
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when clearing entries");
       return false;
@@ -347,10 +429,87 @@ class attributed_object_directory {
 
   /// \brief
   /// \param path
-  bool serialize(const char *const path) const {
+  bool serialize(const char *const path) const noexcept {
+    try {
+      return priv_serialize_throw(path);
+    } catch (...) {
+      return false;
+    }
+    return true;
+  }
+
+  /// \brief
+  /// \param path
+  bool deserialize(const char *const path) noexcept {
+    try {
+      return priv_deserialize_throw(path);
+    } catch (...) {
+      return false;
+    }
+    return true;
+  }
+
+ private:
+  // -------------------------------------------------------------------------------- //
+  // Private types and static values
+  // -------------------------------------------------------------------------------- //
+
+  // JSON structure
+  // {
+  // "attributed_objects" : [
+  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "type_id" : "424", "description" : ""},
+  //  {"name" : "object1", "offset" : 0x432, "length" : 2, "type_id" : "932", "description" : "..."}
+  // ]
+  // }
+  struct json_key {
+    static constexpr const char *attributed_objects = "attributed_objects";
+    static constexpr const char *name = "name";
+    static constexpr const char *offset = "offset";
+    static constexpr const char *length = "length";
+    static constexpr const char *type_id = "type_id";
+    static constexpr const char *description = "description";
+  };
+
+  // -------------------------------------------------------------------------------- //
+  // Private methods
+  // -------------------------------------------------------------------------------- //
+  bool priv_allocate_core_data() noexcept {
+    try {
+      m_entry_table = std::make_unique<entry_table_type>();
+      m_offset_index_table = std::make_unique<offset_index_table_type>();
+      m_name_index_table = std::make_unique<name_index_table_type>();
+    } catch (...) {
+      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to allocate core data");
+      m_entry_table.reset(nullptr);
+      m_offset_index_table.reset(nullptr);
+      m_name_index_table.reset(nullptr);
+      return false;
+    }
+    return true;
+  }
+
+  bool priv_deep_copy(const attributed_object_directory &other) noexcept {
+    try {
+      *m_entry_table = *(other.m_entry_table);
+      *m_offset_index_table = *(other.m_offset_index_table);
+      *m_name_index_table = *(other.m_name_index_table);
+    } catch (...) {
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to copy members");
+      m_entry_table.reset(nullptr);
+      m_offset_index_table.reset(nullptr);
+      m_name_index_table.reset(nullptr);
+      return false;
+    }
+    return true;
+  }
+
+  bool priv_serialize_throw(const char *const path) const {
+    if (!good()) {
+      return false;
+    }
 
     json::node_type json_attributed_objects_list;
-    for (const auto &item : m_entry_table) {
+    for (const auto &item : *m_entry_table) {
       json::node_type json_named_object_entry;
       if (!json::add_value(json_key::name, item.name(), &json_named_object_entry) ||
           !json::add_value(json_key::offset, item.offset(), &json_named_object_entry) ||
@@ -376,9 +535,11 @@ class attributed_object_directory {
     return true;
   }
 
-  /// \brief
-  /// \param path
-  bool deserialize(const char *const path) {
+  bool priv_deserialize_throw(const char *const path) {
+    if (!good()) {
+      return false;
+    }
+
     json::node_type json_root;
     if (!json::read_json(path, &json_root)) {
       return false;
@@ -418,37 +579,12 @@ class attributed_object_directory {
     return true;
   }
 
- private:
-  // -------------------------------------------------------------------------------- //
-  // Private types and static values
-  // -------------------------------------------------------------------------------- //
-
-  // JSON structure
-  // {
-  // "attributed_objects" : [
-  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "type_id" : "424", "description" : ""},
-  //  {"name" : "object1", "offset" : 0x432, "length" : 2, "type_id" : "932", "description" : "..."}
-  // ]
-  // }
-  struct json_key {
-    static constexpr const char *attributed_objects = "attributed_objects";
-    static constexpr const char *name = "name";
-    static constexpr const char *offset = "offset";
-    static constexpr const char *length = "length";
-    static constexpr const char *type_id = "type_id";
-    static constexpr const char *description = "description";
-  };
-
-  // -------------------------------------------------------------------------------- //
-  // Private methods
-  // -------------------------------------------------------------------------------- //
-
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  entry_table_type m_entry_table;
-  offset_index_table_type m_offset_index_table;
-  name_index_table_type m_name_index_table;
+  std::unique_ptr<entry_table_type> m_entry_table;
+  std::unique_ptr<offset_index_table_type> m_offset_index_table;
+  std::unique_ptr<name_index_table_type> m_name_index_table;
 };
 } // namespace kernel
 } // namespace metall
