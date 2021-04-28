@@ -107,7 +107,8 @@ class basic_manager {
       m_kernel = std::make_unique<manager_kernel_type>();
       m_kernel->open(base_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
   }
 
@@ -119,7 +120,8 @@ class basic_manager {
       m_kernel = std::make_unique<manager_kernel_type>();
       m_kernel->open_read_only(base_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
   }
 
@@ -130,7 +132,8 @@ class basic_manager {
       m_kernel = std::make_unique<manager_kernel_type>();
       m_kernel->create(base_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
   }
 
@@ -142,7 +145,8 @@ class basic_manager {
       m_kernel = std::make_unique<manager_kernel_type>();
       m_kernel->create(base_path, capacity);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
   }
 
@@ -303,12 +307,17 @@ class basic_manager {
   /// If not present, nullptr is returned.
   template <typename T>
   std::pair<T *, size_type> find(char_ptr_holder_type name) const noexcept {
+    if (!check_sanity()) {
+      return std::make_pair(nullptr, 0);
+    }
+
     try {
       return m_kernel->template find<T>(name);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return std::make_pair(nullptr, 0);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+
+    return std::make_pair(nullptr, 0);
   }
 
   /// \brief Destroys a previously created object.
@@ -334,6 +343,9 @@ class basic_manager {
   /// \return Returns false if the object was not destroyed.
   template <typename T>
   bool destroy(const char *name) {
+    if (!check_sanity()) {
+      return false;
+    }
     return m_kernel->template destroy<T>(name);
   }
 
@@ -359,6 +371,9 @@ class basic_manager {
   /// \return Returns false if the object was not destroyed.
   template <typename T>
   bool destroy(const metall::mtlldetail::unique_instance_t *const) {
+    if (!check_sanity()) {
+      return false;
+    }
     return m_kernel->template destroy<T>(metall::unique_instance);
   }
 
@@ -387,6 +402,9 @@ class basic_manager {
   /// Note that the original API developed by Boost.Interprocess library does not return value.
   template <class T>
   bool destroy_ptr(const T *ptr) {
+    if (!check_sanity()) {
+      return false;
+    }
     return m_kernel->template destroy_ptr<T>(ptr);
   }
 
@@ -406,12 +424,15 @@ class basic_manager {
   /// nullptr is returned.
   template <class T>
   const char_type *get_instance_name(const T *ptr) const noexcept {
+    if (!check_sanity()) {
+      return nullptr;
+    }
     try {
       return m_kernel->get_instance_name(ptr);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return nullptr;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return nullptr;
   }
 
   /// \brief Returns the kind of an object created with construct/find_or_construct functions.
@@ -427,12 +448,15 @@ class basic_manager {
   /// \return The type of the object.
   template <class T>
   instance_kind get_instance_kind(const T *ptr) const noexcept {
+    if (!check_sanity()) {
+      return instance_kind();
+    }
     try {
       return m_kernel->get_instance_kind(ptr);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return instance_kind();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return instance_kind();
   }
 
   /// \brief Returns the length of an object created with construct/find_or_construct
@@ -449,12 +473,15 @@ class basic_manager {
   /// \return The type of the object.
   template <class T>
   size_type get_instance_length(const T *ptr) const noexcept {
+    if (!check_sanity()) {
+      return 0;
+    }
     try {
       return m_kernel->get_instance_length(ptr);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return 0;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return 0;
   }
 
   /// \brief Checks if the type of an object, which was created with construct/find_or_construct
@@ -471,12 +498,15 @@ class basic_manager {
   /// \return Returns true if T is correct; otherwise false.
   template <class T>
   bool is_instance_type(const void *const ptr) const noexcept {
+    if (!check_sanity()) {
+      return false;
+    }
     try {
       return m_kernel->template is_instance_type<T>(ptr);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Gets the description of an object created with construct/find_or_construct
@@ -494,12 +524,15 @@ class basic_manager {
   /// \return Returns false on error.
   template <class T>
   bool get_instance_description(const T *ptr, std::string *description) const noexcept {
+    if (!check_sanity()) {
+      return false;
+    }
     try {
       return m_kernel->get_instance_description(ptr, description);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Sets a description to an object created with construct/find_or_construct
@@ -517,12 +550,16 @@ class basic_manager {
   /// \return Returns false on error.
   template <class T>
   bool set_instance_description(const T *ptr, const std::string &description) noexcept {
+    if (!check_sanity()) {
+      return false;
+    }
     try {
       return m_kernel->set_instance_description(ptr, description);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Returns Returns the number of named objects stored in the managed segment.
@@ -532,12 +569,15 @@ class basic_manager {
   ///
   /// \return The number of named objects stored in the managed segment.
   size_type get_num_named_objects() const noexcept {
+    if (!check_sanity()) {
+      return 0;
+    }
     try {
       return m_kernel->get_num_named_objects();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return 0;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return 0;
   }
 
   /// \brief Returns Returns the number of unique objects stored in the managed segment.
@@ -547,24 +587,30 @@ class basic_manager {
   ///
   /// \return The number of unique objects stored in the managed segment.
   size_type get_num_unique_objects() const noexcept {
+    if (!check_sanity()) {
+      return 0;
+    }
     try {
       return m_kernel->get_num_unique_objects();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return 0;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return 0;
   }
 
   /// \brief Returns Returns the number of anonymous objects (objects constructed with metall::anonymous_instance)
   /// stored in the managed segment.
   /// \return The number of anonymous objects stored in the managed segment.
   size_type get_num_anonymous_objects() const noexcept {
+    if (!check_sanity()) {
+      return 0;
+    }
     try {
       return m_kernel->get_num_anonymous_objects();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return 0;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return 0;
   }
 
   /// \brief Returns a constant iterator to the index storing the named objects.
@@ -574,12 +620,15 @@ class basic_manager {
   ///
   /// \return A constant iterator to the index storing the named objects.
   const_named_iterator named_begin() const noexcept {
+    if (!check_sanity()) {
+      return const_named_iterator();
+    }
     try {
       return m_kernel->named_begin();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return const_named_iterator();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return const_named_iterator();
   }
 
   /// \brief Returns a constant iterator to the end of the index storing the named allocations.
@@ -589,12 +638,15 @@ class basic_manager {
   ///
   /// \return A constant iterator.
   const_named_iterator named_end() const noexcept {
+    if (!check_sanity()) {
+      return const_named_iterator();
+    }
     try {
       return m_kernel->named_end();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return const_named_iterator();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return const_named_iterator();
   }
 
   /// \brief Returns a constant iterator to the index storing the unique objects.
@@ -604,12 +656,15 @@ class basic_manager {
   ///
   /// \return A constant iterator to the index storing the unique objects.
   const_unique_iterator unique_begin() const noexcept {
+    if (!check_sanity()) {
+      return const_unique_iterator();
+    }
     try {
       return m_kernel->unique_begin();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return const_unique_iterator();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return const_unique_iterator();
   }
 
   /// \brief Returns a constant iterator to the end of the index
@@ -620,35 +675,44 @@ class basic_manager {
   ///
   /// \return A constant iterator.
   const_unique_iterator unique_end() const noexcept {
+    if (!check_sanity()) {
+      return const_unique_iterator();
+    }
     try {
       return m_kernel->unique_end();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return const_unique_iterator();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return const_unique_iterator();
   }
 
   /// \brief Returns a constant iterator to the index storing the anonymous objects.
   /// \return A constant iterator to the index storing the anonymous objects.
   const_anonymous_iterator anonymous_begin() const noexcept {
+    if (!check_sanity()) {
+      return const_anonymous_iterator();
+    }
     try {
       return m_kernel->anonymous_begin();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return const_anonymous_iterator();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return const_anonymous_iterator();
   }
 
   /// \brief Returns a constant iterator to the end of the index
   /// storing the anonymous allocations. NOT thread-safe. Never throws.
   /// \return A constant iterator.
   const_anonymous_iterator anonymous_end() const noexcept {
+    if (!check_sanity()) {
+      return const_anonymous_iterator();
+    }
     try {
       return m_kernel->anonymous_end();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return const_anonymous_iterator();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return const_anonymous_iterator();
   }
 
   // TODO: implement
@@ -659,12 +723,16 @@ class basic_manager {
   /// \param nbytes Number of bytes to allocate.
   /// \return Returns a pointer to the allocated memory.
   void *allocate(size_type nbytes) noexcept {
+    if (!check_sanity()) {
+      return nullptr;
+    }
     try {
       return m_kernel->allocate(nbytes);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return nullptr;
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return nullptr;
   }
 
   /// \brief Allocates nbytes bytes. The address of the allocated memory will be a multiple of alignment.
@@ -672,14 +740,17 @@ class basic_manager {
   /// \param alignment Alignment size.
   /// Alignment must be a power of two and satisfy [min allocation size, chunk size].
   /// \return Returns a pointer to the allocated memory.
-  void *allocate_aligned(size_type nbytes,
-                         size_type alignment) noexcept {
+  void *allocate_aligned(size_type nbytes, size_type alignment) noexcept {
+    if (!check_sanity()) {
+      return nullptr;
+    }
     try {
       return m_kernel->allocate_aligned(nbytes, alignment);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return nullptr;
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return nullptr;
   }
 
   // void allocate_many(const std::nothrow_t &tag, size_type elem_bytes, size_type n_elements, multiallocation_chain &chain);
@@ -687,10 +758,14 @@ class basic_manager {
   /// \brief Deallocates the allocated memory.
   /// \param addr A pointer to the allocated memory to be deallocated.
   void deallocate(void *addr) noexcept {
+    if (!check_sanity()) {
+      return;
+    }
     try {
       return m_kernel->deallocate(addr);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
   }
 
@@ -704,10 +779,14 @@ class basic_manager {
   /// \param synchronous If true, performs synchronous operation;
   /// otherwise, performs asynchronous operation.
   void flush(const bool synchronous = true) noexcept {
+    if (!check_sanity()) {
+      return;
+    }
     try {
       m_kernel->flush(synchronous);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
   }
 
@@ -717,12 +796,16 @@ class basic_manager {
   /// \param clone Use the file clone mechanism (reflink) instead of normal copy if it is available.
   /// \return Returns true on success; other false.
   bool snapshot(const char_type *destination_dir_path, const bool clone = true) noexcept {
+    if (!check_sanity()) {
+      return false;
+    }
     try {
       return m_kernel->snapshot(destination_dir_path, clone);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Copies data store synchronously.
@@ -737,9 +820,9 @@ class basic_manager {
     try {
       return manager_kernel_type::copy(source_dir_path, destination_dir_path, clone);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Copies data store asynchronously.
@@ -755,9 +838,9 @@ class basic_manager {
     try {
       return manager_kernel_type::copy_async(source_dir_path, destination_dir_path, clone);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return std::future<bool>();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return std::future<bool>();
   }
 
   /// \brief Removes data store synchronously.
@@ -767,9 +850,9 @@ class basic_manager {
     try {
       return manager_kernel_type::remove(dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Remove data store asynchronously.
@@ -780,9 +863,9 @@ class basic_manager {
     try {
       return std::async(std::launch::async, remove, dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return std::future<bool>();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return std::future<bool>();
   }
 
   /// \brief Check if a data store exists and is consistent (i.e., it was closed properly in the previous run).
@@ -792,20 +875,23 @@ class basic_manager {
     try {
       return manager_kernel_type::consistent(dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Returns a UUID of the data store.
   /// \return UUID in the std::string format; returns an empty string on error.
   std::string get_uuid() const noexcept {
+    if (!check_sanity()) {
+      return std::string();
+    }
     try {
       return m_kernel->get_uuid();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return std::string();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return std::string();
   }
 
   /// \brief Returns a UUID of the data store.
@@ -815,20 +901,23 @@ class basic_manager {
     try {
       return manager_kernel_type::get_uuid(dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return std::string();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return std::string();
   }
 
   /// \brief Gets the version of the Metall that created the backing data store.
   /// \return Returns a version number; returns 0 on error.
   version_type get_version() const noexcept {
+    if (!check_sanity()) {
+      return version_type();
+    }
     try {
       return m_kernel->get_version();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return version_type();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return version_type();
   }
 
   /// \brief Gets the version of the Metall that created the backing data store.
@@ -838,7 +927,7 @@ class basic_manager {
     try {
       return manager_kernel_type::get_version(dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
       return version_type();
     }
   }
@@ -851,12 +940,16 @@ class basic_manager {
   /// \param description An std::string object that holds a description.
   /// \return Returns true on success; otherwise, false.
   bool set_description(const std::string &description) noexcept {
+    if (!check_sanity()) {
+      return false;
+    }
     try {
       return m_kernel->set_description(description);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Sets a description to a Metall data store.
@@ -870,9 +963,9 @@ class basic_manager {
     try {
       return manager_kernel_type::set_description(dir_path, description);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Gets a description.
@@ -881,12 +974,15 @@ class basic_manager {
   /// \return Returns true on success; returns false on error.
   /// Trying to get a non-existent description is not considered as an error.
   bool get_description(std::string *description) const noexcept {
+    if (!check_sanity()) {
+      return false;
+    }
     try {
       return m_kernel->get_description(description);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   /// \brief Gets a description.
@@ -899,9 +995,9 @@ class basic_manager {
     try {
       return manager_kernel_type::get_description(dir_path, description);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return false;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return false;
   }
 
   // -------------------- Object attribute -------------------- //
@@ -912,9 +1008,9 @@ class basic_manager {
     try {
       return manager_kernel_type::access_named_object_attribute(dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return named_object_attribute_accessor_type();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return named_object_attribute_accessor_type();
   }
 
   /// \brief Returns an instance that provides access to the attribute of unique object.
@@ -924,9 +1020,9 @@ class basic_manager {
     try {
       return manager_kernel_type::access_unique_object_attribute(dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return unique_object_attribute_accessor_type();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return unique_object_attribute_accessor_type();
   }
 
   /// \brief Returns an instance that provides access to the attribute of anonymous object.
@@ -936,9 +1032,9 @@ class basic_manager {
     try {
       return manager_kernel_type::access_anonymous_object_attribute(dir_path);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return anonymous_object_attribute_accessor_type();
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return anonymous_object_attribute_accessor_type();
   }
 
   // -------------------- etc -------------------- //
@@ -947,12 +1043,15 @@ class basic_manager {
   /// \return Returns a STL compatible allocator object.
   template <typename T = std::byte>
   allocator_type<T> get_allocator() const noexcept {
+    if (!check_sanity()) {
+      return allocator_type<T>(nullptr);
+    }
     try {
       return allocator_type<T>(reinterpret_cast<manager_kernel_type *const *>(&(m_kernel->get_segment_header()->manager_kernel_address)));
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return allocator_type<T>(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return allocator_type<T>(nullptr);
   }
 
   /// \brief Returns the internal chunk size.
@@ -964,31 +1063,39 @@ class basic_manager {
   /// \brief Returns the address of the application data segment.
   /// \return The address of the application data segment.
   const void *get_address() const noexcept {
+    if (!check_sanity()) {
+      return nullptr;
+    }
     try {
       return m_kernel->get_segment();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return nullptr;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return nullptr;
   }
 
   /// \brief Returns the size (i.e., the maximum total allocation size) of the application data segment.
   /// This is a theoretical value. The actual total allocation size Metall can handle will be less than that.
   /// \return The size of the application data segment.
   size_type get_size() const noexcept {
+    if (!check_sanity()) {
+      return 0;
+    }
     try {
       return m_kernel->get_segment_size();
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
-      return 0;
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
+    return 0;
   }
 
   // bool belongs_to_segment (const void *ptr) const
 
   // Makes an internal sanity check
   // and returns true if success
-  // bool check_sanity();
+  bool check_sanity() const noexcept {
+    return !!m_kernel; // TODO: also implement m_kernel->check_sanity();
+  }
 
   // -------------------- For profiling and debug -------------------- //
 #if !defined(DOXYGEN_SKIP)
@@ -997,10 +1104,14 @@ class basic_manager {
   /// \param log_out An object of the out stream.
   template <typename out_stream_type>
   void profile(out_stream_type *log_out) noexcept {
+    if (!check_sanity()) {
+      return;
+    }
     try {
       m_kernel->profile(log_out);
     } catch (...) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "An exception has been thrown");
+      m_kernel.reset(nullptr);
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
   }
 #endif
