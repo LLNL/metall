@@ -506,7 +506,7 @@ copy_files_in_directory_in_parallel_helper(const std::string &source_dir_path,
 /// \param source_dir_path A path to source directory.
 /// \param destination_dir_path A path to destination directory.
 /// \param max_num_threads The maximum number of threads to use.
-/// If 0 is given, it is automatically determined.
+/// If <= 0 is given, it is automatically determined.
 /// \return  On success, returns true. On error, returns false.
 inline bool copy_files_in_directory_in_parallel(const std::string &source_dir_path,
                                                 const std::string &destination_dir_path,
