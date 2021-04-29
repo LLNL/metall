@@ -125,7 +125,7 @@ class mmap_segment_storage {
   /// \param destination_path A destination path.
   /// \param clone If true, uses clone (reflink) for copying files.
   /// \param max_num_threads The maximum number of threads to use.
-  ///// If <= 0 is given, the value is automatically determined.
+  /// If <= 0 is given, the value is automatically determined.
   /// \return Return true if success; otherwise, false.
   static bool copy(const std::string &source_path,
                    const std::string &destination_path,

@@ -60,8 +60,6 @@ option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)"
 set(FREE_SMALL_OBJECT_SIZE_HINT "0" CACHE STRING
         "Try to free the associated pages and file space when objects equal to or larger than that is deallocated")
 
-set(MAX_COPY_THREADS "0" CACHE STRING
-        "The maximum number of threads to use to copy/clone files (use the internally defined value if 0 is specified)")
 # -------------------------------------------------------------------------------- #
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -186,11 +184,6 @@ if (USE_ANONYMOUS_NEW_MAP)
     add_definitions(-DMETALL_USE_ANONYMOUS_NEW_MAP)
     message(STATUS "Use the anonymous map for new map region")
 endif()
-
-if (MAX_COPY_THREADS GREATER 0)
-    add_definitions(-DMETALL_MAX_COPY_THREADS=${MAX_COPY_THREADS})
-    message(STATUS "METALL_MAX_COPY_THREADS=${MAX_COPY_THREADS}")
-endif ()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
