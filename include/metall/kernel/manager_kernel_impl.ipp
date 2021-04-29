@@ -443,23 +443,25 @@ manager_kernel<chnk_no, chnk_sz>::get_segment_size() const {
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::snapshot(const char *destination_base_dir_path, const bool clone) {
-  return priv_snapshot(destination_base_dir_path, clone);
+bool manager_kernel<chnk_no, chnk_sz>::snapshot(const char *destination_base_dir_path, const bool clone, const int num_max_copy_threads) {
+  return priv_snapshot(destination_base_dir_path, clone, num_max_copy_threads);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::copy(const char *source_base_dir_path,
                                             const char *destination_base_dir_path,
-                                            const bool clone) {
-  return priv_copy_data_store(source_base_dir_path, destination_base_dir_path, clone);
+                                            const bool clone,
+                                            const int num_max_copy_threads) {
+  return priv_copy_data_store(source_base_dir_path, destination_base_dir_path, clone, num_max_copy_threads);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 std::future<bool>
 manager_kernel<chnk_no, chnk_sz>::copy_async(const char *source_dir_path,
                                              const char *destination_dir_path,
-                                             const bool clone) {
-  return std::async(std::launch::async, copy, source_dir_path, destination_dir_path, clone);
+                                             const bool clone,
+                                             const int num_max_copy_threads) {
+  return std::async(std::launch::async, copy, source_dir_path, destination_dir_path, clone, num_max_copy_threads);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -1095,7 +1097,9 @@ manager_kernel<chnk_no, chnk_sz>::priv_deserialize_management_data() {
 
 // ---------------------------------------- snapshot ---------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_base_dir_path, const bool clone) {
+bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_base_dir_path,
+                                                     const bool clone,
+                                                     const int num_max_copy_threads) {
   assert(priv_initialized());
   m_segment_storage.sync(true);
   priv_serialize_management_data();
@@ -1117,7 +1121,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_bas
     logger::out(logger::level::critical, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
-  if (!m_segment_storage.copy(src_seg_dir, dst_seg_dir, clone, METALL_MAX_COPY_THREADS)) {
+  if (!m_segment_storage.copy(src_seg_dir, dst_seg_dir, clone, num_max_copy_threads)) {
     std::stringstream ss;
     ss << "Failed to copy " << src_seg_dir << " to " << dst_seg_dir;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
@@ -1135,7 +1139,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_bas
   }
   // Use a normal copy instead of reflink.
   // reflink might slow down if there are many reflink copied files.
-  if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir, METALL_MAX_COPY_THREADS)) {
+  if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir, num_max_copy_threads)) {
     std::stringstream ss;
     ss << "Failed to copy " << src_mng_dir << " to " << dst_mng_dir;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
@@ -1161,7 +1165,8 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_bas
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &src_base_dir_path,
                                                             const std::string &dst_base_dir_path,
-                                                            const bool use_clone) {
+                                                            const bool use_clone,
+                                                            const int num_max_copy_threads) {
   const std::string src_top_dir = priv_make_top_dir_path(src_base_dir_path);
   if (!mdtl::directory_exist(src_top_dir)) {
     std::string s("Source directory does not exist: " + src_top_dir);
@@ -1183,7 +1188,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &s
     logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
-  if (!segment_storage_type::copy(src_seg_dir, dst_seg_dir, use_clone, METALL_MAX_COPY_THREADS)) {
+  if (!segment_storage_type::copy(src_seg_dir, dst_seg_dir, use_clone, num_max_copy_threads)) {
     std::stringstream ss;
     ss << "Failed to copy " << src_seg_dir << " to " << dst_seg_dir;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
@@ -1200,7 +1205,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &s
   }
   // Use a normal copy instead of reflink.
   // reflink might slow down if there are many reflink copied files.
-  if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir, METALL_MAX_COPY_THREADS)) {
+  if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir, num_max_copy_threads)) {
     std::stringstream ss;
     ss << "Failed to copy " << src_mng_dir << " to " << dst_mng_dir;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());

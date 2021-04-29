@@ -794,13 +794,17 @@ class basic_manager {
   /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
   /// \param destination_dir_path Path to store a snapshot.
   /// \param clone Use the file clone mechanism (reflink) instead of normal copy if it is available.
+  /// \param num_max_copy_threads The maximum number of copy threads to use.
+  /// If <= 0 is given, the value is automatically determined.
   /// \return Returns true on success; other false.
-  bool snapshot(const char_type *destination_dir_path, const bool clone = true) noexcept {
+  bool snapshot(const char_type *destination_dir_path,
+                const bool clone = true,
+                const int num_max_copy_threads = 0) noexcept {
     if (!check_sanity()) {
       return false;
     }
     try {
-      return m_kernel->snapshot(destination_dir_path, clone);
+      return m_kernel->snapshot(destination_dir_path, clone, num_max_copy_threads);
     } catch (...) {
       m_kernel.reset(nullptr);
       logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
@@ -813,12 +817,15 @@ class basic_manager {
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
   /// \param clone Use the file clone mechanism (reflink) instead of normal copy if it is available.
+  /// \param num_max_copy_threads The maximum number of copy threads to use.
+  /// If <= 0 is given, the value is automatically determined.
   /// \return If succeeded, returns true; other false.
   static bool copy(const char_type *source_dir_path,
                    const char_type *destination_dir_path,
-                   const bool clone = true) noexcept {
+                   const bool clone = true,
+                   const int num_max_copy_threads = 0) noexcept {
     try {
-      return manager_kernel_type::copy(source_dir_path, destination_dir_path, clone);
+      return manager_kernel_type::copy(source_dir_path, destination_dir_path, clone, num_max_copy_threads);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
@@ -830,13 +837,16 @@ class basic_manager {
   /// \param source_dir_path Source data store path.
   /// \param destination_dir_path Destination data store path.
   /// \param clone Use the file clone mechanism (reflink) instead of normal copy if it is available.
+  /// \param num_max_copy_threads The maximum number of copy threads to use.
+  /// If <= 0 is given, the value is automatically determined.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns true; other false.
   static auto copy_async(const char_type *source_dir_path,
                          const char_type *destination_dir_path,
-                         const bool clone = true) noexcept {
+                         const bool clone = true,
+                         const int num_max_copy_threads = 0) noexcept {
     try {
-      return manager_kernel_type::copy_async(source_dir_path, destination_dir_path, clone);
+      return manager_kernel_type::copy_async(source_dir_path, destination_dir_path, clone, num_max_copy_threads);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
     }
