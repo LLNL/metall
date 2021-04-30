@@ -61,7 +61,7 @@ However, we haven't tested it intensively.
 Also, Boost C++ Libraries 1.69 or more may be required
 if one wants to build Metall with Clang + CUDA.
 
-## Metall with SPack
+## Metall with Spack
 
 Metall package is also available on [Spack](https://spack.io/).
 
