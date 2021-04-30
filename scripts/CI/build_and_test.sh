@@ -110,7 +110,7 @@ main() {
   for BUILD_TYPE in "${BUILD_TYPES[@]}"; do
     for DISABLE_FREE_FILE_SPACE in OFF; do
       for DISABLE_SMALL_OBJECT_CACHE in OFF; do
-        for FREE_SMALL_OBJECT_SIZE_HINT in 0 8192; do
+        for FREE_SMALL_OBJECT_SIZE_HINT in 0; do
           run_build_and_test_core -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
             -DDISABLE_FREE_FILE_SPACE=${DISABLE_FREE_FILE_SPACE} \
             -DDISABLE_SMALL_OBJECT_CACHE=${DISABLE_SMALL_OBJECT_CACHE} \

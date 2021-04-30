@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/LLNL/metall.svg?branch=develop)](https://travis-ci.com/LLNL/metall)
+[![metall-ci-test](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml/badge.svg)](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml)
 [![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
 
 Metall (memory allocator for persistent memory)
@@ -61,7 +61,7 @@ However, we haven't tested it intensively.
 Also, Boost C++ Libraries 1.69 or more may be required
 if one wants to build Metall with Clang + CUDA.
 
-## Metall with SPack
+## Metall with Spack
 
 Metall package is also available on [Spack](https://spack.io/).
 
