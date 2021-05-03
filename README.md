@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.com/LLNL/metall.svg?branch=develop)](https://travis-ci.com/LLNL/metall)
+[![metall-ci-test](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml/badge.svg)](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml)
 [![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
 
-Metall (memory allocator for persistent memory)
+Metall: A Persistent Memory Allocator For Data-Centric Analytics
 ===============================================
 
 * Provides rich memory allocation interfaces for C++ applications that
@@ -61,23 +61,22 @@ However, we haven't tested it intensively.
 Also, Boost C++ Libraries 1.69 or more may be required
 if one wants to build Metall with Clang + CUDA.
 
-## Metall with SPack
+## Metall with Spack
 
 Metall package is also available on [Spack](https://spack.io/).
 
-As Metall requires Boost C++ Libraries,
+As Metall depends on Boost C++ Libraries,
 Spack also installs a proper version of Boost C++ Libraries automatically, if needed.
 
 ```bash
 # Install Metall and Boost C++ Libraries
 spack install metall
 
-# Achieve paths to the boost and metall installed by Spack
-spack find --path boost metall
+# Sets environment variables: BOOST_ROOT and METALL_ROOT.
+# Boost C++ Libraries and Metall are installed at the locations, respectively.
+spack load metall
 
 # Build a program that uses Metall
-# Assumes that the following variables contains the paths shown by Spack 
-# BOOST_ROOT, METALL_ROOT
 # Please note that one has to put 'include' at the end of BOOST_ROOT and METALL_ROOT
 g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT}/include -I${METALL_ROOT}/include
 ```

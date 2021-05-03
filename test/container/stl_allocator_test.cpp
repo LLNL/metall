@@ -116,14 +116,18 @@ TEST(StlAllocatorTest, Exception) {
                     allocator.deallocate(allocator.allocate(1), 1);
                   });
 
-  // TODO: return std::bad_alloc
-  //  ASSERT_THROW({
-  //                 allocator.allocate(1UL << 24UL);
-  //               }, std::bad_alloc);
+  // Turn off log temporary because the following exception test cases could show error messages
+  metall::logger::set_log_level(metall::logger::level::critical);
+
+  ASSERT_THROW({
+                 allocator.allocate(1UL << 24UL);
+               }, std::bad_alloc);
 
   ASSERT_THROW({
                  allocator.allocate(allocator.max_size() + 1);
                }, std::bad_array_new_length);
+
+  metall::logger::set_log_level(metall::logger::level::error);
 }
 
 TEST(StlAllocatorTest, Container) {
@@ -158,8 +162,7 @@ TEST(StlAllocatorTest, NestedContainer) {
     map_type map(manager.get_allocator<>());
     for (uint64_t i = 0; i < 1024; ++i) {
 #ifdef __clang__
-      if (map.count(i % 8) == 0)
-        map.try_emplace(i % 8, map.get_allocator());
+      map.try_emplace(i % 8, map.get_allocator());
       map.at(i % 8).emplace_back(i);
 #else
       map[i % 8].push_back(i);

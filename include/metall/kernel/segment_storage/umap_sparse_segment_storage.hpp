@@ -104,6 +104,26 @@ class umap_sparse_segment_storage {
     return Umap::SparseStore::get_capacity(directory_name);
   }
 
+  /// \brief Copies segment to another location.
+  static bool copy(const std::string &source_path,
+                   const std::string &destination_path,
+                   const bool clone,
+                   [[maybe_unused]] const int max_num_threads) {
+    // TODO: implement parallel copy version
+
+    if (clone) {
+      std::string s("Clone: " + source_path);
+      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      return mdtl::clone_file(source_path, destination_path);
+    } else {
+      std::string s("Copy: " + source_path);
+      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      return mdtl::copy_file(source_path, destination_path);
+    }
+    assert(false);
+    return false;
+  }
+
   /// \brief Creates a new segment by mapping file(s) to the given VM address.
   /// \param base_path A path to create a datastore.
   /// \param vm_region_size The size of the VM region.

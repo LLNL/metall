@@ -158,12 +158,12 @@ class stl_allocator {
     }
 
     if (!get_pointer_to_manager_kernel()) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
+      logger::out(logger::level::error, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
       throw std::bad_alloc();
     }
     auto manager_kernel = *get_pointer_to_manager_kernel();
     if (!manager_kernel) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
+      logger::out(logger::level::error, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
       throw std::bad_alloc();
     }
 
@@ -177,11 +177,13 @@ class stl_allocator {
 
   void priv_deallocate(pointer ptr, [[maybe_unused]] const size_type size) const noexcept {
     if (!get_pointer_to_manager_kernel()) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
+      logger::out(logger::level::error, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
+      return;
     }
     auto manager_kernel = *get_pointer_to_manager_kernel();
     if (!manager_kernel) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
+      logger::out(logger::level::error, __FILE__, __LINE__, "nullptr: cannot access to manager kernel");
+      return;
     }
     manager_kernel->deallocate(to_raw_pointer(ptr));
   }

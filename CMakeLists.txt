@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.10..3.20) # gtest_discover_tests requires >= CMake 3.10
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # -------------------------------------------------------------------------------- #
@@ -16,8 +17,7 @@ endif ()
 # -------------------------------------------------------------------------------- #
 # Configuration for building test, benchmark, example, etc.
 # -------------------------------------------------------------------------------- #
-cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
-project(Metall VERSION 0.12)
+project(Metall VERSION 0.13)
 configure_file(MetallConfig.h.in MetallConfig.h)
 
 include_directories(${PROJECT_BINARY_DIR})
@@ -51,8 +51,6 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
         "Set the initial segment size (use the internally defined value if 0 is specified)")
 
 # ---------- Experimental options ---------- #
-option(USE_PRIVATE_MAP_AND_PWRITE "Use the private map segment storage and pwrite to sync data" OFF)
-option(USE_PRIVATE_MAP_AND_MSYNC_DIFF "Use the private map segment storage and msync to sync data" OFF)
 option(USE_ANONYMOUS_NEW_MAP "Use the anonymous map when creating a new map region" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
@@ -62,8 +60,6 @@ option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)"
 set(FREE_SMALL_OBJECT_SIZE_HINT "0" CACHE STRING
         "Try to free the associated pages and file space when objects equal to or larger than that is deallocated")
 
-set(MAX_COPY_THREADS "0" CACHE STRING
-        "The maximum number of threads to use to copy/clone files (use the internally defined value if 0 is specified)")
 # -------------------------------------------------------------------------------- #
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -180,45 +176,14 @@ if (USE_SORTED_BIN)
     message(STATUS "Use VM space aware algorithm in the bin directory")
 endif()
 
-if (USE_PRIVATE_MAP_AND_MSYNC_DIFF)
-    if (USE_PRIVATE_MAP_AND_MSYNC_DIFF AND UMAP_ROOT)
-        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and UMAP_ROOT options cannot coexist")
-    endif()
-    if (USE_PRIVATE_MAP_AND_MSYNC_DIFF AND USE_PRIVATE_MAP_AND_PWRITE)
-        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and USE_PRIVATE_MAP_AND_PWRITE options cannot coexist")
-    endif()
-    add_definitions(-DMETALL_USE_PRIVATE_MAP_AND_MSYNC_DIFF)
-    message(STATUS "Use the private map segment storage")
-endif()
-
-if (USE_PRIVATE_MAP_AND_PWRITE)
-    if (USE_PRIVATE_MAP_AND_PWRITE AND UMAP_ROOT)
-        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_PWRITE and UMAP_ROOT options cannot coexist")
-    endif()
-    if (USE_PRIVATE_MAP_AND_MSYNC_DIFF AND USE_PRIVATE_MAP_AND_PWRITE)
-        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and USE_PRIVATE_MAP_AND_PWRITE options cannot coexist")
-    endif()
-    add_definitions(-DMETALL_USE_PRIVATE_MAP_AND_PWRITE)
-    message(STATUS "Use the private map segment storage")
-endif()
-
 if (USE_ANONYMOUS_NEW_MAP)
     if (USE_ANONYMOUS_NEW_MAP AND UMAP_ROOT)
         message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
     endif()
 
-    if (NOT (USE_PRIVATE_MAP_AND_MSYNC_DIFF OR USE_PRIVATE_MAP_AND_PWRITE))
-        message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP must be used with a private map mode")
-    endif()
-
     add_definitions(-DMETALL_USE_ANONYMOUS_NEW_MAP)
     message(STATUS "Use the anonymous map for new map region")
 endif()
-
-if (MAX_COPY_THREADS GREATER 0)
-    add_definitions(-DMETALL_MAX_COPY_THREADS=${MAX_COPY_THREADS})
-    message(STATUS "METALL_MAX_COPY_THREADS=${MAX_COPY_THREADS}")
-endif ()
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
@@ -265,12 +230,6 @@ include_cxx_filesystem_library()
 
 # ---------- UMap ---------- #
 if (UMAP_ROOT)
-    if (USE_PRIVATE_MAP_AND_MSYNC AND UMAP_ROOT)
-        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_MSYNC and UMAP_ROOT options cannot coexist")
-    endif()
-    if (USE_PRIVATE_MAP_AND_PWRITE AND UMAP_ROOT)
-        message(FATAL_ERROR "USE_PRIVATE_MAP_AND_PWRITE and UMAP_ROOT options cannot coexist")
-    endif()
     include_directories(${UMAP_ROOT}/include)
     if (UNIX AND NOT APPLE)
         find_library(LIBUMAP NAMES umap PATHS ${UMAP_ROOT}/lib)

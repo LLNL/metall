@@ -12,10 +12,11 @@ repo_url: https://github.com/LLNL/metall
 edit_uri: 'tree/develop/docs/readthedocs'
 
 nav:
-- 'Home': 'index.md'
-- Getting Started:
-  - 'Build and Install': 'getting_started/build_and_install.md'
-- 'Advanced Build':
+- 'HOME': 'index.md'
+- 'BASICS':
+  - 'Getting Started': 'basics/getting_started.md'
+  - 'Compile-time Options': 'basics/compile_time_options.md'
+- 'ADVANCED BUILD':
   - 'Build Executables': 'advanced_build/cmake.md'
   - 'Use Umap': 'advanced_build/umap.md'
   - 'Test Metall': 'advanced_build/test.md'
@@ -28,5 +29,5 @@ nav:
   - 'Snapshot': 'detail/snapshot.md'
   - 'Example': 'detail/example.md'
   - 'Internal Architecture': 'detail/internal_architecture.md'
-- 'About':
+- 'ABOUT':
   - 'License and Notice': 'about/license_notice.md'

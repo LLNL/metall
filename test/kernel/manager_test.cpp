@@ -660,10 +660,10 @@ TEST(ManagerTest, CountObjects) {
 
     manager.construct<int>("named_obj1")();
     manager.construct<int>(metall::unique_instance)();
-    anony_offset1 = reinterpret_cast<char*>(manager.construct<int>(metall::anonymous_instance)()) - reinterpret_cast<const char*>(manager.get_kernel()->get_segment());
+    anony_offset1 = reinterpret_cast<char*>(manager.construct<int>(metall::anonymous_instance)()) - reinterpret_cast<const char*>(manager.get_address());
     manager.construct<float>("named_obj2")();
     manager.construct<float>(metall::unique_instance)();
-    anony_offset2 = reinterpret_cast<char*>(manager.construct<float>(metall::anonymous_instance)()) - reinterpret_cast<const char*>(manager.get_kernel()->get_segment());
+    anony_offset2 = reinterpret_cast<char*>(manager.construct<float>(metall::anonymous_instance)()) - reinterpret_cast<const char*>(manager.get_address());
   }
 
   {
@@ -682,9 +682,9 @@ TEST(ManagerTest, CountObjects) {
     ASSERT_EQ(manager.get_num_unique_objects(), 0);
 
     ASSERT_EQ(manager.get_num_anonymous_objects(), 2);
-    ASSERT_TRUE(manager.destroy_ptr(reinterpret_cast<const char*>(manager.get_kernel()->get_segment()) + anony_offset1));
+    ASSERT_TRUE(manager.destroy_ptr(reinterpret_cast<const char*>(manager.get_address()) + anony_offset1));
     ASSERT_EQ(manager.get_num_anonymous_objects(), 1);
-    ASSERT_TRUE(manager.destroy_ptr(reinterpret_cast<const char*>(manager.get_kernel()->get_segment()) + anony_offset2));
+    ASSERT_TRUE(manager.destroy_ptr(reinterpret_cast<const char*>(manager.get_address()) + anony_offset2));
     ASSERT_EQ(manager.get_num_anonymous_objects(), 0);
   }
 }
@@ -789,7 +789,7 @@ TEST(ManagerTest, AnonymoustObjectIterator) {
 
     // Begin points the first object
     auto* obj1 = reinterpret_cast<char*>(manager.construct<int>(metall::anonymous_instance)());
-    auto* segment = reinterpret_cast<const char*>(manager.get_kernel()->get_segment());
+    auto* segment = reinterpret_cast<const char*>(manager.get_address());
     ASSERT_EQ(manager.anonymous_begin()->offset(), obj1 - segment);
 
     auto* obj2 = reinterpret_cast<char*>(manager.construct<float>(metall::anonymous_instance)());
@@ -827,7 +827,7 @@ TEST(ManagerTest, GetSegment) {
   {
     manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
     auto *obj = manager.construct<int>(metall::unique_instance)();
-    ASSERT_EQ(manager.unique_begin()->offset() + static_cast<const char *>(manager.get_kernel()->get_segment()),
+    ASSERT_EQ(manager.unique_begin()->offset() + static_cast<const char *>(manager.get_address()),
               reinterpret_cast<char *>(obj));
   }
 }

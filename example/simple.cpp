@@ -18,10 +18,10 @@ int main() {
     // Construct a manager object
     // A process can allocate multiple manager objects
     metall::manager manager(metall::create_only,  // Create a new one
-                  "/tmp/dir");          // The directory to store backing datastore
+                            "/tmp/dir");          // The directory to store backing datastore
 
     // Allocate and construct a vector object in the persistent memory with a name "vec"
-    auto pvec = manager.construct<vector_t>                 // Allocate and construct an object of vector_t
+    auto pvec = manager.construct<vector_t>                    // Allocate and construct an object of vector_t
                                     ("vec")              // Name of the allocated object
                                     (manager.get_allocator()); // Arguments passed to vector_t's constructor
 

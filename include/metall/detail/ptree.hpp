@@ -30,7 +30,8 @@ inline bool empty(const node_type &tree) {
 
 inline std::size_t count(const node_type &tree, const std::string &key) {
   if (!validate_key(key)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Invalid key: " + key);
+    std::string s("Invalid key: " + key);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return 0;
   }
   return tree.count(key);
@@ -39,7 +40,8 @@ inline std::size_t count(const node_type &tree, const std::string &key) {
 template <typename value_type>
 inline bool get_value(const node_type &tree, const std::string &key, value_type *const value) {
   if (!validate_key(key)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Invalid key: " + key);
+    std::string s("Invalid key: " + key);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
@@ -54,7 +56,8 @@ inline bool get_value(const node_type &tree, const std::string &key, value_type 
 
 inline bool get_child(const node_type &tree, const std::string &key, node_type *out) {
   if (!validate_key(key)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Invalid key: " + key);
+    std::string s("Invalid key: " + key);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
@@ -68,14 +71,16 @@ inline bool get_child(const node_type &tree, const std::string &key, node_type *
 template <typename value_type>
 inline bool add_value(const std::string &key, const value_type &value, node_type *tree) {
   if (!validate_key(key)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Invalid key: " + key);
+    std::string s("Invalid key: " + key);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
   try {
     tree->add(key, value);
   } catch (...) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to add: " + key);
+    std::string s("Failed to add: " + key);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
   return true;
@@ -83,14 +88,16 @@ inline bool add_value(const std::string &key, const value_type &value, node_type
 
 inline bool add_child(const std::string &key, const node_type &child, node_type *tree) {
   if (!validate_key(key)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Invalid key: " + key);
+    std::string s("Invalid key: " + key);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
 
   try {
     tree->add_child(key, child);
   } catch (...) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to add: " + key);
+    std::string s("Failed to add: " + key);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
   }
   return true;

@@ -29,13 +29,13 @@
 #include <functional>
 
 #ifdef __has_include
-// Check if the Filesystem library is available
-// METALL_NOT_USE_CXX17_FILESYSTEM_LIB could be set by the CMake configuration file
-#if __has_include(<filesystem>) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+
+// Check if the Filesystem library is available or disabled by the user
+#if __has_include(<filesystem>) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 #include <filesystem>
 #else
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "The Filesystem library is not available."
+#warning "The Filesystem library is not available or disabled by the user."
 #endif
 #endif
 
@@ -51,7 +51,7 @@
 
 namespace metall::mtlldetail {
 
-#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 namespace {
 namespace fs = std::filesystem;
 }
@@ -88,7 +88,7 @@ inline bool fsync(const std::string &path) {
 }
 
 inline bool fsync_recursive(const std::string &path) {
-#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
   fs::path p(path);
   p = fs::canonical(p);
   while (true) {
@@ -212,7 +212,7 @@ inline bool create_file(const std::string &file_path) {
   return fsync_recursive(file_path);
 }
 
-#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 /// \brief Creates directories recursively.
 /// \return Returns true if the directory was created or already exists.
 /// Otherwise, returns false.
@@ -239,7 +239,7 @@ inline bool create_directory(const std::string &dir_path) {
         return true;
       }
 
-      logger::out(logger::level::error, __FILE__, __LINE__, ec.message());
+      logger::out(logger::level::error, __FILE__, __LINE__, ec.message().c_str());
       success = false;
     }
   } catch (fs::filesystem_error &e) {
@@ -267,7 +267,7 @@ inline ssize_t get_file_size(const std::string &file_path) {
   if (size == -1) {
     std::stringstream ss;
     ss << "Failed to get file size: " << file_path;
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
   }
 
   return size;
@@ -279,7 +279,8 @@ inline ssize_t get_file_size(const std::string &file_path) {
 inline ssize_t get_actual_file_size(const std::string &file_path) {
   struct stat stat_buf;
   if (::stat(file_path.c_str(), &stat_buf) != 0) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "stat (" + file_path + ")");
+    std::string s("stat (" + file_path + ")");
+    logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
     return -1;
   }
   return stat_buf.st_blocks * 512LL;
@@ -289,7 +290,7 @@ inline ssize_t get_actual_file_size(const std::string &file_path) {
 /// \return Upon successful completion, returns true; otherwise, false is returned.
 /// If the file or directory does not exist, true is returned.
 inline bool remove_file(const std::string &path) {
-#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
   std::filesystem::path p(path);
   std::error_code ec;
   [[maybe_unused]] const auto num_removed = std::filesystem::remove_all(p, ec);
@@ -319,14 +320,14 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 #endif
 }
 
-#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
   bool success = true;
   try {
     if (!fs::copy_file(source_path, destination_path, fs::copy_options::overwrite_existing)) {
       std::stringstream ss;
       ss << "Failed copying file: " << source_path << " -> " << destination_path;
-      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       success = false;
     }
   } catch (fs::filesystem_error &e) {
@@ -363,7 +364,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!source.is_open()) {
       std::stringstream ss;
       ss << "Cannot open: " << source_path;
-      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
 
@@ -371,7 +372,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!destination.is_open()) {
       std::stringstream ss;
       ss << "Cannot open: " << destination_path;
-      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
 
@@ -379,7 +380,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (!destination) {
       std::stringstream ss;
       ss << "Something happened in the ofstream: " << destination_path;
-      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
 
@@ -397,7 +398,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
     if (s1 < 0 || s1 != s2) {
       std::stringstream ss;
       ss << "Something wrong in file sizes: " << s1 << " " << s2;
-      logger::out(logger::level::error, __FILE__, __LINE__, ss.str());
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
   }
@@ -414,7 +415,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 /// \return Returns true if there is no error (empty directory returns true as long as the operation does not fail).
 /// Returns false on error.
 inline bool get_regular_file_names(const std::string &dir_path, std::vector<std::string> *file_list) {
-#if defined(__cpp_lib_filesystem) && !defined(METALL_NOT_USE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 
   if (!directory_exist(dir_path)) {
     return false;
@@ -505,7 +506,7 @@ copy_files_in_directory_in_parallel_helper(const std::string &source_dir_path,
 /// \param source_dir_path A path to source directory.
 /// \param destination_dir_path A path to destination directory.
 /// \param max_num_threads The maximum number of threads to use.
-/// If 0 is given, it is automatically determined.
+/// If <= 0 is given, it is automatically determined.
 /// \return  On success, returns true. On error, returns false.
 inline bool copy_files_in_directory_in_parallel(const std::string &source_dir_path,
                                                 const std::string &destination_dir_path,
