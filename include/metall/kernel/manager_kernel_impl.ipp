@@ -16,26 +16,18 @@ namespace kernel {
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz>
 manager_kernel<chnk_no, chnk_sz>::manager_kernel()
-    : m_base_dir_path(),
-      m_vm_region_size(0),
-      m_vm_region(nullptr),
-      m_segment_header(nullptr),
-      m_named_object_directory(),
-      m_unique_object_directory(),
-      m_anonymous_object_directory(),
-      m_segment_storage(),
-      m_segment_memory_allocator(&m_segment_storage),
-      m_manager_metadata(nullptr)
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
-    , m_object_directories_mutex(nullptr)
-#endif
-{
+    : m_segment_memory_allocator(&m_segment_storage) {
   m_manager_metadata = std::make_unique<json_store>();
-
+  if (!m_manager_metadata) {
+    return;
+  }
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
   m_object_directories_mutex = std::make_unique<mutex_type>();
+  if (!m_object_directories_mutex) {
+    return;
+  }
 #endif
-  priv_validate_runtime_configuration();
+  m_good = priv_validate_runtime_configuration();
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -48,22 +40,26 @@ manager_kernel<chnk_no, chnk_sz>::~manager_kernel() noexcept {
 // -------------------------------------------------------------------------------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::create(const char *base_dir_path, const size_type vm_reserve_size) {
-  return priv_create(base_dir_path, vm_reserve_size);
+  m_open = priv_create(base_dir_path, vm_reserve_size);
+  return m_open;
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::open_read_only(const char *base_dir_path) {
-  return priv_open(base_dir_path, true, 0);
+  m_open = priv_open(base_dir_path, true, 0);
+  return m_open;
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::open(const char *base_dir_path,
                                             const size_type vm_reserve_size_request) {
-  return priv_open(base_dir_path, false, vm_reserve_size_request);
+  m_open = priv_open(base_dir_path, false, vm_reserve_size_request);
+  return m_open;
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 void manager_kernel<chnk_no, chnk_sz>::close() {
+  // Update m_good
   if (priv_initialized()) {
     if (!m_segment_storage.read_only()) {
       priv_serialize_management_data();
@@ -79,6 +75,7 @@ void manager_kernel<chnk_no, chnk_sz>::close() {
       priv_mark_properly_closed(m_base_dir_path);
     }
   }
+  m_open = false;
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -443,7 +440,9 @@ manager_kernel<chnk_no, chnk_sz>::get_segment_size() const {
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::snapshot(const char *destination_base_dir_path, const bool clone, const int num_max_copy_threads) {
+bool manager_kernel<chnk_no, chnk_sz>::snapshot(const char *destination_base_dir_path,
+                                                const bool clone,
+                                                const int num_max_copy_threads) {
   return priv_snapshot(destination_base_dir_path, clone, num_max_copy_threads);
 }
 
@@ -554,6 +553,11 @@ typename manager_kernel<chnk_no, chnk_sz>::anonymous_object_attr_accessor_type
 manager_kernel<chnk_no, chnk_sz>::access_anonymous_object_attribute(const std::string &base_dir_path) {
   return anonymous_object_attr_accessor_type(priv_make_management_file_name(base_dir_path,
                                                                             k_anonymous_object_directory_prefix));
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
+bool manager_kernel<chnk_no, chnk_sz>::good() const noexcept {
+  return m_good;
 }
 
 // -------------------------------------------------------------------------------- //

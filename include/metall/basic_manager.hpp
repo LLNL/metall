@@ -1101,8 +1101,8 @@ class basic_manager {
 
   // bool belongs_to_segment (const void *ptr) const
 
-  // Makes an internal sanity check
-  // and returns true if success
+  /// \brief Checks the sanity.
+  /// \return Returns true if there is no issue; otherwise, returns false.
   bool check_sanity() const noexcept {
     return !!m_kernel; // TODO: also implement m_kernel->check_sanity();
   }
