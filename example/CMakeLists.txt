@@ -56,3 +56,5 @@ if (MPI_CXX_FOUND)
 else()
     message(STATUS "Will skip building the MPI examples")
 endif()
+
+add_subdirectory(json)
