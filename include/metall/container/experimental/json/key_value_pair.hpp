@@ -11,11 +11,15 @@
 #include <string>
 
 #include <metall/offset_ptr.hpp>
-#include <metall/container/experiment/json/json_fwd.hpp>
-#include <metall/container/experiment/json/value.hpp>
+#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/container/experimental/json/value.hpp>
 
-namespace metall::container::experiment::json {
+namespace metall::container::experimental::json {
 
+/// \brief A class for holding a pair of JSON string (as its key) and JSON value (as its value).
+/// \tparam char_type A char type to store.
+/// \tparam char_traits A chart traits.
+/// \tparam _allocator_type An allocator type.
 template <typename char_type = char,
           typename char_traits = std::char_traits<char_type>,
           typename _allocator_type = std::allocator<std::byte>>
@@ -27,8 +31,12 @@ class basic_key_value_pair {
  public:
   using allocator_type = _allocator_type;
   using key_type = std::basic_string_view<char_type, char_traits>;
-  using value_type = metall::container::experiment::json::value<allocator_type>;
+  using value_type = metall::container::experimental::json::value<allocator_type>;
 
+  /// \brief Constructor.
+  /// \param key A key string.
+  /// \param value A JSON value to hold.
+  /// \param alloc An allocator object to allocate the key and the contents of the JSON value.
   basic_key_value_pair(key_type key,
                        const value_type &value,
                        const allocator_type &alloc = allocator_type())
@@ -36,6 +44,10 @@ class basic_key_value_pair {
     priv_allocate_key(key);
   }
 
+  /// \brief Constructor.
+  /// \param key A key string.
+  /// \param value A JSON value to hold.
+  /// \param alloc An allocator object to allocate the key and the contents of the JSON value.
   basic_key_value_pair(key_type key,
                        value_type &&value,
                        const allocator_type &alloc = allocator_type())
@@ -82,18 +94,26 @@ class basic_key_value_pair {
     priv_deallocate_key();
   }
 
+  /// \brief Returns the stored key.
+  /// \return Returns the stored key.
   const key_type key() const noexcept {
     return metall::to_raw_pointer(m_key);
   }
 
+  /// \brief Returns the stored key as const char*.
+  /// \return Returns the stored key as const char*.
   const char *key_c_str() const noexcept {
     return metall::to_raw_pointer(m_key);
   }
 
+  /// \brief References the stored JSON value.
+  /// \return Returns a reference to the stored JSON value.
   value_type &value() noexcept {
     return m_value;
   }
 
+  /// \brief References the stored JSON value.
+  /// \return Returns a reference to the stored JSON value.
   const value_type &value() const noexcept {
     return m_value;
   }
@@ -127,6 +147,7 @@ class basic_key_value_pair {
   value_type m_value;
 };
 
+/// \brief A basic_key_value_pair type that uses char as its char type.
 template <typename allocator_type = std::allocator<std::byte>>
 using key_value_pair = basic_key_value_pair<char, std::char_traits<char>, allocator_type>;
 

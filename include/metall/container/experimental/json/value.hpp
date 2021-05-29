@@ -14,11 +14,11 @@
 
 #include <boost/json/src.hpp>
 
-#include <metall/container/experiment/json/json_fwd.hpp>
-#include <metall/container/experiment/json/string.hpp>
-#include <metall/container/experiment/json/parser.hpp>
+#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/container/experimental/json/string.hpp>
+#include <metall/container/experimental/json/parser.hpp>
 
-namespace metall::container::experiment::json {
+namespace metall::container::experimental::json {
 
 namespace {
 namespace bj = boost::json;
@@ -28,7 +28,7 @@ namespace bj = boost::json;
 using null_type = std::monostate;
 
 /// \brief JSON value.
-/// A single, bool, int64, uint64, double, string, array, or object.
+/// A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.
 template <typename _allocator_type = std::allocator<std::byte>>
 class value {
  public:
@@ -60,7 +60,7 @@ class value {
 
   /// \brief Allocator-extended copy constructor
   /// This will be used by scoped-allocator
-  value(const value &other, const allocator_type &alloc)
+  value(const value &other, const allocator_type &alloc = allocator_type())
       : m_data(other.m_data),
         m_allocator(alloc) {}
 
@@ -69,7 +69,7 @@ class value {
 
   /// \brief Allocator-extended move constructor
   /// This will be used by scoped-allocator
-  value(value &&other, const allocator_type &alloc) noexcept
+  value(value &&other, const allocator_type &alloc = allocator_type()) noexcept
       : m_data(std::move(other.m_data)),
         m_allocator(alloc) {}
 

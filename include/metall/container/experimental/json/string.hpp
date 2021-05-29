@@ -10,7 +10,8 @@
 #include <memory>
 
 #include <boost/container/string.hpp>
-namespace metall::container::experiment::json {
+
+namespace metall::container::experimental::json {
 
 template <typename char_type,
           typename traits = std::char_traits<char_type>,

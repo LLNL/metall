@@ -12,16 +12,17 @@
 #include <boost/container/vector.hpp>
 #include <boost/container/scoped_allocator.hpp>
 
-#include <metall/container/experiment/json/json_fwd.hpp>
-#include <metall/container/experiment/json/value.hpp>
+#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/container/experimental/json/value.hpp>
 
-namespace metall::container::experiment::json {
+namespace metall::container::experimental::json {
 
 namespace {
 namespace bc = boost::container;
 }
 
-/// \brief An array is an ordered collection of values.
+/// \brief JSON array.
+/// An array is an ordered collection of values.
 template <typename _allocator_type = std::allocator<std::byte>>
 class array {
  private:
@@ -89,6 +90,6 @@ std::ostream &operator<<(std::ostream &os, const array<allocator_type> &data) {
   return os;
 }
 
-} // namespace metall::container::experiment::json
+} // namespace metall::container::experimental::json
 
 #endif //METALL_CONTAINER_EXPERIMENT_JSON_ARRAY_HPP

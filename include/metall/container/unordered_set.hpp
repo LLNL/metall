@@ -14,12 +14,14 @@
 
 namespace metall::container {
 
+/// \brief An unordered_set container that uses Metall as its default allocator.
 template <class Key,
           class Hash = std::hash<Key>,
           class KeyEqual = std::equal_to<Key>,
           class Allocator = manager::allocator_type<Key>>
 using unordered_set = boost::unordered_set<Key, Hash, KeyEqual, Allocator>;
 
+/// \brief An unordered_multiset container that uses Metall as its default allocator.
 template <class Key,
           class Hash = std::hash<Key>,
           class KeyEqual = std::equal_to<Key>,
