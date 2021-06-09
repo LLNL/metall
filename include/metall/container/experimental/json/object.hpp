@@ -15,18 +15,18 @@
 #include <boost/unordered_set.hpp>
 
 #include <metall/utility/hash.hpp>
-#include <metall/container/experiment/json/json_fwd.hpp>
-#include <metall/container/experiment/json/value.hpp>
-#include <metall/container/experiment/json/string.hpp>
-#include <metall/container/experiment/json/key_value_pair.hpp>
+#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/container/experimental/json/value.hpp>
+#include <metall/container/experimental/json/string.hpp>
+#include <metall/container/experimental/json/key_value_pair.hpp>
 
-namespace metall::container::experiment::json {
+namespace metall::container::experimental::json {
 
 namespace {
 namespace bc = boost::container;
 }
 
-/// \brief JSON object
+/// \brief JSON object.
 /// An object is an unordered map of name and value pairs.
 template <typename _allocator_type = std::allocator<std::byte>>
 class object {
@@ -38,7 +38,8 @@ class object {
 
  private:
   template <typename alloc, typename T>
-  using other_scoped_allocator = bc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<T>>;
+  using other_scoped_allocator = bc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<
+      T>>;
 
   using value_storage_alloc_type = other_scoped_allocator<allocator_type, value_type>;
   using value_storage_type = bc::vector<value_type, value_storage_alloc_type>;
@@ -48,8 +49,8 @@ class object {
   // Value: the position of the corresponding item in the value_storage
   using value_postion_type = typename value_storage_type::size_type;
   using index_table_allocator_type = other_scoped_allocator<allocator_type,
-                                                                    std::pair<const index_key_type,
-                                                                              value_postion_type>>;
+                                                            std::pair<const index_key_type,
+                                                                      value_postion_type>>;
   using index_table_type = boost::unordered_multimap<index_key_type,
                                                      typename value_storage_type::size_type,
                                                      boost::hash<index_key_type>,
@@ -72,8 +73,8 @@ class object {
     }
 
     // Allocates a new value with the key
-    const auto hash = metall::mtlldetail::MurmurHash64A(key.data(), key.length(), 123);
     m_value_storage.emplace_back(key, mapped_type{m_value_storage.get_allocator()});
+    const auto hash = metall::mtlldetail::MurmurHash64A(key.data(), key.length(), 123);
     m_index_table.emplace(hash, m_value_storage.size() - 1);
     return m_value_storage.back().value();
   }
@@ -98,12 +99,19 @@ class object {
     return m_value_storage.end();
   }
 
+  std::size_t size() const {
+    return m_value_storage.size();
+  }
+
  private:
 
   value_postion_type priv_locate_value(std::string_view key) const {
+
     const auto hash = metall::mtlldetail::MurmurHash64A(key.data(), key.length(), 123);
-    for (auto itr = m_index_table.find(hash), end = m_index_table.end(); itr != end; ++itr) {
+    auto range = m_index_table.equal_range(hash);
+    for (auto itr = range.first, end = range.second; itr != end; ++itr) {
       const auto value_pos = itr->second;
+      // std::cout << m_value_storage[value_pos].key() << " <> " <<  key << std::endl;
       if (m_value_storage[value_pos].key() == key) {
         return value_pos; // Found the key
       }
@@ -133,6 +141,6 @@ std::ostream &operator<<(std::ostream &os, const object<allocator_type> &obj) {
   return os;
 }
 
-} // namespace metall::container::experiment::json
+} // namespace metall::container::experimental::json
 
 #endif //METALL_CONTAINER_EXPERIMENT_JSON_OBJECT_HPP

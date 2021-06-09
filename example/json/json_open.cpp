@@ -1,8 +1,8 @@
 #include <iostream>
 #include <metall/metall.hpp>
-#include <metall/container/experiment/json/json.hpp>
+#include <metall/container/experimental/json/json.hpp>
 
-using namespace metall::container::experiment;
+using namespace metall::container::experimental;
 
 int main() {
 

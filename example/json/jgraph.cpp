@@ -6,9 +6,9 @@
 #include <iostream>
 #include <string>
 #include <metall/metall.hpp>
-#include <metall/container/experiment/jgraph/jgraph.hpp>
+#include <metall/container/experimental/jgraph/jgraph.hpp>
 
-using namespace metall::container::experiment;
+using namespace metall::container::experimental;
 using graph_type = jgraph::jgraph<metall::manager::allocator_type<std::byte>>;
 
 std::vector<std::string> input_json_string_list = {
@@ -36,37 +36,39 @@ int main() {
 
       if (value.as_object()["type"].as_string() == "node") {
         const auto &vertex_id = value.as_object()["id"].as_string();
-        graph->vertex_data(vertex_id) = std::move(value);
+        graph->register_vertex(vertex_id);
+        graph->vertex_value(vertex_id) = std::move(value);
       } else if (value.as_object()["type"].as_string() == "relationship") {
         const auto &src_id = value.as_object()["start"].as_string();
         const auto &dst_id = value.as_object()["end"].as_string();
         const auto &edge_id = value.as_object()["id"].as_string();
-        graph->add_edge(src_id, dst_id, edge_id);
-        graph->edge_data(edge_id) = std::move(value);
+        graph->register_edge(src_id, dst_id, edge_id);
+        graph->edge_value(edge_id) = std::move(value);
       }
     }
+    std::cout << "#of vertices: " << graph->num_vertices() << std::endl;
+    std::cout << "#of edges: " << graph->num_edges() << std::endl;
   }
 
   {
     std::cout << "\n--- Open ---" << std::endl;
     metall::manager manager(metall::open_read_only, "./jgraph_obj");
 
-    auto *graph = manager.find<graph_type>(metall::unique_instance).first;
+    const auto *const graph = manager.find<graph_type>(metall::unique_instance).first;
 
     std::cout << "<Vertices>" << std::endl;
-    for (auto vitr = graph->vertices_begin(), vend = graph->vertices_end(); vitr != vend; ++vitr) {
-      const auto &src_vid = vitr->first;
-      std::cout << graph->vertex_data(src_vid) << std::endl;
-    }
+    std::cout << graph->vertex_value("0") << std::endl;
+    std::cout << graph->vertex_value("1") << std::endl;
+    std::cout << graph->vertex_value("2") << std::endl;
+    std::cout << graph->vertex_value("3") << std::endl;
 
+    // Access edge values and edge values using the iterators
     std::cout << "\n<Edges>" << std::endl;
     for (auto vitr = graph->vertices_begin(), vend = graph->vertices_end(); vitr != vend; ++vitr) {
-      const auto &src_vid = vitr->first;
-      const auto &edge_list = vitr->second;
-      for (auto eitr = edge_list.begin(), eend = edge_list.end(); eitr != eend; ++eitr) {
-        const auto &dst_vid = eitr->first;
-        const auto &edge_id = eitr->second;
-        std::cout << graph->edge_data(edge_id) << std::endl;
+      std::cout << "Source vertex ID = " << vitr->key() << std::endl;
+      for (auto eitr = graph->edges_begin(vitr->key()), eend = graph->edges_end(vitr->key()); eitr != eend; ++eitr) {
+        std::cout << "Edge ID = " << eitr->key() << std::endl;
+        std::cout << "Edge value = " << eitr->value() << std::endl;
       }
     }
   }

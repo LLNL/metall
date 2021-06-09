@@ -11,15 +11,20 @@
 
 #include <boost/json/src.hpp>
 
-#include <metall/container/experiment/json/json_fwd.hpp>
-#include <metall/container/experiment/json/value.hpp>
+#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/container/experimental/json/value.hpp>
 
-namespace metall::container::experiment::json {
+namespace metall::container::experimental::json {
 
 namespace {
 namespace bj = boost::json;
 }
 
+/// \brief Parses a JSON stored in an object of boost::json::value.
+/// \tparam allocator_type An allocator type.
+/// \param input_value An input boost::json::value object.
+/// \param out_value A pointer to store parsed JSON.
+/// \return Returns true on success; otherwise, false.
 template <typename allocator_type>
 inline bool parse(const bj::value &input_value, value<allocator_type> *out_value) {
   if (!out_value)return false;
@@ -56,6 +61,11 @@ inline bool parse(const bj::value &input_value, value<allocator_type> *out_value
   return true;
 }
 
+/// \brief Parses a JSON represented as a string.
+/// \tparam allocator_type An allocator type.
+/// \param input_json_string An input JSON string.
+/// \param out_value A pointer to store parsed JSON.
+/// \return Returns true on success; otherwise, false.
 template <typename allocator_type>
 inline bool parse(const std::string_view &input_json_string, value<allocator_type> *out_value) {
   bj::error_code ec;

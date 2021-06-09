@@ -6,7 +6,10 @@
 #ifndef METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
 #define METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
 
-namespace metall::container::experiment::json {
+namespace metall::container::experimental::json {
+
+#if !defined(DOXYGEN_SKIP)
+// Forward declaration
 
 template <typename allocator_type>
 class value;
@@ -20,6 +23,7 @@ class array;
 template <typename char_type, typename char_traits, typename _allocator_type>
 class basic_key_value_pair;
 
-} // namespace metall::container::experiment::json
+#endif // DOXYGEN_SKIP
+} // namespace metall::container::experimental::json
 
 #endif //METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
