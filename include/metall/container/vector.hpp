@@ -12,6 +12,7 @@
 
 namespace metall::container {
 
+/// \brief A vector container that uses Metall as its default allocator.
 template <typename T, typename Allocator = manager::allocator_type<T>>
 using vector = boost::container::vector<T, Allocator>;
 

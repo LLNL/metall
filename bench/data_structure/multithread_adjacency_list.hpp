@@ -75,8 +75,9 @@ class multithread_adjacency_list {
 #if METALL_USE_STL_CONTAINERS_IN_ADJLIST
     m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
 #else
-    m_bank_table[bank_index(key)].try_emplace(key, list_allocator_type(m_bank_table.get_allocator()));
-    m_bank_table[bank_index(key)].at(key).emplace_back(std::move(value));
+    m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
+//    m_bank_table[bank_index(key)].try_emplace(key, list_allocator_type(m_bank_table.get_allocator()));
+//    m_bank_table[bank_index(key)].at(key).emplace_back(std::move(value));
 #endif
 #else
     // MEMO: GCC does not work with STL Containers (tested with GCC 10.2.0 on MacOS)

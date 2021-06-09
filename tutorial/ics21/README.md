@@ -98,6 +98,7 @@ export BOOST_ROOT=$PWD/boost_1_75_0
 git clone https://github.com/LLNL/metall
 cd metall/tutorial/ics21
 g++ -std=c++17 [tutorial_program.cpp] -lstdc++fs -I../../include -I${BOOST_ROOT}
+# If one gets an error related to pthread, please add '-pthread' at the end of the command above
 
 # All tutorial programs do not take command-line options
 ./a.out

@@ -12,6 +12,7 @@
 
 namespace metall::container {
 
+/// \brief A list container that uses Metall as its default allocator.
 template <typename T, typename Allocator = manager::allocator_type<T>>
 using list = boost::container::list<T, Allocator>;
 
