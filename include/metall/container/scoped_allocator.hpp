@@ -10,6 +10,7 @@
 
 namespace metall::container {
 
+/// \brief An allocator which can be used with multilevel containers.
 template <class OuterAlloc, class... InnerAlloc>
 using scoped_allocator_adaptor = boost::container::scoped_allocator_adaptor<OuterAlloc, InnerAlloc...>;
 

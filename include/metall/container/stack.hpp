@@ -12,6 +12,7 @@
 
 namespace metall::container {
 
+/// \brief A stack container that uses Metall as its default allocator.
 template <typename T, typename Container = deque<T>>
 using stack = std::stack<T, Container>;
 

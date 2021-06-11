@@ -148,12 +148,7 @@ TEST(FallbackAllocatorAdaptorTest, NestedContainer) {
   {
     map_type map;
     for (uint64_t i = 0; i < 1024; ++i) {
-#ifdef __clang__
-      map.try_emplace(i % 8, map.get_allocator());
-      map.at(i % 8).emplace_back(i);
-#else
       map[i % 8].push_back(i);
-#endif
     }
 
     for (uint64_t i = 0; i < 1024; ++i) {
@@ -253,14 +248,8 @@ TEST(FallbackAllocatorAdaptorTest, PersistentNestedContainer) {
   {
     metall::manager manager(metall::create_only, dir_path().c_str(), 1UL << 27UL);
     map_type *map = manager.construct<map_type>("map")(manager.get_allocator<>());
-#ifdef __clang__
-    map->emplace(0, map->get_allocator());
-    map->at(0).emplace_back(1);
-    map->at(0).emplace_back(2);
-#else
     (*map)[0].emplace_back(1);
     (*map)[0].emplace_back(2);
-#endif
   }
 
   {
@@ -271,12 +260,7 @@ TEST(FallbackAllocatorAdaptorTest, PersistentNestedContainer) {
 
     ASSERT_EQ(map->at(0)[0], 1);
     ASSERT_EQ(map->at(0)[1], 2);
-#ifdef __clang__
-    map->emplace(1, map->get_allocator());
-    map->at(1).emplace_back(3);
-#else
     (*map)[1].emplace_back(3);
-#endif
   }
 
   {

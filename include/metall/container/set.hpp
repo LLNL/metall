@@ -14,11 +14,13 @@
 
 namespace metall::container {
 
+/// \brief A set container that uses Metall as its default allocator.
 template <class Key,
           class Compare = std::less<Key>,
           class Allocator = manager::allocator_type<Key>>
 using set = boost::container::set<Key, Compare, Allocator>;
 
+/// \brief A multiset container that uses Metall as its default allocator.
 template <class Key,
           class Compare = std::less<Key>,
           class Allocator = manager::allocator_type<Key>>
