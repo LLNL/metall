@@ -36,13 +36,19 @@ They are already installed in the home directory for you.
 Here is how to build a tutorial example.
 
 ```bash
-# Metall's git repository is available in the home direcotry.
+# Metall's git repository is available in the home directory.
 cd $HOME/metall/tutorial/hands_on
 
-# Build an example
-g++-8 -std=c++17 [tutorial_example.cpp, e.g., t1-1.cpp] -lstdc++fs -pthread -I../../include -I$HOME/boost
+# Build all examples
+make
 
-# All tutorial programs do not take command-line options
+# All tutorial programs do not take command-line options.
+# To run an executable, for example:
+./t0
+
+# --------------------------------------------- #
+# Alternatively, manually build an example
+g++-8 -std=c++17 [tutorial_example.cpp, e.g., t1-1.cpp] -lstdc++fs -pthread -I../../include -I$HOME/boost
 ./a.out
 ```
 
