@@ -38,39 +38,75 @@ class array {
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
 
+  /// \brief Constructor.
+  /// \param alloc An allocator object.
   explicit array(const allocator_type &alloc = allocator_type())
       : m_array(alloc) {}
 
+  /// \brief Returns the number of values.
+  /// \return The number of vertices.
   std::size_t size() const noexcept {
     return m_array.size();
   }
 
+  /// \brief Change the number of elements stored.
+  /// \param size A new size.
   void resize(const std::size_t size) {
     m_array.resize(size, value_type{m_array.get_allocator()});
   }
 
+  /// \brief Access an element.
+  /// \param index The index of the element to access.
+  /// \return A reference to the element at 'index'.
   value_type &operator[](const std::size_t index) {
     return m_array[index];
   }
 
+  /// \brief Access an element.
+  /// \param index The index of the element to access.
+  /// \return A const reference to the element at 'index'.
   const value_type &operator[](const std::size_t index) const {
     return m_array[index];
   }
 
+  /// \brief Returns an iterator that is at the beginning of the array.
+  /// \return An iterator that is at the beginning of the array.
   iterator begin() {
     return m_array.begin();
   }
 
+  /// \brief Returns an iterator that is at the beginning of the array.
+  /// \return A const iterator that is at the beginning of the array.
   const_iterator begin() const {
     return m_array.begin();
   }
 
+  /// \brief Returns an iterator that is at the end of the array.
+  /// \return An iterator that is at the end of the array.
   iterator end() {
     return m_array.end();
   }
 
+  /// \brief Returns an iterator that is at the end of the array.
+  /// \return A const iterator that is at the end of the array.
   const_iterator end() const {
     return m_array.end();
+  }
+
+  /// \brief Erases the element at 'position'.
+  /// \param position The position of the element to erase.
+  /// \return Iterator following the removed element.
+  /// If 'position' refers to the last element, then the end() iterator is returned.
+  iterator erase(iterator position) {
+    return m_array.erase(position);
+  }
+
+  /// \brief Erases the element at 'position'.
+  /// \param position The position of the element to erase.
+  /// \return Iterator following the removed element.
+  /// If 'position' refers to the last element, then the end() iterator is returned.
+  iterator erase(const_iterator position) {
+    return m_array.erase(position);
   }
 
  private:

@@ -36,5 +36,17 @@ int main() {
   auto *value = manager.construct<metall_value_type>(metall::unique_instance)(json_string, manager.get_allocator());
   std::cout << *value << std::endl;
 
+  value->as_object()["name"].as_string() = "Alice"; // Change a string value
+
+  value->as_object()["temperature"].emplace_double() = 25.2; // Insert a double value
+  value->as_object()["unit"].emplace_string() = "celsius"; // Insert a string value
+
+  value->as_object().erase("pi"); // Erase a value
+
+  auto pos = value->as_object().find("happy");
+  std::cout << "Happy? : " << pos->value() << std::endl;
+
+  std::cout << *value << std::endl;
+
   return 0;
 }
