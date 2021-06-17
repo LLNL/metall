@@ -1,5 +1,6 @@
-[![metall-ci-test](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml/badge.svg)](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml)
+[![CI Test](https://github.com/LLNL/metall/actions/workflows/ci-test.yml/badge.svg?branch=master)](https://github.com/LLNL/metall/actions/workflows/ci-test.yml)
 [![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
+[![Deploy API Doc](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml/badge.svg?branch=master)](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml)
 
 Metall: A Persistent Memory Allocator For Data-Centric Analytics
 ===============================================
