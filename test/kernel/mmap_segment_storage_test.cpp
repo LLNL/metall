@@ -40,6 +40,8 @@ TEST(MultifileSegmentStorageTest, Create) {
     prepare_test_dir();
     segment_storage_type segment_storage;
     ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(segment_storage.is_open());
+    ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_NE(segment_storage.get_segment(), nullptr);
     auto buf = static_cast<char*>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size / 2; ++i) {
@@ -52,6 +54,8 @@ TEST(MultifileSegmentStorageTest, Create) {
     prepare_test_dir();
     segment_storage_type segment_storage;
     ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size * 2));
+    ASSERT_TRUE(segment_storage.is_open());
+    ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_NE(segment_storage.get_segment(), nullptr);
     auto buf = static_cast<char*>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
@@ -154,6 +158,8 @@ TEST(MultifileSegmentStorageTest, Open) {
   {
     segment_storage_type segment_storage;
     ASSERT_TRUE(segment_storage.open(test_file_prefix(), vm_size, addr, false));
+    ASSERT_TRUE(segment_storage.is_open());
+    ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_FALSE(segment_storage.read_only());
     auto buf = static_cast<char*>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
@@ -166,6 +172,8 @@ TEST(MultifileSegmentStorageTest, Open) {
   {
     segment_storage_type segment_storage;
     ASSERT_TRUE(segment_storage.open(test_file_prefix(), vm_size, addr, true));
+    ASSERT_TRUE(segment_storage.is_open());
+    ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_TRUE(segment_storage.read_only());
     auto buf = static_cast<char*>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
