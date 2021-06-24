@@ -13,6 +13,7 @@
 
 namespace metall::container {
 
+/// \brief A priority_queue container that uses Metall as its default allocator.
 template <typename T, typename Container = vector<T>, typename Compare = std::less<typename Container::value_type>>
 using priority_queue = std::priority_queue<T, Container>;
 

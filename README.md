@@ -45,7 +45,7 @@ For example,
 ```bash
 # Download Boost (Boost C++ Libraries 1.64 or more is required)
 # One can skip this step if Boost is already available.
-wget https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz
+wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz
 tar xvf boost_1_75_0.tar.gz
 export BOOST_ROOT=$PWD/boost_1_75_0
 
@@ -90,12 +90,12 @@ For more details, see a page
 [here](https://metall.readthedocs.io/en/latest/advanced_build/example_test_bench/).
 
 
-# Documentation
+# Documentations
 
-[Full documentation](https://metall.readthedocs.io/) is available.
+- [Full documentation](https://metall.readthedocs.io/)
+- [API documentation](https://software.llnl.gov/metall/api/)
 
-
-## Generate API document using Doxygen
+## Generate API documentation using Doxygen
 
 A Doxygen configuration file is [here](docs/Doxyfile.in).
 

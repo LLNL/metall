@@ -1,0 +1,40 @@
+name: CI Test
+
+on: [push, pull_request]
+
+jobs:
+  gcc11-1_bst1-76-0:
+    runs-on: ubuntu-latest
+    container:
+      image: kiwabuchi/metall_test:centos7_min
+    env:
+      GCC_VERSION: 11.1.0
+      BOOST_VERSION: 1.76.0
+      METALL_LIMIT_MAKE_PARALLELS: 8
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test
+        run: |
+          . /var/spack/share/spack/setup-env.sh
+          spack load boost@${BOOST_VERSION} gcc@${GCC_VERSION}
+          export METALL_TEST_DIR=${GITHUB_JOB}
+          cd $GITHUB_WORKSPACE
+          bash ./scripts/CI/build_and_test.sh
+
+  gcc8-1_bst1-64-0:
+    runs-on: ubuntu-latest
+    container:
+      image: kiwabuchi/metall_test:centos7_min
+    env:
+      GCC_VERSION: 8.1.0
+      BOOST_VERSION: 1.64.0
+      METALL_LIMIT_MAKE_PARALLELS: 8
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test
+        run: |
+          . /var/spack/share/spack/setup-env.sh
+          spack load boost@${BOOST_VERSION} gcc@${GCC_VERSION}
+          export METALL_TEST_DIR=${GITHUB_JOB}
+          cd $GITHUB_WORKSPACE
+          bash ./scripts/CI/build_and_test.sh

@@ -14,12 +14,14 @@
 
 namespace metall::container {
 
+/// \brief A map container that uses Metall as its default allocator.
 template <class Key,
           class T,
           class Compare = std::less<Key>,
           class Allocator = manager::allocator_type<std::pair<const Key, T>>>
 using map = boost::container::map<Key, T, Compare, Allocator>;
 
+/// \brief A multimap container that uses Metall as its default allocator.
 template <class Key,
           class T,
           class Compare = std::less<Key>,

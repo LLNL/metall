@@ -14,6 +14,7 @@
 
 namespace metall::container {
 
+/// \brief An unordered_map container that uses Metall as its default allocator.
 template <class Key,
           class T,
           class Hash = std::hash<Key>,
@@ -21,6 +22,7 @@ template <class Key,
           class Allocator = manager::allocator_type<std::pair<const Key, T> >>
 using unordered_map = boost::unordered_map<Key, T, Hash, KeyEqual, Allocator>;
 
+/// \brief An unordered_multimap container that uses Metall as its default allocator.
 template <class Key,
           class T,
           class Hash = std::hash<Key>,
