@@ -19,7 +19,7 @@ Metall: A Persistent Memory Allocator For Data-Centric Analytics
 * Also provides a space-efficient snapshot/versioning, leveraging reflink
   copy mechanism in filesystem. In case reflink is not supported, Metall
   automatically falls back to regular copy.
-* See details: [Metall overview slides](docs/publications/metall_overview.pdf).
+* See details: [Metall overview slides](docs/publications/metall_101.pdf).
   
 
 # Getting Started
