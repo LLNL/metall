@@ -12,14 +12,10 @@
 #include <string_view>
 
 #include <boost/container/vector.hpp>
-#include <boost/unordered_set.hpp>
 #include <boost/container/deque.hpp>
 
 #include <metall/utility/hash.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
-#include <metall/container/experimental/json/value.hpp>
-#include <metall/container/experimental/json/string.hpp>
-#include <metall/container/experimental/json/key_value_pair.hpp>
 
 namespace metall::container::experimental::json {
 
@@ -202,7 +198,7 @@ class object {
     assert(erased);
 
     // Update the positions of the values that will be moved forward.
-    for (auto& elem : m_index_table) {
+    for (auto &elem : m_index_table) {
       if ((ssize_t)elem.second > value_position_raw) {
         --elem.second;
       }
@@ -215,24 +211,6 @@ class object {
   index_table_type m_index_table;
   value_storage_type m_value_storage;
 };
-
-template <typename allocator_type>
-std::ostream &operator<<(std::ostream &os, const object<allocator_type> &obj) {
-  os << "{\n";
-
-  bool is_first = true;
-  for (const auto &elem : obj) {
-    if (!is_first) {
-      os << ",\n";
-    }
-    os << "\"" << elem.key() << "\" : " << elem.value();
-    is_first = false;
-  }
-
-  os << "\n}";
-
-  return os;
-}
 
 } // namespace metall::container::experimental::json
 

@@ -6,7 +6,6 @@
 #ifndef METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
 #define METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
 
-#include <iostream>
 #include <memory>
 #include <utility>
 #include <string_view>
@@ -14,18 +13,15 @@
 
 #include <boost/json/src.hpp>
 
+#include <metall/container/string.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
-#include <metall/container/experimental/json/string.hpp>
-#include <metall/container/experimental/json/parser.hpp>
 
 namespace metall::container::experimental::json {
 
 namespace {
+namespace mc = metall::container;
 namespace bj = boost::json;
 }
-
-/// \brief JSON null.
-using null_type = std::monostate;
 
 /// \brief JSON value.
 /// A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.
@@ -33,7 +29,9 @@ template <typename _allocator_type = std::allocator<std::byte>>
 class value {
  public:
   using allocator_type = _allocator_type;
-  using string_type = string<typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
+  using string_type = mc::basic_string<char,
+                                       std::char_traits<char>,
+                                       typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
   using object_type = object<_allocator_type>;
   using array_type = array<_allocator_type>;
 
@@ -45,14 +43,9 @@ class value {
   explicit value(const allocator_type &alloc = allocator_type())
       : m_allocator(alloc) {}
 
-  explicit value(const std::string_view &input_json_string, const allocator_type &alloc = allocator_type())
-      : m_allocator(alloc) {
-    parse(input_json_string, this);
-  }
-
   explicit value(const bj::value &input_json_value, const allocator_type &alloc = allocator_type())
       : m_allocator(alloc) {
-    parse(input_json_value, this);
+    assert(false);
   }
 
   /// \brief Copy constructor
@@ -60,7 +53,7 @@ class value {
 
   /// \brief Allocator-extended copy constructor
   /// This will be used by scoped-allocator
-  value(const value &other, const allocator_type &alloc = allocator_type())
+  value(const value &other, const allocator_type &alloc)
       : m_data(other.m_data),
         m_allocator(alloc) {}
 
@@ -69,12 +62,156 @@ class value {
 
   /// \brief Allocator-extended move constructor
   /// This will be used by scoped-allocator
-  value(value &&other, const allocator_type &alloc = allocator_type()) noexcept
+  value(value &&other, const allocator_type &alloc) noexcept
       : m_data(std::move(other.m_data)),
         m_allocator(alloc) {}
 
+  /// \brief Copy assignment operator
   value &operator=(const value &) = default;
+
+  /// \brief Move assignment operator
   value &operator=(value &&) noexcept = default;
+
+  /// \brief Assign a bool value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const bool b) {
+    emplace_bool() = b;
+    return *this;
+  }
+
+  /// \brief Assign a char value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const signed char i) {
+    return operator=(static_cast<long long>(i));
+  }
+
+  /// \brief Assign a short value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const short i) {
+    return operator=(static_cast<long long>(i));
+  }
+
+  /// \brief Assign an int value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const int i) {
+    return operator=(static_cast<long long>(i));
+  }
+
+  /// \brief Assign a long value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const long i) {
+    return operator=(static_cast<long long>(i));
+  }
+
+  /// \brief Assign a long long value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const long long i) {
+    emplace_int64() = i;
+    return *this;
+  }
+
+  /// \brief Assign an unsigned char value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const unsigned char u) {
+    return operator=(static_cast<unsigned long long>(u));
+  }
+
+  /// \brief Assign an unsigned short value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const unsigned short u) {
+    return operator=(static_cast<unsigned long long>(u));
+  }
+
+  /// \brief Assign an unsigned int value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const unsigned int u) {
+    return operator=(static_cast<unsigned long long>(u));
+  }
+
+  /// \brief Assign an unsigned long value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const unsigned long u) {
+    return operator=(static_cast<unsigned long long>(u));
+  }
+
+  /// \brief Assign an unsigned long long value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const unsigned long long u) {
+    emplace_uint64() = u;
+    return *this;
+  }
+
+  /// \brief Assign a null value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(std::nullptr_t) {
+    emplace_null();
+    return *this;
+  }
+
+  /// \brief Assign a double value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const double d) {
+    emplace_double() = d;
+    return *this;
+  }
+
+  /// \brief Assign a std::string_view value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(std::string_view s) {
+    emplace_string() = s.data();
+    return *this;
+  }
+
+  /// \brief Assign a const char* value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const char *const s) {
+    emplace_string() = s;
+    return *this;
+  }
+
+  /// \brief Assign a string_type value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const string_type &s) {
+    emplace_string() = s;
+    return *this;
+  }
+
+  // value &operator=(std::initializer_list<value_ref> init);
+
+  /// \brief Assign a string_type value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(string_type &&s) {
+    emplace_string() = std::move(s);
+    return *this;
+  }
+
+  /// \brief Assign an array_type value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const array_type &arr) {
+    emplace_array() = arr;
+    return *this;
+  }
+
+  /// \brief Assign an array_type value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(array_type &&arr) {
+    emplace_array() = std::move(arr);
+    return *this;
+  }
+
+  /// \brief Assign an object_type value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(const object_type &obj) {
+    emplace_object() = obj;
+    return *this;
+  }
+
+  /// \brief Assign an object_type value.
+  /// Allocates a memory storage or destroy the old content, if necessary.
+  value &operator=(object_type &&obj) {
+    emplace_object() = std::move(obj);
+    return *this;
+  }
 
   /// \brief Set a null.
   /// The old content is destroyed.
@@ -247,7 +384,7 @@ class value {
 
  private:
   bool priv_reset() {
-    std::visit([this](const auto &arg) {
+    std::visit([](const auto &arg) {
       using T = std::decay_t<decltype(arg)>;
       arg.~T();
     }, m_data);
@@ -258,32 +395,6 @@ class value {
   internal_data_type m_data{null_type{}};
   allocator_type m_allocator;
 };
-
-template <typename allocator_type>
-std::ostream &operator<<(std::ostream &os, const json::value<allocator_type> &val) {
-  if (val.is_null()) {
-    os << "null";
-  } else if (val.is_bool()) {
-    os << std::boolalpha << val.as_bool() << "";
-    os << std::noboolalpha;
-  } else if (val.is_int64()) {
-    os << val.as_int64() << "";
-  } else if (val.is_uint64()) {
-    os << val.as_uint64() << "";
-  } else if (val.is_double()) {
-    os << val.as_double() << "";
-  } else if (val.is_string()) {
-    os << "\"" << val.as_string() << "\"";
-  } else if (val.is_array()) {
-    os << val.as_array() << "";
-  } else if (val.is_object()) {
-    os << val.as_object() << "";
-  } else {
-    os << "Invalid type\n";
-  }
-
-  return os;
-}
 
 }
 

@@ -12,7 +12,6 @@
 
 #include <metall/offset_ptr.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
-#include <metall/container/experimental/json/value.hpp>
 
 namespace metall::container::experimental::json {
 
@@ -20,9 +19,7 @@ namespace metall::container::experimental::json {
 /// \tparam char_type A char type to store.
 /// \tparam char_traits A chart traits.
 /// \tparam _allocator_type An allocator type.
-template <typename char_type = char,
-          typename char_traits = std::char_traits<char_type>,
-          typename _allocator_type = std::allocator<std::byte>>
+template <typename char_type, typename char_traits, typename _allocator_type>
 class basic_key_value_pair {
  private:
   using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<char_type>;

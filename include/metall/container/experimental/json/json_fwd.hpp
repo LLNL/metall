@@ -6,6 +6,14 @@
 #ifndef METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
 #define METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
 
+/// \namespace metall::container::experimental
+/// \brief Namespace for Metall containers in an experimental phase.
+namespace metall::container::experimental {}
+
+/// \namespace metall::container::experimental::json
+/// \brief Namespace for Metall JSON container, which is in an experimental phase.
+namespace metall::container::experimental::json {}
+
 namespace metall::container::experimental::json {
 
 #if !defined(DOXYGEN_SKIP)
@@ -23,7 +31,22 @@ class array;
 template <typename char_type, typename char_traits, typename _allocator_type>
 class basic_key_value_pair;
 
+template <typename char_type = char,
+          typename char_traits = std::char_traits<char_type>,
+          typename _allocator_type = std::allocator<std::byte>>
+class basic_key_value_pair;
+
+template <typename T, typename allocator_type>
+inline value<allocator_type> value_from(T &&, allocator_type allocator = allocator_type());
+
+template <typename T, typename allocator_type>
+inline T value_to(const value<allocator_type>&);
+
 #endif // DOXYGEN_SKIP
+
+/// \brief JSON null.
+using null_type = std::monostate;
+
 } // namespace metall::container::experimental::json
 
 #endif //METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP

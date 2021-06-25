@@ -10,21 +10,12 @@
 #include <metall/container/experimental/json/array.hpp>
 #include <metall/container/experimental/json/key_value_pair.hpp>
 #include <metall/container/experimental/json/object.hpp>
-#include <metall/container/experimental/json/parser.hpp>
-#include <metall/container/experimental/json/string.hpp>
 #include <metall/container/experimental/json/value.hpp>
-
-/// \namespace metall::container::experimental
-/// \brief Namespace for Metall containers in an experimental phase.
-namespace metall::container::experimental {
-
-}
-
-/// \namespace metall::container::experimental::json
-/// \brief Namespace for Metall JSON container, which is in an experimental phase.
-namespace metall::container::experimental::json {
-
-}
+#include <metall/container/experimental/json/parse.hpp>
+#include <metall/container/experimental/json/serialize.hpp>
+#include <metall/container/experimental/json/pretty_print.hpp>
+#include <metall/container/experimental/json/value_from.hpp>
+#include <metall/container/experimental/json/value_to.hpp>
 
 /// \example json_create.cpp
 /// This is an example of how to create a JSON object with Metall.
