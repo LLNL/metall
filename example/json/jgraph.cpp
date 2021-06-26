@@ -30,9 +30,7 @@ int main() {
 
     auto *graph = manager.construct<graph_type>(metall::unique_instance)(manager.get_allocator());
     for (const auto &json_string : input_json_string_list) {
-      auto value = graph_type::value_type(manager.get_allocator());
-
-      json::parse(json_string, &value);
+      auto value = json::parse(json_string, manager.get_allocator());
 
       if (value.as_object()["type"].as_string() == "node") {
         const auto &vertex_id = value.as_object()["id"].as_string();
