@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_COTAINER_CONCURRENT_MAP_HPP
-#define METALL_COTAINER_CONCURRENT_MAP_HPP
+#ifndef METALL_CONTAINER_CONCURRENT_MAP_HPP
+#define METALL_CONTAINER_CONCURRENT_MAP_HPP
 
 #include <functional>
 #include <memory>
@@ -187,4 +187,4 @@ class concurrent_map {
 /// \example concurrent_map.cpp
 /// This is an example of how to use the concurrent_map class with Metall.
 
-#endif //METALL_COTAINER_CONCURRENT_MAP_HPP
+#endif //METALL_CONTAINER_CONCURRENT_MAP_HPP

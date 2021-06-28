@@ -12,7 +12,7 @@ int main() {
   metall::manager manager(metall::open_read_only, "./test");
 
   auto *value = manager.find<metall_value_type>(metall::unique_instance).first;
-  std::cout << *value << std::endl;
+  json::pretty_print(std::cout, *value);
 
   return 0;
 }

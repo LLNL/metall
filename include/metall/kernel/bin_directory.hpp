@@ -37,7 +37,7 @@ namespace mdtl = metall::mtlldetail;
 /// \brief A simple key-value store designed to store values related to memory address,
 /// such as free chunk numbers or free objects.
 /// Values are sorted with ascending order if METALL_USE_SORTED_BIN is defined;
-/// otherwise, values are stored in the FIFO order.
+/// otherwise, values are stored in the LIFO order.
 /// \tparam _k_num_bins The number of bins
 /// \tparam _value_type The value type to store
 /// \tparam _allocator_type The allocator type to allocate internal data

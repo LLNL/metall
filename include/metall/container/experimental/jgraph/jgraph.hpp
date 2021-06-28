@@ -260,6 +260,10 @@ class jgraph {
     return const_edge_iterator(pos->second.dst_vertex_directory.end(), const_cast<edge_storage_type*>(&m_edge_storage));
   }
 
+  allocator_type get_allocator() const {
+    return m_vertex_storage.get_allocator();
+  }
+
  private:
 
   typename vertex_directory_type::const_iterator priv_locate_vertex(const std::string_view &vid) const {

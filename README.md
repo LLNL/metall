@@ -1,5 +1,6 @@
-[![metall-ci-test](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml/badge.svg)](https://github.com/LLNL/metall/actions/workflows/github-actions-test.yml)
+[![CI Test](https://github.com/LLNL/metall/actions/workflows/ci-test.yml/badge.svg?branch=master)](https://github.com/LLNL/metall/actions/workflows/ci-test.yml)
 [![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
+[![Deploy API Doc](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml/badge.svg?branch=master)](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml)
 
 Metall: A Persistent Memory Allocator For Data-Centric Analytics
 ===============================================
@@ -18,7 +19,7 @@ Metall: A Persistent Memory Allocator For Data-Centric Analytics
 * Also provides a space-efficient snapshot/versioning, leveraging reflink
   copy mechanism in filesystem. In case reflink is not supported, Metall
   automatically falls back to regular copy.
-* See details: [Metall overview slides](docs/publications/metall_overview.pdf).
+* See details: [Metall overview slides](docs/publications/metall_101.pdf).
   
 
 # Getting Started

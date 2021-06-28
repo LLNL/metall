@@ -12,7 +12,6 @@
 
 #include <metall/offset_ptr.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
-#include <metall/container/experimental/json/value.hpp>
 
 namespace metall::container::experimental::json {
 
@@ -20,9 +19,7 @@ namespace metall::container::experimental::json {
 /// \tparam char_type A char type to store.
 /// \tparam char_traits A chart traits.
 /// \tparam _allocator_type An allocator type.
-template <typename char_type = char,
-          typename char_traits = std::char_traits<char_type>,
-          typename _allocator_type = std::allocator<std::byte>>
+template <typename char_type, typename char_traits, typename _allocator_type>
 class basic_key_value_pair {
  private:
   using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<char_type>;
@@ -87,8 +84,25 @@ class basic_key_value_pair {
     other.m_length = 0;
   }
 
-  basic_key_value_pair &operator=(const basic_key_value_pair &) = default;
-  basic_key_value_pair &operator=(basic_key_value_pair &&) noexcept = default;
+  basic_key_value_pair &operator=(const basic_key_value_pair &other) {
+    priv_deallocate_key(); // deallocate the key using the current allocator
+    m_value = other.m_value; // Assign value (new allocator is assigned)
+    priv_allocate_key(other.key()); // Allocate a key using the new allocator.
+    m_length = other.m_length;
+
+    return *this;
+  }
+
+  basic_key_value_pair &operator=(basic_key_value_pair &&other) noexcept {
+    priv_deallocate_key();
+    m_value = std::move(other.m_value);
+    m_key = std::move(other.m_key);
+    m_length = other.m_length;
+    other.m_key = nullptr;
+    other.m_length = 0;
+
+    return *this;
+  }
 
   ~basic_key_value_pair() noexcept {
     priv_deallocate_key();
@@ -139,6 +153,7 @@ class basic_key_value_pair {
   bool priv_deallocate_key() {
     char_allocator_type alloc(m_value.get_allocator());
     std::allocator_traits<char_allocator_type>::deallocate(alloc, m_key, m_length);
+    m_length = 0;
     return true;
   }
 
