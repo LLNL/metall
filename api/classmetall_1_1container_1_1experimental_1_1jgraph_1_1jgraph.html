@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.14</span>
+   &#160;<span id="projectnumber">v0.15</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -177,6 +177,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1c66c4df3a2e3039bca61fd04939a03e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34ad4c4dd247fbbfe9e7237d271c0ad0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34ad4c4dd247fbbfe9e7237d271c0ad0">edges_end</a> (const std::string_view &amp;vid) const</td></tr>
 <tr class="separator:a34ad4c4dd247fbbfe9e7237d271c0ad0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd5f46fa4372a18d45b048e4fa0c5e8c"><td class="memItemLeft" align="right" valign="top">allocator_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abd5f46fa4372a18d45b048e4fa0c5e8c">get_allocator</a> () const</td></tr>
+<tr class="separator:abd5f46fa4372a18d45b048e4fa0c5e8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename allocator_type&gt;<br />
@@ -207,8 +209,6 @@ template&lt;typename allocator_type &gt; </div>
 </div><div class="memdoc">
 
 <p>JSON value type every vertex and edge has. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="jgraph_8cpp-example.html#a5">jgraph.cpp</a>.</dd>
-</dl>
 
 </div>
 </div>
@@ -522,7 +522,7 @@ template&lt;typename allocator_type &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id. </dd></dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="jgraph_8cpp-example.html#a7">jgraph.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="jgraph_8cpp-example.html#a6">jgraph.cpp</a>.</dd>
 </dl>
 
 </div>
@@ -892,6 +892,33 @@ template&lt;typename allocator_type &gt; </div>
           <td>(</td>
           <td class="paramtype">const std::string_view &amp;&#160;</td>
           <td class="paramname"><em>vid</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abd5f46fa4372a18d45b048e4fa0c5e8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd5f46fa4372a18d45b048e4fa0c5e8c">&#9670;&nbsp;</a></span>get_allocator()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename allocator_type &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">allocator_type <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::get_allocator </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
           <td> const</td>
         </tr>
       </table>

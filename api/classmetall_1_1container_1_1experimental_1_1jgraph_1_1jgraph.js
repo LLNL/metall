@@ -23,5 +23,6 @@ var classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph =
     [ "edges_begin", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aee6f9258f8dce992bda8e6041aa5ed5f", null ],
     [ "edges_begin", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#adf2cba54ab19ada1d4b51837db2d6f85", null ],
     [ "edges_end", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1c66c4df3a2e3039bca61fd04939a03e", null ],
-    [ "edges_end", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34ad4c4dd247fbbfe9e7237d271c0ad0", null ]
+    [ "edges_end", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34ad4c4dd247fbbfe9e7237d271c0ad0", null ],
+    [ "get_allocator", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abd5f46fa4372a18d45b048e4fa0c5e8c", null ]
 ];
