@@ -16,10 +16,10 @@ std::vector<std::string> input_json_string_list = {
     R"({"type":"node", "id":"1", "properties":["user1"]})",
     R"({"type":"node", "id":"2", "properties":["item0"]})",
     R"({"type":"node", "id":"3", "properties":["item1"]})",
-    R"({"id":"100", "type":"relationship", "start":"0", "end":"2", "properties":["buy"]})",
-    R"({"id":"101", "type":"relationship", "start":"0", "end":"3", "properties":["buy"]})",
-    R"({"id":"102", "type":"relationship", "start":"1", "end":"2", "properties":["buy"]})",
-    R"({"id":"103", "type":"relationship", "start":"0", "end":"1", "properties":["friend"]})"
+    R"({"type":"relationship", "id":"0", "start":"0", "end":"2", "properties":["buy"]})",
+    R"({"type":"relationship", "id":"1", "start":"1", "end":"3", "properties":["sell"]})",
+    R"({"type":"relationship", "id":"2", "start":"0", "end":"1", "properties":["friend"]})",
+    R"({"type":"relationship", "id":"3", "start":"0", "end":"1", "properties":["customer"]})"
 };
 
 int main() {
@@ -68,6 +68,7 @@ int main() {
         std::cout << "Edge ID = " << eitr->key() << std::endl;
         std::cout << "Edge value = " << eitr->value() << std::endl;
       }
+      std::cout << std::endl;
     }
   }
 

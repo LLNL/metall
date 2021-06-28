@@ -92,7 +92,7 @@ class jgraph {
                                                         metall::utility::hash<uint64_t>,
                                                         std::equal_to<>,
                                                         other_scoped_allocator<std::pair<const uint64_t,
-                                                                                         vertex_directory_value_type>>>;
+                                                                                         edge_directory_value_type>>>;
 
  public:
   /// \brief JSON value type every vertex and edge has
@@ -114,7 +114,8 @@ class jgraph {
   /// \brief Const edge iterator.
   using const_edge_iterator = jgdtl::edge_iterator_impl<typename dst_vertex_directory_type::const_iterator,
                                                         typename std::pointer_traits<typename std::allocator_traits<
-                                                            allocator_type>::const_pointer>::template rebind<edge_storage_type>,
+                                                            allocator_type>::const_pointer>::template rebind<
+                                                            edge_storage_type>,
                                                         const typename edge_storage_type::value_type>;
 
   /// \brief Constructor
@@ -123,8 +124,7 @@ class jgraph {
       : m_vertex_storage(alloc),
         m_edge_storage(alloc),
         m_vertex_directory(alloc),
-        m_edge_directory(alloc)
-        {}
+        m_edge_directory(alloc) {}
 
   /// \brief Checks if a vertex exists.
   /// \param vertex_id A vertex ID to check.
@@ -145,43 +145,39 @@ class jgraph {
   /// \return Returns if the vertex is registered.
   /// Returns false if the same ID already exists.
   bool register_vertex(const std::string_view &vertex_id) {
-    auto vpos = priv_locate_vertex(vertex_id);
-    if (vpos != m_vertex_directory.end()) {
+    if (has_vertex(vertex_id)) {
       return false; // Already exist
     }
 
-    m_vertex_storage.emplace_back(vertex_id,
-                                  typename key_value_pair_type::value_type{m_vertex_storage.get_allocator()});
+    const auto vertex_pos = priv_add_vertex_storage_item(vertex_id);
     m_vertex_directory.emplace(priv_hash_id(vertex_id),
-                               vertex_directory_value_type{m_vertex_storage.size() - 1,
+                               vertex_directory_value_type{vertex_pos,
                                                            dst_vertex_directory_type{
                                                                m_vertex_directory.get_allocator()}});
     return true;
   }
 
   /// \brief Registers an edge.
+  /// If a vertex does not exist, it will be registered automatically.
   /// \param source_id A source vertex ID.
   /// \param destination_id A destination vertex ID.
   /// \param edge_id An edge ID to register.
-  /// \return Returns if the edge is registered.
-  /// Returns false if the same ID already exists.
+  /// \return Returns if the edge is registered correctly.
+  /// Returns false if an error happens.
   bool register_edge(const std::string_view &source_id, const std::string_view &destination_id,
                      const std::string_view &edge_id) {
+    auto edge_itr = priv_locate_edge(edge_id);
+    if (edge_itr != m_edge_directory.end()) {
+      const auto existing_edge_pos = edge_itr->second.edge_position;
+      return priv_add_vertex_directory_item(source_id, destination_id, existing_edge_pos);
+    }
+
     register_vertex(source_id);
     register_vertex(destination_id);
 
-    m_edge_storage.emplace_back(edge_id, typename key_value_pair_type::value_type{m_vertex_storage.get_allocator()});
-    const auto edge_pos = m_edge_storage.size() - 1;
-    m_edge_directory.emplace(priv_hash_id(edge_id), edge_directory_value_type{edge_pos});
-
-    auto src_pos = priv_locate_vertex(source_id);
-    auto dst_pos = priv_locate_vertex(destination_id);
-    vertex_directory_value_type &src_val = src_pos->second;
-    vertex_directory_value_type &dst_val = dst_pos->second;
-    src_val.dst_vertex_directory.emplace(priv_hash_id(destination_id),
-                                         dst_vertex_directory_value_type{dst_val.vertex_position, edge_pos});
-
-    return true;
+    const auto edge_pos = priv_add_edge_storage_item(edge_id);
+    return priv_add_vertex_directory_item(source_id, destination_id, edge_pos)
+        && priv_add_edge_directory_item(edge_id, edge_pos);
   }
 
   /// \brief Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id.
@@ -247,7 +243,8 @@ class jgraph {
 
   const_edge_iterator edges_begin(const std::string_view &vid) const {
     const auto pos = priv_locate_vertex(vid);
-    return const_edge_iterator(pos->second.dst_vertex_directory.begin(),  const_cast<edge_storage_type*>(&m_edge_storage));
+    return const_edge_iterator(pos->second.dst_vertex_directory.begin(),
+                               const_cast<edge_storage_type *>(&m_edge_storage));
   }
 
   edge_iterator edges_end(const std::string_view &vid) {
@@ -257,7 +254,8 @@ class jgraph {
 
   const_edge_iterator edges_end(const std::string_view &vid) const {
     const auto pos = priv_locate_vertex(vid);
-    return const_edge_iterator(pos->second.dst_vertex_directory.end(), const_cast<edge_storage_type*>(&m_edge_storage));
+    return const_edge_iterator(pos->second.dst_vertex_directory.end(),
+                               const_cast<edge_storage_type *>(&m_edge_storage));
   }
 
   allocator_type get_allocator() const {
@@ -301,6 +299,32 @@ class jgraph {
 
   static uint64_t priv_hash_id(const std::string_view &id) {
     return metall::mtlldetail::MurmurHash64A(id.data(), id.length(), 1234);
+  }
+
+  std::size_t priv_add_edge_storage_item(const std::string_view &edge_id) {
+    m_edge_storage.emplace_back(edge_id, typename key_value_pair_type::value_type{m_vertex_storage.get_allocator()});
+    return m_edge_storage.size() - 1;
+  }
+
+  bool priv_add_edge_directory_item(const std::string_view &edge_id, const std::size_t edge_storage_pos) {
+    m_edge_directory.emplace(priv_hash_id(edge_id), edge_directory_value_type{edge_storage_pos});
+    return true;
+  }
+
+  std::size_t priv_add_vertex_storage_item(const std::string_view &vertex_id) {
+    m_vertex_storage.emplace_back(vertex_id,
+                                  typename key_value_pair_type::value_type{m_vertex_storage.get_allocator()});
+    return m_vertex_storage.size() - 1;
+  }
+
+  bool priv_add_vertex_directory_item(const std::string_view &source_id, const std::string_view &destination_id,
+                                      const std::size_t edge_storage_position) {
+    vertex_directory_value_type &src_val = priv_locate_vertex(source_id)->second;
+    vertex_directory_value_type &dst_val = priv_locate_vertex(destination_id)->second;
+    src_val.dst_vertex_directory.emplace(priv_hash_id(destination_id),
+                                         dst_vertex_directory_value_type{dst_val.vertex_position,
+                                                                         edge_storage_position});
+    return true;
   }
 
   vertex_storage_type m_vertex_storage;
@@ -383,8 +407,8 @@ class edge_iterator_impl {
  public:
 
   using value_type = storage_value_type;
-  using pointer = value_type*;
-  using reference = value_type&;
+  using pointer = value_type *;
+  using reference = value_type &;
   using difference_type = typename std::iterator_traits<directory_iterator_type>::difference_type;
 
   edge_iterator_impl(directory_iterator_type begin_pos, storage_pointer_type storage)
