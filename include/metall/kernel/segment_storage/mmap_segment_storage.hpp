@@ -46,6 +46,8 @@ class mmap_segment_storage {
         m_block_fd_list(),
         m_block_size(0) {
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
+    // TODO: implement msync for anonymous mapping
+    static_assert(true, "METALL_USE_ANONYMOUS_NEW_MAP does not work now");
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_ANONYMOUS_NEW_MAP is defined");
 #endif
 
