@@ -36,12 +36,12 @@ inline value<allocator_type> value_from_impl(const bj::value &input_bj_value, al
     auto &out_array = out_value.emplace_array();
     for (const auto &item : input_bj_value.as_array()) {
       out_array.resize(out_array.size() + 1);
-      out_array[out_array.size() - 1] = value_from(item, allocator);
+      out_array[out_array.size() - 1] = value_from_impl(item, allocator);
     }
   } else if (input_bj_value.is_object()) {
     auto &out_obj = out_value.emplace_object();
     for (const auto &pair : input_bj_value.as_object()) {
-      out_obj[pair.key_c_str()] = value_from(pair.value(), allocator);
+      out_obj[pair.key_c_str()] = value_from_impl(pair.value(), allocator);
     }
   }
 
