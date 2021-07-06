@@ -220,6 +220,18 @@ class jgraph {
     return m_edge_storage.size();
   }
 
+  /// \brief Returns the degree of the vertex corresponds to 'vid'.
+  /// \param vid A vertex ID.
+  /// \return Returns the degree of the vertex corresponds to 'vid'.
+  /// If no vertex is associated with 'vid', returns 0.
+  std::size_t degree(const std::string_view &vid) const {
+    auto pos = priv_locate_vertex(vid);
+    if (pos == m_vertex_directory.cend()) {
+      return 0;
+    }
+    return pos->second.dst_vertex_directory.size();
+  }
+
   vertex_iterator vertices_begin() {
     return vertex_iterator(m_vertex_storage.begin());
   }
