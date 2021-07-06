@@ -153,6 +153,7 @@ class basic_key_value_pair {
   bool priv_deallocate_key() {
     char_allocator_type alloc(m_value.get_allocator());
     std::allocator_traits<char_allocator_type>::deallocate(alloc, m_key, m_length);
+    m_key = nullptr;
     m_length = 0;
     return true;
   }
