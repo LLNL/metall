@@ -29,7 +29,7 @@ template <typename _allocator_type = std::allocator<std::byte>>
 class object {
  public:
   using allocator_type = _allocator_type;
-  using value_type = key_value_pair<allocator_type>;
+  using value_type = key_value_pair<char, std::char_traits<char>, allocator_type>;
   using key_type = std::string_view; //typename value_type::key_type;
   using mapped_type = value<allocator_type>; //typename value_type::value_type;
 
@@ -153,7 +153,7 @@ class object {
   /// \return Iterator following the removed element.
   /// If 'position' refers to the last element, then the end() iterator is returned.
   iterator erase(std::string_view key) {
-    return priv_erase(find(key));
+    return erase(find(key));
   }
 
  private:
@@ -185,7 +185,7 @@ class object {
     }
 
     const auto value_position_raw = std::distance(m_value_storage.cbegin(), value_position);
-    bool erased = false;
+    [[maybe_unused]] bool erased = false;
     auto range = m_index_table.equal_range(hash_key(value_position->key()));
     for (auto itr = range.first, end = range.second; itr != end; ++itr) {
       const auto value_pos = itr->second;

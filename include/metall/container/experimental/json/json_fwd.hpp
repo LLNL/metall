@@ -6,6 +6,8 @@
 #ifndef METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
 #define METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
 
+#include <variant>
+
 /// \namespace metall::container::experimental
 /// \brief Namespace for Metall containers in an experimental phase.
 namespace metall::container::experimental {}
@@ -29,12 +31,7 @@ template <typename allocator_type>
 class array;
 
 template <typename char_type, typename char_traits, typename _allocator_type>
-class basic_key_value_pair;
-
-template <typename char_type = char,
-          typename char_traits = std::char_traits<char_type>,
-          typename _allocator_type = std::allocator<std::byte>>
-class basic_key_value_pair;
+class key_value_pair;
 
 template <typename T, typename allocator_type>
 inline value<allocator_type> value_from(T &&, allocator_type allocator = allocator_type());

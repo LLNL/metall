@@ -19,13 +19,17 @@ namespace metall::container::experimental::json {
 /// \tparam char_type A char type to store.
 /// \tparam char_traits A chart traits.
 /// \tparam _allocator_type An allocator type.
-template <typename char_type, typename char_traits, typename _allocator_type>
-class basic_key_value_pair {
+template <typename _char_type = char,
+          typename _char_traits = std::char_traits<char>,
+          typename _allocator_type = std::allocator<std::byte>>
+class key_value_pair {
  private:
-  using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<char_type>;
+  using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<_char_type>;
   using char_pointer = typename std::allocator_traits<char_allocator_type>::pointer;
 
  public:
+  using char_type = _char_type;
+  using char_traits = _char_traits;
   using allocator_type = _allocator_type;
   using key_type = std::basic_string_view<char_type, char_traits>;
   using value_type = metall::container::experimental::json::value<allocator_type>;
@@ -34,9 +38,9 @@ class basic_key_value_pair {
   /// \param key A key string.
   /// \param value A JSON value to hold.
   /// \param alloc An allocator object to allocate the key and the contents of the JSON value.
-  basic_key_value_pair(key_type key,
-                       const value_type &value,
-                       const allocator_type &alloc = allocator_type())
+  key_value_pair(key_type key,
+                 const value_type &value,
+                 const allocator_type &alloc = allocator_type())
       : m_value(value, alloc) {
     priv_allocate_key(key);
   }
@@ -45,28 +49,28 @@ class basic_key_value_pair {
   /// \param key A key string.
   /// \param value A JSON value to hold.
   /// \param alloc An allocator object to allocate the key and the contents of the JSON value.
-  basic_key_value_pair(key_type key,
-                       value_type &&value,
-                       const allocator_type &alloc = allocator_type())
+  key_value_pair(key_type key,
+                 value_type &&value,
+                 const allocator_type &alloc = allocator_type())
       : m_value(std::move(value), alloc) {
     priv_allocate_key(key);
   }
 
   /// \brief Copy constructor
-  basic_key_value_pair(const basic_key_value_pair &other)
+  key_value_pair(const key_value_pair &other)
       : m_value(other.m_value) {
     priv_allocate_key(other.key());
   }
 
   /// \brief Allocator-extended copy constructor
   /// This will be used by scoped-allocator
-  basic_key_value_pair(const basic_key_value_pair &other, const allocator_type &alloc)
+  key_value_pair(const key_value_pair &other, const allocator_type &alloc)
       : m_value(other.m_value, alloc) {
     priv_allocate_key(other.key());
   }
 
   /// \brief Move constructor
-  basic_key_value_pair(basic_key_value_pair &&other) noexcept
+  key_value_pair(key_value_pair &&other) noexcept
       : m_key(std::move(other.m_key)),
         m_length(std::move(other.m_length)),
         m_value(std::move(other.m_value)) {
@@ -76,7 +80,7 @@ class basic_key_value_pair {
 
   /// \brief Allocator-extended move constructor
   /// This will be used by scoped-allocator
-  basic_key_value_pair(basic_key_value_pair &&other, const allocator_type &alloc) noexcept
+  key_value_pair(key_value_pair &&other, const allocator_type &alloc) noexcept
       : m_key(std::move(other.m_key)),
         m_length(std::move(other.m_length)),
         m_value(std::move(other.m_value), alloc) {
@@ -84,7 +88,7 @@ class basic_key_value_pair {
     other.m_length = 0;
   }
 
-  basic_key_value_pair &operator=(const basic_key_value_pair &other) {
+  key_value_pair &operator=(const key_value_pair &other) {
     priv_deallocate_key(); // deallocate the key using the current allocator
     m_value = other.m_value; // Assign value (new allocator is assigned)
     priv_allocate_key(other.key()); // Allocate a key using the new allocator.
@@ -93,7 +97,7 @@ class basic_key_value_pair {
     return *this;
   }
 
-  basic_key_value_pair &operator=(basic_key_value_pair &&other) noexcept {
+  key_value_pair &operator=(key_value_pair &&other) noexcept {
     priv_deallocate_key();
     m_value = std::move(other.m_value);
     m_key = std::move(other.m_key);
@@ -104,7 +108,7 @@ class basic_key_value_pair {
     return *this;
   }
 
-  ~basic_key_value_pair() noexcept {
+  ~key_value_pair() noexcept {
     priv_deallocate_key();
   }
 
@@ -162,10 +166,6 @@ class basic_key_value_pair {
   std::size_t m_length{0};
   value_type m_value;
 };
-
-/// \brief A basic_key_value_pair type that uses char as its char type.
-template <typename allocator_type = std::allocator<std::byte>>
-using key_value_pair = basic_key_value_pair<char, std::char_traits<char>, allocator_type>;
 
 } // namespace json
 

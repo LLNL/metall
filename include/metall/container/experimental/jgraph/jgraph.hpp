@@ -54,7 +54,7 @@ class jgraph {
   template <typename T>
   using other_scoped_allocator = bc::scoped_allocator_adaptor<other_allocator<T>>;
 
-  using key_value_pair_type = json::key_value_pair<allocator_type>;
+  using key_value_pair_type = json::key_value_pair<char, std::char_traits<char>, allocator_type>;
   using vertex_storage_type = bc::vector<key_value_pair_type, other_scoped_allocator<key_value_pair_type>>;
   using edge_storage_type = bc::vector<key_value_pair_type, other_scoped_allocator<key_value_pair_type>>;
 
