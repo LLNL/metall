@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 
-#include <metall/container/string.hpp>
+#include <metall/offset_ptr.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
 
 namespace metall::container::experimental::json {
@@ -25,7 +25,7 @@ template <typename _char_type = char,
 class key_value_pair {
  private:
   using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<_char_type>;
-  using internal_key_type = metall::container::basic_string<_char_type, _char_traits, char_allocator_type>;
+  using char_pointer = typename std::allocator_traits<char_allocator_type>::pointer;
 
  public:
   using char_type = _char_type;
@@ -41,8 +41,9 @@ class key_value_pair {
   key_value_pair(key_type key,
                  const value_type &value,
                  const allocator_type &alloc = allocator_type())
-      : m_key(key, alloc),
-        m_value(value, alloc) {}
+      : m_value(value, alloc) {
+    priv_allocate_key(key);
+  }
 
   /// \brief Constructor.
   /// \param key A key string.
@@ -51,46 +52,76 @@ class key_value_pair {
   key_value_pair(key_type key,
                  value_type &&value,
                  const allocator_type &alloc = allocator_type())
-      : m_key(key, alloc),
-        m_value(std::move(value), alloc) {}
+      : m_value(std::move(value), alloc) {
+    priv_allocate_key(key);
+  }
 
   /// \brief Copy constructor
-  key_value_pair(const key_value_pair &other) = default;
+  key_value_pair(const key_value_pair &other)
+      : m_value(other.m_value) {
+    priv_allocate_key(other.key());
+  }
 
   /// \brief Allocator-extended copy constructor
   /// This will be used by scoped-allocator
   key_value_pair(const key_value_pair &other, const allocator_type &alloc)
-      : m_key(other.m_key, alloc),
-        m_value(other.m_value, alloc) {}
+      : m_value(other.m_value, alloc) {
+    priv_allocate_key(other.key());
+  }
 
   /// \brief Move constructor
-  key_value_pair(key_value_pair &&other) noexcept = default;
+  key_value_pair(key_value_pair &&other) noexcept
+      : m_key(std::move(other.m_key)),
+        m_length(std::move(other.m_length)),
+        m_value(std::move(other.m_value)) {
+    other.m_key = nullptr;
+    other.m_length = 0;
+  }
 
   /// \brief Allocator-extended move constructor
   /// This will be used by scoped-allocator
   key_value_pair(key_value_pair &&other, const allocator_type &alloc) noexcept
-      : m_key(std::move(other.m_key), alloc),
-        m_value(std::move(other.m_value), alloc) {}
+      : m_key(std::move(other.m_key)),
+        m_length(std::move(other.m_length)),
+        m_value(std::move(other.m_value), alloc) {
+    other.m_key = nullptr;
+    other.m_length = 0;
+  }
 
-  /// \brief Copy assignment operator
-  key_value_pair &operator=(const key_value_pair &other) = default;
+  key_value_pair &operator=(const key_value_pair &other) {
+    priv_deallocate_key(); // deallocate the key using the current allocator
+    m_value = other.m_value; // Assign value (new allocator is assigned)
+    priv_allocate_key(other.key()); // Allocate a key using the new allocator.
+    m_length = other.m_length;
 
-  /// \brief Move assignment operator
-  key_value_pair &operator=(key_value_pair &&other) noexcept = default;
+    return *this;
+  }
 
-  /// \brief Destructor
-  ~key_value_pair() noexcept = default;
+  key_value_pair &operator=(key_value_pair &&other) noexcept {
+    priv_deallocate_key();
+    m_value = std::move(other.m_value);
+    m_key = std::move(other.m_key);
+    m_length = other.m_length;
+    other.m_key = nullptr;
+    other.m_length = 0;
+
+    return *this;
+  }
+
+  ~key_value_pair() noexcept {
+    priv_deallocate_key();
+  }
 
   /// \brief Returns the stored key.
   /// \return Returns the stored key.
   const key_type key() const noexcept {
-    return m_key;
+    return metall::to_raw_pointer(m_key);
   }
 
   /// \brief Returns the stored key as const char*.
   /// \return Returns the stored key as const char*.
   const char *key_c_str() const noexcept {
-    return m_key.c_str();
+    return metall::to_raw_pointer(m_key);
   }
 
   /// \brief References the stored JSON value.
@@ -106,7 +137,33 @@ class key_value_pair {
   }
 
  private:
-  internal_key_type m_key;
+
+  bool priv_allocate_key(key_type key) {
+    char_allocator_type alloc(m_value.get_allocator());
+    assert(!m_key);
+    m_length = key.length();
+    m_key = std::allocator_traits<char_allocator_type>::allocate(alloc, m_length + 1);
+    if (!m_key) {
+      return false;
+    }
+    assert(m_key);
+
+    std::char_traits<char_type>::copy(metall::to_raw_pointer(m_key), key.data(), m_length);
+    std::char_traits<char_type>::assign(m_key[m_length], '\0');
+
+    return true;
+  }
+
+  bool priv_deallocate_key() {
+    char_allocator_type alloc(m_value.get_allocator());
+    std::allocator_traits<char_allocator_type>::deallocate(alloc, m_key, m_length);
+    m_key = nullptr;
+    m_length = 0;
+    return true;
+  }
+
+  char_pointer m_key{nullptr};
+  std::size_t m_length{0};
   value_type m_value;
 };
 
