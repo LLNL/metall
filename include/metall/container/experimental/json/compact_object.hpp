@@ -29,7 +29,7 @@ template <typename _allocator_type = std::allocator<std::byte>>
 class object {
  public:
   using allocator_type = _allocator_type;
-  using value_type = key_value_pair<allocator_type>;
+  using value_type = key_value_pair<char, std::char_traits<char>, allocator_type>;
   using key_type = std::string_view; //typename value_type::key_type;
   using mapped_type = value<allocator_type>; //typename value_type::value_type;
 
