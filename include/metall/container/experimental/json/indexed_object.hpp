@@ -26,7 +26,7 @@ namespace bc = boost::container;
 /// \brief JSON object.
 /// An object is an unordered map of key and value pairs.
 template <typename _allocator_type = std::allocator<std::byte>>
-class object {
+class indexed_object {
  public:
   using allocator_type = _allocator_type;
   using value_type = key_value_pair<char, std::char_traits<char>, allocator_type>;
@@ -61,7 +61,7 @@ class object {
 
   /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit object(const allocator_type &alloc = allocator_type())
+  explicit indexed_object(const allocator_type &alloc = allocator_type())
       : m_index_table(alloc),
         m_value_storage(alloc) {}
 

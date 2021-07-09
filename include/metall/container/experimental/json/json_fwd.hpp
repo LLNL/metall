@@ -25,9 +25,6 @@ template <typename allocator_type>
 class value;
 
 template <typename allocator_type>
-class object;
-
-template <typename allocator_type>
 class array;
 
 template <typename char_type, typename char_traits, typename _allocator_type>
@@ -39,10 +36,22 @@ inline value<allocator_type> value_from(T &&, allocator_type allocator = allocat
 template <typename T, typename allocator_type>
 inline T value_to(const value<allocator_type>&);
 
+template <typename allocator_type>
+class indexed_object;
+
+template <typename allocator_type>
+class compact_object;
+
 #endif // DOXYGEN_SKIP
 
 /// \brief JSON null.
 using null_type = std::monostate;
+
+/// \brief JSON object.
+/// An object is a table key and value pairs.
+/// The order of key-value pairs depends on the implementation.
+template <typename allocator_type>
+using object = indexed_object<allocator_type>;
 
 } // namespace metall::container::experimental::json
 
