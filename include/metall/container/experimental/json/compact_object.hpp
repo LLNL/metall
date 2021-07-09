@@ -11,8 +11,8 @@
 #include <utility>
 #include <string_view>
 
-#include <boost/container/vector.hpp>
-#include <boost/container/deque.hpp>
+#include <metall/container/scoped_allocator.hpp>
+#include <metall/container/vector.hpp>
 
 #include <metall/utility/hash.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
@@ -20,7 +20,7 @@
 namespace metall::container::experimental::json {
 
 namespace {
-namespace bc = boost::container;
+namespace mc = metall::container;
 }
 
 /// \brief JSON object implementation.
@@ -35,11 +35,11 @@ class compact_object {
 
  private:
   template <typename alloc, typename T>
-  using other_scoped_allocator = bc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<
+  using other_scoped_allocator = mc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<
       T>>;
 
   using value_storage_alloc_type = other_scoped_allocator<allocator_type, value_type>;
-  using value_storage_type = bc::vector<value_type, value_storage_alloc_type>;
+  using value_storage_type = mc::vector<value_type, value_storage_alloc_type>;
 
   // Value: the position of the corresponding item in the value_storage
   using value_postion_type = typename value_storage_type::size_type;
