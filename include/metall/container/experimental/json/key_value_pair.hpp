@@ -21,8 +21,8 @@ namespace metall::container::experimental::json {
 /// \tparam char_traits A chart traits.
 /// \tparam _allocator_type An allocator type.
 template <typename _char_type = char,
-          typename _char_traits = std::char_traits<char>,
-          typename _allocator_type = std::allocator<std::byte>>
+          typename _char_traits = std::char_traits<_char_type>,
+          typename _allocator_type = std::allocator<_char_type>>
 class key_value_pair {
  private:
   using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<_char_type>;
