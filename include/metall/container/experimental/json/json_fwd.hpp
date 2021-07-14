@@ -31,7 +31,7 @@ template <typename char_type, typename char_traits, typename _allocator_type>
 class key_value_pair;
 
 template <typename T, typename allocator_type>
-inline value<allocator_type> value_from(T &&, allocator_type allocator = allocator_type());
+inline value<allocator_type> value_from(T &&, const allocator_type& allocator = allocator_type());
 
 template <typename T, typename allocator_type>
 inline T value_to(const value<allocator_type>&);
