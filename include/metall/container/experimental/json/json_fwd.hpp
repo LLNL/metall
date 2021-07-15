@@ -51,7 +51,7 @@ using null_type = std::monostate;
 /// An object is a table key and value pairs.
 /// The order of key-value pairs depends on the implementation.
 template <typename allocator_type>
-using object = indexed_object<allocator_type>;
+using object = compact_object<allocator_type>;
 
 } // namespace metall::container::experimental::json
 
