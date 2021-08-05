@@ -196,14 +196,14 @@ class jgraph {
                                                                                edge_data_type>>>;
 
   // Adj-list
-  using adj_list_edge_list_type = mc::unordered_multimap<internal_id_type,
-                                                         internal_id_type,
+  using adj_list_edge_list_type = mc::unordered_multimap<internal_id_type, // hashed destination vid
+                                                         internal_id_type, // edge id
                                                          std::hash<internal_id_type>,
                                                          std::equal_to<>,
                                                          other_scoped_allocator<std::pair<const internal_id_type,
                                                                                           internal_id_type>>>;
 
-  using adj_list_type = mc::unordered_map<internal_id_type,
+  using adj_list_type = mc::unordered_map<internal_id_type, // hashed source vid
                                           adj_list_edge_list_type,
                                           std::hash<internal_id_type>,
                                           std::equal_to<>,
