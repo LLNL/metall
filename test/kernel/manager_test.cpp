@@ -175,6 +175,7 @@ TEST(ManagerTest, ConstructContainers) {
     {
       manager_type manager(metall::open_only, dir_path().c_str());
       ASSERT_TRUE(manager.destroy<vec_t>("vecs"));
+      ASSERT_TRUE(manager.all_memory_deallocated());
     }
   }
 }
@@ -287,6 +288,8 @@ TEST(ManagerTest, Destroy) {
 
     ASSERT_TRUE(manager.destroy<int>("array_obj"));
     ASSERT_FALSE(manager.destroy<int>("array_obj"));
+
+    ASSERT_TRUE(manager.all_memory_deallocated());
   }
 
   {
@@ -305,6 +308,8 @@ TEST(ManagerTest, Destroy) {
     ASSERT_TRUE(manager.destroy<int>("named_obj"));
     ASSERT_TRUE(manager.destroy<int>(metall::unique_instance));
     ASSERT_TRUE(manager.destroy<int>("array_obj"));
+
+    ASSERT_TRUE(manager.all_memory_deallocated());
   }
 }
 
@@ -912,6 +917,15 @@ TEST(ManagerTest, SmallAllocation) {
   }
 }
 
+TEST(ManagerTest, AllSmallAllocation) {
+  {
+    manager_type::remove(dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    for (std::size_t s = 1; s < k_chunk_size; ++s)
+      manager.deallocate(manager.allocate(s));
+  }
+}
+
 TEST(ManagerTest, MaxSmallAllocation) {
   {
     manager_type::remove(dir_path().c_str());
@@ -1013,6 +1027,27 @@ TEST(ManagerTest, LargeAllocation) {
       auto addr3 = static_cast<char *>(manager.allocate(k_chunk_size));
       ASSERT_EQ((addr3 - base_addr), 3 * k_chunk_size);
     }
+  }
+}
+
+TEST(ManagerTest, AllMemoryDeallocated) {
+  {
+    manager_type::remove(dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+
+    ASSERT_TRUE(manager.all_memory_deallocated());
+
+    auto* addr1 = manager.allocate(8);
+    ASSERT_FALSE(manager.all_memory_deallocated());
+
+    manager.deallocate(addr1);
+    ASSERT_TRUE(manager.all_memory_deallocated());
+
+    auto* addr2 = manager.allocate(k_chunk_size);
+    ASSERT_FALSE(manager.all_memory_deallocated());
+
+    manager.deallocate(addr2);
+    ASSERT_TRUE(manager.all_memory_deallocated());
   }
 }
 

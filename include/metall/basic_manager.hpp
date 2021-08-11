@@ -771,8 +771,15 @@ class basic_manager {
 
   // void deallocate_many(multiallocation_chain &chain);
 
-  // Returns true if all allocated memory has been deallocated
-  // bool all_memory_deallocated();
+  /// \brief Check if all allocated memory has been deallocated.
+  /// Currently, this function clears object cache.
+  /// \return Returns true if all allocated memory has been deallocated; otherwise, false.
+  bool all_memory_deallocated() {
+    if (!check_sanity()) {
+      return false;
+    }
+    return m_kernel->all_memory_deallocated(); // TODO: implement a version that does not free object cache
+  }
 
   // -------------------- Flush -------------------- //
   /// \brief Flush data to persistent memory.

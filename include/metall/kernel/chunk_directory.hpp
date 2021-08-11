@@ -77,7 +77,7 @@ class chunk_directory {
   explicit chunk_directory(const std::size_t max_num_chunks)
       : m_table(nullptr),
         m_max_num_chunks(0),
-        m_begin_unused_chunk_no(0) {
+        m_last_used_chunk_no(-1) {
     priv_allocate(max_num_chunks);
   }
 
@@ -117,16 +117,14 @@ class chunk_directory {
     assert(chunk_no < size());
     if (empty_chunk(chunk_no)) return;
 
-    assert(m_begin_unused_chunk_no > 0);
-
     if (m_table[chunk_no].type == chunk_type::small_chunk) {
       const slot_count_type num_slots = slots(chunk_no);
       m_table[chunk_no].type = chunk_type::empty;
       m_table[chunk_no].num_occupied_slots = 0;
       m_table[chunk_no].slot_occupancy.free(num_slots);
 
-      if (chunk_no == m_begin_unused_chunk_no - 1) {
-        m_begin_unused_chunk_no = static_cast<std::size_t>(find_next_used_chunk_backward(chunk_no)) + 1;
+      if (chunk_no == m_last_used_chunk_no) {
+        m_last_used_chunk_no = find_next_used_chunk_backward(chunk_no);
       }
 
     } else {
@@ -138,8 +136,8 @@ class chunk_directory {
       }
 
       const chunk_no_type last_chunk_no = chunk_no + offset - 1;
-      if (last_chunk_no == m_begin_unused_chunk_no - 1) {
-        m_begin_unused_chunk_no = static_cast<std::size_t>(find_next_used_chunk_backward(last_chunk_no)) + 1;
+      if (last_chunk_no == m_last_used_chunk_no) {
+        m_last_used_chunk_no = find_next_used_chunk_backward(last_chunk_no);
       }
     }
   }
@@ -181,7 +179,9 @@ class chunk_directory {
   /// \param chunk_no
   /// \return
   bool all_slots_marked(const chunk_no_type chunk_no) const {
-    assert(chunk_no < size());
+    if (chunk_no >= size()) {
+      return false;
+    }
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const slot_count_type num_slots = slots(chunk_no);
@@ -215,8 +215,7 @@ class chunk_directory {
   /// \brief
   /// \return
   std::size_t size() const {
-    assert(m_begin_unused_chunk_no <= m_max_num_chunks);
-    return m_begin_unused_chunk_no;
+    return m_last_used_chunk_no + 1;
   }
 
   /// \brief
@@ -379,7 +378,7 @@ class chunk_directory {
         }
       }
 
-      m_begin_unused_chunk_no = std::max(static_cast<std::size_t>(chunk_no) + 1, m_begin_unused_chunk_no);
+      m_last_used_chunk_no = std::max((ssize_t)chunk_no, m_last_used_chunk_no);
     }
 
     if (!ifs.eof()) {
@@ -427,7 +426,7 @@ class chunk_directory {
       return false;
     }
 
-    m_begin_unused_chunk_no = 0;
+    m_last_used_chunk_no = -1;
     return true;
   }
 
@@ -442,7 +441,7 @@ class chunk_directory {
     mdtl::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
     m_table = nullptr;
     m_max_num_chunks = 0;
-    m_begin_unused_chunk_no = 0;
+    m_last_used_chunk_no = -1;
   }
 
   /// \brief
@@ -454,7 +453,7 @@ class chunk_directory {
     assert(num_slots > 1);
 
     for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
-      if (chunk_no >= m_begin_unused_chunk_no) {
+      if (chunk_no > m_last_used_chunk_no) {
         // Initialize (empty) it before just in case
         m_table[chunk_no].init();
       }
@@ -465,7 +464,7 @@ class chunk_directory {
         m_table[chunk_no].num_occupied_slots = 0;
         m_table[chunk_no].slot_occupancy.allocate(num_slots);
 
-        m_begin_unused_chunk_no = std::max(static_cast<std::size_t>(chunk_no) + 1, m_begin_unused_chunk_no);
+        m_last_used_chunk_no = std::max((ssize_t)chunk_no, m_last_used_chunk_no);
 
         return chunk_no;
       }
@@ -483,7 +482,7 @@ class chunk_directory {
 
     chunk_no_type count_continuous_empty_chunks = 0;
     for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
-      if (chunk_no >= m_begin_unused_chunk_no) {
+      if (chunk_no > m_last_used_chunk_no) {
         // Initialize (empty) it before just in case
         m_table[chunk_no].init();
       }
@@ -504,7 +503,7 @@ class chunk_directory {
           m_table[top_chunk_no + offset].type = chunk_type::large_chunk_body;
         }
 
-        m_begin_unused_chunk_no = std::max(top_chunk_no + num_chunks, m_begin_unused_chunk_no);
+        m_last_used_chunk_no = std::max((ssize_t)chunk_no, m_last_used_chunk_no);
 
         return top_chunk_no;
       }
@@ -515,15 +514,13 @@ class chunk_directory {
     return m_max_num_chunks;
   }
 
-  chunk_no_type find_next_used_chunk_backward(const chunk_no_type start_chunk_no) const {
-    chunk_no_type chunk_no = start_chunk_no;
-    for (; chunk_no > 0; --chunk_no) {
-      if (empty_chunk(chunk_no)) {
-        // TODO: uncommit associated pages
-        break;
+  ssize_t find_next_used_chunk_backward(const chunk_no_type start_chunk_no) const {
+    for (ssize_t chunk_no = start_chunk_no; chunk_no >= 0; --chunk_no) {
+      if (!empty_chunk(chunk_no)) {
+        return chunk_no;
       }
     }
-    return chunk_no;
+    return -1;
   }
 
   // -------------------------------------------------------------------------------- //
@@ -531,7 +528,7 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   entry_type *m_table;
   std::size_t m_max_num_chunks;
-  std::size_t m_begin_unused_chunk_no;
+  ssize_t m_last_used_chunk_no;
 };
 
 } // namespace kernel

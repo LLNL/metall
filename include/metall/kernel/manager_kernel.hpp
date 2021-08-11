@@ -209,6 +209,10 @@ class manager_kernel {
   /// \param addr
   void deallocate(void *addr);
 
+  /// \brief Check if all allocated memory has been deallocated.
+  /// Note that this function clears object cache.
+  bool all_memory_deallocated();
+
   /// \brief Finds an already constructed object
   /// \tparam T
   /// \param name

@@ -184,6 +184,14 @@ class segment_allocator {
     }
   }
 
+  /// \note This function clears object cache.
+  bool all_memory_deallocated() {
+#ifndef METALL_DISABLE_OBJECT_CACHE
+    priv_clear_object_cache();
+#endif
+    return m_chunk_directory.size() == 0;
+  }
+
   /// \brief
   /// \return Returns the size of the segment range being used
   size_type size() const {
@@ -514,7 +522,7 @@ class segment_allocator {
 #ifndef METALL_DISABLE_OBJECT_CACHE
   void priv_clear_object_cache() {
     for (unsigned int c = 0; c < m_object_cache.num_caches(); ++c) {
-      for (bin_no_type b = 0; b < m_object_cache.max_bin_no(); ++b) {
+      for (bin_no_type b = 0; b <= m_object_cache.max_bin_no(); ++b) {
         for (auto itr = m_object_cache.begin(c, b), end = m_object_cache.end(c, b); itr != end; ++itr) {
           const auto offset = *itr;
           priv_deallocate_small_objects_from_global(b, 1, &offset);

@@ -258,6 +258,7 @@ class multilayer_bitset {
 
   void free_multilayer_bitset([[maybe_unused]] const std::size_t num_bits_power2) {
     std::free(m_data.array);
+    m_data.init();
   }
 
   // -------------------- Find, set, and reset bits -------------------- //
