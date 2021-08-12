@@ -119,20 +119,19 @@ class chunk_directory {
 
     if (m_table[chunk_no].type == chunk_type::small_chunk) {
       const slot_count_type num_slots = slots(chunk_no);
-      m_table[chunk_no].type = chunk_type::empty;
-      m_table[chunk_no].num_occupied_slots = 0;
       m_table[chunk_no].slot_occupancy.free(num_slots);
+      m_table[chunk_no].init();
 
       if (chunk_no == m_last_used_chunk_no) {
         m_last_used_chunk_no = find_next_used_chunk_backward(chunk_no);
       }
 
     } else {
-      m_table[chunk_no].type = chunk_type::empty;
+      m_table[chunk_no].init();
       chunk_no_type offset = 1;
       for (; chunk_no + offset < m_max_num_chunks && m_table[chunk_no + offset].type == chunk_type::large_chunk_body;
              ++offset) {
-        m_table[chunk_no + offset].type = chunk_type::empty;
+        m_table[chunk_no + offset].init();
       }
 
       const chunk_no_type last_chunk_no = chunk_no + offset - 1;

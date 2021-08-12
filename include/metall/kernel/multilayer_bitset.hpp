@@ -143,7 +143,6 @@ class multilayer_bitset {
   /// \brief Initialize
   /// This function does not free memory
   void init() {
-    assert(!m_data.array);
     m_data.init();
   }
 
