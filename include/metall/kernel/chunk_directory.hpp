@@ -10,6 +10,7 @@
 #include <fstream>
 #include <cassert>
 #include <type_traits>
+#include <vector>
 
 #include <metall/detail/utilities.hpp>
 #include <metall/detail/mmap.hpp>
@@ -390,6 +391,38 @@ class chunk_directory {
     ifs.close();
 
     return true;
+  }
+
+  auto get_all_marked_slots() const {
+    std::vector<std::tuple<chunk_no_type, bin_no_type, slot_no_type>> buf;
+
+    for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
+      if (m_table[chunk_no].type != chunk_type::small_chunk) {
+        continue;
+      }
+
+      const slot_count_type num_slots = slots(chunk_no);
+      for (slot_no_type i = 0; i < num_slots; ++i) {
+        if (m_table[chunk_no].slot_occupancy.get(num_slots, i)) {
+          buf.push_back(std::make_tuple(chunk_no, m_table[chunk_no].bin_no, i));
+        }
+      }
+    }
+
+    return buf;
+  }
+
+  std::vector<chunk_no_type> get_all_large_chunks() const {
+    std::vector<chunk_no_type> buf;
+
+    for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
+      if (m_table[chunk_no].type == chunk_type::large_chunk_head
+          || m_table[chunk_no].type == chunk_type::large_chunk_body) {
+        buf.push_back(chunk_no);
+      }
+    }
+
+    return buf;
   }
 
  private:

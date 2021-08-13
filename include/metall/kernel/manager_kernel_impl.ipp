@@ -135,7 +135,7 @@ void manager_kernel<chnk_no, chnk_sz>::deallocate(void *addr) {
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::all_memory_deallocated() {
+bool manager_kernel<chnk_no, chnk_sz>::all_memory_deallocated() const {
   assert(priv_initialized());
   return m_segment_memory_allocator.all_memory_deallocated();
 }

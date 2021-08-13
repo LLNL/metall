@@ -211,7 +211,7 @@ class manager_kernel {
 
   /// \brief Check if all allocated memory has been deallocated.
   /// Note that this function clears object cache.
-  bool all_memory_deallocated();
+  bool all_memory_deallocated() const;
 
   /// \brief Finds an already constructed object
   /// \tparam T

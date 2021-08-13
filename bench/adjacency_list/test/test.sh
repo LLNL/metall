@@ -34,9 +34,11 @@ compare() {
   num_diff=$(< ${DATASTORE_DIR_ROOT}/file_diff wc -l)
 
   if [[ ${num_diff} -eq 0 ]]; then
-    echo "<< Passed the test!! >>"
+    echo "<< Two edge lists are the same >>"
   else
+    err "<< Two edge lists are different >>"
     err "<< Failed the test!! >>"
+    exit 1
   fi
   echo ""
 
@@ -48,6 +50,7 @@ check_program_exit_status() {
 
   if [[ $status -ne 0 ]]; then
     err "<< The program did not finish correctly!! >>"
+    err "<< Failed the test!! >>"
     exit $status
   fi
 }
@@ -96,6 +99,8 @@ main() {
   echo "Destroy Test"
   ./test/destroy_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir
   check_program_exit_status
+
+  echo "<< Passed all tests!! >>"
 
   #/bin/rm -rf ${DATASTORE_DIR_ROOT}
 }
