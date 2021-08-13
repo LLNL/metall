@@ -109,6 +109,12 @@ main() {
   compare ${adj_list_dump_file} ${ref_edge_dump_file2}
   echo ""
 
+  # Open the adj-list and destroy it to test memory leak
+  ./test/destroy_metall -o ${data_store_path}
+  check_program_exit_status
+
+  echo "<< Passed all tests!! >>"
+
   /bin/rm -f ${adj_list_dump_file} ${ref_edge_dump_file1}  ${ref_edge_dump_file2}
   /bin/rm -rf ${data_store_path}
 }
