@@ -12,9 +12,9 @@
 #include <utility>
 #include <optional>
 
-#include <boost/unordered_map.hpp>
-#include <boost/container/vector.hpp>
-
+#include <metall/container/unordered_map.hpp>
+#include <metall/container/vector.hpp>
+#include <metall/container/scoped_allocator.hpp>
 #include <metall/utility/hash.hpp>
 #include <metall/container/experimental/json/json.hpp>
 
@@ -23,7 +23,8 @@
 namespace metall::container::experimental::jgraph {
 
 namespace {
-namespace bc = boost::container;
+namespace mc = metall::container;
+namespace mj = metall::container::experimental::json;
 }
 
 // --- Forward declarations --- //
@@ -34,70 +35,190 @@ namespace jgdtl {
 template <typename storage_iterator_type>
 class vertex_iterator_impl;
 
-template <typename directory_iterator_type,
-          typename storage_pointer_type,
-          typename storage_value_type>
+template <typename adj_list_edge_list_iterator_type, typename storage_pointer_type>
 class edge_iterator_impl;
 } // namespace jgdtl
 
-/// \brief JSON Graph which can be used with Metall.
-/// Supported graph type:
-/// There is a single 'JSON value' data per vertex and edge
-/// Every vertex and edge has an unique ID.
-/// \tparam allocator_type Allocator type.
-template <typename allocator_type>
+
+template <typename _allocator_type = std::allocator<std::byte>>
 class jgraph {
+ public:
+  using allocator_type = _allocator_type;
+
+  /// \brief The type of vertex ID and edge ID.
+  using id_type = std::string_view;
+
+  /// \brief JSON value type every vertex and edge has,
+  using value_type = mj::value<allocator_type>;
+
  private:
   template <typename T>
   using other_allocator = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
 
   template <typename T>
-  using other_scoped_allocator = bc::scoped_allocator_adaptor<other_allocator<T>>;
+  using other_scoped_allocator = mc::scoped_allocator_adaptor<other_allocator<T>>;
 
-  using key_value_pair_type = json::key_value_pair<allocator_type>;
-  using vertex_storage_type = bc::vector<key_value_pair_type, other_scoped_allocator<key_value_pair_type>>;
-  using edge_storage_type = bc::vector<key_value_pair_type, other_scoped_allocator<key_value_pair_type>>;
+  using string_type = mc::basic_string<char,
+                                       std::char_traits<char>,
+                                       typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
 
-  struct dst_vertex_directory_value_type {
-    std::size_t dst_vertex_position;
-    std::size_t edge_position;
+  using internal_id_type = uint64_t;
+  static constexpr internal_id_type k_max_internal_id = std::numeric_limits<internal_id_type>::max();
+
+  class vertex_data_type {
+   public:
+    using allocator_type = _allocator_type;
+
+    explicit vertex_data_type(const id_type &id, const allocator_type &allocator = allocator_type())
+        : m_id(id, allocator),
+          m_value(allocator) {}
+
+    /// \brief Copy constructor
+    vertex_data_type(const vertex_data_type &) = default;
+
+    /// \brief Allocator-extended copy constructor
+    /// This will be used by scoped-allocator
+    vertex_data_type(const vertex_data_type &other, const allocator_type &alloc)
+        : m_id(other.m_id, alloc),
+          m_value(other.m_value, alloc) {}
+
+    /// \brief Move constructor
+    vertex_data_type(vertex_data_type &&) noexcept = default;
+
+    /// \brief Allocator-extended move constructor
+    /// This will be used by scoped-allocator
+    vertex_data_type(vertex_data_type &&other, const allocator_type &alloc) noexcept
+        : m_id(std::move(other.m_id), alloc),
+          m_value(std::move(other.m_value), alloc) {}
+
+    /// \brief Copy assignment operator
+    vertex_data_type &operator=(const vertex_data_type &) = default;
+
+    /// \brief Move assignment operator
+    vertex_data_type &operator=(vertex_data_type &&) noexcept = default;
+
+    const id_type id() const {
+      return id_type(m_id);
+    }
+
+    value_type &value() {
+      return m_value;
+    }
+
+    const value_type &value() const {
+      return m_value;
+    }
+
+   private:
+    string_type m_id;
+    value_type m_value;
   };
 
-  using dst_vertex_directory_type = boost::unordered_multimap<uint64_t,
-                                                              dst_vertex_directory_value_type,
-                                                              metall::utility::hash<uint64_t>,
-                                                              std::equal_to<>,
-                                                              other_scoped_allocator<std::pair<const uint64_t,
-                                                                                               dst_vertex_directory_value_type>>>;
+  using vertex_storage_type = mc::unordered_map<internal_id_type,
+                                                vertex_data_type,
+                                                metall::utility::hash<internal_id_type>,
+                                                std::equal_to<>,
+                                                other_scoped_allocator<std::pair<const internal_id_type,
+                                                                                 vertex_data_type>>>;
 
-  struct vertex_directory_value_type {
-    std::size_t vertex_position;
-    dst_vertex_directory_type dst_vertex_directory;
+  class edge_data_type {
+   public:
+    using allocator_type = _allocator_type;
+
+    explicit edge_data_type(const id_type &source_id,
+                            const id_type &destination_id,
+                            const internal_id_type &edge_id,
+                            const allocator_type &allocator = allocator_type())
+        : m_source_id(source_id, allocator),
+          m_destination_id(destination_id, allocator),
+          m_edge_id(edge_id),
+          m_value(allocator) {}
+
+    /// \brief Copy constructor
+    edge_data_type(const edge_data_type &) = default;
+
+    /// \brief Allocator-extended copy constructor
+    /// This will be used by scoped-allocator
+    edge_data_type(const edge_data_type &other, const allocator_type &alloc)
+        : m_source_id(other.m_source_id, alloc),
+          m_destination_id(other.m_destination_id, alloc),
+          m_edge_id(other.m_edge_id),
+          m_value(other.m_value, alloc) {}
+
+    /// \brief Move constructor
+    edge_data_type(edge_data_type &&) noexcept = default;
+
+    /// \brief Allocator-extended move constructor
+    /// This will be used by scoped-allocator
+    edge_data_type(edge_data_type &&other, const allocator_type &alloc) noexcept
+        : m_source_id(other.m_source_id, alloc),
+          m_destination_id(other.m_destination_id, alloc),
+          m_edge_id(other.m_edge_id),
+          m_value(other.m_value, alloc) {}
+
+    /// \brief Copy assignment operator
+    edge_data_type &operator=(const edge_data_type &) = default;
+
+    /// \brief Move assignment operator
+    edge_data_type &operator=(edge_data_type &&) noexcept = default;
+
+    const id_type source_id() const {
+      return id_type(m_source_id);
+    }
+
+    const id_type destination_id() const {
+      return id_type(m_destination_id);
+    }
+
+//    const id_type edge_id() const {
+//      return id_type(m_edge_id);
+//    }
+
+    value_type &value() {
+      return m_value;
+    }
+
+    const value_type &value() const {
+      return m_value;
+    }
+
+   private:
+    string_type m_source_id;
+    string_type m_destination_id;
+    internal_id_type m_edge_id;
+    value_type m_value;
   };
-  using vertex_directory_type = boost::unordered_multimap<uint64_t,
-                                                          vertex_directory_value_type,
-                                                          metall::utility::hash<uint64_t>,
-                                                          std::equal_to<>,
-                                                          other_scoped_allocator<std::pair<const uint64_t,
-                                                                                           vertex_directory_value_type>>>;
+
+  using edge_storage_type = mc::unordered_map<internal_id_type,
+                                              edge_data_type, metall::utility::hash<internal_id_type>,
+                                              std::equal_to<>,
+                                              other_scoped_allocator<std::pair<const internal_id_type,
+                                                                               edge_data_type>>>;
+
+  // Adj-list
+  using adj_list_edge_list_type = mc::unordered_multimap<internal_id_type, // hashed destination vid
+                                                         internal_id_type, // edge id
+                                                         std::hash<internal_id_type>,
+                                                         std::equal_to<>,
+                                                         other_scoped_allocator<std::pair<const internal_id_type,
+                                                                                          internal_id_type>>>;
+
+  using adj_list_type = mc::unordered_map<internal_id_type, // hashed source vid
+                                          adj_list_edge_list_type,
+                                          std::hash<internal_id_type>,
+                                          std::equal_to<>,
+                                          other_scoped_allocator<std::pair<const internal_id_type,
+                                                                           adj_list_edge_list_type>>>;
 
 
-
-  struct edge_directory_value_type {
-    std::size_t edge_position;
-  };
-
-  using edge_directory_type = boost::unordered_multimap<uint64_t,
-                                                        edge_directory_value_type,
-                                                        metall::utility::hash<uint64_t>,
-                                                        std::equal_to<>,
-                                                        other_scoped_allocator<std::pair<const uint64_t,
-                                                                                         edge_directory_value_type>>>;
+  // ID tables
+  using id_table_type = mc::unordered_map<internal_id_type,
+                                          string_type,
+                                          std::hash<internal_id_type>,
+                                          std::equal_to<>,
+                                          other_scoped_allocator<std::pair<const internal_id_type, string_type>>>;
 
  public:
-  /// \brief JSON value type every vertex and edge has
-  using value_type = typename key_value_pair_type::value_type;
-
   /// \brief Vertex iterator over a container of vertex data,
   /// which is metall::container::experimental::json::key_value_pair_type.
   using vertex_iterator = jgdtl::vertex_iterator_impl<typename vertex_storage_type::iterator>;
@@ -107,105 +228,100 @@ class jgraph {
 
   /// \brief Edge iterator over a container of edge data,
   /// which is metall::container::experimental::json::key_value_pair_type.
-  using edge_iterator = jgdtl::edge_iterator_impl<typename dst_vertex_directory_type::iterator,
+  using edge_iterator = jgdtl::edge_iterator_impl<typename adj_list_edge_list_type::iterator,
                                                   typename std::pointer_traits<typename std::allocator_traits<
-                                                      allocator_type>::pointer>::template rebind<edge_storage_type>,
-                                                  typename edge_storage_type::value_type>;
+                                                      allocator_type>::pointer>::template rebind<edge_storage_type>>;
   /// \brief Const edge iterator.
-  using const_edge_iterator = jgdtl::edge_iterator_impl<typename dst_vertex_directory_type::const_iterator,
+  using const_edge_iterator = jgdtl::edge_iterator_impl<typename adj_list_edge_list_type::const_iterator,
                                                         typename std::pointer_traits<typename std::allocator_traits<
-                                                            allocator_type>::const_pointer>::template rebind<
-                                                            edge_storage_type>,
-                                                        const typename edge_storage_type::value_type>;
+                                                            allocator_type>::pointer>::template rebind<const
+                                                                                                       edge_storage_type>>;
 
   /// \brief Constructor
   /// \param alloc An allocator object
   explicit jgraph(const allocator_type &alloc = allocator_type())
       : m_vertex_storage(alloc),
         m_edge_storage(alloc),
-        m_vertex_directory(alloc),
-        m_edge_directory(alloc) {}
+        m_adj_list(alloc),
+        m_vertex_id_table(alloc) {}
 
   /// \brief Checks if a vertex exists.
   /// \param vertex_id A vertex ID to check.
   /// \return Returns true if the vertex exists; otherwise, returns false.
-  bool has_vertex(const std::string_view &vertex_id) const {
-    return priv_locate_vertex(vertex_id) != m_vertex_directory.end();
+  bool has_vertex(const id_type &vertex_id) const {
+    return priv_get_vertex_internal_id(vertex_id) != k_max_internal_id;
   }
 
-  /// \brief Checks if an edge exists.
-  /// \param edge_id A edge ID to check.
-  /// \return Returns true if the edge exists; otherwise, returns false.
-  bool has_edge(const std::string_view &edge_id) const {
-    return priv_locate_edge(edge_id) != m_edge_directory.end();
+  std::size_t has_edges(const id_type &source_vertex_id, const id_type &destination_vertex_id) const {
+
+    const auto src = priv_get_vertex_internal_id(source_vertex_id);
+    if (src == k_max_internal_id) return 0;
+
+    const auto dst = priv_get_vertex_internal_id(destination_vertex_id);
+    if (dst == k_max_internal_id) return 0;
+
+    const auto &edge_list = m_adj_list.at(src);
+    return edge_list.count(dst);
   }
 
-  /// \brief Registers a vertex.
-  /// \param vertex_id A vertex ID.
-  /// \return Returns if the vertex is registered.
-  /// Returns false if the same ID already exists.
-  bool register_vertex(const std::string_view &vertex_id) {
-    if (has_vertex(vertex_id)) {
-      return false; // Already exist
+  vertex_iterator register_vertex(const id_type &vertex_id) {
+
+    auto internal_id = priv_get_vertex_internal_id(vertex_id);
+    if (internal_id != k_max_internal_id) {
+      return vertex_iterator(m_vertex_storage.find(internal_id));
     }
 
-    const auto vertex_pos = priv_add_vertex_storage_item(vertex_id);
-    m_vertex_directory.emplace(priv_hash_id(vertex_id),
-                               vertex_directory_value_type{vertex_pos,
-                                                           dst_vertex_directory_type{
-                                                               m_vertex_directory.get_allocator()}});
-    return true;
+    internal_id = priv_generate_vertex_internal_id(vertex_id);
+
+    m_adj_list.emplace(internal_id, adj_list_edge_list_type{m_adj_list.get_allocator()});
+
+    auto ret = m_vertex_storage.emplace(internal_id, vertex_data_type{vertex_id, m_vertex_storage.get_allocator()});
+    return vertex_iterator(ret.first);
   }
 
-  /// \brief Registers an edge.
-  /// If a vertex does not exist, it will be registered automatically.
-  /// \param source_id A source vertex ID.
-  /// \param destination_id A destination vertex ID.
-  /// \param edge_id An edge ID to register.
-  /// \return Returns if the edge is registered correctly.
-  /// Returns false if an error happens.
-  bool register_edge(const std::string_view &source_id, const std::string_view &destination_id,
-                     const std::string_view &edge_id) {
-    auto edge_itr = priv_locate_edge(edge_id);
-    if (edge_itr != m_edge_directory.end()) {
-      const auto existing_edge_pos = edge_itr->second.edge_position;
-      return priv_add_vertex_directory_item(source_id, destination_id, existing_edge_pos);
+  edge_iterator register_edge(const id_type &source_vertex_id,
+                              const id_type &destination_vertex_id,
+                              const bool undirected = false) {
+    register_vertex(source_vertex_id);
+    register_vertex(destination_vertex_id);
+
+    const auto src_internal_id = priv_get_vertex_internal_id(source_vertex_id);
+    assert(src_internal_id != k_max_internal_id);
+    const auto dst_internal_id = priv_get_vertex_internal_id(destination_vertex_id);
+    assert(dst_internal_id != k_max_internal_id);
+    const auto edge_id = priv_generate_edge_id();
+
+    auto itr = m_adj_list.at(src_internal_id).emplace(dst_internal_id, edge_id);
+    if (undirected) {
+      m_adj_list.at(dst_internal_id).emplace(src_internal_id, edge_id);
     }
 
-    register_vertex(source_id);
-    register_vertex(destination_id);
-
-    const auto edge_pos = priv_add_edge_storage_item(edge_id);
-    return priv_add_vertex_directory_item(source_id, destination_id, edge_pos)
-        && priv_add_edge_directory_item(edge_id, edge_pos);
+    m_edge_storage.emplace(edge_id,
+                           edge_data_type{source_vertex_id, destination_vertex_id, edge_id,
+                                          m_edge_storage.get_allocator()});
+    return edge_iterator(itr, &m_edge_storage);
   }
 
-  /// \brief Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id.
-  /// \param vertex_id A vertex ID to find.
-  /// \return Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id.
-  value_type &vertex_value(const std::string_view &vertex_id) {
-    auto vpos = priv_locate_vertex(vertex_id);
-    return m_vertex_storage[vpos->second.vertex_position].value();
+  vertex_iterator find_vertex(const id_type &vertex_id) {
+    return vertex_iterator(m_vertex_storage.find(priv_get_vertex_internal_id(vertex_id)));
   }
 
-  /// \brief Const version of vertex_value().
-  const value_type &vertex_value(const std::string_view &vertex_id) const {
-    const auto vpos = priv_locate_vertex(vertex_id);
-    return m_vertex_storage[vpos->second.vertex_position].value();
+  const_vertex_iterator find_vertex(const id_type &vertex_id) const {
+    return const_vertex_iterator(m_vertex_storage.find(priv_get_vertex_internal_id(vertex_id)));
   }
 
-  /// \brief Returns a reference to the value of the existing edge whose key is equivalent to edge_id.
-  /// \param edge_id A edge ID to find.
-  /// \return Returns a reference to the value of the existing edge whose key is equivalent to edge_id.
-  value_type &edge_value(const std::string_view &edge_id) {
-    auto epos = priv_locate_edge(edge_id);
-    return m_edge_storage[epos->second.edge_position].value();
-  }
+  std::pair<edge_iterator, edge_iterator> find_edges(const id_type &source_vertex_id,
+                                                     const id_type &destination_vertex_id) {
+    const auto src_internal_id = priv_get_vertex_internal_id(source_vertex_id);
+    const auto dst_internal_id = priv_get_vertex_internal_id(destination_vertex_id);
 
-  /// \brief Const version of edge_value().
-  const value_type &edge_value(const std::string_view &edge_id) const {
-    const auto epos = priv_locate_edge(edge_id);
-    return m_edge_storage[epos->second.edge_position].value();
+    if (src_internal_id == k_max_internal_id || dst_internal_id == k_max_internal_id) {
+      return std::make_pair(edge_iterator{}, edge_iterator{});
+    }
+
+    auto &edge_list = m_adj_list.at(src_internal_id);
+    auto range = edge_list.equal_range(dst_internal_id);
+    return std::make_pair(edge_iterator{range.first, &m_edge_storage}, edge_iterator{range.second, &m_edge_storage});
   }
 
   /// \brief Returns the number of vertices.
@@ -224,12 +340,13 @@ class jgraph {
   /// \param vid A vertex ID.
   /// \return Returns the degree of the vertex corresponds to 'vid'.
   /// If no vertex is associated with 'vid', returns 0.
-  std::size_t degree(const std::string_view &vid) const {
-    auto pos = priv_locate_vertex(vid);
-    if (pos == m_vertex_directory.cend()) {
+  std::size_t degree(const id_type &vertex_id) const {
+    const auto internal_id = priv_get_vertex_internal_id(vertex_id);
+    if (internal_id == k_max_internal_id) {
       return 0;
     }
-    return pos->second.dst_vertex_directory.size();
+
+    return m_adj_list.at(internal_id).size();
   }
 
   vertex_iterator vertices_begin() {
@@ -248,26 +365,36 @@ class jgraph {
     return const_vertex_iterator(m_vertex_storage.end());
   }
 
-  edge_iterator edges_begin(const std::string_view &vid) {
-    auto pos = priv_locate_vertex(vid);
-    return edge_iterator(pos->second.dst_vertex_directory.begin(), &m_edge_storage);
+  edge_iterator edges_begin(const id_type &vid) {
+    const auto internal_id = priv_get_vertex_internal_id(vid);
+    if (internal_id == k_max_internal_id) {
+      return edge_iterator();
+    }
+    return edge_iterator{m_adj_list.at(internal_id).begin(), &m_edge_storage};
   }
 
-  const_edge_iterator edges_begin(const std::string_view &vid) const {
-    const auto pos = priv_locate_vertex(vid);
-    return const_edge_iterator(pos->second.dst_vertex_directory.begin(),
-                               const_cast<edge_storage_type *>(&m_edge_storage));
+  const_edge_iterator edges_begin(const id_type &vid) const {
+    const auto internal_id = priv_get_vertex_internal_id(vid);
+    if (internal_id == k_max_internal_id) {
+      return const_edge_iterator();
+    }
+    return const_edge_iterator{m_adj_list.at(internal_id).begin(), &m_edge_storage};
   }
 
-  edge_iterator edges_end(const std::string_view &vid) {
-    auto pos = priv_locate_vertex(vid);
-    return edge_iterator(pos->second.dst_vertex_directory.end(), &m_edge_storage);
+  edge_iterator edges_end(const id_type &vid) {
+    const auto internal_id = priv_get_vertex_internal_id(vid);
+    if (internal_id == k_max_internal_id) {
+      return edge_iterator();
+    }
+    return edge_iterator{m_adj_list.at(internal_id).end(), &m_edge_storage};
   }
 
-  const_edge_iterator edges_end(const std::string_view &vid) const {
-    const auto pos = priv_locate_vertex(vid);
-    return const_edge_iterator(pos->second.dst_vertex_directory.end(),
-                               const_cast<edge_storage_type *>(&m_edge_storage));
+  const_edge_iterator edges_end(const id_type &vid) const {
+    const auto internal_id = priv_get_vertex_internal_id(vid);
+    if (internal_id == k_max_internal_id) {
+      return const_edge_iterator();
+    }
+    return const_edge_iterator{m_adj_list.at(internal_id).end(), &m_edge_storage};
   }
 
   allocator_type get_allocator() const {
@@ -276,84 +403,72 @@ class jgraph {
 
  private:
 
-  typename vertex_directory_type::const_iterator priv_locate_vertex(const std::string_view &vid) const {
-    const auto hash = priv_hash_id(vid.data());
-    auto range = m_vertex_directory.equal_range(hash);
-    for (auto itr = range.first, end = range.second; itr != end; ++itr) {
-      const vertex_directory_value_type &value = itr->second;
-      if (m_vertex_storage[value.vertex_position].key() == vid) {
-        return itr; // Found the key
+  internal_id_type priv_get_vertex_internal_id(const std::string_view &vid) const {
+    auto hash = priv_hash_id(vid.data());
+
+    for (std::size_t d = 0; d <= m_max_vid_distance; ++d) {
+      const auto vitr = m_vertex_id_table.find(hash);
+      if (vitr == m_vertex_id_table.end()) {
+        break;
       }
-    }
-    return m_vertex_directory.end(); // Couldn't find
-  }
 
-  typename vertex_directory_type::iterator priv_locate_vertex(const std::string_view &vid) {
-    const auto citr = const_cast<const jgraph *>(this)->priv_locate_vertex(vid);
-    return m_vertex_directory.erase(citr, citr); // Generate non-const iterator from const iterator
-  }
-
-  typename edge_directory_type::const_iterator priv_locate_edge(const std::string_view &edge_id) const {
-    const auto hash = priv_hash_id(edge_id);
-    auto range = m_edge_directory.equal_range(hash);
-    for (auto itr = range.first, end = range.second; itr != end; ++itr) {
-      if (m_edge_storage[itr->second.edge_position].key() == edge_id) {
-        return itr; // Found the key
+      if (vitr->second == vid) {
+        return hash;
       }
+      hash = (hash + 1) % k_max_internal_id;
     }
-    return m_edge_directory.end(); // Couldn't find
+
+    return k_max_internal_id; // Couldn't find
   }
 
-  typename edge_directory_type::iterator priv_locate_edge(const std::string_view &edge_id) {
-    const auto citr = const_cast<const jgraph *>(this)->priv_locate_edge(edge_id);
-    return m_edge_directory.erase(citr, citr); // Generate non-const iterator from const iterator
+  internal_id_type priv_generate_vertex_internal_id(const std::string_view &vid) {
+    auto hash = priv_hash_id(vid.data());
+
+    std::size_t distance = 0;
+    while (m_vertex_id_table.count(hash) > 0) {
+      hash = (hash + 1) % k_max_internal_id;
+      ++distance;
+    }
+    m_max_vid_distance = std::max(distance, m_max_vid_distance);
+
+    m_vertex_id_table[hash] = vid.data();
+
+    return hash;
   }
 
-  static uint64_t priv_hash_id(const std::string_view &id) {
+  internal_id_type priv_generate_edge_id() {
+    return ++m_max_edge_id;
+  }
+
+  static internal_id_type priv_hash_id(const std::string_view &id) {
     return metall::mtlldetail::MurmurHash64A(id.data(), id.length(), 1234);
-  }
-
-  std::size_t priv_add_edge_storage_item(const std::string_view &edge_id) {
-    m_edge_storage.emplace_back(edge_id, typename key_value_pair_type::value_type{m_vertex_storage.get_allocator()});
-    return m_edge_storage.size() - 1;
-  }
-
-  bool priv_add_edge_directory_item(const std::string_view &edge_id, const std::size_t edge_storage_pos) {
-    m_edge_directory.emplace(priv_hash_id(edge_id), edge_directory_value_type{edge_storage_pos});
-    return true;
-  }
-
-  std::size_t priv_add_vertex_storage_item(const std::string_view &vertex_id) {
-    m_vertex_storage.emplace_back(vertex_id,
-                                  typename key_value_pair_type::value_type{m_vertex_storage.get_allocator()});
-    return m_vertex_storage.size() - 1;
-  }
-
-  bool priv_add_vertex_directory_item(const std::string_view &source_id, const std::string_view &destination_id,
-                                      const std::size_t edge_storage_position) {
-    vertex_directory_value_type &src_val = priv_locate_vertex(source_id)->second;
-    vertex_directory_value_type &dst_val = priv_locate_vertex(destination_id)->second;
-    src_val.dst_vertex_directory.emplace(priv_hash_id(destination_id),
-                                         dst_vertex_directory_value_type{dst_val.vertex_position,
-                                                                         edge_storage_position});
-    return true;
   }
 
   vertex_storage_type m_vertex_storage;
   edge_storage_type m_edge_storage;
-  vertex_directory_type m_vertex_directory;
-  edge_directory_type m_edge_directory;
+  adj_list_type m_adj_list;
+  id_table_type m_vertex_id_table;
+  internal_id_type m_max_edge_id{0};
+  std::size_t m_max_vid_distance{0};
 };
 
 namespace jgdtl {
 
 template <typename storage_iterator_type>
 class vertex_iterator_impl {
- public:
+ private:
+  static constexpr bool
+      is_const_value = std::is_const_v<typename std::iterator_traits<storage_iterator_type>::value_type>;
 
-  using value_type = typename std::iterator_traits<storage_iterator_type>::value_type;
-  using pointer = typename std::iterator_traits<storage_iterator_type>::pointer;
-  using reference = typename std::iterator_traits<storage_iterator_type>::reference;
+  // Memo: this type will be always non-const even element_type is const
+  using raw_value_type = typename std::tuple_element<1,
+                                                     typename std::iterator_traits<storage_iterator_type>::value_type>::type;
+
+ public:
+  using value_type = std::conditional_t<is_const_value, const raw_value_type, raw_value_type>;
+  using pointer = typename std::pointer_traits<typename std::iterator_traits<storage_iterator_type>::pointer>::template rebind<
+      value_type>;
+  using reference = value_type &;
   using difference_type = typename std::iterator_traits<storage_iterator_type>::difference_type;
 
   explicit vertex_iterator_impl(storage_iterator_type begin_pos)
@@ -381,19 +496,19 @@ class vertex_iterator_impl {
   }
 
   pointer operator->() {
-    return &(*m_current_pos);
+    return const_cast<pointer>(&(m_current_pos->second));
   }
 
   const pointer operator->() const {
-    return &(*m_current_pos);
+    return &(m_current_pos->second);
   }
 
   reference operator*() {
-    return *m_current_pos;
+    return m_current_pos->second;
   }
 
   const reference operator*() const {
-    return *m_current_pos;
+    return m_current_pos->second;
   }
 
  private:
@@ -412,18 +527,27 @@ inline bool operator!=(const vertex_iterator_impl<storage_iterator_type> &lhs,
   return !(lhs == rhs);
 }
 
-template <typename directory_iterator_type,
-          typename storage_pointer_type,
-          typename storage_value_type>
+template <typename adj_list_edge_list_iterator_type, typename storage_pointer_type>
 class edge_iterator_impl {
+ private:
+  static constexpr bool
+      is_const_value = std::is_const_v<typename std::pointer_traits<storage_pointer_type>::element_type>;
+
+  // Memo: this type will be always non-const even element_type is const
+  using raw_value_type = typename std::pointer_traits<storage_pointer_type>::element_type::mapped_type;
+
  public:
-
-  using value_type = storage_value_type;
-  using pointer = value_type *;
+  using value_type = std::conditional_t<is_const_value, const raw_value_type, raw_value_type>;
+  using pointer = typename std::pointer_traits<typename std::pointer_traits<storage_pointer_type>::element_type::iterator::pointer>::template rebind<
+      value_type>;
   using reference = value_type &;
-  using difference_type = typename std::iterator_traits<directory_iterator_type>::difference_type;
+  using difference_type = typename std::iterator_traits<adj_list_edge_list_iterator_type>::difference_type;
 
-  edge_iterator_impl(directory_iterator_type begin_pos, storage_pointer_type storage)
+  edge_iterator_impl()
+      : m_current_pos(),
+        m_storage_pointer(nullptr) {}
+
+  edge_iterator_impl(adj_list_edge_list_iterator_type begin_pos, storage_pointer_type storage)
       : m_current_pos(begin_pos),
         m_storage_pointer(storage) {}
 
@@ -449,47 +573,43 @@ class edge_iterator_impl {
   }
 
   pointer operator->() {
-    return &((*m_storage_pointer)[m_current_pos->second.edge_position]);
+    const auto &edge_id = m_current_pos->second;
+    return &(m_storage_pointer->at(edge_id));
   }
 
   const pointer operator->() const {
-    return &((*m_storage_pointer)[m_current_pos->second.edge_position]);
+    const auto &edge_id = m_current_pos->second;
+    return &(m_storage_pointer->at(edge_id));
   }
 
   reference operator*() {
-    return (*m_storage_pointer)[m_current_pos->second.edge_position];
+    const auto &edge_id = m_current_pos->second;
+    return (m_storage_pointer->at(edge_id));
   }
 
   const reference operator*() const {
-    return (*m_storage_pointer)[m_current_pos->second.edge_position];
+    const auto &edge_id = m_current_pos->second;
+    return (m_storage_pointer->at(edge_id));
   }
 
  private:
-  directory_iterator_type m_current_pos;
+  adj_list_edge_list_iterator_type m_current_pos;
   storage_pointer_type m_storage_pointer;
 };
 
-template <typename directory_iterator_type,
-          typename storage_pointer_type,
-          typename storage_value_type>
-inline bool operator==(const edge_iterator_impl<directory_iterator_type, storage_pointer_type, storage_value_type> &lhs,
-                       const edge_iterator_impl<directory_iterator_type,
-                                                storage_pointer_type,
-                                                storage_value_type> &rhs) {
+template <typename adj_list_edge_list_iterator_type, typename storage_pointer_type>
+inline bool operator==(const edge_iterator_impl<adj_list_edge_list_iterator_type, storage_pointer_type> &lhs,
+                       const edge_iterator_impl<adj_list_edge_list_iterator_type, storage_pointer_type> &rhs) {
   return lhs.equal(rhs);
 }
 
-template <typename directory_iterator_type,
-          typename storage_pointer_type,
-          typename storage_value_type>
-inline bool operator!=(const edge_iterator_impl<directory_iterator_type, storage_pointer_type, storage_value_type> &lhs,
-                       const edge_iterator_impl<directory_iterator_type,
-                                                storage_pointer_type,
-                                                storage_value_type> &rhs) {
+template <typename adj_list_edge_list_iterator_type, typename storage_pointer_type>
+inline bool operator!=(const edge_iterator_impl<adj_list_edge_list_iterator_type, storage_pointer_type> &lhs,
+                       const edge_iterator_impl<adj_list_edge_list_iterator_type, storage_pointer_type> &rhs) {
   return !(lhs == rhs);
 }
 
-}
+} // namespace jgdtl
 
 } // namespace metall::container::experimental::jgraph
 

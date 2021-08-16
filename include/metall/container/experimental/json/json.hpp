@@ -9,13 +9,14 @@
 #include <metall/container/experimental/json/json_fwd.hpp>
 #include <metall/container/experimental/json/array.hpp>
 #include <metall/container/experimental/json/key_value_pair.hpp>
-#include <metall/container/experimental/json/object.hpp>
 #include <metall/container/experimental/json/value.hpp>
 #include <metall/container/experimental/json/parse.hpp>
 #include <metall/container/experimental/json/serialize.hpp>
 #include <metall/container/experimental/json/pretty_print.hpp>
 #include <metall/container/experimental/json/value_from.hpp>
 #include <metall/container/experimental/json/value_to.hpp>
+#include <metall/container/experimental/json/indexed_object.hpp>
+#include <metall/container/experimental/json/compact_object.hpp>
 
 /// \example json_create.cpp
 /// This is an example of how to create a JSON object with Metall.

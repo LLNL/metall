@@ -34,7 +34,6 @@ struct bfs_data {
   std::vector<level_type> level;
   std::vector<bool> visited_filter;
 };
-constexpr typename bfs_data::level_type bfs_data::k_infinite_level;
 
 /// \brief Allocate and initialize bfs data
 template <typename vertex_id_type>
