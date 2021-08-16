@@ -60,83 +60,83 @@ install_boost:
 build_gcc8.3_bst1.76.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.76.0"
 
 build_gcc8.3_bst1.75.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.75.0"
 
 build_gcc8.3_bst1.74.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.74.0"
 
 build_gcc8.3_bst1.73.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.73.0"
 
 build_gcc8.3_bst1.72.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.72.0"
 
 build_gcc8.3_bst1.71.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.71.0"
 
 build_gcc8.3_bst1.70.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.70.0"
 
 build_gcc8.3_bst1.69.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.69.0"
 
 build_gcc8.3_bst1.68.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.68.0"
 
 build_gcc8.3_bst1.67.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.67.0"
 
 build_gcc8.3_bst1.66.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.66.0"
 
 build_gcc8.3_bst1.65.1:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.65.1"
 
 build_gcc8.3_bst1.65.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.65.0"
 
 build_gcc8.3_bst1.64.0:
   extends: .build
   variables:
-    GCC_VERSION: "8.3.1"
+    GCC_VERSION: "10.2.1"
     BOOST_VERSION: "1.64.0"
