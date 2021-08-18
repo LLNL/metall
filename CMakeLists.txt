@@ -17,7 +17,7 @@ endif ()
 # -------------------------------------------------------------------------------- #
 # Configuration for building test, benchmark, example, etc.
 # -------------------------------------------------------------------------------- #
-project(Metall VERSION 0.15)
+project(Metall VERSION 0.16)
 configure_file(MetallConfig.h.in MetallConfig.h)
 
 include_directories(${PROJECT_BINARY_DIR})
