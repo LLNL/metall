@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <metall/logger.hpp>
 
 namespace metall::mtlldetail {

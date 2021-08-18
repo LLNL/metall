@@ -42,6 +42,29 @@ TEST(ChunkDirectoryTest, InsertLargeChunk) {
   }
 }
 
+TEST(ChunkDirectoryTest, EraseChunk) {
+  chunk_directory_type directory(5);
+
+  ASSERT_EQ(directory.size(), 0);
+
+  const auto chno0 = directory.insert(0);
+  const auto chno1 = directory.insert(1);
+  const auto chno2 = directory.insert(k_num_small_bins);
+  const auto chno3 = directory.insert(k_num_small_bins + 1);
+  ASSERT_GT(directory.size(), 0);
+
+  directory.erase(chno0);
+  ASSERT_TRUE(directory.empty_chunk(chno0));
+  directory.erase(chno1);
+  ASSERT_TRUE(directory.empty_chunk(chno1));
+  directory.erase(chno2);
+  ASSERT_TRUE(directory.empty_chunk(chno2));
+  directory.erase(chno3);
+  ASSERT_TRUE(directory.empty_chunk(chno3));
+  ASSERT_EQ(directory.size(), 0);
+}
+
+
 TEST(ChunkDirectoryTest, MarkSlot) {
   chunk_directory_type directory(bin_no_mngr::num_small_bins() + 1);
 

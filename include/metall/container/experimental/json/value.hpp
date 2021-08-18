@@ -11,8 +11,6 @@
 #include <string_view>
 #include <variant>
 
-#include <boost/json/src.hpp>
-
 #include <metall/container/string.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
 
@@ -20,7 +18,6 @@ namespace metall::container::experimental::json {
 
 namespace {
 namespace mc = metall::container;
-namespace bj = boost::json;
 }
 
 /// \brief JSON value.
@@ -42,11 +39,6 @@ class value {
  public:
   explicit value(const allocator_type &alloc = allocator_type())
       : m_allocator(alloc) {}
-
-  explicit value(const bj::value &input_json_value, const allocator_type &alloc = allocator_type())
-      : m_allocator(alloc) {
-    assert(false);
-  }
 
   /// \brief Copy constructor
   value(const value &) = default;

@@ -135,6 +135,12 @@ void manager_kernel<chnk_no, chnk_sz>::deallocate(void *addr) {
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
+bool manager_kernel<chnk_no, chnk_sz>::all_memory_deallocated() const {
+  assert(priv_initialized());
+  return m_segment_memory_allocator.all_memory_deallocated();
+}
+
+template <typename chnk_no, std::size_t chnk_sz>
 template <typename T>
 std::pair<T *, typename manager_kernel<chnk_no, chnk_sz>::size_type>
 manager_kernel<chnk_no, chnk_sz>::find(char_ptr_holder_type name) const {

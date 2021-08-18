@@ -349,8 +349,8 @@ class attributed_object_directory {
 
     try {
       m_offset_index_table->erase(position->offset());
-      m_entry_table->erase(position);
       if (!position->name().empty()) m_name_index_table->erase(position->name());
+      m_entry_table->erase(position);
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
       return 0;
@@ -399,8 +399,8 @@ class attributed_object_directory {
     try {
       auto itr = find(offset);
       m_offset_index_table->erase(itr->offset());
-      m_entry_table->erase(itr);
       if (!itr->name().empty()) m_name_index_table->erase(itr->name());
+      m_entry_table->erase(itr);
     } catch (...) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
       return 0;

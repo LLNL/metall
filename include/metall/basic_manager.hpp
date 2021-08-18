@@ -771,8 +771,14 @@ class basic_manager {
 
   // void deallocate_many(multiallocation_chain &chain);
 
-  // Returns true if all allocated memory has been deallocated
-  // bool all_memory_deallocated();
+  /// \brief Check if all allocated memory has been deallocated.
+  /// \return Returns true if all allocated memory has been deallocated; otherwise, false.
+  bool all_memory_deallocated() const {
+    if (!check_sanity()) {
+      return false;
+    }
+    return m_kernel->all_memory_deallocated();
+  }
 
   // -------------------- Flush -------------------- //
   /// \brief Flush data to persistent memory.
