@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['has_5fedge_518',['has_edge',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a009515e68f7a289be7018a4afa99249d',1,'metall::container::experimental::jgraph::jgraph']]],
-  ['has_5fvertex_519',['has_vertex',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#acf82948935d8db56a4aae05641d74ce4',1,'metall::container::experimental::jgraph::jgraph']]]
+  ['has_5fedges_532',['has_edges',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae0edd7086eb99068168371a6afb2c268',1,'metall::container::experimental::jgraph::jgraph']]],
+  ['has_5fvertex_533',['has_vertex',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6d29d65443b1096f1a259a7f51bb6ca2',1,'metall::container::experimental::jgraph::jgraph']]]
 ];

@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -105,51 +105,55 @@ $(document).ready(function(){initNavTree('json__fwd_8hpp_source.html',''); initR
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#ifndef METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#define METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container_1_1experimental.html">metall::container::experimental</a> {}</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a> {}</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a> {</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;variant&gt;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container_1_1experimental.html">metall::container::experimental</a> {}</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a> {}</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#if !defined(DOXYGEN_SKIP)</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">// Forward declaration</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">class </span>value;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">class </span>object;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">class </span>array;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> <span class="keywordtype">char</span>_type, <span class="keyword">typename</span> <span class="keywordtype">char</span>_traits, <span class="keyword">typename</span> _allocator_type&gt;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">class </span>basic_key_value_pair;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> char_type = char,</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;          <span class="keyword">typename</span> char_traits = std::char_traits&lt;char_type&gt;,</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;          <span class="keyword">typename</span> _allocator_type = std::allocator&lt;std::byte&gt;&gt;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">class </span>basic_key_value_pair;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a> {</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#if !defined(DOXYGEN_SKIP)</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">// Forward declaration</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">class </span>value;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">class </span>array;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> <span class="keywordtype">char</span>_type, <span class="keyword">typename</span> <span class="keywordtype">char</span>_traits, <span class="keyword">typename</span> _allocator_type&gt;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">class </span>key_value_pair;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> allocator_type&gt;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">inline</span> value&lt;allocator_type&gt; <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a43b4b66f5b3f59d16a8378b3b543a731">value_from</a>(T &amp;&amp;, <span class="keyword">const</span> allocator_type&amp; allocator = allocator_type());</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> allocator_type&gt;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">inline</span> T <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#abf83280b338a7799d988ffa08430c6c5">value_to</a>(<span class="keyword">const</span> value&lt;allocator_type&gt;&amp;);</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> allocator_type&gt;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">inline</span> value&lt;allocator_type&gt; <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#ad38da21850e6af416273a794e63ede41">value_from</a>(T &amp;&amp;, allocator_type allocator = allocator_type());</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">class </span>indexed_object;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> allocator_type&gt;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">inline</span> T <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#abf83280b338a7799d988ffa08430c6c5">value_to</a>(<span class="keyword">const</span> value&lt;allocator_type&gt;&amp;);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">class </span>compact_object;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif // DOXYGEN_SKIP</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
 <div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a72953684b231908afc1e7450d1580943">   48</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a72953684b231908afc1e7450d1580943">null_type</a> = std::monostate;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;} <span class="comment">// namespace metall::container::experimental::json</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#endif //METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> allocator_type&gt;</div>
+<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">   54</a></span>&#160;<span class="keyword">using</span> <span class="keywordtype">object</span> = <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">compact_object&lt;allocator_type&gt;</a>;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;} <span class="comment">// namespace metall::container::experimental::json</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#endif //METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="anamespacemetall_1_1container_1_1experimental_1_1json_html_ad38da21850e6af416273a794e63ede41"><div class="ttname"><a href="namespacemetall_1_1container_1_1experimental_1_1json.html#ad38da21850e6af416273a794e63ede41">metall::container::experimental::json::value_from</a></div><div class="ttdeci">value&lt; allocator_type &gt; value_from(T &amp;&amp;input_data, allocator_type allocator)</div><div class="ttdoc">Convert an input data and construct a JSON value.</div><div class="ttdef"><b>Definition:</b> value_from.hpp:68</div></div>
 <div class="ttc" id="anamespacemetall_1_1container_1_1experimental_1_1json_html_a72953684b231908afc1e7450d1580943"><div class="ttname"><a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a72953684b231908afc1e7450d1580943">metall::container::experimental::json::null_type</a></div><div class="ttdeci">std::monostate null_type</div><div class="ttdoc">JSON null.</div><div class="ttdef"><b>Definition:</b> json_fwd.hpp:48</div></div>
 <div class="ttc" id="anamespacemetall_1_1container_1_1experimental_html"><div class="ttname"><a href="namespacemetall_1_1container_1_1experimental.html">metall::container::experimental</a></div><div class="ttdoc">Namespace for Metall containers in an experimental phase.</div><div class="ttdef"><b>Definition:</b> array.hpp:17</div></div>
+<div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1compact__object_html"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">metall::container::experimental::json::compact_object</a></div><div class="ttdoc">JSON object implementation. This class is designed to use a small amount of memory even sacrificing t...</div><div class="ttdef"><b>Definition:</b> compact_object.hpp:29</div></div>
 <div class="ttc" id="anamespacemetall_1_1container_1_1experimental_1_1json_html_abf83280b338a7799d988ffa08430c6c5"><div class="ttname"><a href="namespacemetall_1_1container_1_1experimental_1_1json.html#abf83280b338a7799d988ffa08430c6c5">metall::container::experimental::json::value_to</a></div><div class="ttdeci">T value_to(const mj::value&lt; allocator_type &gt; &amp;value)</div><div class="ttdoc">Convert a JSON value to another data type.</div><div class="ttdef"><b>Definition:</b> value_to.hpp:73</div></div>
+<div class="ttc" id="anamespacemetall_1_1container_1_1experimental_1_1json_html_a43b4b66f5b3f59d16a8378b3b543a731"><div class="ttname"><a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a43b4b66f5b3f59d16a8378b3b543a731">metall::container::experimental::json::value_from</a></div><div class="ttdeci">value&lt; allocator_type &gt; value_from(T &amp;&amp;input_data, const allocator_type &amp;allocator)</div><div class="ttdoc">Convert an input data and construct a JSON value.</div><div class="ttdef"><b>Definition:</b> value_from.hpp:68</div></div>
 <div class="ttc" id="anamespacemetall_1_1container_1_1experimental_1_1json_html"><div class="ttname"><a href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a></div><div class="ttdoc">Namespace for Metall JSON container, which is in an experimental phase.</div><div class="ttdef"><b>Definition:</b> array.hpp:17</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

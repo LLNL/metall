@@ -53,6 +53,7 @@ var classmetall_1_1basic__manager =
     [ "allocate", "classmetall_1_1basic__manager.html#a86580eab94bcf8aa5a7aeeff13bc97df", null ],
     [ "allocate_aligned", "classmetall_1_1basic__manager.html#ae44fd6015d396865866ee627448acab0", null ],
     [ "deallocate", "classmetall_1_1basic__manager.html#a4e71f9e005a4c87d0de9bc55df9db3b0", null ],
+    [ "all_memory_deallocated", "classmetall_1_1basic__manager.html#add478066a22f395c5e243eef20cfe268", null ],
     [ "flush", "classmetall_1_1basic__manager.html#a57d2ee578e6de1fdbc5f541657cfb6b0", null ],
     [ "snapshot", "classmetall_1_1basic__manager.html#a9116d586f8c86b04c355953f5efc3264", null ],
     [ "get_uuid", "classmetall_1_1basic__manager.html#a5c017dfee8914fcd0916d70b7b765357", null ],

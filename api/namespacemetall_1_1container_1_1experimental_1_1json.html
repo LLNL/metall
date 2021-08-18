@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -116,11 +116,14 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON array. An array is an ordered collection of values.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html">basic_key_value_pair</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class for holding a pair of JSON string (as its key) and JSON value (as its value).  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">compact_object</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON object implementation. This class is designed to use a small amount of memory even sacrificing the look-up performance.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1object.html">object</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON object. An object is an unordered map of key and value pairs.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1object.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object.html">indexed_object</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON object. An object is an unordered map of key and value pairs.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html">key_value_pair</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class for holding a pair of JSON string (as its key) and JSON value (as its value).  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON value. A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#details">More...</a><br /></td></tr>
@@ -131,17 +134,17 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a72953684b231908afc1e7450d1580943"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a72953684b231908afc1e7450d1580943">null_type</a> = std::monostate</td></tr>
 <tr class="memdesc:a72953684b231908afc1e7450d1580943"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON null.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a72953684b231908afc1e7450d1580943">More...</a><br /></td></tr>
 <tr class="separator:a72953684b231908afc1e7450d1580943"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1a4e85413d0bf18e457180026f37a41"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </td></tr>
-<tr class="memitem:ab1a4e85413d0bf18e457180026f37a41"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#ab1a4e85413d0bf18e457180026f37a41">key_value_pair</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html">basic_key_value_pair</a>&lt; char, std::char_traits&lt; char &gt;, allocator_type &gt;</td></tr>
-<tr class="memdesc:ab1a4e85413d0bf18e457180026f37a41"><td class="mdescLeft">&#160;</td><td class="mdescRight">A <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html" title="A class for holding a pair of JSON string (as its key) and JSON value (as its value).">basic_key_value_pair</a> type that uses char as its char type.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#ab1a4e85413d0bf18e457180026f37a41">More...</a><br /></td></tr>
-<tr class="separator:ab1a4e85413d0bf18e457180026f37a41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af32d8fd6746c4e2cd3beec2fcea71495"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
+<tr class="memitem:af32d8fd6746c4e2cd3beec2fcea71495"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">object</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">compact_object</a>&lt; allocator_type &gt;</td></tr>
+<tr class="memdesc:af32d8fd6746c4e2cd3beec2fcea71495"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON object. An object is a table key and value pairs. The order of key-value pairs depends on the implementation.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">More...</a><br /></td></tr>
+<tr class="separator:af32d8fd6746c4e2cd3beec2fcea71495"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a40033d533c7cd3bbe7913b3663acfd45"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:a40033d533c7cd3bbe7913b3663acfd45"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; allocator_type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a40033d533c7cd3bbe7913b3663acfd45">parse</a> (std::string_view input_json_string, allocator_type allocator=allocator_type())</td></tr>
-<tr class="memdesc:a40033d533c7cd3bbe7913b3663acfd45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses a JSON represented as a string.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a40033d533c7cd3bbe7913b3663acfd45">More...</a><br /></td></tr>
-<tr class="separator:a40033d533c7cd3bbe7913b3663acfd45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78a8ca04654620703e0e226c44c1aab1"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </td></tr>
+<tr class="memitem:a78a8ca04654620703e0e226c44c1aab1"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; allocator_type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a78a8ca04654620703e0e226c44c1aab1">parse</a> (std::string_view input_json_string, const allocator_type &amp;allocator=allocator_type())</td></tr>
+<tr class="memdesc:a78a8ca04654620703e0e226c44c1aab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses a JSON represented as a string.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a78a8ca04654620703e0e226c44c1aab1">More...</a><br /></td></tr>
+<tr class="separator:a78a8ca04654620703e0e226c44c1aab1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3f6e9fee54fdf122259c13cc258e93c"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type , int indent_size = 2&gt; </td></tr>
 <tr class="memitem:af3f6e9fee54fdf122259c13cc258e93c"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af3f6e9fee54fdf122259c13cc258e93c">pretty_print</a> (std::ostream &amp;os, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; allocator_type &gt; &amp;jv)</td></tr>
 <tr class="memdesc:af3f6e9fee54fdf122259c13cc258e93c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pretty-prints a JSON value.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#af3f6e9fee54fdf122259c13cc258e93c">More...</a><br /></td></tr>
@@ -150,7 +153,7 @@ Functions</h2></td></tr>
 <tr class="memitem:a7a3beec419c392809e63b292ffe7fc34"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a7a3beec419c392809e63b292ffe7fc34">serialize</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">mj::value</a>&lt; allocator_type &gt; &amp;input)</td></tr>
 <tr class="separator:a7a3beec419c392809e63b292ffe7fc34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aceff306b9f4ca124373479c3b1e779f6"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:aceff306b9f4ca124373479c3b1e779f6"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#aceff306b9f4ca124373479c3b1e779f6">serialize</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1object.html">mj::object</a>&lt; allocator_type &gt; &amp;input)</td></tr>
+<tr class="memitem:aceff306b9f4ca124373479c3b1e779f6"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#aceff306b9f4ca124373479c3b1e779f6">serialize</a> (const <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">mj::object</a>&lt; allocator_type &gt; &amp;input)</td></tr>
 <tr class="separator:aceff306b9f4ca124373479c3b1e779f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95a8f44b9533c748ddb08fb2506a8843"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
 <tr class="memitem:a95a8f44b9533c748ddb08fb2506a8843"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a95a8f44b9533c748ddb08fb2506a8843">serialize</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">mj::array</a>&lt; allocator_type &gt; &amp;input)</td></tr>
@@ -162,15 +165,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a4d747a58d196b2eab34677a579b93987"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a4d747a58d196b2eab34677a579b93987">operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">mj::value</a>&lt; allocator_type &gt; &amp;val)</td></tr>
 <tr class="separator:a4d747a58d196b2eab34677a579b93987"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adacd39f289b84bc705c52ab6b2051ac1"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:adacd39f289b84bc705c52ab6b2051ac1"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#adacd39f289b84bc705c52ab6b2051ac1">operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1object.html">mj::object</a>&lt; allocator_type &gt; &amp;obj)</td></tr>
+<tr class="memitem:adacd39f289b84bc705c52ab6b2051ac1"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#adacd39f289b84bc705c52ab6b2051ac1">operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">mj::object</a>&lt; allocator_type &gt; &amp;obj)</td></tr>
 <tr class="separator:adacd39f289b84bc705c52ab6b2051ac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74c70b7ee829090756472e7f9b91d28b"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
 <tr class="memitem:a74c70b7ee829090756472e7f9b91d28b"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a74c70b7ee829090756472e7f9b91d28b">operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">mj::array</a>&lt; allocator_type &gt; &amp;arr)</td></tr>
 <tr class="separator:a74c70b7ee829090756472e7f9b91d28b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad38da21850e6af416273a794e63ede41"><td class="memTemplParams" colspan="2">template&lt;typename T , typename allocator_type &gt; </td></tr>
-<tr class="memitem:ad38da21850e6af416273a794e63ede41"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; allocator_type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#ad38da21850e6af416273a794e63ede41">value_from</a> (T &amp;&amp;input_data, allocator_type allocator)</td></tr>
-<tr class="memdesc:ad38da21850e6af416273a794e63ede41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert an input data and construct a JSON value.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#ad38da21850e6af416273a794e63ede41">More...</a><br /></td></tr>
-<tr class="separator:ad38da21850e6af416273a794e63ede41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43b4b66f5b3f59d16a8378b3b543a731"><td class="memTemplParams" colspan="2">template&lt;typename T , typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </td></tr>
+<tr class="memitem:a43b4b66f5b3f59d16a8378b3b543a731"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; allocator_type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a43b4b66f5b3f59d16a8378b3b543a731">value_from</a> (T &amp;&amp;input_data, const allocator_type &amp;allocator)</td></tr>
+<tr class="memdesc:a43b4b66f5b3f59d16a8378b3b543a731"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert an input data and construct a JSON value.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a43b4b66f5b3f59d16a8378b3b543a731">More...</a><br /></td></tr>
+<tr class="separator:a43b4b66f5b3f59d16a8378b3b543a731"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf83280b338a7799d988ffa08430c6c5"><td class="memTemplParams" colspan="2">template&lt;typename T , typename allocator_type &gt; </td></tr>
 <tr class="memitem:abf83280b338a7799d988ffa08430c6c5"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#abf83280b338a7799d988ffa08430c6c5">value_to</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">mj::value</a>&lt; allocator_type &gt; &amp;<a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>)</td></tr>
 <tr class="memdesc:abf83280b338a7799d988ffa08430c6c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a JSON value to another data type.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#abf83280b338a7799d988ffa08430c6c5">More...</a><br /></td></tr>
@@ -195,32 +198,32 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab1a4e85413d0bf18e457180026f37a41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab1a4e85413d0bf18e457180026f37a41">&#9670;&nbsp;</a></span>key_value_pair</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">using <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#ab1a4e85413d0bf18e457180026f37a41">metall::container::experimental::json::key_value_pair</a> = typedef <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html">basic_key_value_pair</a>&lt;char, std::char_traits&lt;char&gt;, allocator_type&gt;</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>A <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html" title="A class for holding a pair of JSON string (as its key) and JSON value (as its value).">basic_key_value_pair</a> type that uses char as its char type. </p>
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="a40033d533c7cd3bbe7913b3663acfd45"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a40033d533c7cd3bbe7913b3663acfd45">&#9670;&nbsp;</a></span>parse()</h2>
+<a id="af32d8fd6746c4e2cd3beec2fcea71495"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af32d8fd6746c4e2cd3beec2fcea71495">&#9670;&nbsp;</a></span>object</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename allocator_type &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">metall::container::experimental::json::object</a> = typedef <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">compact_object</a>&lt;allocator_type&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>JSON object. An object is a table key and value pairs. The order of key-value pairs depends on the implementation. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a78a8ca04654620703e0e226c44c1aab1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78a8ca04654620703e0e226c44c1aab1">&#9670;&nbsp;</a></span>parse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -234,7 +237,7 @@ template&lt;typename allocator_type &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">allocator_type&#160;</td>
+          <td class="paramtype">const allocator_type &amp;&#160;</td>
           <td class="paramname"><em>allocator</em> = <code>allocator_type()</code>&#160;</td>
         </tr>
         <tr>
@@ -321,7 +324,7 @@ template&lt;typename allocator_type , int indent_size = 2&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="json_create_8cpp-example.html#a6">json_create.cpp</a>, and <a class="el" href="json_open_8cpp-example.html#a4">json_open.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="jgraph_8cpp-example.html#a6">jgraph.cpp</a>, <a class="el" href="json_create_8cpp-example.html#a6">json_create.cpp</a>, and <a class="el" href="json_open_8cpp-example.html#a4">json_open.cpp</a>.</dd>
 </dl>
 
 </div>
@@ -357,7 +360,7 @@ template&lt;typename allocator_type &gt; </div>
         <tr>
           <td class="memname">std::string metall::container::experimental::json::serialize </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1object.html">mj::object</a>&lt; allocator_type &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">mj::object</a>&lt; allocator_type &gt; &amp;&#160;</td>
           <td class="paramname"><em>input</em></td><td>)</td>
           <td></td>
         </tr>
@@ -453,7 +456,7 @@ template&lt;typename allocator_type &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1object.html">mj::object</a>&lt; allocator_type &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">mj::object</a>&lt; allocator_type &gt; &amp;&#160;</td>
           <td class="paramname"><em>obj</em>&#160;</td>
         </tr>
         <tr>
@@ -496,13 +499,13 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="ad38da21850e6af416273a794e63ede41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad38da21850e6af416273a794e63ede41">&#9670;&nbsp;</a></span>value_from()</h2>
+<a id="a43b4b66f5b3f59d16a8378b3b543a731"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43b4b66f5b3f59d16a8378b3b543a731">&#9670;&nbsp;</a></span>value_from()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T , typename allocator_type &gt; </div>
+template&lt;typename T , typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt;allocator_type&gt; metall::container::experimental::json::value_from </td>
@@ -513,7 +516,7 @@ template&lt;typename T , typename allocator_type &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">allocator_type&#160;</td>
+          <td class="paramtype">const allocator_type &amp;&#160;</td>
           <td class="paramname"><em>allocator</em>&#160;</td>
         </tr>
         <tr>

@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -102,6 +102,7 @@ $(document).ready(function(){initNavTree('parse_8hpp.html',''); initResizable();
 <div class="contents">
 <div class="textblock"><code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
+<code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;boost/json/src.hpp&gt;</code><br />
 <code>#include &lt;<a class="el" href="json__fwd_8hpp_source.html">metall/container/experimental/json/json_fwd.hpp</a>&gt;</code><br />
 </div>
@@ -124,10 +125,10 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a40033d533c7cd3bbe7913b3663acfd45"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:a40033d533c7cd3bbe7913b3663acfd45"><td class="memTemplItemLeft" align="right" valign="top">value&lt; allocator_type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a40033d533c7cd3bbe7913b3663acfd45">metall::container::experimental::json::parse</a> (std::string_view input_json_string, allocator_type allocator=allocator_type())</td></tr>
-<tr class="memdesc:a40033d533c7cd3bbe7913b3663acfd45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses a JSON represented as a string.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a40033d533c7cd3bbe7913b3663acfd45">More...</a><br /></td></tr>
-<tr class="separator:a40033d533c7cd3bbe7913b3663acfd45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78a8ca04654620703e0e226c44c1aab1"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </td></tr>
+<tr class="memitem:a78a8ca04654620703e0e226c44c1aab1"><td class="memTemplItemLeft" align="right" valign="top">value&lt; allocator_type &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a78a8ca04654620703e0e226c44c1aab1">metall::container::experimental::json::parse</a> (std::string_view input_json_string, const allocator_type &amp;allocator=allocator_type())</td></tr>
+<tr class="memdesc:a78a8ca04654620703e0e226c44c1aab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses a JSON represented as a string.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a78a8ca04654620703e0e226c44c1aab1">More...</a><br /></td></tr>
+<tr class="separator:a78a8ca04654620703e0e226c44c1aab1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

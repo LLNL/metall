@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['jgraph_353',['jgraph',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html',1,'metall::container::experimental::jgraph']]]
+  ['indexed_5fobject_362',['indexed_object',['../classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object.html',1,'metall::container::experimental::json']]]
 ];

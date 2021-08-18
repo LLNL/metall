@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -290,6 +290,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4e71f9e005a4c87d0de9bc55df9db3b0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html#a4e71f9e005a4c87d0de9bc55df9db3b0">deallocate</a> (void *addr) noexcept</td></tr>
 <tr class="memdesc:a4e71f9e005a4c87d0de9bc55df9db3b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocates the allocated memory.  <a href="classmetall_1_1basic__manager.html#a4e71f9e005a4c87d0de9bc55df9db3b0">More...</a><br /></td></tr>
 <tr class="separator:a4e71f9e005a4c87d0de9bc55df9db3b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add478066a22f395c5e243eef20cfe268"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html#add478066a22f395c5e243eef20cfe268">all_memory_deallocated</a> () const</td></tr>
+<tr class="memdesc:add478066a22f395c5e243eef20cfe268"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if all allocated memory has been deallocated.  <a href="classmetall_1_1basic__manager.html#add478066a22f395c5e243eef20cfe268">More...</a><br /></td></tr>
+<tr class="separator:add478066a22f395c5e243eef20cfe268"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57d2ee578e6de1fdbc5f541657cfb6b0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html#a57d2ee578e6de1fdbc5f541657cfb6b0">flush</a> (const bool synchronous=true) noexcept</td></tr>
 <tr class="memdesc:a57d2ee578e6de1fdbc5f541657cfb6b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush data to persistent memory.  <a href="classmetall_1_1basic__manager.html#a57d2ee578e6de1fdbc5f541657cfb6b0">More...</a><br /></td></tr>
 <tr class="separator:a57d2ee578e6de1fdbc5f541657cfb6b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2148,6 +2151,36 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="add478066a22f395c5e243eef20cfe268"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add478066a22f395c5e243eef20cfe268">&#9670;&nbsp;</a></span>all_memory_deallocated()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL &lt;&lt; 21ULL)&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classmetall_1_1basic__manager.html">metall::basic_manager</a>&lt; chunk_no_type, k_chunk_size &gt;::all_memory_deallocated </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check if all allocated memory has been deallocated. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns true if all allocated memory has been deallocated; otherwise, false. </dd></dl>
 
 </div>
 </div>

@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -95,8 +95,7 @@ $(document).ready(function(){initNavTree('key__value__pair_8hpp.html',''); initR
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#namespaces">Namespaces</a>  </div>
   <div class="headertitle">
 <div class="title">key_value_pair.hpp File Reference</div>  </div>
 </div><!--header-->
@@ -105,14 +104,15 @@ $(document).ready(function(){initNavTree('key__value__pair_8hpp.html',''); initR
 <code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;<a class="el" href="offset__ptr_8hpp_source.html">metall/offset_ptr.hpp</a>&gt;</code><br />
+<code>#include &lt;metall/detail/utilities.hpp&gt;</code><br />
 <code>#include &lt;<a class="el" href="json__fwd_8hpp_source.html">metall/container/experimental/json/json_fwd.hpp</a>&gt;</code><br />
 </div>
 <p><a href="key__value__pair_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html">metall::container::experimental::json::basic_key_value_pair&lt; char_type, char_traits, _allocator_type &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class for holding a pair of JSON string (as its key) and JSON value (as its value).  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html">metall::container::experimental::json::key_value_pair&lt; _char_type, _char_traits, _allocator_type &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class for holding a pair of JSON string (as its key) and JSON value (as its value).  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -129,13 +129,6 @@ Namespaces</h2></td></tr>
 <tr class="memitem:namespacemetall_1_1container_1_1experimental_1_1json"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a></td></tr>
 <tr class="memdesc:namespacemetall_1_1container_1_1experimental_1_1json"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall JSON container, which is in an experimental phase. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
-Typedefs</h2></td></tr>
-<tr class="memitem:ab1a4e85413d0bf18e457180026f37a41"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type  = std::allocator&lt;std::byte&gt;&gt; </td></tr>
-<tr class="memitem:ab1a4e85413d0bf18e457180026f37a41"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#ab1a4e85413d0bf18e457180026f37a41">metall::container::experimental::json::key_value_pair</a> = basic_key_value_pair&lt; char, std::char_traits&lt; char &gt;, allocator_type &gt;</td></tr>
-<tr class="memdesc:ab1a4e85413d0bf18e457180026f37a41"><td class="mdescLeft">&#160;</td><td class="mdescRight">A <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html" title="A class for holding a pair of JSON string (as its key) and JSON value (as its value).">basic_key_value_pair</a> type that uses char as its char type.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#ab1a4e85413d0bf18e457180026f37a41">More...</a><br /></td></tr>
-<tr class="separator:ab1a4e85413d0bf18e457180026f37a41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

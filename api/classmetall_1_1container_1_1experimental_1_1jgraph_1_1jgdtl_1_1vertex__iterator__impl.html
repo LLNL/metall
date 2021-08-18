@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -106,12 +106,12 @@ $(document).ready(function(){initNavTree('classmetall_1_1container_1_1experiment
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a3b2edac95a383ca262e82751b24a97e7"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a3b2edac95a383ca262e82751b24a97e7">value_type</a> = typename std::iterator_traits&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a3b2edac95a383ca262e82751b24a97e7">value_type</a></td></tr>
-<tr class="separator:a3b2edac95a383ca262e82751b24a97e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4eb4e5240fba7677de4d18730b64cfa"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a> = typename std::iterator_traits&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a></td></tr>
-<tr class="separator:ab4eb4e5240fba7677de4d18730b64cfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a254f1e91907926d8a58288ae35157598"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a> = typename std::iterator_traits&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a></td></tr>
-<tr class="separator:a254f1e91907926d8a58288ae35157598"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ac153f03fee777a84463a47b33dff44"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a8ac153f03fee777a84463a47b33dff44">value_type</a> = std::conditional_t&lt; is_const_value, const raw_value_type, raw_value_type &gt;</td></tr>
+<tr class="separator:a8ac153f03fee777a84463a47b33dff44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae603560858b2cafe898cdda61bbcd86f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a> = typename std::pointer_traits&lt; typename std::iterator_traits&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a> &gt;::template rebind&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a8ac153f03fee777a84463a47b33dff44">value_type</a> &gt;</td></tr>
+<tr class="separator:ae603560858b2cafe898cdda61bbcd86f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7e41a4dfe990f1a62ee96e26041837c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ad7e41a4dfe990f1a62ee96e26041837c">reference</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a8ac153f03fee777a84463a47b33dff44">value_type</a> &amp;</td></tr>
+<tr class="separator:ad7e41a4dfe990f1a62ee96e26041837c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38fea5704eb52ba6f8a88316934bf8fe"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a38fea5704eb52ba6f8a88316934bf8fe">difference_type</a> = typename std::iterator_traits&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a38fea5704eb52ba6f8a88316934bf8fe">difference_type</a></td></tr>
 <tr class="separator:a38fea5704eb52ba6f8a88316934bf8fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -133,18 +133,18 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a507d3198f37e9bdaf861643e369686df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ed45b5c757e6de90edd82b499396600"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a3ed45b5c757e6de90edd82b499396600">equal</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">vertex_iterator_impl</a> &amp;other) const</td></tr>
 <tr class="separator:a3ed45b5c757e6de90edd82b499396600"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99be7d0b1bfd2e15ad115f85c983f784"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a99be7d0b1bfd2e15ad115f85c983f784">operator-&gt;</a> ()</td></tr>
+<tr class="memitem:a99be7d0b1bfd2e15ad115f85c983f784"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a99be7d0b1bfd2e15ad115f85c983f784">operator-&gt;</a> ()</td></tr>
 <tr class="separator:a99be7d0b1bfd2e15ad115f85c983f784"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af7ac5116aafc4c0a8cdce473a952f330"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#af7ac5116aafc4c0a8cdce473a952f330">operator-&gt;</a> () const</td></tr>
+<tr class="memitem:af7ac5116aafc4c0a8cdce473a952f330"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#af7ac5116aafc4c0a8cdce473a952f330">operator-&gt;</a> () const</td></tr>
 <tr class="separator:af7ac5116aafc4c0a8cdce473a952f330"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e2538a7f18a0a8c5354b7cbe7aa1776"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a7e2538a7f18a0a8c5354b7cbe7aa1776">operator*</a> ()</td></tr>
+<tr class="memitem:a7e2538a7f18a0a8c5354b7cbe7aa1776"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ad7e41a4dfe990f1a62ee96e26041837c">reference</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a7e2538a7f18a0a8c5354b7cbe7aa1776">operator*</a> ()</td></tr>
 <tr class="separator:a7e2538a7f18a0a8c5354b7cbe7aa1776"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88ececf475ebd2001c6b653809f1ddeb"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a88ececf475ebd2001c6b653809f1ddeb">operator*</a> () const</td></tr>
+<tr class="memitem:a88ececf475ebd2001c6b653809f1ddeb"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ad7e41a4dfe990f1a62ee96e26041837c">reference</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a88ececf475ebd2001c6b653809f1ddeb">operator*</a> () const</td></tr>
 <tr class="separator:a88ececf475ebd2001c6b653809f1ddeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a3b2edac95a383ca262e82751b24a97e7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3b2edac95a383ca262e82751b24a97e7">&#9670;&nbsp;</a></span>value_type</h2>
+<a id="a8ac153f03fee777a84463a47b33dff44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ac153f03fee777a84463a47b33dff44">&#9670;&nbsp;</a></span>value_type</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -152,15 +152,15 @@ Public Member Functions</h2></td></tr>
 template&lt;typename storage_iterator_type &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a3b2edac95a383ca262e82751b24a97e7">value_type</a> =  typename std::iterator_traits&lt;storage_iterator_type&gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a3b2edac95a383ca262e82751b24a97e7">value_type</a></td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a8ac153f03fee777a84463a47b33dff44">value_type</a> =  std::conditional_t&lt;is_const_value, const raw_value_type, raw_value_type&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="ab4eb4e5240fba7677de4d18730b64cfa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab4eb4e5240fba7677de4d18730b64cfa">&#9670;&nbsp;</a></span>pointer</h2>
+<a id="ae603560858b2cafe898cdda61bbcd86f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae603560858b2cafe898cdda61bbcd86f">&#9670;&nbsp;</a></span>pointer</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -168,15 +168,15 @@ template&lt;typename storage_iterator_type &gt; </div>
 template&lt;typename storage_iterator_type &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a> =  typename std::iterator_traits&lt;storage_iterator_type&gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a></td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a> =  typename std::pointer_traits&lt;typename std::iterator_traits&lt;storage_iterator_type&gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a>&gt;::template rebind&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a8ac153f03fee777a84463a47b33dff44">value_type</a>&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a254f1e91907926d8a58288ae35157598"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a254f1e91907926d8a58288ae35157598">&#9670;&nbsp;</a></span>reference</h2>
+<a id="ad7e41a4dfe990f1a62ee96e26041837c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7e41a4dfe990f1a62ee96e26041837c">&#9670;&nbsp;</a></span>reference</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -184,7 +184,7 @@ template&lt;typename storage_iterator_type &gt; </div>
 template&lt;typename storage_iterator_type &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a> =  typename std::iterator_traits&lt;storage_iterator_type&gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a></td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ad7e41a4dfe990f1a62ee96e26041837c">reference</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a8ac153f03fee777a84463a47b33dff44">value_type</a> &amp;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -444,7 +444,7 @@ template&lt;typename storage_iterator_type &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator-&gt; </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator-&gt; </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -471,7 +471,7 @@ template&lt;typename storage_iterator_type &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ab4eb4e5240fba7677de4d18730b64cfa">pointer</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator-&gt; </td>
+          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ae603560858b2cafe898cdda61bbcd86f">pointer</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator-&gt; </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -498,7 +498,7 @@ template&lt;typename storage_iterator_type &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator* </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ad7e41a4dfe990f1a62ee96e26041837c">reference</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator* </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -525,7 +525,7 @@ template&lt;typename storage_iterator_type &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a254f1e91907926d8a58288ae35157598">reference</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator* </td>
+          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#ad7e41a4dfe990f1a62ee96e26041837c">reference</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl</a>&lt; storage_iterator_type &gt;::operator* </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>

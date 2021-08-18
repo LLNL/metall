@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -114,6 +114,9 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 <li>adjacency_list()
 : <a class="el" href="classadjacency__list.html#a24d5976c74e5e4a0a4689556a7196ef2">adjacency_list&lt; vid_t, allocator_t &gt;</a>
 </li>
+<li>all_memory_deallocated()
+: <a class="el" href="classmetall_1_1basic__manager.html#add478066a22f395c5e243eef20cfe268">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+</li>
 <li>allocate()
 : <a class="el" href="classmetall_1_1basic__manager.html#a86580eab94bcf8aa5a7aeeff13bc97df">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1stl__allocator.html#a71341834b55ce31e88cea26ee963c817">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
@@ -125,9 +128,11 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 <li>allocator_type
 : <a class="el" href="classmetall_1_1basic__manager.html#a1b0ef8e2a0ebcb1555316b2b2dbd8dbb">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a952d71d3ff464014e4d91d0971400e07">metall::container::concurrent_map&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt;</a>
 , <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a2cd29ccf008f2c90bd2d6b80602a55bd">metall::container::experimental::json::array&lt; _allocator_type &gt;</a>
-, <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html#a4f37d300979eeb54995ebe949ed3fb88">metall::container::experimental::json::basic_key_value_pair&lt; char_type, char_traits, _allocator_type &gt;</a>
-, <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1object.html#ab0d825985dd99bcaf8c7f163bc7f27a2">metall::container::experimental::json::object&lt; _allocator_type &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3924c8df6b26f1a88cb1b946ba2df104">metall::container::experimental::json::compact_object&lt; _allocator_type &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object.html#a5f094ca0820d98cb6ce0a3d9756571d7">metall::container::experimental::json::indexed_object&lt; _allocator_type &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#ab18a3d773bd73ad4edc9811ea55dfcbe">metall::container::experimental::json::key_value_pair&lt; _char_type, _char_traits, _allocator_type &gt;</a>
 , <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#acd7d54544bc1d5b0a7dd23fb77a75eed">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>
 </li>
 <li>anonymous_begin()
@@ -152,13 +157,13 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 : <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a99c6cdda98a229ac731d0945340fee96">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>
 </li>
 <li>as_bool()
-: <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#afb5dffc9ca01e6f8b0abead1b60077f3">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>
+: <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a3a1ad3f3b9fe44b8fbc684b588cdc80d">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>
 </li>
 <li>as_double()
 : <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a1e495da3a062b3fe5cfdada8ed117988">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>
 </li>
 <li>as_int64()
-: <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#aadd2df52faf1da647f7050a1a620cffd">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>
+: <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#abd089d54fe3d8198ec9fc2d9ff56185d">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>
 </li>
 <li>as_object()
 : <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a9f7fdccb3e476b470981a42641e139fc">metall::container::experimental::json::value&lt; _allocator_type &gt;</a>

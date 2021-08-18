@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['logger_354',['logger',['../classmetall_1_1logger.html',1,'metall']]]
+  ['jgraph_363',['jgraph',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html',1,'metall::container::experimental::jgraph']]]
 ];

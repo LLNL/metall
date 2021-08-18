@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Metall: metall::container::experimental::jgraph::jgraph&lt; allocator_type &gt; Class Template Reference</title>
+<title>Metall: metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -99,129 +99,152 @@ $(document).ready(function(){initNavTree('classmetall_1_1container_1_1experiment
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">metall::container::experimental::jgraph::jgraph&lt; allocator_type &gt; Class Template Reference</div>  </div>
+<div class="title">metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p>JSON Graph which can be used with Metall. Supported graph type: There is a single 'JSON value' data per vertex and edge Every vertex and edge has an unique ID.  
- <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="jgraph_8hpp_source.html">/home/runner/work/metall/metall/include/metall/container/experimental/jgraph/jgraph.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a01e0883dcca2ab3bda879f42260db0f5"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a> = typename <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html#aa457d6d64c6a5d6fa5216913fe39e740">key_value_pair_type::value_type</a></td></tr>
-<tr class="memdesc:a01e0883dcca2ab3bda879f42260db0f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON value type every vertex and edge has.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">More...</a><br /></td></tr>
-<tr class="separator:a01e0883dcca2ab3bda879f42260db0f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abad1bcb49685e76f379e87dd41bf5d87"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abad1bcb49685e76f379e87dd41bf5d87">vertex_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt; typename vertex_storage_type::iterator &gt;</td></tr>
-<tr class="memdesc:abad1bcb49685e76f379e87dd41bf5d87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vertex iterator over a container of vertex data, which is metall::container::experimental::json::key_value_pair_type.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abad1bcb49685e76f379e87dd41bf5d87">More...</a><br /></td></tr>
-<tr class="separator:abad1bcb49685e76f379e87dd41bf5d87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3f7a1687c0cb71cd210385bf78404ff"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af3f7a1687c0cb71cd210385bf78404ff">const_vertex_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt; typename vertex_storage_type::const_iterator &gt;</td></tr>
-<tr class="memdesc:af3f7a1687c0cb71cd210385bf78404ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Const vertex iterator.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af3f7a1687c0cb71cd210385bf78404ff">More...</a><br /></td></tr>
-<tr class="separator:af3f7a1687c0cb71cd210385bf78404ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7442ba773652b96f6be778cd6d0f9df7"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7442ba773652b96f6be778cd6d0f9df7">edge_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt; typename dst_vertex_directory_type::iterator, typename std::pointer_traits&lt; typename std::allocator_traits&lt; allocator_type &gt;::pointer &gt;::template rebind&lt; edge_storage_type &gt;, typename edge_storage_type::value_type &gt;</td></tr>
-<tr class="memdesc:a7442ba773652b96f6be778cd6d0f9df7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Edge iterator over a container of edge data, which is metall::container::experimental::json::key_value_pair_type.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7442ba773652b96f6be778cd6d0f9df7">More...</a><br /></td></tr>
-<tr class="separator:a7442ba773652b96f6be778cd6d0f9df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31909c03ab0ea38d3bb89bf006464734"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">const_edge_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt; typename dst_vertex_directory_type::const_iterator, typename std::pointer_traits&lt; typename std::allocator_traits&lt; allocator_type &gt;::const_pointer &gt;::template rebind&lt; edge_storage_type &gt;, const typename edge_storage_type::value_type &gt;</td></tr>
-<tr class="memdesc:a31909c03ab0ea38d3bb89bf006464734"><td class="mdescLeft">&#160;</td><td class="mdescRight">Const edge iterator.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">More...</a><br /></td></tr>
-<tr class="separator:a31909c03ab0ea38d3bb89bf006464734"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34974bedae5c9e91251d91591e7ba9ee"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> = _allocator_type</td></tr>
+<tr class="separator:a34974bedae5c9e91251d91591e7ba9ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1826403d1f812649cf36c44e14ebd417"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> = std::string_view</td></tr>
+<tr class="memdesc:a1826403d1f812649cf36c44e14ebd417"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of vertex ID and edge ID.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">More...</a><br /></td></tr>
+<tr class="separator:a1826403d1f812649cf36c44e14ebd417"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c22abac0cedb67514febcb4d9e558f6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a8c22abac0cedb67514febcb4d9e558f6">value_type</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">mj::value</a>&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> &gt;</td></tr>
+<tr class="memdesc:a8c22abac0cedb67514febcb4d9e558f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON value type every vertex and edge has,.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a8c22abac0cedb67514febcb4d9e558f6">More...</a><br /></td></tr>
+<tr class="separator:a8c22abac0cedb67514febcb4d9e558f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24db62659a2eb15f9870aa4d70389c9d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt; typename vertex_storage_type::iterator &gt;</td></tr>
+<tr class="memdesc:a24db62659a2eb15f9870aa4d70389c9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vertex iterator over a container of vertex data, which is metall::container::experimental::json::key_value_pair_type.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">More...</a><br /></td></tr>
+<tr class="separator:a24db62659a2eb15f9870aa4d70389c9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1647aabbbb70f9308fc5abfa6eea39c6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt; typename vertex_storage_type::const_iterator &gt;</td></tr>
+<tr class="memdesc:a1647aabbbb70f9308fc5abfa6eea39c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Const vertex iterator.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">More...</a><br /></td></tr>
+<tr class="separator:a1647aabbbb70f9308fc5abfa6eea39c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae88032859ca4a41f4f1430837302ab26"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt; typename adj_list_edge_list_type::iterator, typename std::pointer_traits&lt; typename std::allocator_traits&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> &gt;::pointer &gt;::template rebind&lt; edge_storage_type &gt; &gt;</td></tr>
+<tr class="memdesc:ae88032859ca4a41f4f1430837302ab26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Edge iterator over a container of edge data, which is metall::container::experimental::json::key_value_pair_type.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">More...</a><br /></td></tr>
+<tr class="separator:ae88032859ca4a41f4f1430837302ab26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa56c66669285fee181e33f3b30ae4011"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aa56c66669285fee181e33f3b30ae4011">const_edge_iterator</a> = <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt; typename adj_list_edge_list_type::const_iterator, typename std::pointer_traits&lt; typename std::allocator_traits&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> &gt;::pointer &gt;::template rebind&lt; const edge_storage_type &gt; &gt;</td></tr>
+<tr class="memdesc:aa56c66669285fee181e33f3b30ae4011"><td class="mdescLeft">&#160;</td><td class="mdescRight">Const edge iterator.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aa56c66669285fee181e33f3b30ae4011">More...</a><br /></td></tr>
+<tr class="separator:aa56c66669285fee181e33f3b30ae4011"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0033fb02a8e3055b0767c4e992f92eab"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a0033fb02a8e3055b0767c4e992f92eab">jgraph</a> (const allocator_type &amp;alloc=allocator_type())</td></tr>
-<tr class="memdesc:a0033fb02a8e3055b0767c4e992f92eab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a0033fb02a8e3055b0767c4e992f92eab">More...</a><br /></td></tr>
-<tr class="separator:a0033fb02a8e3055b0767c4e992f92eab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf82948935d8db56a4aae05641d74ce4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#acf82948935d8db56a4aae05641d74ce4">has_vertex</a> (const std::string_view &amp;vertex_id) const</td></tr>
-<tr class="memdesc:acf82948935d8db56a4aae05641d74ce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if a vertex exists.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#acf82948935d8db56a4aae05641d74ce4">More...</a><br /></td></tr>
-<tr class="separator:acf82948935d8db56a4aae05641d74ce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a009515e68f7a289be7018a4afa99249d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a009515e68f7a289be7018a4afa99249d">has_edge</a> (const std::string_view &amp;edge_id) const</td></tr>
-<tr class="memdesc:a009515e68f7a289be7018a4afa99249d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if an edge exists.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a009515e68f7a289be7018a4afa99249d">More...</a><br /></td></tr>
-<tr class="separator:a009515e68f7a289be7018a4afa99249d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad171caa0ad2b043a4154c0dbd6a82273"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ad171caa0ad2b043a4154c0dbd6a82273">register_vertex</a> (const std::string_view &amp;vertex_id)</td></tr>
-<tr class="memdesc:ad171caa0ad2b043a4154c0dbd6a82273"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a vertex.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ad171caa0ad2b043a4154c0dbd6a82273">More...</a><br /></td></tr>
-<tr class="separator:ad171caa0ad2b043a4154c0dbd6a82273"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fa0673b597fc4b292a965fe21116966"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a9fa0673b597fc4b292a965fe21116966">register_edge</a> (const std::string_view &amp;source_id, const std::string_view &amp;destination_id, const std::string_view &amp;edge_id)</td></tr>
-<tr class="memdesc:a9fa0673b597fc4b292a965fe21116966"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers an edge.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a9fa0673b597fc4b292a965fe21116966">More...</a><br /></td></tr>
-<tr class="separator:a9fa0673b597fc4b292a965fe21116966"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a668d5dac4c0fc802a884a4ee211369bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a668d5dac4c0fc802a884a4ee211369bb">vertex_value</a> (const std::string_view &amp;vertex_id)</td></tr>
-<tr class="memdesc:a668d5dac4c0fc802a884a4ee211369bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a668d5dac4c0fc802a884a4ee211369bb">More...</a><br /></td></tr>
-<tr class="separator:a668d5dac4c0fc802a884a4ee211369bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae2de681d738a5cf187d68a608506bfc"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aae2de681d738a5cf187d68a608506bfc">vertex_value</a> (const std::string_view &amp;vertex_id) const</td></tr>
-<tr class="memdesc:aae2de681d738a5cf187d68a608506bfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Const version of <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a668d5dac4c0fc802a884a4ee211369bb" title="Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id.">vertex_value()</a>.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aae2de681d738a5cf187d68a608506bfc">More...</a><br /></td></tr>
-<tr class="separator:aae2de681d738a5cf187d68a608506bfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a459a122f70902e5f7605cd5b1282fe9a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a459a122f70902e5f7605cd5b1282fe9a">edge_value</a> (const std::string_view &amp;edge_id)</td></tr>
-<tr class="memdesc:a459a122f70902e5f7605cd5b1282fe9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a reference to the value of the existing edge whose key is equivalent to edge_id.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a459a122f70902e5f7605cd5b1282fe9a">More...</a><br /></td></tr>
-<tr class="separator:a459a122f70902e5f7605cd5b1282fe9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad899bf4b08c6750b9f3f0fd9550aa618"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ad899bf4b08c6750b9f3f0fd9550aa618">edge_value</a> (const std::string_view &amp;edge_id) const</td></tr>
-<tr class="memdesc:ad899bf4b08c6750b9f3f0fd9550aa618"><td class="mdescLeft">&#160;</td><td class="mdescRight">Const version of <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a459a122f70902e5f7605cd5b1282fe9a" title="Returns a reference to the value of the existing edge whose key is equivalent to edge_id.">edge_value()</a>.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ad899bf4b08c6750b9f3f0fd9550aa618">More...</a><br /></td></tr>
-<tr class="separator:ad899bf4b08c6750b9f3f0fd9550aa618"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0288f4d59596319f3382c6efb194369"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ac0288f4d59596319f3382c6efb194369">num_vertices</a> () const</td></tr>
-<tr class="memdesc:ac0288f4d59596319f3382c6efb194369"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of vertices.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ac0288f4d59596319f3382c6efb194369">More...</a><br /></td></tr>
-<tr class="separator:ac0288f4d59596319f3382c6efb194369"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7682104c22afe6822f5b178472afa1e5"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7682104c22afe6822f5b178472afa1e5">num_edges</a> () const</td></tr>
-<tr class="memdesc:a7682104c22afe6822f5b178472afa1e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of edges.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7682104c22afe6822f5b178472afa1e5">More...</a><br /></td></tr>
-<tr class="separator:a7682104c22afe6822f5b178472afa1e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac05f77a3d1be9a4c1407b853a3a72c13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abad1bcb49685e76f379e87dd41bf5d87">vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ac05f77a3d1be9a4c1407b853a3a72c13">vertices_begin</a> ()</td></tr>
-<tr class="separator:ac05f77a3d1be9a4c1407b853a3a72c13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a199af1b2a36a9159cbcbe7fc86b09810"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af3f7a1687c0cb71cd210385bf78404ff">const_vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a199af1b2a36a9159cbcbe7fc86b09810">vertices_begin</a> () const</td></tr>
-<tr class="separator:a199af1b2a36a9159cbcbe7fc86b09810"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62de5c1cd54a56c879d353c6091ce46c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abad1bcb49685e76f379e87dd41bf5d87">vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a62de5c1cd54a56c879d353c6091ce46c">vertices_end</a> ()</td></tr>
-<tr class="separator:a62de5c1cd54a56c879d353c6091ce46c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a123009da95671675dd2162fd9b04bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af3f7a1687c0cb71cd210385bf78404ff">const_vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7a123009da95671675dd2162fd9b04bf">vertices_end</a> () const</td></tr>
-<tr class="separator:a7a123009da95671675dd2162fd9b04bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee6f9258f8dce992bda8e6041aa5ed5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7442ba773652b96f6be778cd6d0f9df7">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aee6f9258f8dce992bda8e6041aa5ed5f">edges_begin</a> (const std::string_view &amp;vid)</td></tr>
-<tr class="separator:aee6f9258f8dce992bda8e6041aa5ed5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf2cba54ab19ada1d4b51837db2d6f85"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#adf2cba54ab19ada1d4b51837db2d6f85">edges_begin</a> (const std::string_view &amp;vid) const</td></tr>
-<tr class="separator:adf2cba54ab19ada1d4b51837db2d6f85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c66c4df3a2e3039bca61fd04939a03e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7442ba773652b96f6be778cd6d0f9df7">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1c66c4df3a2e3039bca61fd04939a03e">edges_end</a> (const std::string_view &amp;vid)</td></tr>
-<tr class="separator:a1c66c4df3a2e3039bca61fd04939a03e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34ad4c4dd247fbbfe9e7237d271c0ad0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34ad4c4dd247fbbfe9e7237d271c0ad0">edges_end</a> (const std::string_view &amp;vid) const</td></tr>
-<tr class="separator:a34ad4c4dd247fbbfe9e7237d271c0ad0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd5f46fa4372a18d45b048e4fa0c5e8c"><td class="memItemLeft" align="right" valign="top">allocator_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abd5f46fa4372a18d45b048e4fa0c5e8c">get_allocator</a> () const</td></tr>
-<tr class="separator:abd5f46fa4372a18d45b048e4fa0c5e8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a62e273409f50892892de9f81a51872"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6a62e273409f50892892de9f81a51872">jgraph</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> &amp;alloc=<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a>())</td></tr>
+<tr class="memdesc:a6a62e273409f50892892de9f81a51872"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6a62e273409f50892892de9f81a51872">More...</a><br /></td></tr>
+<tr class="separator:a6a62e273409f50892892de9f81a51872"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d29d65443b1096f1a259a7f51bb6ca2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6d29d65443b1096f1a259a7f51bb6ca2">has_vertex</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vertex_id) const</td></tr>
+<tr class="memdesc:a6d29d65443b1096f1a259a7f51bb6ca2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if a vertex exists.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6d29d65443b1096f1a259a7f51bb6ca2">More...</a><br /></td></tr>
+<tr class="separator:a6d29d65443b1096f1a259a7f51bb6ca2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0edd7086eb99068168371a6afb2c268"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae0edd7086eb99068168371a6afb2c268">has_edges</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;source_vertex_id, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;destination_vertex_id) const</td></tr>
+<tr class="separator:ae0edd7086eb99068168371a6afb2c268"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64820f412bb5ca97b03abbbc10f630ac"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a64820f412bb5ca97b03abbbc10f630ac">register_vertex</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vertex_id)</td></tr>
+<tr class="separator:a64820f412bb5ca97b03abbbc10f630ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a672766a6a09a90d4b271a3bf1751a85a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a672766a6a09a90d4b271a3bf1751a85a">register_edge</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;source_vertex_id, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;destination_vertex_id, const bool undirected=false)</td></tr>
+<tr class="separator:a672766a6a09a90d4b271a3bf1751a85a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7104a0bf0c6e15112ba6cc75de9217a9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7104a0bf0c6e15112ba6cc75de9217a9">find_vertex</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vertex_id)</td></tr>
+<tr class="separator:a7104a0bf0c6e15112ba6cc75de9217a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e1dad2625d250d19ab1e19ed42964f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a5e1dad2625d250d19ab1e19ed42964f0">find_vertex</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vertex_id) const</td></tr>
+<tr class="separator:a5e1dad2625d250d19ab1e19ed42964f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6465840cf3e8a926b54ae9a4940c25c5"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a>, <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6465840cf3e8a926b54ae9a4940c25c5">find_edges</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;source_vertex_id, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;destination_vertex_id)</td></tr>
+<tr class="separator:a6465840cf3e8a926b54ae9a4940c25c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bed9c366567c31e718d3cd1402d3681"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1bed9c366567c31e718d3cd1402d3681">num_vertices</a> () const</td></tr>
+<tr class="memdesc:a1bed9c366567c31e718d3cd1402d3681"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of vertices.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1bed9c366567c31e718d3cd1402d3681">More...</a><br /></td></tr>
+<tr class="separator:a1bed9c366567c31e718d3cd1402d3681"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b2bbd904c3b9ae27f8db43782c32ecd"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a9b2bbd904c3b9ae27f8db43782c32ecd">num_edges</a> () const</td></tr>
+<tr class="memdesc:a9b2bbd904c3b9ae27f8db43782c32ecd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of edges.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a9b2bbd904c3b9ae27f8db43782c32ecd">More...</a><br /></td></tr>
+<tr class="separator:a9b2bbd904c3b9ae27f8db43782c32ecd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af225baf66642c0c5e7944b1a41b3134e"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af225baf66642c0c5e7944b1a41b3134e">degree</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vertex_id) const</td></tr>
+<tr class="memdesc:af225baf66642c0c5e7944b1a41b3134e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the degree of the vertex corresponds to 'vid'.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af225baf66642c0c5e7944b1a41b3134e">More...</a><br /></td></tr>
+<tr class="separator:af225baf66642c0c5e7944b1a41b3134e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3a98c4550798af27fa7b463b9902f7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ad3a98c4550798af27fa7b463b9902f7d">vertices_begin</a> ()</td></tr>
+<tr class="separator:ad3a98c4550798af27fa7b463b9902f7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c251d4e06b180ab1977ee38fcdfcc74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a0c251d4e06b180ab1977ee38fcdfcc74">vertices_begin</a> () const</td></tr>
+<tr class="separator:a0c251d4e06b180ab1977ee38fcdfcc74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74d63b01437a3c56352afae700384ad7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a74d63b01437a3c56352afae700384ad7">vertices_end</a> ()</td></tr>
+<tr class="separator:a74d63b01437a3c56352afae700384ad7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6de115102e7e7018c70059c9923670bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6de115102e7e7018c70059c9923670bf">vertices_end</a> () const</td></tr>
+<tr class="separator:a6de115102e7e7018c70059c9923670bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6273de701ed515f18c97c0f685277866"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6273de701ed515f18c97c0f685277866">edges_begin</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vid)</td></tr>
+<tr class="separator:a6273de701ed515f18c97c0f685277866"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a042800efe556d17271a00ee5412146e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aa56c66669285fee181e33f3b30ae4011">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a042800efe556d17271a00ee5412146e3">edges_begin</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vid) const</td></tr>
+<tr class="separator:a042800efe556d17271a00ee5412146e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf3432602b5fce3023b4955b7395cfd5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#acf3432602b5fce3023b4955b7395cfd5">edges_end</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vid)</td></tr>
+<tr class="separator:acf3432602b5fce3023b4955b7395cfd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a742d80b928757e8fa00fed8c92606e57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aa56c66669285fee181e33f3b30ae4011">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a742d80b928757e8fa00fed8c92606e57">edges_end</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;vid) const</td></tr>
+<tr class="separator:a742d80b928757e8fa00fed8c92606e57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66cdf39f4343f48a084c6d265aac3252"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a66cdf39f4343f48a084c6d265aac3252">get_allocator</a> () const</td></tr>
+<tr class="separator:a66cdf39f4343f48a084c6d265aac3252"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;typename allocator_type&gt;<br />
-class metall::container::experimental::jgraph::jgraph&lt; allocator_type &gt;</h3>
+<div class="textblock"><h3>template&lt;typename _allocator_type = std::allocator&lt;std::byte&gt;&gt;<br />
+class metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt;</h3>
 
-<p>JSON Graph which can be used with Metall. Supported graph type: There is a single 'JSON value' data per vertex and edge Every vertex and edge has an unique ID. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">allocator_type</td><td>Allocator type. </td></tr>
-  </table>
-  </dd>
-</dl>
 <dl class="section examples"><dt>Examples</dt><dd><a class="el" href="jgraph_8cpp-example.html#_a0">jgraph.cpp</a>.</dd>
 </dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a01e0883dcca2ab3bda879f42260db0f5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a01e0883dcca2ab3bda879f42260db0f5">&#9670;&nbsp;</a></span>value_type</h2>
+<a id="a34974bedae5c9e91251d91591e7ba9ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34974bedae5c9e91251d91591e7ba9ee">&#9670;&nbsp;</a></span>allocator_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a> =  typename <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1basic__key__value__pair.html#aa457d6d64c6a5d6fa5216913fe39e740">key_value_pair_type::value_type</a></td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> =  _allocator_type</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>JSON value type every vertex and edge has. </p>
-
 </div>
 </div>
-<a id="abad1bcb49685e76f379e87dd41bf5d87"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abad1bcb49685e76f379e87dd41bf5d87">&#9670;&nbsp;</a></span>vertex_iterator</h2>
+<a id="a1826403d1f812649cf36c44e14ebd417"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1826403d1f812649cf36c44e14ebd417">&#9670;&nbsp;</a></span>id_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abad1bcb49685e76f379e87dd41bf5d87">vertex_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt;typename vertex_storage_type::iterator&gt;</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> =  std::string_view</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The type of vertex ID and edge ID. </p>
+
+</div>
+</div>
+<a id="a8c22abac0cedb67514febcb4d9e558f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c22abac0cedb67514febcb4d9e558f6">&#9670;&nbsp;</a></span>value_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a8c22abac0cedb67514febcb4d9e558f6">value_type</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">mj::value</a>&lt;<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>JSON value type every vertex and edge has,. </p>
+
+</div>
+</div>
+<a id="a24db62659a2eb15f9870aa4d70389c9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24db62659a2eb15f9870aa4d70389c9d">&#9670;&nbsp;</a></span>vertex_iterator</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt;typename vertex_storage_type::iterator&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -230,16 +253,16 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="af3f7a1687c0cb71cd210385bf78404ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af3f7a1687c0cb71cd210385bf78404ff">&#9670;&nbsp;</a></span>const_vertex_iterator</h2>
+<a id="a1647aabbbb70f9308fc5abfa6eea39c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1647aabbbb70f9308fc5abfa6eea39c6">&#9670;&nbsp;</a></span>const_vertex_iterator</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af3f7a1687c0cb71cd210385bf78404ff">const_vertex_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt;typename vertex_storage_type::const_iterator&gt;</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">jgdtl::vertex_iterator_impl</a>&lt;typename vertex_storage_type::const_iterator&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -248,16 +271,16 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a7442ba773652b96f6be778cd6d0f9df7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7442ba773652b96f6be778cd6d0f9df7">&#9670;&nbsp;</a></span>edge_iterator</h2>
+<a id="ae88032859ca4a41f4f1430837302ab26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae88032859ca4a41f4f1430837302ab26">&#9670;&nbsp;</a></span>edge_iterator</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7442ba773652b96f6be778cd6d0f9df7">edge_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt;typename dst_vertex_directory_type::iterator, typename std::pointer_traits&lt;typename std::allocator_traits&lt; allocator_type&gt;::pointer&gt;::template rebind&lt;edge_storage_type&gt;, typename edge_storage_type::value_type&gt;</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt;typename adj_list_edge_list_type::iterator, typename std::pointer_traits&lt;typename std::allocator_traits&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a>&gt;::pointer&gt;::template rebind&lt;edge_storage_type&gt; &gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -266,16 +289,16 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a31909c03ab0ea38d3bb89bf006464734"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31909c03ab0ea38d3bb89bf006464734">&#9670;&nbsp;</a></span>const_edge_iterator</h2>
+<a id="aa56c66669285fee181e33f3b30ae4011"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa56c66669285fee181e33f3b30ae4011">&#9670;&nbsp;</a></span>const_edge_iterator</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">const_edge_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt;typename dst_vertex_directory_type::const_iterator, typename std::pointer_traits&lt;typename std::allocator_traits&lt; allocator_type&gt;::const_pointer&gt;::template rebind&lt;edge_storage_type&gt;, const typename edge_storage_type::value_type&gt;</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aa56c66669285fee181e33f3b30ae4011">const_edge_iterator</a> =  <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">jgdtl::edge_iterator_impl</a>&lt;typename adj_list_edge_list_type::const_iterator, typename std::pointer_traits&lt;typename std::allocator_traits&lt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a>&gt;::pointer&gt;::template rebind&lt;const edge_storage_type&gt; &gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -285,22 +308,22 @@ template&lt;typename allocator_type &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a0033fb02a8e3055b0767c4e992f92eab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0033fb02a8e3055b0767c4e992f92eab">&#9670;&nbsp;</a></span>jgraph()</h2>
+<a id="a6a62e273409f50892892de9f81a51872"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a62e273409f50892892de9f81a51872">&#9670;&nbsp;</a></span>jgraph()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">jgraph</a> </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">jgraph</a> </td>
           <td>(</td>
-          <td class="paramtype">const allocator_type &amp;&#160;</td>
-          <td class="paramname"><em>alloc</em> = <code>allocator_type()</code></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>alloc</em> = <code><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a>()</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -322,21 +345,21 @@ template&lt;typename allocator_type &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="acf82948935d8db56a4aae05641d74ce4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acf82948935d8db56a4aae05641d74ce4">&#9670;&nbsp;</a></span>has_vertex()</h2>
+<a id="a6d29d65443b1096f1a259a7f51bb6ca2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d29d65443b1096f1a259a7f51bb6ca2">&#9670;&nbsp;</a></span>has_vertex()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::has_vertex </td>
+          <td class="memname">bool <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::has_vertex </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vertex_id</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -359,23 +382,33 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a009515e68f7a289be7018a4afa99249d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a009515e68f7a289be7018a4afa99249d">&#9670;&nbsp;</a></span>has_edge()</h2>
+<a id="ae0edd7086eb99068168371a6afb2c268"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0edd7086eb99068168371a6afb2c268">&#9670;&nbsp;</a></span>has_edges()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::has_edge </td>
+          <td class="memname">std::size_t <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::has_edges </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
-          <td class="paramname"><em>edge_id</em></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>source_vertex_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>destination_vertex_id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
         </tr>
       </table>
   </td>
@@ -385,32 +418,23 @@ template&lt;typename allocator_type &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Checks if an edge exists. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">edge_id</td><td>A edge ID to check. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns true if the edge exists; otherwise, returns false. </dd></dl>
-
 </div>
 </div>
-<a id="ad171caa0ad2b043a4154c0dbd6a82273"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad171caa0ad2b043a4154c0dbd6a82273">&#9670;&nbsp;</a></span>register_vertex()</h2>
+<a id="a64820f412bb5ca97b03abbbc10f630ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64820f412bb5ca97b03abbbc10f630ac">&#9670;&nbsp;</a></span>register_vertex()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::register_vertex </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::register_vertex </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vertex_id</em></td><td>)</td>
           <td></td>
         </tr>
@@ -422,45 +446,36 @@ template&lt;typename allocator_type &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Registers a vertex. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">vertex_id</td><td>A vertex ID. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns if the vertex is registered. Returns false if the same ID already exists. </dd></dl>
-
 </div>
 </div>
-<a id="a9fa0673b597fc4b292a965fe21116966"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9fa0673b597fc4b292a965fe21116966">&#9670;&nbsp;</a></span>register_edge()</h2>
+<a id="a672766a6a09a90d4b271a3bf1751a85a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a672766a6a09a90d4b271a3bf1751a85a">&#9670;&nbsp;</a></span>register_edge()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::register_edge </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::register_edge </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
-          <td class="paramname"><em>source_id</em>, </td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>source_vertex_id</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
-          <td class="paramname"><em>destination_id</em>, </td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>destination_vertex_id</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
-          <td class="paramname"><em>edge_id</em>&#160;</td>
+          <td class="paramtype">const bool&#160;</td>
+          <td class="paramname"><em>undirected</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -475,34 +490,23 @@ template&lt;typename allocator_type &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Registers an edge. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">source_id</td><td>A source vertex ID. </td></tr>
-    <tr><td class="paramname">destination_id</td><td>A destination vertex ID. </td></tr>
-    <tr><td class="paramname">edge_id</td><td>An edge ID to register. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns if the edge is registered. Returns false if the same ID already exists. </dd></dl>
-
 </div>
 </div>
-<a id="a668d5dac4c0fc802a884a4ee211369bb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a668d5dac4c0fc802a884a4ee211369bb">&#9670;&nbsp;</a></span>vertex_value() <span class="overload">[1/2]</span></h2>
+<a id="a7104a0bf0c6e15112ba6cc75de9217a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7104a0bf0c6e15112ba6cc75de9217a9">&#9670;&nbsp;</a></span>find_vertex() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::vertex_value </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::find_vertex </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vertex_id</em></td><td>)</td>
           <td></td>
         </tr>
@@ -514,34 +518,23 @@ template&lt;typename allocator_type &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">vertex_id</td><td>A vertex ID to find. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id. </dd></dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="jgraph_8cpp-example.html#a6">jgraph.cpp</a>.</dd>
-</dl>
-
 </div>
 </div>
-<a id="aae2de681d738a5cf187d68a608506bfc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae2de681d738a5cf187d68a608506bfc">&#9670;&nbsp;</a></span>vertex_value() <span class="overload">[2/2]</span></h2>
+<a id="a5e1dad2625d250d19ab1e19ed42964f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e1dad2625d250d19ab1e19ed42964f0">&#9670;&nbsp;</a></span>find_vertex() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::vertex_value </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::find_vertex </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vertex_id</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -553,27 +546,35 @@ template&lt;typename allocator_type &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Const version of <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a668d5dac4c0fc802a884a4ee211369bb" title="Returns a reference to the value of the existing vertex whose key is equivalent to vertex_id.">vertex_value()</a>. </p>
-
 </div>
 </div>
-<a id="a459a122f70902e5f7605cd5b1282fe9a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a459a122f70902e5f7605cd5b1282fe9a">&#9670;&nbsp;</a></span>edge_value() <span class="overload">[1/2]</span></h2>
+<a id="a6465840cf3e8a926b54ae9a4940c25c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6465840cf3e8a926b54ae9a4940c25c5">&#9670;&nbsp;</a></span>find_edges()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::edge_value </td>
+          <td class="memname">std::pair&lt;<a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a>, <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a>&gt; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::find_edges </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
-          <td class="paramname"><em>edge_id</em></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>source_vertex_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>destination_vertex_id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -583,60 +584,21 @@ template&lt;typename allocator_type &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Returns a reference to the value of the existing edge whose key is equivalent to edge_id. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">edge_id</td><td>A edge ID to find. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a reference to the value of the existing edge whose key is equivalent to edge_id. </dd></dl>
-
 </div>
 </div>
-<a id="ad899bf4b08c6750b9f3f0fd9550aa618"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad899bf4b08c6750b9f3f0fd9550aa618">&#9670;&nbsp;</a></span>edge_value() <span class="overload">[2/2]</span></h2>
+<a id="a1bed9c366567c31e718d3cd1402d3681"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1bed9c366567c31e718d3cd1402d3681">&#9670;&nbsp;</a></span>num_vertices()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a01e0883dcca2ab3bda879f42260db0f5">value_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::edge_value </td>
-          <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
-          <td class="paramname"><em>edge_id</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Const version of <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a459a122f70902e5f7605cd5b1282fe9a" title="Returns a reference to the value of the existing edge whose key is equivalent to edge_id.">edge_value()</a>. </p>
-
-</div>
-</div>
-<a id="ac0288f4d59596319f3382c6efb194369"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0288f4d59596319f3382c6efb194369">&#9670;&nbsp;</a></span>num_vertices()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::num_vertices </td>
+          <td class="memname">std::size_t <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::num_vertices </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -654,19 +616,19 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a7682104c22afe6822f5b178472afa1e5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7682104c22afe6822f5b178472afa1e5">&#9670;&nbsp;</a></span>num_edges()</h2>
+<a id="a9b2bbd904c3b9ae27f8db43782c32ecd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b2bbd904c3b9ae27f8db43782c32ecd">&#9670;&nbsp;</a></span>num_edges()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::size_t <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::num_edges </td>
+          <td class="memname">std::size_t <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::num_edges </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -684,19 +646,56 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="ac05f77a3d1be9a4c1407b853a3a72c13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac05f77a3d1be9a4c1407b853a3a72c13">&#9670;&nbsp;</a></span>vertices_begin() <span class="overload">[1/2]</span></h2>
+<a id="af225baf66642c0c5e7944b1a41b3134e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af225baf66642c0c5e7944b1a41b3134e">&#9670;&nbsp;</a></span>degree()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abad1bcb49685e76f379e87dd41bf5d87">vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::vertices_begin </td>
+          <td class="memname">std::size_t <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::degree </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>vertex_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the degree of the vertex corresponds to 'vid'. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">vid</td><td>A vertex ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns the degree of the vertex corresponds to 'vid'. If no vertex is associated with 'vid', returns 0. </dd></dl>
+
+</div>
+</div>
+<a id="ad3a98c4550798af27fa7b463b9902f7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3a98c4550798af27fa7b463b9902f7d">&#9670;&nbsp;</a></span>vertices_begin() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::vertices_begin </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -711,19 +710,19 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a199af1b2a36a9159cbcbe7fc86b09810"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a199af1b2a36a9159cbcbe7fc86b09810">&#9670;&nbsp;</a></span>vertices_begin() <span class="overload">[2/2]</span></h2>
+<a id="a0c251d4e06b180ab1977ee38fcdfcc74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c251d4e06b180ab1977ee38fcdfcc74">&#9670;&nbsp;</a></span>vertices_begin() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af3f7a1687c0cb71cd210385bf78404ff">const_vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::vertices_begin </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::vertices_begin </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -738,19 +737,19 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a62de5c1cd54a56c879d353c6091ce46c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a62de5c1cd54a56c879d353c6091ce46c">&#9670;&nbsp;</a></span>vertices_end() <span class="overload">[1/2]</span></h2>
+<a id="a74d63b01437a3c56352afae700384ad7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74d63b01437a3c56352afae700384ad7">&#9670;&nbsp;</a></span>vertices_end() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abad1bcb49685e76f379e87dd41bf5d87">vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::vertices_end </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a24db62659a2eb15f9870aa4d70389c9d">vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::vertices_end </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -765,19 +764,19 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a7a123009da95671675dd2162fd9b04bf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7a123009da95671675dd2162fd9b04bf">&#9670;&nbsp;</a></span>vertices_end() <span class="overload">[2/2]</span></h2>
+<a id="a6de115102e7e7018c70059c9923670bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6de115102e7e7018c70059c9923670bf">&#9670;&nbsp;</a></span>vertices_end() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af3f7a1687c0cb71cd210385bf78404ff">const_vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::vertices_end </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">const_vertex_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::vertices_end </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -792,21 +791,21 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="aee6f9258f8dce992bda8e6041aa5ed5f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee6f9258f8dce992bda8e6041aa5ed5f">&#9670;&nbsp;</a></span>edges_begin() <span class="overload">[1/2]</span></h2>
+<a id="a6273de701ed515f18c97c0f685277866"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6273de701ed515f18c97c0f685277866">&#9670;&nbsp;</a></span>edges_begin() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7442ba773652b96f6be778cd6d0f9df7">edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::edges_begin </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::edges_begin </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vid</em></td><td>)</td>
           <td></td>
         </tr>
@@ -820,21 +819,21 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="adf2cba54ab19ada1d4b51837db2d6f85"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adf2cba54ab19ada1d4b51837db2d6f85">&#9670;&nbsp;</a></span>edges_begin() <span class="overload">[2/2]</span></h2>
+<a id="a042800efe556d17271a00ee5412146e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a042800efe556d17271a00ee5412146e3">&#9670;&nbsp;</a></span>edges_begin() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">const_edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::edges_begin </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aa56c66669285fee181e33f3b30ae4011">const_edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::edges_begin </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vid</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -848,21 +847,21 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a1c66c4df3a2e3039bca61fd04939a03e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c66c4df3a2e3039bca61fd04939a03e">&#9670;&nbsp;</a></span>edges_end() <span class="overload">[1/2]</span></h2>
+<a id="acf3432602b5fce3023b4955b7395cfd5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf3432602b5fce3023b4955b7395cfd5">&#9670;&nbsp;</a></span>edges_end() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7442ba773652b96f6be778cd6d0f9df7">edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::edges_end </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#ae88032859ca4a41f4f1430837302ab26">edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::edges_end </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vid</em></td><td>)</td>
           <td></td>
         </tr>
@@ -876,21 +875,21 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="a34ad4c4dd247fbbfe9e7237d271c0ad0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a34ad4c4dd247fbbfe9e7237d271c0ad0">&#9670;&nbsp;</a></span>edges_end() <span class="overload">[2/2]</span></h2>
+<a id="a742d80b928757e8fa00fed8c92606e57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a742d80b928757e8fa00fed8c92606e57">&#9670;&nbsp;</a></span>edges_end() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a31909c03ab0ea38d3bb89bf006464734">const_edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::edges_end </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#aa56c66669285fee181e33f3b30ae4011">const_edge_iterator</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::edges_end </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417">id_type</a> &amp;&#160;</td>
           <td class="paramname"><em>vid</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -904,19 +903,19 @@ template&lt;typename allocator_type &gt; </div>
 
 </div>
 </div>
-<a id="abd5f46fa4372a18d45b048e4fa0c5e8c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abd5f46fa4372a18d45b048e4fa0c5e8c">&#9670;&nbsp;</a></span>get_allocator()</h2>
+<a id="a66cdf39f4343f48a084c6d265aac3252"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66cdf39f4343f48a084c6d265aac3252">&#9670;&nbsp;</a></span>get_allocator()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename allocator_type &gt; </div>
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">allocator_type <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; allocator_type &gt;::get_allocator </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a34974bedae5c9e91251d91591e7ba9ee">allocator_type</a> <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph</a>&lt; _allocator_type &gt;::get_allocator </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>

@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.15</span>
+   &#160;<span id="projectnumber">v0.16</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -106,8 +106,9 @@ $(document).ready(function(){initNavTree('jgraph_8hpp.html',''); initResizable()
 <code>#include &lt;functional&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
-<code>#include &lt;boost/unordered_map.hpp&gt;</code><br />
-<code>#include &lt;boost/container/vector.hpp&gt;</code><br />
+<code>#include &lt;<a class="el" href="unordered__map_8hpp_source.html">metall/container/unordered_map.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="vector_8hpp_source.html">metall/container/vector.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="scoped__allocator_8hpp_source.html">metall/container/scoped_allocator.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="hash_8hpp_source.html">metall/utility/hash.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="json_8hpp_source.html">metall/container/experimental/json/json.hpp</a>&gt;</code><br />
 </div>
@@ -115,19 +116,17 @@ $(document).ready(function(){initNavTree('jgraph_8hpp.html',''); initResizable()
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph&lt; allocator_type &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON Graph which can be used with Metall. Supported graph type: There is a single 'JSON value' data per vertex and edge Every vertex and edge has an unique ID.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl&lt; storage_iterator_type &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::edge_iterator_impl&lt; directory_iterator_type, storage_pointer_type, storage_value_type &gt;</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::edge_iterator_impl&lt; adj_list_edge_list_iterator_type, storage_pointer_type &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph&lt; allocator_type &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON Graph which can be used with Metall. Supported graph type: There is a single 'JSON value' data per vertex and edge Every vertex and edge has an unique ID.  <a href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html">metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl&lt; storage_iterator_type &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::edge_iterator_impl&lt; directory_iterator_type, storage_pointer_type, storage_value_type &gt;</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html">metall::container::experimental::jgraph::jgdtl::edge_iterator_impl&lt; adj_list_edge_list_iterator_type, storage_pointer_type &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -155,12 +154,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a9ef48fb79b7faff09f6472221b708a7a"><td class="memTemplParams" colspan="2">template&lt;typename storage_iterator_type &gt; </td></tr>
 <tr class="memitem:a9ef48fb79b7faff09f6472221b708a7a"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl.html#a9ef48fb79b7faff09f6472221b708a7a">metall::container::experimental::jgraph::jgdtl::operator!=</a> (const vertex_iterator_impl&lt; storage_iterator_type &gt; &amp;lhs, const vertex_iterator_impl&lt; storage_iterator_type &gt; &amp;rhs)</td></tr>
 <tr class="separator:a9ef48fb79b7faff09f6472221b708a7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac15544e287089f456e845943998872dd"><td class="memTemplParams" colspan="2">template&lt;typename directory_iterator_type , typename storage_pointer_type , typename storage_value_type &gt; </td></tr>
-<tr class="memitem:ac15544e287089f456e845943998872dd"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl.html#ac15544e287089f456e845943998872dd">metall::container::experimental::jgraph::jgdtl::operator==</a> (const edge_iterator_impl&lt; directory_iterator_type, storage_pointer_type, storage_value_type &gt; &amp;lhs, const edge_iterator_impl&lt; directory_iterator_type, storage_pointer_type, storage_value_type &gt; &amp;rhs)</td></tr>
-<tr class="separator:ac15544e287089f456e845943998872dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0d8cb8aa4f3b90c2f888cabf4fc8559"><td class="memTemplParams" colspan="2">template&lt;typename directory_iterator_type , typename storage_pointer_type , typename storage_value_type &gt; </td></tr>
-<tr class="memitem:ad0d8cb8aa4f3b90c2f888cabf4fc8559"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl.html#ad0d8cb8aa4f3b90c2f888cabf4fc8559">metall::container::experimental::jgraph::jgdtl::operator!=</a> (const edge_iterator_impl&lt; directory_iterator_type, storage_pointer_type, storage_value_type &gt; &amp;lhs, const edge_iterator_impl&lt; directory_iterator_type, storage_pointer_type, storage_value_type &gt; &amp;rhs)</td></tr>
-<tr class="separator:ad0d8cb8aa4f3b90c2f888cabf4fc8559"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac65a55f2f4df9336052d213d1a6edd8e"><td class="memTemplParams" colspan="2">template&lt;typename adj_list_edge_list_iterator_type , typename storage_pointer_type &gt; </td></tr>
+<tr class="memitem:ac65a55f2f4df9336052d213d1a6edd8e"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl.html#ac65a55f2f4df9336052d213d1a6edd8e">metall::container::experimental::jgraph::jgdtl::operator==</a> (const edge_iterator_impl&lt; adj_list_edge_list_iterator_type, storage_pointer_type &gt; &amp;lhs, const edge_iterator_impl&lt; adj_list_edge_list_iterator_type, storage_pointer_type &gt; &amp;rhs)</td></tr>
+<tr class="separator:ac65a55f2f4df9336052d213d1a6edd8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbd954ab357237effa2ab081c13f445f"><td class="memTemplParams" colspan="2">template&lt;typename adj_list_edge_list_iterator_type , typename storage_pointer_type &gt; </td></tr>
+<tr class="memitem:adbd954ab357237effa2ab081c13f445f"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl.html#adbd954ab357237effa2ab081c13f445f">metall::container::experimental::jgraph::jgdtl::operator!=</a> (const edge_iterator_impl&lt; adj_list_edge_list_iterator_type, storage_pointer_type &gt; &amp;lhs, const edge_iterator_impl&lt; adj_list_edge_list_iterator_type, storage_pointer_type &gt; &amp;rhs)</td></tr>
+<tr class="separator:adbd954ab357237effa2ab081c13f445f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
