@@ -773,11 +773,17 @@ class basic_manager {
 
   /// \brief Check if all allocated memory has been deallocated.
   /// \return Returns true if all allocated memory has been deallocated; otherwise, false.
-  bool all_memory_deallocated() const {
+  bool all_memory_deallocated() const noexcept {
     if (!check_sanity()) {
       return false;
     }
-    return m_kernel->all_memory_deallocated();
+
+    try {
+      return m_kernel->all_memory_deallocated();
+    } catch (...) {
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
+    }
+    return false;
   }
 
   // -------------------- Flush -------------------- //
