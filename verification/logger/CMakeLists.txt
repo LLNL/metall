@@ -1,1 +1,1 @@
-add_executable(logger logger)
+add_executable(logger logger.cpp)

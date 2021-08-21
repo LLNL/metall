@@ -1,1 +1,1 @@
-add_executable(show_object_sizes show_object_sizes)
+add_executable(show_object_sizes show_object_sizes.cpp)

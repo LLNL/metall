@@ -18,6 +18,8 @@ All core files exist under
 - GCC 8.1 or more
     - 8.3 or more is recommended due to early implementation of the Filesystem library
 
+- Boost C++ Libraries 1.64 or more
+    - Build is not required; needs only the header files. 
 
 ## Build Example
 

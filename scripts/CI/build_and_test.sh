@@ -121,6 +121,7 @@ main() {
             -DBUILD_DOC=OFF \
             -DBUILD_DOC_ONLY=OFF \
             -DBUILD_C=ON \
+            -DBUILD_EXAMPLE=ON \
             -DRUN_BUILD_AND_TEST_WITH_CI=ON \
             -DBUILD_VERIFICATION=OFF \
             -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF \
