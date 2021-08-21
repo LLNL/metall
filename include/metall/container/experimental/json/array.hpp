@@ -13,7 +13,6 @@
 #include <boost/container/scoped_allocator.hpp>
 
 #include <metall/container/experimental/json/json_fwd.hpp>
-#include <metall/container/experimental/json/value.hpp>
 
 namespace metall::container::experimental::json {
 
@@ -27,7 +26,8 @@ template <typename _allocator_type = std::allocator<std::byte>>
 class array {
  private:
   template <typename alloc, typename T>
-  using other_scoped_allocator = bc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<T>>;
+  using other_scoped_allocator = bc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<
+      T>>;
 
   using value_type = value<_allocator_type>;
   using aray_allocator_type = other_scoped_allocator<_allocator_type, value_type>;
@@ -112,19 +112,6 @@ class array {
  private:
   array_type m_array;
 };
-
-template <typename allocator_type>
-std::ostream &operator<<(std::ostream &os, const array<allocator_type> &data) {
-
-  os << "[";
-  for (std::size_t i = 0; i < data.size(); ++i) {
-    if (i > 0) os << ", ";
-    os << data[i];
-  }
-  os << "]";
-
-  return os;
-}
 
 } // namespace metall::container::experimental::json
 

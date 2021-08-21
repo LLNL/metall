@@ -11,6 +11,7 @@
 #include <cassert>
 #include <thread>
 #include <atomic>
+#include <memory>
 
 #include <metall/detail/file.hpp>
 #include <metall/detail/file_clone.hpp>
@@ -35,6 +36,8 @@ class mmap_segment_storage {
   // -------------------------------------------------------------------------------- //
   mmap_segment_storage() {
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
+    // TODO: implement msync for anonymous mapping
+    static_assert(true, "METALL_USE_ANONYMOUS_NEW_MAP does not work now");
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_ANONYMOUS_NEW_MAP is defined");
 #endif
 
@@ -592,9 +595,9 @@ class mmap_segment_storage {
       ss << "Sync files with " << num_threads << " threads";
       logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
     }
-    std::vector<std::thread *> threads(num_threads, nullptr);
+    std::vector<std::unique_ptr<std::thread>> threads(num_threads);
     for (auto &th : threads) {
-      th = new std::thread(diff_sync);
+      th =  std::make_unique<std::thread>(diff_sync);
     }
 
     for (auto &th : threads) {

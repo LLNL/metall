@@ -14,6 +14,7 @@
 #include <future>
 #include <iomanip>
 #include <limits>
+#include <set>
 
 #include <metall/kernel/bin_number_manager.hpp>
 #include <metall/kernel/bin_directory.hpp>
@@ -182,6 +183,15 @@ class segment_allocator {
     } else {
       priv_deallocate_large_object(chunk_no, bin_no);
     }
+  }
+
+  /// \brief Checks if all memory is deallocated.
+  bool all_memory_deallocated() const {
+#ifndef METALL_DISABLE_OBJECT_CACHE
+    if (!priv_check_all_small_allocations_are_deallocated())
+      return false;
+#endif
+    return m_chunk_directory.get_all_large_chunks().empty();
   }
 
   /// \brief
@@ -400,7 +410,7 @@ class segment_allocator {
   }
 
   void priv_deallocate_small_objects_from_global(const bin_no_type bin_no, const size_type num_deallocates,
-                                                 const difference_type *const offsets) {
+                                                 const difference_type offsets[]) {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
     lock_guard_type bin_guard(m_bin_mutex->at(bin_no));
 #endif
@@ -514,7 +524,7 @@ class segment_allocator {
 #ifndef METALL_DISABLE_OBJECT_CACHE
   void priv_clear_object_cache() {
     for (unsigned int c = 0; c < m_object_cache.num_caches(); ++c) {
-      for (bin_no_type b = 0; b < m_object_cache.max_bin_no(); ++b) {
+      for (bin_no_type b = 0; b <= m_object_cache.max_bin_no(); ++b) {
         for (auto itr = m_object_cache.begin(c, b), end = m_object_cache.end(c, b); itr != end; ++itr) {
           const auto offset = *itr;
           priv_deallocate_small_objects_from_global(b, 1, &offset);
@@ -522,6 +532,35 @@ class segment_allocator {
       }
     }
     m_object_cache.clear();
+  }
+#endif
+
+#ifndef METALL_DISABLE_OBJECT_CACHE
+  bool priv_check_all_small_allocations_are_deallocated() const {
+    const auto marked_slots = m_chunk_directory.get_all_marked_slots();
+    std::set<difference_type> small_allocs;
+    for (const auto &item : marked_slots) {
+      const auto chunk_no = std::get<0>(item);
+      const auto bin_no = std::get<1>(item);
+      const auto slot_no = std::get<2>(item);
+
+      const size_type object_size = bin_no_mngr::to_object_size(bin_no);
+      small_allocs.insert(k_chunk_size * chunk_no + object_size * slot_no);
+    }
+
+    for (unsigned int c = 0; c < m_object_cache.num_caches(); ++c) {
+      for (bin_no_type b = 0; b <= m_object_cache.max_bin_no(); ++b) {
+        for (auto itr = m_object_cache.begin(c, b), end = m_object_cache.end(c, b); itr != end; ++itr) {
+          const auto offset = *itr;
+          if (small_allocs.count(offset) == 0) {
+            return false;
+          }
+          small_allocs.erase(offset);
+        }
+      }
+    }
+
+    return small_allocs.empty();
   }
 #endif
 
