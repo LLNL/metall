@@ -32,14 +32,11 @@ All core files exist under
 ## Required
 
 - GCC 8.1 or more (8.3 or more is recommended due to early implementation of the Filesystem library).
+- Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
 
 ## Build
 
-Boost C++ Libraries 1.64 or more is required (build is not required; needs only
-their header files).
-
-To build your program with Metall, all you have to do is just setting
-include paths such as '-I' or CPLUS_INCLUDE_PATH.
+To build your program with Metall, all you have to do is just setting include paths such as '-I' or CPLUS_INCLUDE_PATH.
 
 For example,
 
