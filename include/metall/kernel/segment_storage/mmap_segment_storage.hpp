@@ -235,14 +235,18 @@ class mmap_segment_storage {
     return base_path + "/block-" + std::to_string(n);
   }
 
-  void priv_set_broken_status() {
+  void priv_clear_status() {
     m_system_page_size = 0;
     m_num_blocks = 0;
     m_vm_region_size = 0;
     m_current_segment_size = 0;
     m_segment = nullptr;
-    m_broken = true;
     // m_read_only must not be modified here.
+  }
+
+  void priv_set_broken_status() {
+    priv_clear_status();
+    m_broken = true;
   }
 
   bool priv_is_open() const {
@@ -538,7 +542,7 @@ class mmap_segment_storage {
     succeeded &= mdtl::map_with_prot_none(m_segment, m_current_segment_size);
     // NOTE: the VM region will be unmapped by another class
 
-    priv_set_broken_status();
+    priv_clear_status();
 
     return succeeded;
   }
