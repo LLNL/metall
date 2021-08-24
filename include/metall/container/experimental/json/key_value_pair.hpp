@@ -69,7 +69,6 @@ class key_value_pair {
   }
 
   /// \brief Allocator-extended copy constructor
-  /// This will be used by scoped-allocator
   key_value_pair(const key_value_pair &other, const allocator_type &alloc)
       : m_value(other.m_value, alloc) {
     if (other.m_key_length <= k_short_key_max_length) {
@@ -92,7 +91,6 @@ class key_value_pair {
   }
 
   /// \brief Allocator-extended move constructor
-  /// This will be used by scoped-allocator
   key_value_pair(key_value_pair &&other, const allocator_type &alloc) noexcept
       : m_value(std::move(other.m_value), alloc) {
     if (other.m_key_length <= k_short_key_max_length) {

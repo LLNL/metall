@@ -66,6 +66,28 @@ class indexed_object {
       : m_index_table(alloc),
         m_value_storage(alloc) {}
 
+  /// \brief Copy constructor
+  indexed_object(const indexed_object &) = default;
+
+  /// \brief Allocator-extended copy constructor
+  indexed_object(const indexed_object &other, const allocator_type &alloc)
+      : m_index_table(other.m_value_storage, alloc),
+        m_value_storage(other.m_value_storage, alloc) {}
+
+  /// \brief Move constructor
+  indexed_object(indexed_object &&) noexcept = default;
+
+  /// \brief Allocator-extended move constructor
+  indexed_object(indexed_object &&other, const allocator_type &alloc) noexcept
+      : m_index_table(std::move(other.m_index_table), alloc),
+        m_value_storage(std::move(other.m_value_storage), alloc) {}
+
+  /// \brief Copy assignment operator
+  indexed_object &operator=(const indexed_object &) = default;
+
+  /// \brief Move assignment operator
+  indexed_object &operator=(indexed_object &&) noexcept = default;
+
   /// \brief Access a mapped value with a key.
   /// If there is no mapped value that is associated with 'key', allocates it first.
   /// \param index The key of the mapped value to access.
