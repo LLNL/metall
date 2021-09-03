@@ -3,13 +3,13 @@ name: CI Test
 on: [push, pull_request]
 
 jobs:
-  gcc11-1_bst1-76-0:
+  gcc11-2_bst1-77-0:
     runs-on: ubuntu-latest
     container:
-      image: kiwabuchi/metall_test:centos7_min
+      image: kiwabuchi/metall_test:centos8_min
     env:
-      GCC_VERSION: 11.1.0
-      BOOST_VERSION: 1.76.0
+      GCC_VERSION: 11.2.0
+      BOOST_VERSION: 1.77.0
       METALL_LIMIT_MAKE_PARALLELS: 8
     steps:
       - uses: actions/checkout@v2
