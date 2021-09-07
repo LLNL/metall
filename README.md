@@ -33,6 +33,7 @@ All core files exist under
 
 - GCC 8.1 or more (8.3 or more is recommended due to early implementation of the Filesystem library).
 - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
+  - To use JSON containers in Metall, Boost C++ Libraries 1.75 or more is required.
 
 ## Build
 
@@ -43,9 +44,9 @@ For example,
 ```bash
 # Download Boost (Boost C++ Libraries 1.64 or more is required)
 # One can skip this step if Boost is already available.
-wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz
-tar xvf boost_1_75_0.tar.gz
-export BOOST_ROOT=$PWD/boost_1_75_0
+wget https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.gz
+tar xvf boost_1_77_0.tar.gz
+export BOOST_ROOT=$PWD/boost_1_77_0
 
 git clone https://github.com/LLNL/metall
 export METALL_INCLUDE=$PWD/metall/include
