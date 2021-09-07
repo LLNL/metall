@@ -90,7 +90,7 @@ class indexed_object {
 
   /// \brief Access a mapped value with a key.
   /// If there is no mapped value that is associated with 'key', allocates it first.
-  /// \param index The key of the mapped value to access.
+  /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.
   mapped_type &operator[](const key_type &key) {
     const auto pos = priv_locate_value(key);
@@ -103,9 +103,23 @@ class indexed_object {
   }
 
   /// \brief Access a mapped value.
-  /// \param index The key of the mapped value to access.
+  /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.
   const mapped_type &operator[](const key_type &key) const {
+    return m_value_storage[priv_locate_value(key)].value();
+  }
+
+  /// \brief Access a mapped value.
+  /// \param key The key of the mapped value to access.
+  /// \return A reference to the mapped value associated with 'key'.
+  mapped_type &at(const key_type &key) {
+    return m_value_storage[priv_locate_value(key)].value();
+  }
+
+  /// \brief Access a mapped value.
+  /// \param key The key of the mapped value to access.
+  /// \return A reference to the mapped value associated with 'key'.
+  const mapped_type &at(const key_type &key) const {
     return m_value_storage[priv_locate_value(key)].value();
   }
 
