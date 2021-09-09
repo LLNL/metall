@@ -1,6 +1,7 @@
 # Build API document, Example, Test, and Utility Programs
 
-Metall's repository contains some example, test, benchmark, utility programs.
+Metall's repository contains example, test, benchmark, and utility programs. 
+Here is how to build them using CMake.
 
 ```bash
 git clone https://github.com/LLNL/metall
@@ -23,19 +24,24 @@ cmake build_doc  # option; BUILD_DOC must be ON when running cmake
 
 ## Additional CMake Options
 
-In addition to the standard CMake options, we have two additional options:
+In addition to the standard CMake options, Metall have additional options as follows:
 
 * BUILD_DOC
     * Build API document using Doxygen
     * One can also build the document by using doxygen directly; see README.md in the repository of Metall.
+    * ON or OFF (default is OFF)
 
 * BUILD_DOC_ONLY
     * Only builds API document
     * ON or OFF (default is OFF)
 
+* BUILD_EXAMPLE
+  * Build examples under example/
+  * ON or OFF (default is OFF)
+
 * BUILD_BENCH
     * Builds subdirectory bench/
-    * ON or OFF (default is ON).
+    * ON or OFF (default is OFF).
     
 * BUILD_TEST
     * Builds subdirectory test/
@@ -46,6 +52,10 @@ In addition to the standard CMake options, we have two additional options:
     * Runs large scale tests which could use ~ 100GB of storage space in /dev/shm or /tmp..
     * ON or OFF (default is OFF).
     * If BUILD_TEST is OFF, this option is ignored.
+
+* BUILD_C
+    * Build a library for C interface
+    * ON or OFF (default is OFF).
 
 
 ## Build 'test' Directory without Internet Access (experimental mode)

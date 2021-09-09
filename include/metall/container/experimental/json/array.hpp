@@ -43,6 +43,26 @@ class array {
   explicit array(const allocator_type &alloc = allocator_type())
       : m_array(alloc) {}
 
+  /// \brief Copy constructor
+  array(const array &) = default;
+
+  /// \brief Allocator-extended copy constructor
+  array(const array &other, const allocator_type &alloc)
+      : m_array(other.m_array, alloc) {}
+
+  /// \brief Move constructor
+  array(array &&) noexcept = default;
+
+  /// \brief Allocator-extended move constructor
+  array(array &&other, const allocator_type &alloc) noexcept
+      : m_array(std::move(other.m_array), alloc) {}
+
+  /// \brief Copy assignment operator
+  array &operator=(const array &) = default;
+
+  /// \brief Move assignment operator
+  array &operator=(array &&) noexcept = default;
+
   /// \brief Returns the number of values.
   /// \return The number of vertices.
   std::size_t size() const noexcept {

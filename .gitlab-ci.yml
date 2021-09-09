@@ -5,7 +5,7 @@
 # as it causes errors often and could exceed the timelimit of the system.
 #
 # One might want to change the location of builds directory on LC clusters to avoid consuming the home directory space.
-# Type the following command on a LC cluster:
+# Type the following command on an LC cluster:
 # $ ln -s /usr/workspace/lc-username ~/.gitlab-runner
 
 stages:
@@ -27,6 +27,7 @@ install_boost:
   script:
     - hostname
     - pwd
+#    - spack install boost@1.77.0
 #    - spack install boost@1.76.0
 #    - spack install boost@1.75.0
 #    - spack install boost@1.74.0
@@ -56,6 +57,12 @@ install_boost:
     - spack load boost@${BOOST_VERSION} ${SPACK_ARCH_INFO}
     - export METALL_TEST_DIR="/dev/shm/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
     - srun -N1 -ppdebug bash ./scripts/CI/build_and_test.sh
+
+build_gcc10.2.1_bst1.77.0:
+  extends: .build
+  variables:
+    GCC_VERSION: "10.2.1"
+    BOOST_VERSION: "1.77.0"
 
 build_gcc10.2.1_bst1.76.0:
   extends: .build

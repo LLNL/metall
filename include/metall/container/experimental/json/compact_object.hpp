@@ -54,11 +54,31 @@ class compact_object {
   explicit compact_object(const allocator_type &alloc = allocator_type())
       : m_value_storage(alloc) {}
 
+  /// \brief Copy constructor
+  compact_object(const compact_object &) = default;
+
+  /// \brief Allocator-extended copy constructor
+  compact_object(const compact_object &other, const allocator_type &alloc)
+      : m_value_storage(other.m_value_storage, alloc) {}
+
+  /// \brief Move constructor
+  compact_object(compact_object &&) noexcept = default;
+
+  /// \brief Allocator-extended move constructor
+  compact_object(compact_object &&other, const allocator_type &alloc) noexcept
+      : m_value_storage(std::move(other.m_value_storage), alloc) {}
+
+  /// \brief Copy assignment operator
+  compact_object &operator=(const compact_object &) = default;
+
+  /// \brief Move assignment operator
+  compact_object &operator=(compact_object &&) noexcept = default;
+
   /// \brief Access a mapped value with a key.
   /// If there is no mapped value that is associated with 'key', allocates it first.
-  /// \param index The key of the mapped value to access.
+  /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.
-  mapped_type &operator[](const key_type& key) {
+  mapped_type &operator[](const key_type &key) {
     const auto pos = priv_locate_value(key);
     if (pos < m_value_storage.max_size()) {
       return m_value_storage[pos].value();
@@ -69,13 +89,27 @@ class compact_object {
   }
 
   /// \brief Access a mapped value.
-  /// \param index The key of the mapped value to access.
+  /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.
-  const mapped_type &operator[](const key_type& key) const {
+  const mapped_type &operator[](const key_type &key) const {
     return m_value_storage[priv_locate_value(key)].value();
   }
 
-  iterator find(const key_type& key) {
+  /// \brief Access a mapped value.
+  /// \param key The key of the mapped value to access.
+  /// \return A reference to the mapped value associated with 'key'.
+  mapped_type &at(const key_type &key) {
+    return m_value_storage[priv_locate_value(key)].value();
+  }
+
+  /// \brief Access a mapped value.
+  /// \param key The key of the mapped value to access.
+  /// \return A reference to the mapped value associated with 'key'.
+  const mapped_type &at(const key_type &key) const {
+    return m_value_storage[priv_locate_value(key)].value();
+  }
+
+  iterator find(const key_type &key) {
     const auto pos = priv_locate_value(key);
     if (pos < m_value_storage.max_size()) {
       return m_value_storage.begin() + pos;
@@ -83,7 +117,7 @@ class compact_object {
     return m_value_storage.end();
   }
 
-  const_iterator find(const key_type& key) const {
+  const_iterator find(const key_type &key) const {
     const auto pos = priv_locate_value(key);
     if (pos < m_value_storage.max_size()) {
       return m_value_storage.cbegin() + pos;
@@ -141,13 +175,13 @@ class compact_object {
   /// \param position The position of the element to erase.
   /// \return Iterator following the removed element.
   /// If 'position' refers to the last element, then the end() iterator is returned.
-  iterator erase(const key_type& key) {
+  iterator erase(const key_type &key) {
     return priv_erase(find(key));
   }
 
  private:
 
-  value_postion_type priv_locate_value(const key_type& key) const {
+  value_postion_type priv_locate_value(const key_type &key) const {
     for (value_postion_type i = 0; i < m_value_storage.size(); ++i) {
       if (m_value_storage[i].key() == key) {
         return i; // Found the key
@@ -156,7 +190,7 @@ class compact_object {
     return m_value_storage.max_size(); // Couldn't find
   }
 
-  value_postion_type priv_emplace_value(const key_type& key, mapped_type mapped_value) {
+  value_postion_type priv_emplace_value(const key_type &key, mapped_type mapped_value) {
     m_value_storage.emplace_back(key, std::move(mapped_value));
     return m_value_storage.size() - 1;
   }
