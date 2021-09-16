@@ -88,7 +88,7 @@ class logger {
 };
 
 logger::level logger::log_message_out_level = logger::level::error;
-bool logger::abort_on_critical = false;
+bool logger::abort_on_critical = true;
 
 } // namespace metall
 
