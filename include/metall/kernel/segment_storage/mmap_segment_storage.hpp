@@ -75,7 +75,7 @@ class mmap_segment_storage {
     m_vm_region_size = other.m_vm_region_size;
     m_current_segment_size = other.m_current_segment_size;
     m_segment = other.m_segment;
-    m_base_path = other.m_base_path;
+    m_base_path = std::move(other.m_base_path);
     m_read_only = other.m_read_only;
     m_free_file_space = other.m_free_file_space;
     m_block_fd_list = std::move(other.m_block_fd_list);
@@ -171,15 +171,11 @@ class mmap_segment_storage {
   /// \brief Syncs the segment with backing files.
   /// \param sync If false is specified, this function returns before finishing the sync operation.
   bool sync(const bool sync) {
-    if (!priv_sync_segment(sync)) { // Failing this operation is not a critical error
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to synchronize the segment");
-      return false;
-    }
-    return true;
+    return priv_sync(sync);
   }
 
   /// \brief Tries to free the specified region in DRAM and file(s).
-  /// The actual behavior depends on the system running on.
+  /// The actual behavior depends on the running system.
   /// \param offset An offset to the region from the beginning of the segment.
   /// \param nbytes The size of the region.
   bool free_region(const different_type offset, const size_type nbytes) {
@@ -251,7 +247,7 @@ class mmap_segment_storage {
 
   bool priv_is_open() const {
     return (check_sanity() && m_system_page_size > 0 && m_num_blocks > 0 && m_vm_region_size > 0 && m_current_segment_size > 0
-        && m_segment && !m_base_path.empty());
+        && m_segment && !m_base_path.empty() && !m_block_fd_list.empty() && m_block_size > 0);
   }
 
   static bool priv_copy(const std::string &source_path,
@@ -284,7 +280,7 @@ class mmap_segment_storage {
                    void *const vm_region,
                    const size_type block_size) {
     if (!check_sanity()) return false;
-    if (is_open()) return false; // Cannot overwrite an existing segment.
+    if (is_open()) return false; // Cannot open multiple segments simultaneously.
 
     {
       std::string s("Create a segment under: " + base_path);
@@ -306,6 +302,7 @@ class mmap_segment_storage {
     m_segment = mdtl::round_up(reinterpret_cast<intptr_t>(vm_region), page_size()) + reinterpret_cast<char *>(0);
     m_read_only = false;
 
+    // Create the first block so that we can assume that there is a block always in a segment.
     if (!priv_create_new_map(m_base_path, 0, m_block_size, 0)) {
       priv_set_broken_status();
       return false;
@@ -326,7 +323,7 @@ class mmap_segment_storage {
 
   bool priv_open(const std::string &base_path, const size_type vm_region_size, void *const vm_region, const bool read_only) {
     if (!check_sanity()) return false;
-    if (is_open()) return false; // Cannot overwrite an existing segment.
+    if (is_open()) return false; // Cannot open multiple segments simultaneously.
 
     std::string s("Open a segment under: " + base_path);
     logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
@@ -336,11 +333,12 @@ class mmap_segment_storage {
     m_segment = mdtl::round_up(reinterpret_cast<intptr_t>(vm_region), page_size()) + reinterpret_cast<char *>(0);
     m_read_only = read_only;
 
+    // Maps block files one by one
     m_num_blocks = 0;
     while (true) {
       const auto file_name = priv_make_block_file_name(m_base_path, m_num_blocks);
       if (!mdtl::file_exist(file_name)) {
-        break;
+        break; // Mapped all files
       }
 
       const auto file_size = mdtl::get_file_size(file_name);
@@ -545,6 +543,14 @@ class mmap_segment_storage {
     priv_clear_status();
 
     return succeeded;
+  }
+
+  bool priv_sync(const bool sync) const {
+    if (!priv_sync_segment(sync)) { // Failing this operation is not a critical error
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to synchronize the segment");
+      return false;
+    }
+    return true;
   }
 
   bool priv_sync_segment(const bool sync) const {
