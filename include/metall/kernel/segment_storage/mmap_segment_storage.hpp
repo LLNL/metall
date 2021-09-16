@@ -47,7 +47,15 @@ class mmap_segment_storage {
   }
 
   ~mmap_segment_storage() {
-    if (!sync(true) || !destroy()) {
+    int ret = true;
+    if (is_open()) {
+      ret &= sync(true);
+      if (!ret) {
+        ret &= destroy();
+      }
+    }
+
+    if (!ret) {
       logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to destruct");
     }
   }
