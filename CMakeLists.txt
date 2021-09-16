@@ -5,8 +5,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 # Configuration for installing header file
 # -------------------------------------------------------------------------------- #
 install(DIRECTORY include/metall DESTINATION include)
-install(DIRECTORY include/metall_container DESTINATION include)
-install(DIRECTORY include/metall_utility DESTINATION include)
 
 option(INSTALL_HEADER_ONLY "Only installing header files" OFF)
 if (INSTALL_HEADER_ONLY)
