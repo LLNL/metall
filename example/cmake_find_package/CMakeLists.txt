@@ -4,8 +4,7 @@ project(myproject)
 set(CMAKE_CXX_STANDARD 17)
 
 # Find Metall package
-# To configure the search path, CMAKE_PREFIX_PATH environmental variable can be used.
-# See CMake's manual for detail.
+# To configure the search path, see CMake documents.
 find_package(Metall REQUIRED)
 message(STATUS "Metall_FOUND = ${Metall_FOUND}")
 
