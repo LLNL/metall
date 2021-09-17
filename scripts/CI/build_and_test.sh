@@ -119,8 +119,8 @@ main() {
             -DBUILD_TEST=ON \
             -DRUN_LARGE_SCALE_TEST=ON \
             -DBUILD_DOC=OFF \
-            -DBUILD_DOC_ONLY=OFF \
             -DBUILD_C=ON \
+            -DBUILD_UTILITY=ON \
             -DBUILD_EXAMPLE=ON \
             -DRUN_BUILD_AND_TEST_WITH_CI=ON \
             -DBUILD_VERIFICATION=OFF \
