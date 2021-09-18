@@ -1,34 +1,74 @@
 cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-# -------------------------------------------------------------------------------- #
-# Configuration for installing header file
-# -------------------------------------------------------------------------------- #
-install(DIRECTORY include/metall DESTINATION include)
-
-option(INSTALL_HEADER_ONLY "Only installing header files" OFF)
-if (INSTALL_HEADER_ONLY)
-    return()
-endif ()
-# -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
-# Configuration for building test, benchmark, example, etc.
+# Metall general configuration
 # -------------------------------------------------------------------------------- #
-project(Metall VERSION 0.16)
+project(Metall
+        VERSION 0.16
+        DESCRIPTION "A persistent memory allocator for data-centric analytics"
+        HOMEPAGE_URL "https://github.com/LLNL/metall")
+
 configure_file(MetallConfig.h.in MetallConfig.h)
 
-include_directories(${PROJECT_BINARY_DIR})
+# ----- Setting up a 'dummy' (INTERFACE) library to install header files ----- #
+include(GNUInstallDirs)
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME}
+        INTERFACE $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}_Targets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(EXPORT ${PROJECT_NAME}_Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/metall DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 # -------------------------------------------------------------------------------- #
+# Generate and install the package configuration and package version files
+# -------------------------------------------------------------------------------- #
+include(CMakePackageConfigHelpers)
+
+# generate the version file for the config file
+write_basic_package_version_file(
+        "${PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY ExactVersion)
+
+# create config file
+configure_package_config_file(
+        "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        INSTALL_DESTINATION
+        ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+# install config files
+install(FILES
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+# -------------------------------------------------------------------------------- #
+
+
+# -------------------------------------------------------------------------------- #
+# Configuration for building test, benchmark, example, etc.
+# ----------
 # User configurable options
 # -------------------------------------------------------------------------------- #
+option(BUILD_UTILITY "Build utility programs" OFF)
 option(BUILD_DOC "Build API documentation" OFF)
-option(BUILD_DOC_ONLY "Only build API documentation" OFF)
 option(BUILD_C "Build C examples and libraries" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 option(DISABLE_FREE_FILE_SPACE "Disable freeing file space" OFF)
@@ -61,6 +101,44 @@ set(FREE_SMALL_OBJECT_SIZE_HINT "0" CACHE STRING
 
 # -------------------------------------------------------------------------------- #
 
+# -------------------------------------------------------------------------------- #
+# Only downloading Google Test
+# -------------------------------------------------------------------------------- #
+if (ONLY_DOWNLOAD_GTEST)
+    add_subdirectory(test)
+    return()
+endif ()
+# -------------------------------------------------------------------------------- #
+
+# -------------------------------------------------------------------------------- #
+# Document (Doxygen)
+# -------------------------------------------------------------------------------- #
+if (BUILD_DOC)
+    include(build_doc)
+    build_doc()
+endif ()
+# -------------------------------------------------------------------------------- #
+
+# -------------------------------------------------------------------------------- #
+# Old option
+# -------------------------------------------------------------------------------- #
+if (INSTALL_HEADER_ONLY)
+    message(WARNING "INSTALL_HEADER_ONLY option has been removed (as long as no BUILD_*** option is specified, only headers will be installed)")
+endif()
+# -------------------------------------------------------------------------------- #
+
+# -------------------------------------------------------------------------------- #
+# Exit CMake if there is nothing to build
+# -------------------------------------------------------------------------------- #
+if (NOT (BUILD_UTILITY OR BUILD_C OR BUILD_EXAMPLE OR BUILD_BENCH OR BUILD_TEST OR BUILD_VERIFICATION OR RUN_BUILD_AND_TEST_WITH_CI))
+    return()
+endif ()
+# -------------------------------------------------------------------------------- #
+
+
+# -------------------------------------------------------------------------------- #
+# Executables
+# -------------------------------------------------------------------------------- #
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
     message(STATUS "CMAKE_BUILD_TYPE is set as Release")
@@ -168,37 +246,22 @@ endif ()
 if (LOGGING)
     add_definitions(-DMETALL_ENABLE_LOGGING)
     message(STATUS "Enable logging")
-endif()
+endif ()
 
 if (USE_SORTED_BIN)
     add_definitions(-DMETALL_USE_SORTED_BIN)
     message(STATUS "Use VM space aware algorithm in the bin directory")
-endif()
+endif ()
 
 if (USE_ANONYMOUS_NEW_MAP)
     if (USE_ANONYMOUS_NEW_MAP AND UMAP_ROOT)
         message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
-    endif()
+    endif ()
 
     add_definitions(-DMETALL_USE_ANONYMOUS_NEW_MAP)
     message(STATUS "Use the anonymous map for new map region")
-endif()
-
-# -------------------------------------------------------------------------------- #
-# Document (Doxygen)
-# -------------------------------------------------------------------------------- #
-if (BUILD_DOC)
-    include(build_doc)
-    build_doc()
-    if (BUILD_DOC_ONLY)
-        return()
-    endif ()
 endif ()
 
-
-# -------------------------------------------------------------------------------- #
-# Executables
-# -------------------------------------------------------------------------------- #
 include_directories(include)
 
 # Requirements for GCC
@@ -208,13 +271,6 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
             message(FATAL_ERROR "GCC version must be at least 8.1")
         endif ()
     endif ()
-endif ()
-
-
-# ---------- Only downloading Google Test ---------- #
-if (ONLY_DOWNLOAD_GTEST)
-    add_subdirectory(test)
-    return()
 endif ()
 
 
@@ -245,7 +301,7 @@ endif ()
 # ---------- Boost ---------- #
 # Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
 # there is a tricky behavior/issue especially in Boost 1.70.0.
-set (Boost_NO_BOOST_CMAKE ON)
+set(Boost_NO_BOOST_CMAKE ON)
 
 if (RUN_BUILD_AND_TEST_WITH_CI)
     find_package(Boost)
@@ -258,14 +314,14 @@ if (Boost_FOUND)
     # Just a sanity check
     if (NOT Boost_INCLUDE_DIRS)
         message(FATAL_ERROR "Something is wrong: Boost_INCLUDE_DIRS is empty although Boost_FOUND is true.")
-    endif()
+    endif ()
     include_directories(${Boost_INCLUDE_DIRS})
 
     add_subdirectory(src)
 
     if (BUILD_EXAMPLE)
         add_subdirectory(example)
-    endif()
+    endif ()
 
     if (BUILD_BENCH)
         add_subdirectory(bench)
@@ -284,6 +340,4 @@ if (Boost_FOUND)
         add_subdirectory(verification)
     endif ()
 
-else ()
-    message(FATAL_ERROR "Can not find Boost C++ Libraries")
 endif ()
