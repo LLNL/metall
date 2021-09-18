@@ -20,7 +20,7 @@ if (Boost_FOUND)
     add_executable(cpp_example cpp_example.cpp)
 
     # Need Boost header files
-    target_include_directories(cpp_example PUBLIC ${Boost_INCLUDE_DIRS})
+    target_include_directories(cpp_example PRIVATE ${Boost_INCLUDE_DIRS})
 
     # Link Metall
     # Although target_link_libraries() is used, no library file (e.g., *.a file) is linked.
@@ -36,9 +36,6 @@ endif ()
 # For using Metall C API
 # ---------------------------------------- #
 add_executable(c_example c_example.c)
-
-# Link Metall
-target_link_libraries(c_example Metall::Metall)
 
 # Link Metall C library (libmetall_c)
 target_link_libraries(c_example Metall::metall_c)

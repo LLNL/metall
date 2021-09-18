@@ -15,7 +15,6 @@ This page describes how to find Metall package from your CMake file.
 Here is how to build the files in this directory.
 
 ### (pre-step) Install Metall
-We assume that Metall is already installed.
 
 To install Metall at `"/path/to/install"`, for example:
 ```bash
@@ -39,7 +38,8 @@ mkdir build
 cd build
 
 export CMAKE_PREFIX_PATH="/path/to/install"
-cmake ../ -DDBOOST_ROOT=/path/to/boost
+cmake ../ \
+-DDBOOST_ROOT=/path/to/boost # Required to build .cpp executable which uses Metall header files.
 make
 ```
 

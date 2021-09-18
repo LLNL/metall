@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
+cmake_minimum_required(VERSION 3.12) # add_compile_definitions() requires >= CMake 3.12
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 
@@ -209,47 +209,47 @@ find_package(MPI)
 
 # ---------- Configure Metall ---------- #
 if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
-    add_definitions(-DMETALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
+    list(APPEND METALL_DEFS "METALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT}")
     message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
 endif ()
 
 if (VERBOSE_SYSTEM_SUPPORT_WARNING)
-    add_definitions(-DMETALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
+    list(APPEND METALL_DEFS "METALL_VERBOSE_SYSTEM_SUPPORT_WARNING")
     message(STATUS "Show compile time warning regarding system support")
 endif ()
 
 if (DISABLE_FREE_FILE_SPACE)
-    add_definitions(-DMETALL_DISABLE_FREE_FILE_SPACE)
+    list(APPEND METALL_DEFS "METALL_DISABLE_FREE_FILE_SPACE")
     message(STATUS "Disable freeing file space in Metall")
 endif ()
 
 if (DISABLE_SMALL_OBJECT_CACHE)
-    add_definitions(-DMETALL_DISABLE_OBJECT_CACHE)
+    list(APPEND METALL_DEFS "METALL_DISABLE_OBJECT_CACHE")
     message(STATUS "Disable small object cache")
 endif ()
 
 if (DEFAULT_VM_RESERVE_SIZE GREATER 0)
-    add_definitions(-DMETALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE})
+    list(APPEND METALL_DEFS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
     message(STATUS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
 endif ()
 
 if (MAX_SEGMENT_SIZE GREATER 0)
-    add_definitions(-DMETALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE})
+    list(APPEND METALL_DEFS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
     message(STATUS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
 endif ()
 
 if (INITIAL_SEGMENT_SIZE GREATER 0)
-    add_definitions(-DMETALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE})
+    list(APPEND METALL_DEFS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
     message(STATUS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
 endif ()
 
 if (LOGGING)
-    add_definitions(-DMETALL_ENABLE_LOGGING)
+    list(APPEND METALL_DEFS "METALL_ENABLE_LOGGING")
     message(STATUS "Enable logging")
 endif ()
 
 if (USE_SORTED_BIN)
-    add_definitions(-DMETALL_USE_SORTED_BIN)
+    list(APPEND METALL_DEFS "METALL_USE_SORTED_BIN")
     message(STATUS "Use VM space aware algorithm in the bin directory")
 endif ()
 
@@ -258,11 +258,10 @@ if (USE_ANONYMOUS_NEW_MAP)
         message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
     endif ()
 
-    add_definitions(-DMETALL_USE_ANONYMOUS_NEW_MAP)
+    list(APPEND METALL_DEFS "METALL_USE_ANONYMOUS_NEW_MAP")
     message(STATUS "Use the anonymous map for new map region")
 endif ()
 
-include_directories(include)
 
 # Requirements for GCC
 if (NOT RUN_BUILD_AND_TEST_WITH_CI)
@@ -285,15 +284,8 @@ include_cxx_filesystem_library()
 
 # ---------- UMap ---------- #
 if (UMAP_ROOT)
-    include_directories(${UMAP_ROOT}/include)
     if (UNIX AND NOT APPLE)
         find_library(LIBUMAP NAMES umap PATHS ${UMAP_ROOT}/lib)
-        if (LIBUMAP)
-            link_libraries(${LIBUMAP})
-            add_definitions(-DMETALL_USE_UMAP)
-        else ()
-            message(FATAL_ERROR "Cannot find UMap library")
-        endif ()
     endif ()
 endif ()
 
@@ -309,35 +301,65 @@ else ()
     find_package(Boost 1.64)
 endif ()
 
-if (Boost_FOUND)
 
-    # Just a sanity check
-    if (NOT Boost_INCLUDE_DIRS)
-        message(FATAL_ERROR "Something is wrong: Boost_INCLUDE_DIRS is empty although Boost_FOUND is true.")
-    endif ()
-    include_directories(${Boost_INCLUDE_DIRS})
+# -------------------------------------------------------------------------------- #
+# Add executable functions
+# -------------------------------------------------------------------------------- #
+function(common_setup_for_metall_executable name)
+    target_include_directories(${name} PRIVATE ${Boost_INCLUDE_DIRS})
 
-    add_subdirectory(src)
+    foreach(X IN LISTS METALL_DEFS)
+        target_compile_definitions(${name} PRIVATE ${X})
+    endforeach()
 
-    if (BUILD_EXAMPLE)
-        add_subdirectory(example)
-    endif ()
+    if (FOUND_CXX17_FILESYSTEM_LIB)
+        if (REQUIRE_LIB_STDCXX_FS)
+            target_link_libraries(${name} PRIVATE stdc++fs)
+        endif()
+    elseif()
+        target_compile_definitions(${name} PRIVATE "METALL_DISABLE_CXX17_FILESYSTEM_LIB")
+    endif()
 
-    if (BUILD_BENCH)
-        add_subdirectory(bench)
-    endif ()
-
-    if (BUILD_TEST)
-        if (RUN_LARGE_SCALE_TEST)
-            add_definitions(-DMETALL_RUN_LARGE_SCALE_TEST)
-            message(STATUS "Run large-scale tests")
+    if (UMAP_ROOT)
+        target_include_directories(${name} PRIVATE ${UMAP_ROOT}/include)
+        if (LIBUMAP)
+            target_link_libraries(${name} PRIVATE ${LIBUMAP})
+            target_compile_definitions(${name} PRIVATE METALL_USE_UMAP)
         endif ()
-        enable_testing()
-        add_subdirectory(test)
     endif ()
+endfunction()
 
-    if (BUILD_VERIFICATION)
-        add_subdirectory(verification)
+function(add_metall_executable name source)
+    set(ADDED_METALL_EXE FALSE PARENT_SCOPE)
+
+    if (Boost_FOUND)
+        add_executable(${name} ${source})
+        target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+        common_setup_for_metall_executable(${name})
+
+        set(ADDED_METALL_EXE TRUE PARENT_SCOPE)
     endif ()
+endfunction()
 
+
+# -------------------------------------------------------------------------------- #
+# Build tree
+# -------------------------------------------------------------------------------- #
+add_subdirectory(src)
+
+if (BUILD_EXAMPLE)
+    add_subdirectory(example)
+endif ()
+
+if (BUILD_BENCH)
+    add_subdirectory(bench)
+endif ()
+
+if (BUILD_TEST)
+    enable_testing()
+    add_subdirectory(test)
+endif ()
+
+if (BUILD_VERIFICATION)
+    add_subdirectory(verification)
 endif ()

@@ -81,7 +81,14 @@ g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT}/include -I${METALL_RO
 ```
 
 
-# Build Examples
+## Use Metall from CMake Project
+
+Metall provides a CMake Package Configuration File.
+One can easily include an installed Metall package from a CMake project.
+
+Instruction and a simple CMake file example are placed [here](./example/cmake_find_package).
+
+# Build Example Programs
 
 Metall repository contains some example programs under [example directory](./example).
 One can use CMake to build the examples.

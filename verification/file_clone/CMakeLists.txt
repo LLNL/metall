@@ -1,1 +1,1 @@
-add_executable(verify_file_clone verify_file_clone.cpp)
+add_metall_executable(verify_file_clone verify_file_clone.cpp)
