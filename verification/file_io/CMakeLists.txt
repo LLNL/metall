@@ -1,1 +1,1 @@
-add_executable(verify_64bits_file_io verify_64bits_file_io.cpp)
+add_metall_executable(verify_64bits_file_io verify_64bits_file_io.cpp)

@@ -34,8 +34,8 @@ find_package(MPI)
 
 function(add_metall_exe name)
     add_executable(${name} ${name}.cpp)
-    target_include_directories(${name} PUBLIC ../../include ${Boost_INCLUDE_DIRS})
-    target_link_libraries(${name} PUBLIC stdc++fs)
+    target_include_directories(${name} PRIVATE ../../include ${Boost_INCLUDE_DIRS})
+    target_link_libraries(${name} PRIVATE stdc++fs)
 endfunction()
 
 add_metall_exe(t0)

@@ -51,9 +51,9 @@ endmacro()
 #
 macro(link_gtest_lib target)
     if (DEFINED FOUND_LOCAL_GTEST)
-        target_link_libraries(${target} PUBLIC gtest_main)
+        target_link_libraries(${target} PRIVATE gtest_main)
     elseif (DEFINED FOUND_GLOBAL_GTEST)
-        target_link_libraries(${target} PUBLIC GTest::Main)
+        target_link_libraries(${target} PRIVATE GTest::Main)
     endif ()
 endmacro()
 
@@ -81,6 +81,20 @@ endif ()
 # ------------------------------------------------------------ #
 
 include(GoogleTest)
+
+# -------------------------------------------------------------------------------- #
+# Add executable functions
+# -------------------------------------------------------------------------------- #
+function(add_metall_test_executable name source)
+    add_metall_executable(${name} ${source})
+    if (ADDED_METALL_EXE)
+        link_gtest_lib(${name})
+        gtest_discover_tests(${name})
+        if (RUN_LARGE_SCALE_TEST)
+            target_compile_definitions(${name} PRIVATE METALL_RUN_LARGE_SCALE_TEST)
+        endif()
+    endif()
+endfunction()
 
 add_subdirectory(utility)
 add_subdirectory(kernel)
