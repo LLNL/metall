@@ -146,9 +146,9 @@ endif ()
 
 # ---------- CPP ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS "-w -pthread")
+    set(CMAKE_CXX_FLAGS "-w")
 else ()
-    set(CMAKE_CXX_FLAGS "-Wall -pthread")
+    set(CMAKE_CXX_FLAGS "-Wall")
 endif ()
 
 # Memo:
@@ -180,9 +180,9 @@ endif ()
 
 # ---------- C ---------- #
 if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS "-w -pthread")
+    set(CMAKE_C_FLAGS "-w")
 else ()
-    set(CMAKE_C_FLAGS "-Wall -pthread")
+    set(CMAKE_C_FLAGS "-Wall")
 endif ()
 
 # Debug
@@ -273,6 +273,10 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
 endif ()
 
 
+# ---------- Threads ---------- #
+find_package(Threads REQUIRED)
+
+
 # ---------- filesystem ---------- #
 include(include_cxx_filesystem_library)
 include_cxx_filesystem_library()
@@ -307,6 +311,8 @@ endif ()
 # -------------------------------------------------------------------------------- #
 function(common_setup_for_metall_executable name)
     target_include_directories(${name} PRIVATE ${Boost_INCLUDE_DIRS})
+
+    target_link_libraries(${name} PRIVATE Threads::Threads)
 
     foreach(X IN LISTS METALL_DEFS)
         target_compile_definitions(${name} PRIVATE ${X})
