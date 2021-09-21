@@ -5,12 +5,15 @@ project(myproject)
 # Metall requires C++ 17
 set(CMAKE_CXX_STANDARD 17)
 
-# Download, build, and install Metall at CMake configure time.
+# Boost header files are required
+find_package(Boost 1.64)
+
+# Download and setup Metall.
 include(FetchContent)
 FetchContent_Declare(
         metall
         GIT_REPOSITORY https://github.com/LLNL/metall.git
-        GIT_TAG        master
+        GIT_TAG master
 )
 FetchContent_MakeAvailable(metall)
 
@@ -18,12 +21,9 @@ FetchContent_MakeAvailable(metall)
 # ---------------------------------------- #
 #  For using Metall CXX API
 # ---------------------------------------- #
+if (Boost_FOUND)
+    find_package(Threads)
 
-# Boost header files are required to use Metall C++ API
-find_package(Boost 1.64)
-find_package(Threads)
-
-if (Boost_FOUND AND Threads_FOUND)
     add_executable(cpp_example ../src/cpp_example.cpp)
 
     # Need Boost header files
@@ -38,4 +38,15 @@ if (Boost_FOUND AND Threads_FOUND)
     target_link_libraries(cpp_example PRIVATE stdc++fs)
 
     target_link_libraries(cpp_example PRIVATE Threads::Threads)
+endif ()
+
+
+# ---------------------------------------- #
+# For using Metall C API
+# ---------------------------------------- #
+if (Boost_FOUND)
+    add_executable(c_example ../src/c_example.c)
+
+    # Link Metall C library (libmetall_c)
+    target_link_libraries(c_example PRIVATE metall_c)
 endif ()

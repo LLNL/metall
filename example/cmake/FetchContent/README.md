@@ -13,6 +13,7 @@ Here is how to use the CMake file in this directory.
 mkdir build
 cd build
 
-cmake ../ -DBOOST_ROOT=/path/to/boost
+cmake ../ -DBOOST_ROOT=/path/to/boost \
+-DBUILD_C=ON # Required to use Metall C API
 make
 ```
