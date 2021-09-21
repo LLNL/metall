@@ -17,7 +17,7 @@ if (BUILD_C)
     add_library(${PROJECT_NAME}::metall_c ALIAS metall_c)
 
     target_include_directories(metall_c PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:include>)
 
     common_setup_for_metall_executable(metall_c)

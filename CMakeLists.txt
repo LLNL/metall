@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # -------------------------------------------------------------------------------- #
 # Metall general configuration
@@ -340,7 +339,7 @@ function(add_metall_executable name source)
 
     if (Boost_FOUND)
         add_executable(${name} ${source})
-        target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+        target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
         common_setup_for_metall_executable(${name})
 
         set(ADDED_METALL_EXE TRUE PARENT_SCOPE)
