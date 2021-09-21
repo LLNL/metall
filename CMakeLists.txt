@@ -339,7 +339,7 @@ function(add_metall_executable name source)
 
     if (Boost_FOUND)
         add_executable(${name} ${source})
-        target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+        target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
         common_setup_for_metall_executable(${name})
 
         set(ADDED_METALL_EXE TRUE PARENT_SCOPE)
