@@ -30,6 +30,8 @@ make && make install
 
 Alternatively, one can install Metall using Spack.
 
+Please note that Metall C API is not supported with Spack. 
+
 ```bash
 # Install Metall using Spack
 # Boost is also install
@@ -46,10 +48,13 @@ mkdir build
 cd build
 
 export CMAKE_PREFIX_PATH="/path/to/install"
-# Or
-spack load metall # Spack exports CMAKE_PREFIX_PATH
+# Or (if one uses Spack)
+spack load metall # Spack exports CMAKE_PREFIX_PATH (and also BOOST_ROOT).
 
 cmake ../ \
--DBOOST_ROOT=/path/to/boost # Required to build programs that uses Metall C++ API.
+-DBOOST_ROOT=/path/to/boost # Required if one wants to build programs that uses Metall C++ API.
+# Or (if one uses Spack)
+cmake ../
+
 make
 ```
