@@ -220,6 +220,18 @@ class metall_mpi_adaptor {
     return priv_read_num_partitions(root_dir_prefix, comm);
   }
 
+  /// \brief Checks if all local datastores are consistent.
+  /// \param root_dir_prefix A root directory path of datastore.
+  /// \param comm A MPI communicator.
+  /// \return Returns true if all datastores are consistent;
+  /// otherwise, returns false.
+  static bool consistent(const char *root_dir_prefix, const MPI_Comm &comm = MPI_COMM_WORLD) {
+    const int rank = priv_mpi_comm_rank(comm);
+    const auto local_path = ds::make_local_dir_path(root_dir_prefix, rank);
+    const auto ret = manager_type::consistent(local_path.c_str());
+    return priv_global_and(ret, comm);
+  }
+
  private:
   static constexpr const char *k_datastore_mark_file_name = "metall_mpi_datastore";
   static constexpr const char *k_partition_size_file_name = "metall_mpi_adaptor_partition_size";
