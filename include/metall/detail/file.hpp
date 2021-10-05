@@ -103,26 +103,21 @@ inline bool fsync_recursive(const std::string &path) {
   }
   return true;
 #else
-  char *abs = realpath(path.c_str(), NULL);
+  char *abs = ::realpath(path.c_str(), NULL);
   if (!abs) return false;
   char *ref = abs;
   while (true) {
     if (!fsync(std::string(abs))) {
-      free(ref);
+      ::free(ref);
       return false;
     }
-    if (strcmp(abs, "/") == 0) {
+    if (::strcmp(abs, "/") == 0) {
       break;
     }
-    abs = dirname(abs);
+    abs = ::dirname(abs);
   }
-  free(ref);
+  ::free(ref);
   return true;
-#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "Cannot call fsync recursively"
-#endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-  return fsync(path);
-#endif
 }
 
 inline bool extend_file_size_manually(const int fd, const off_t offset, const ssize_t file_size) {
