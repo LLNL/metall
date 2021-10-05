@@ -118,6 +118,7 @@ inline bool fsync_recursive(const std::string &path) {
   }
   ::free(ref);
   return true;
+#endif
 }
 
 inline bool extend_file_size_manually(const int fd, const off_t offset, const ssize_t file_size) {
