@@ -103,16 +103,15 @@ inline bool fsync_recursive(const std::string &path) {
   }
   return true;
 #else
-  char *abs=realpath(path.c_str(),NULL);
-  if(!abs) return false;
-  char *ref=abs;
-  assert(abs);
+  char *abs = realpath(path.c_str(), NULL);
+  if (!abs) return false;
+  char *ref = abs;
   while (true) {
     if (!fsync(std::string(abs))) {
       free(ref);
       return false;
     }
-    if (strcmp(abs,"/") == 0) {
+    if (strcmp(abs, "/") == 0) {
       break;
     }
     abs = dirname(abs);
