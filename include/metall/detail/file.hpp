@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <libgen.h>
 
 #ifdef __linux__
 #include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
@@ -102,11 +103,21 @@ inline bool fsync_recursive(const std::string &path) {
   }
   return true;
 #else
-  // FIXME: Implement recersive fsync w/o the C++17 Filesystem library
-#ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "Cannot call fsync recursively"
-#endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-  return fsync(path);
+  char *abs = ::realpath(path.c_str(), NULL);
+  if (!abs) return false;
+  char *ref = abs;
+  while (true) {
+    if (!fsync(std::string(abs))) {
+      ::free(ref);
+      return false;
+    }
+    if (::strcmp(abs, "/") == 0) {
+      break;
+    }
+    abs = ::dirname(abs);
+  }
+  ::free(ref);
+  return true;
 #endif
 }
 
