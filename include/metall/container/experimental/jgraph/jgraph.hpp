@@ -336,7 +336,7 @@ class jgraph {
   }
 
   /// \brief Returns the degree of the vertex corresponds to 'vid'.
-  /// \param vid A vertex ID.
+  /// \param vertex_id A vertex ID.
   /// \return Returns the degree of the vertex corresponds to 'vid'.
   /// If no vertex is associated with 'vid', returns 0.
   std::size_t degree(const id_type &vertex_id) const {
