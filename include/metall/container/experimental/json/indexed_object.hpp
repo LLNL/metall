@@ -66,9 +66,31 @@ class indexed_object {
       : m_index_table(alloc),
         m_value_storage(alloc) {}
 
+  /// \brief Copy constructor
+  indexed_object(const indexed_object &) = default;
+
+  /// \brief Allocator-extended copy constructor
+  indexed_object(const indexed_object &other, const allocator_type &alloc)
+      : m_index_table(other.m_value_storage, alloc),
+        m_value_storage(other.m_value_storage, alloc) {}
+
+  /// \brief Move constructor
+  indexed_object(indexed_object &&) noexcept = default;
+
+  /// \brief Allocator-extended move constructor
+  indexed_object(indexed_object &&other, const allocator_type &alloc) noexcept
+      : m_index_table(std::move(other.m_index_table), alloc),
+        m_value_storage(std::move(other.m_value_storage), alloc) {}
+
+  /// \brief Copy assignment operator
+  indexed_object &operator=(const indexed_object &) = default;
+
+  /// \brief Move assignment operator
+  indexed_object &operator=(indexed_object &&) noexcept = default;
+
   /// \brief Access a mapped value with a key.
   /// If there is no mapped value that is associated with 'key', allocates it first.
-  /// \param index The key of the mapped value to access.
+  /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.
   mapped_type &operator[](const key_type &key) {
     const auto pos = priv_locate_value(key);
@@ -81,9 +103,23 @@ class indexed_object {
   }
 
   /// \brief Access a mapped value.
-  /// \param index The key of the mapped value to access.
+  /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.
   const mapped_type &operator[](const key_type &key) const {
+    return m_value_storage[priv_locate_value(key)].value();
+  }
+
+  /// \brief Access a mapped value.
+  /// \param key The key of the mapped value to access.
+  /// \return A reference to the mapped value associated with 'key'.
+  mapped_type &at(const key_type &key) {
+    return m_value_storage[priv_locate_value(key)].value();
+  }
+
+  /// \brief Access a mapped value.
+  /// \param key The key of the mapped value to access.
+  /// \return A reference to the mapped value associated with 'key'.
+  const mapped_type &at(const key_type &key) const {
     return m_value_storage[priv_locate_value(key)].value();
   }
 
@@ -149,8 +185,8 @@ class indexed_object {
     return priv_erase(position);
   }
 
-  /// \brief Erases the element at 'position'.
-  /// \param position The position of the element to erase.
+  /// \brief Erases the element associated with 'key'.
+  /// \param key The key of the element to erase.
   /// \return Iterator following the removed element.
   /// If 'position' refers to the last element, then the end() iterator is returned.
   iterator erase(const key_type &key) {

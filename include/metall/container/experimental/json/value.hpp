@@ -44,19 +44,37 @@ class value {
   value(const value &) = default;
 
   /// \brief Allocator-extended copy constructor
-  /// This will be used by scoped-allocator
+
   value(const value &other, const allocator_type &alloc)
-      : m_data(other.m_data),
-        m_allocator(alloc) {}
+      : m_allocator(alloc) {
+    if (other.is_object()) {
+      emplace_object() = other.as_object();
+    } else if (other.is_array()) {
+      emplace_array() = other.as_array();
+    } else if (other.is_string()) {
+      emplace_string() = other.as_string();
+    } else {
+      m_data = other.m_data;
+    }
+  }
 
   /// \brief Move constructor
   value(value &&) noexcept = default;
 
   /// \brief Allocator-extended move constructor
-  /// This will be used by scoped-allocator
+
   value(value &&other, const allocator_type &alloc) noexcept
-      : m_data(std::move(other.m_data)),
-        m_allocator(alloc) {}
+      : m_allocator(alloc) {
+    if (other.is_object()) {
+      emplace_object() = std::move(other.as_object());
+    } else if (other.is_array()) {
+      emplace_array() = std::move(other.as_array());
+    } else if (other.is_string()) {
+      emplace_string() = std::move(other.as_string());
+    } else {
+      m_data = std::move(other.m_data);
+    }
+  }
 
   /// \brief Copy assignment operator
   value &operator=(const value &) = default;

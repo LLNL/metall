@@ -1,1 +1,1 @@
-add_executable(logger logger)
+add_metall_executable(logger logger.cpp)

@@ -77,7 +77,6 @@ class jgraph {
     vertex_data_type(const vertex_data_type &) = default;
 
     /// \brief Allocator-extended copy constructor
-    /// This will be used by scoped-allocator
     vertex_data_type(const vertex_data_type &other, const allocator_type &alloc)
         : m_id(other.m_id, alloc),
           m_value(other.m_value, alloc) {}
@@ -86,7 +85,7 @@ class jgraph {
     vertex_data_type(vertex_data_type &&) noexcept = default;
 
     /// \brief Allocator-extended move constructor
-    /// This will be used by scoped-allocator
+
     vertex_data_type(vertex_data_type &&other, const allocator_type &alloc) noexcept
         : m_id(std::move(other.m_id), alloc),
           m_value(std::move(other.m_value), alloc) {}
@@ -138,7 +137,7 @@ class jgraph {
     edge_data_type(const edge_data_type &) = default;
 
     /// \brief Allocator-extended copy constructor
-    /// This will be used by scoped-allocator
+
     edge_data_type(const edge_data_type &other, const allocator_type &alloc)
         : m_source_id(other.m_source_id, alloc),
           m_destination_id(other.m_destination_id, alloc),
@@ -149,7 +148,7 @@ class jgraph {
     edge_data_type(edge_data_type &&) noexcept = default;
 
     /// \brief Allocator-extended move constructor
-    /// This will be used by scoped-allocator
+
     edge_data_type(edge_data_type &&other, const allocator_type &alloc) noexcept
         : m_source_id(other.m_source_id, alloc),
           m_destination_id(other.m_destination_id, alloc),
@@ -337,7 +336,7 @@ class jgraph {
   }
 
   /// \brief Returns the degree of the vertex corresponds to 'vid'.
-  /// \param vid A vertex ID.
+  /// \param vertex_id A vertex ID.
   /// \return Returns the degree of the vertex corresponds to 'vid'.
   /// If no vertex is associated with 'vid', returns 0.
   std::size_t degree(const id_type &vertex_id) const {

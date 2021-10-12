@@ -2,7 +2,7 @@
 [![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
 [![Deploy API Doc](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml/badge.svg?branch=master)](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml)
 
-Metall: A Persistent Memory Allocator For Data-Centric Analytics
+Metall: A Persistent Memory Allocator for Data-Centric Analytics
 ===============================================
 
 * Provides rich memory allocation interfaces for C++ applications that
@@ -32,23 +32,21 @@ All core files exist under
 ## Required
 
 - GCC 8.1 or more (8.3 or more is recommended due to early implementation of the Filesystem library).
+- Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
+  - To use JSON containers in Metall, Boost C++ Libraries 1.75 or more is required.
 
 ## Build
 
-Boost C++ Libraries 1.64 or more is required (build is not required; needs only
-their header files).
-
-To build your program with Metall, all you have to do is just setting
-include paths such as '-I' or CPLUS_INCLUDE_PATH.
+To build your program with Metall, all you have to do is just setting include paths such as '-I' or CPLUS_INCLUDE_PATH.
 
 For example,
 
 ```bash
 # Download Boost (Boost C++ Libraries 1.64 or more is required)
 # One can skip this step if Boost is already available.
-wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz
-tar xvf boost_1_75_0.tar.gz
-export BOOST_ROOT=$PWD/boost_1_75_0
+wget https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.gz
+tar xvf boost_1_77_0.tar.gz
+export BOOST_ROOT=$PWD/boost_1_77_0
 
 git clone https://github.com/LLNL/metall
 export METALL_INCLUDE=$PWD/metall/include
@@ -83,7 +81,12 @@ g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT}/include -I${METALL_RO
 ```
 
 
-# Build Examples
+## Use Metall from Another CMake Project
+
+To download and/or link Metall package from a CMake project,
+see example CMake files placed [here](./example/cmake).
+
+# Build Example Programs
 
 Metall repository contains some example programs under [example directory](./example).
 One can use CMake to build the examples.
@@ -114,10 +117,13 @@ doxygen ../docs/Doxyfile.in
 
 ## Metall: A Persistent Memory Allocator Enabling Graph Processing
 
-[Paper PDF](https://www.osti.gov/servlets/purl/1576900)
+* [Paper PDF](https://www.osti.gov/servlets/purl/1576900)
 
-[IEEE Xplore](https://ieeexplore.ieee.org/document/8945094)
+* [IEEE Xplore](https://ieeexplore.ieee.org/document/8945094)
 
+## Metall: A Persistent Memory Allocator for Data-Centric Analytics (latest publication, preprint)
+
+* [arXiv](https://arxiv.org/abs/2108.07223)
 
 # About
 
