@@ -11,7 +11,7 @@ project(Metall
 
 configure_file(MetallConfig.h.in MetallConfig.h)
 
-# ----- Setting up a 'dummy' (INTERFACE) library to install header files ----- #
+# ----- Setting up a INTERFACE library to install header files ----- #
 include(GNUInstallDirs)
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME}
@@ -143,66 +143,6 @@ if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
-# ---------- CPP ---------- #
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS "-w")
-else ()
-    set(CMAKE_CXX_FLAGS "-Wall")
-endif ()
-
-# Memo:
-# On macOS and FreeBSD libc++ is the default standard library and the -stdlib=libc++ is not required.
-# https://libcxx.llvm.org/docs/UsingLibcxx.html
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
-        NOT (CMAKE_CXX_COMPILER_ID MATCHES "Darwin" OR CMAKE_CXX_COMPILER_ID MATCHES "FreeBSD"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-endif ()
-
-# Debug
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
-if (Linux)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
-endif ()
-
-# Release
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-else ()
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-endif ()
-
-# Release with debug info
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -Og")
-if (Linux)
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -pg")
-endif ()
-
-# ---------- C ---------- #
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS "-w")
-else ()
-    set(CMAKE_C_FLAGS "-Wall")
-endif ()
-
-# Debug
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
-if (Linux)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -pg")
-endif ()
-
-# Release
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS_RELEASE "-O3")
-else ()
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-endif ()
-
-# Release with debug info
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g3 -Og")
-if (Linux)
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -pg")
-endif ()
-
 # ---------- MPI ---------- #
 find_package(MPI)
 
@@ -308,15 +248,55 @@ endif ()
 # -------------------------------------------------------------------------------- #
 # Add executable functions
 # -------------------------------------------------------------------------------- #
+function(add_common_compile_options name)
+    # Common
+    target_compile_options(${name} PRIVATE -Wall)
+
+    # Debug
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Og>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-g3>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Wextra>)
+    if (Linux)
+        target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-pg>)
+    endif ()
+
+    # Release
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Release>:-Ofast>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Release>:-DNDEBUG>)
+
+    # Release with debug info
+    target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-Ofast>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-g3>)
+    if (Linux)
+        target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-pg>)
+    endif ()
+endfunction()
+
 function(common_setup_for_metall_executable name)
     target_include_directories(${name} PRIVATE ${Boost_INCLUDE_DIRS})
 
     target_link_libraries(${name} PRIVATE Threads::Threads)
 
+    # ----- Compile Options ----- #
+    add_common_compile_options(${name})
+
+    # Memo:
+    # On macOS and FreeBSD libc++ is the default standard library and the -stdlib=libc++ is not required.
+    # https://libcxx.llvm.org/docs/UsingLibcxx.html
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
+            NOT (CMAKE_CXX_COMPILER_ID MATCHES "Darwin" OR CMAKE_CXX_COMPILER_ID MATCHES "FreeBSD"))
+        target_compile_options(${name} PRIVATE -stdlib=libc++)
+    endif ()
+    # --------------------
+
+    # ----- Compile Definitions ----- #
     foreach(X IN LISTS METALL_DEFS)
         target_compile_definitions(${name} PRIVATE ${X})
     endforeach()
+    # --------------------
 
+    # ----- CXX17 Filesystem Lib----- #
+    # include_cxx_filesystem_library module must be executed first
     if (FOUND_CXX17_FILESYSTEM_LIB)
         if (REQUIRE_LIB_STDCXX_FS)
             target_link_libraries(${name} PRIVATE stdc++fs)
@@ -324,7 +304,9 @@ function(common_setup_for_metall_executable name)
     elseif()
         target_compile_definitions(${name} PRIVATE "METALL_DISABLE_CXX17_FILESYSTEM_LIB")
     endif()
+    # --------------------
 
+    # ----- Umap----- #
     if (UMAP_ROOT)
         target_include_directories(${name} PRIVATE ${UMAP_ROOT}/include)
         if (LIBUMAP)
@@ -332,10 +314,11 @@ function(common_setup_for_metall_executable name)
             target_compile_definitions(${name} PRIVATE METALL_USE_UMAP)
         endif ()
     endif ()
+    # --------------------
 endfunction()
 
 function(add_metall_executable name source)
-    set(ADDED_METALL_EXE FALSE PARENT_SCOPE)
+    set(ADDED_METALL_EXE FALSE PARENT_SCOPE) # Tell the caller if an executable is added w/o issue
 
     if (Boost_FOUND)
         add_executable(${name} ${source})
@@ -346,6 +329,10 @@ function(add_metall_executable name source)
     endif ()
 endfunction()
 
+function(add_c_executable name source)
+    add_executable(${name} ${source})
+    add_common_compile_options(${name})
+endfunction()
 
 # -------------------------------------------------------------------------------- #
 # Build tree

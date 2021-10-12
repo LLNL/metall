@@ -33,7 +33,7 @@ add_metall_executable(concurrent_map concurrent_map.cpp)
 add_metall_executable(metall_containers metall_containers.cpp)
 
 if (BUILD_C)
-    add_executable(c_api c_api.c)
+    add_c_executable(c_api c_api.c)
     target_link_libraries(c_api PRIVATE metall_c)
 endif()
 
