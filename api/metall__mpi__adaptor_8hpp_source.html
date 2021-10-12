@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.16</span>
+   &#160;<span id="projectnumber">v0.17</span>
    </div>
    <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
   </td>
@@ -269,155 +269,162 @@ $(document).ready(function(){initNavTree('metall__mpi__adaptor_8hpp_source.html'
 <div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordflow">return</span> priv_read_num_partitions(root_dir_prefix, comm);</div>
 <div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;  }</div>
 <div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160; </div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  <span class="keyword">static</span> constexpr <span class="keyword">const</span> <span class="keywordtype">char</span> *k_datastore_mark_file_name = <span class="stringliteral">&quot;metall_mpi_datastore&quot;</span>;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;  <span class="keyword">static</span> constexpr <span class="keyword">const</span> <span class="keywordtype">char</span> *k_partition_size_file_name = <span class="stringliteral">&quot;metall_mpi_adaptor_partition_size&quot;</span>;</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160; </div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;  <span class="comment">// -------------------------------------------------------------------------------- //</span></div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;  <span class="comment">// Private methods</span></div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;  <span class="comment">// -------------------------------------------------------------------------------- //</span></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_setup_root_dir(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = priv_mpi_comm_rank(comm);</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = priv_mpi_comm_size(comm);</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a> = <a class="code" href="namespacemetall_1_1utility_1_1mpi__datastore.html#a84291fb340719b0733677f7a0fae887e">ds::make_root_dir_path</a>(root_dir_prefix);</div>
+<div class="line"><a name="l00228"></a><span class="lineno"><a class="line" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a2860617841b8e570cda4302445295daf">  228</a></span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a2860617841b8e570cda4302445295daf">consistent</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm = MPI_COMM_WORLD) {</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = priv_mpi_comm_rank(comm);</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> local_path = <a class="code" href="namespacemetall_1_1utility_1_1mpi__datastore.html#ab0579ac7b3a7f8a14147bd96b83e9476">ds::make_local_dir_path</a>(root_dir_prefix, rank);</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> ret = <a class="code" href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">manager_type::consistent</a>(local_path.c_str());</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordflow">return</span> priv_global_and(ret, comm);</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;  }</div>
 <div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160; </div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="comment">// Make sure the root directory and a file with the same name do not exist</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> local_ret = metall::mtlldetail::file_exist(<a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>);</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keywordflow">if</span> (priv_global_or(local_ret, comm)) {</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;      <span class="keywordflow">if</span> (rank == 0) {</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;        <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Root directory (or a file with the same name) already exists: &quot;</span> + <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>);</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;        <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;      }</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    }</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    priv_mpi_barrier(comm);</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160; </div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i) {</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;      <span class="keywordflow">if</span> (i == rank &amp;&amp; !metall::mtlldetail::directory_exist(<a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>)) {</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;        <span class="keywordflow">if</span> (!metall::mtlldetail::create_directory(<a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>)) {</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;          <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to create directory: &quot;</span> + <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>);</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;          <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;          ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;        }</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160; </div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;        <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> mark_file = <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a> + <span class="stringliteral">&quot;/&quot;</span> + k_datastore_mark_file_name;</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        <span class="keywordflow">if</span> (!metall::mtlldetail::create_file(mark_file)) {</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;          <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to create file: &quot;</span> + mark_file);</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;          <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;          ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;        }</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;        priv_store_partition_size(root_dir_prefix, comm);</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;      }</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;      priv_mpi_barrier(comm);</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    }</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;  }</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160; </div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_store_partition_size(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = priv_mpi_comm_size(comm);</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> path = <a class="code" href="namespacemetall_1_1utility_1_1mpi__datastore.html#a84291fb340719b0733677f7a0fae887e">ds::make_root_dir_path</a>(root_dir_prefix) + <span class="stringliteral">&quot;/&quot;</span> + k_partition_size_file_name;</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160; </div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    std::ofstream ofs(path);</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keywordflow">if</span> (!ofs) {</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to create a file: &quot;</span> + path);</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;  <span class="keyword">static</span> constexpr <span class="keyword">const</span> <span class="keywordtype">char</span> *k_datastore_mark_file_name = <span class="stringliteral">&quot;metall_mpi_datastore&quot;</span>;</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;  <span class="keyword">static</span> constexpr <span class="keyword">const</span> <span class="keywordtype">char</span> *k_partition_size_file_name = <span class="stringliteral">&quot;metall_mpi_adaptor_partition_size&quot;</span>;</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160; </div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;  <span class="comment">// -------------------------------------------------------------------------------- //</span></div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;  <span class="comment">// Private methods</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;  <span class="comment">// -------------------------------------------------------------------------------- //</span></div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_setup_root_dir(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = priv_mpi_comm_rank(comm);</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = priv_mpi_comm_size(comm);</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a> = <a class="code" href="namespacemetall_1_1utility_1_1mpi__datastore.html#a84291fb340719b0733677f7a0fae887e">ds::make_root_dir_path</a>(root_dir_prefix);</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160; </div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="comment">// Make sure the root directory and a file with the same name do not exist</span></div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> local_ret = metall::mtlldetail::file_exist(<a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>);</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="keywordflow">if</span> (priv_global_or(local_ret, comm)) {</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;      <span class="keywordflow">if</span> (rank == 0) {</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;        <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Root directory (or a file with the same name) already exists: &quot;</span> + <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>);</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;        <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;        ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;      }</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    }</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    priv_mpi_barrier(comm);</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; size; ++i) {</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;      <span class="keywordflow">if</span> (i == rank &amp;&amp; !metall::mtlldetail::directory_exist(<a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>)) {</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;        <span class="keywordflow">if</span> (!metall::mtlldetail::create_directory(<a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>)) {</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;          <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to create directory: &quot;</span> + <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a>);</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;          <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;          ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;        }</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160; </div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;        <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> mark_file = <a class="code" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">root_dir_path</a> + <span class="stringliteral">&quot;/&quot;</span> + k_datastore_mark_file_name;</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;        <span class="keywordflow">if</span> (!metall::mtlldetail::create_file(mark_file)) {</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;          <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to create file: &quot;</span> + mark_file);</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;          <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;          ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;        }</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160; </div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;        priv_store_partition_size(root_dir_prefix, comm);</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;      }</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;      priv_mpi_barrier(comm);</div>
 <div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    }</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    ofs &lt;&lt; size;</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keywordflow">if</span> (!ofs) {</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to write data to a file: &quot;</span> + path);</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    }</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    ofs.close();</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;  }</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160; </div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_read_num_partitions(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> path = <a class="code" href="namespacemetall_1_1utility_1_1mpi__datastore.html#a84291fb340719b0733677f7a0fae887e">ds::make_root_dir_path</a>(root_dir_prefix) + <span class="stringliteral">&quot;/&quot;</span> + k_partition_size_file_name;</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    std::ifstream ifs(path);</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="keywordflow">if</span> (!ifs) {</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to open a file: &quot;</span> + path);</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    }</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="keywordtype">int</span> read_size = -1;</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="keywordflow">if</span> (!(ifs &gt;&gt; read_size)) {</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to read data from: &quot;</span> + path);</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    }</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160; </div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="keywordflow">return</span> read_size;</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;  }</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160; </div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_verify_num_partitions(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = priv_mpi_comm_rank(comm);</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = priv_mpi_comm_size(comm);</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160; </div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="keywordflow">if</span> (rank == 0) {</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;      <span class="keywordflow">if</span> (priv_read_num_partitions(root_dir_prefix, comm) != size) {</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;        <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, <span class="stringliteral">&quot;Invalid number of MPI processes&quot;</span>);</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;        ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;      }</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    }</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    priv_mpi_barrier(comm);</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;  }</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160; </div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_mpi_comm_rank(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a501b6347f98ce5ba51c21d10f97e0edd">mpi::comm_rank</a>(comm);</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;    <span class="keywordflow">if</span> (rank == -1) {</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;    }</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;    <span class="keywordflow">return</span> rank;</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;  }</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160; </div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_mpi_comm_size(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a73088dd304baff1eb99190a9c1b0624c">mpi::comm_size</a>(comm);</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;    <span class="keywordflow">if</span> (size == -1) {</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;    }</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    <span class="keywordflow">return</span> size;</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;  }</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160; </div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_mpi_barrier(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="keywordflow">if</span> (!<a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a0f364bb6d6cd66f8d80b0a18159cb9e1">mpi::barrier</a>(comm)) {</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    }</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;  }</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160; </div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> priv_global_and(<span class="keyword">const</span> <span class="keywordtype">bool</span> local_result, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> ret = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#afb786a53943f562fb9a00b99ece3edda">mpi::global_logical_and</a>(local_result, comm);</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    <span class="keywordflow">if</span> (!ret.first) {</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;    }</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    <span class="keywordflow">return</span> ret.second;</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;  }</div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160; </div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> priv_global_or(<span class="keyword">const</span> <span class="keywordtype">bool</span> local_result, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> ret = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a98c11c45c4091db08f85ddf179a11be3">mpi::global_logical_or</a>(local_result, comm);</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;    <span class="keywordflow">if</span> (!ret.first) {</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;    }</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;    <span class="keywordflow">return</span> ret.second;</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;  }</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160; </div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_determine_local_root_rank(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a8743f8c47f9b142f8653ccef389c9b66">mpi::determine_local_root</a>(comm);</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;    <span class="keywordflow">if</span> (rank == -1) {</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, <span class="stringliteral">&quot;Failed at determining a local root rank&quot;</span>);</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;      ::MPI_Abort(comm, -1);</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    }</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    <span class="keywordflow">return</span> rank;</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;  }</div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160; </div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;  MPI_Comm m_mpi_comm;</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;  <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> m_root_dir_prefix;</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;  std::unique_ptr&lt;manager_type&gt; m_local_metall_manager;</div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;};</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160; </div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;} <span class="comment">// namespace metall::utility</span></div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160; </div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="preprocessor">#endif //METALL_UTILITY_METALL_MPI_ADAPTOR_HPP</span></div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;  }</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160; </div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_store_partition_size(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = priv_mpi_comm_size(comm);</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> path = <a class="code" href="namespacemetall_1_1utility_1_1mpi__datastore.html#a84291fb340719b0733677f7a0fae887e">ds::make_root_dir_path</a>(root_dir_prefix) + <span class="stringliteral">&quot;/&quot;</span> + k_partition_size_file_name;</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160; </div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    std::ofstream ofs(path);</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keywordflow">if</span> (!ofs) {</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to create a file: &quot;</span> + path);</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    }</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    ofs &lt;&lt; size;</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keywordflow">if</span> (!ofs) {</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to write data to a file: &quot;</span> + path);</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    }</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    ofs.close();</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;  }</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160; </div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_read_num_partitions(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> path = <a class="code" href="namespacemetall_1_1utility_1_1mpi__datastore.html#a84291fb340719b0733677f7a0fae887e">ds::make_root_dir_path</a>(root_dir_prefix) + <span class="stringliteral">&quot;/&quot;</span> + k_partition_size_file_name;</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    std::ifstream ifs(path);</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="keywordflow">if</span> (!ifs) {</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to open a file: &quot;</span> + path);</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    }</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="keywordtype">int</span> read_size = -1;</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="keywordflow">if</span> (!(ifs &gt;&gt; read_size)) {</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;      <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> s(<span class="stringliteral">&quot;Failed to read data from: &quot;</span> + path);</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, s.c_str());</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    }</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160; </div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="keywordflow">return</span> read_size;</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;  }</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160; </div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_verify_num_partitions(<span class="keyword">const</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> &amp;root_dir_prefix, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = priv_mpi_comm_rank(comm);</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = priv_mpi_comm_size(comm);</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160; </div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;    <span class="keywordflow">if</span> (rank == 0) {</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;      <span class="keywordflow">if</span> (priv_read_num_partitions(root_dir_prefix, comm) != size) {</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;        <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, <span class="stringliteral">&quot;Invalid number of MPI processes&quot;</span>);</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;      }</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;    }</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;    priv_mpi_barrier(comm);</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;  }</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160; </div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_mpi_comm_rank(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a501b6347f98ce5ba51c21d10f97e0edd">mpi::comm_rank</a>(comm);</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;    <span class="keywordflow">if</span> (rank == -1) {</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;    }</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="keywordflow">return</span> rank;</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;  }</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160; </div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_mpi_comm_size(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> size = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a73088dd304baff1eb99190a9c1b0624c">mpi::comm_size</a>(comm);</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    <span class="keywordflow">if</span> (size == -1) {</div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    }</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    <span class="keywordflow">return</span> size;</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;  }</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160; </div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> priv_mpi_barrier(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;    <span class="keywordflow">if</span> (!<a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a0f364bb6d6cd66f8d80b0a18159cb9e1">mpi::barrier</a>(comm)) {</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;    }</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;  }</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160; </div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> priv_global_and(<span class="keyword">const</span> <span class="keywordtype">bool</span> local_result, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> ret = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#afb786a53943f562fb9a00b99ece3edda">mpi::global_logical_and</a>(local_result, comm);</div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;    <span class="keywordflow">if</span> (!ret.first) {</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;    }</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;    <span class="keywordflow">return</span> ret.second;</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;  }</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160; </div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> priv_global_or(<span class="keyword">const</span> <span class="keywordtype">bool</span> local_result, <span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    <span class="keyword">const</span> <span class="keyword">auto</span> ret = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a98c11c45c4091db08f85ddf179a11be3">mpi::global_logical_or</a>(local_result, comm);</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    <span class="keywordflow">if</span> (!ret.first) {</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;    }</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;    <span class="keywordflow">return</span> ret.second;</div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;  }</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160; </div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">int</span> priv_determine_local_root_rank(<span class="keyword">const</span> MPI_Comm &amp;comm) {</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">int</span> rank = <a class="code" href="namespacemetall_1_1utility_1_1mpi.html#a8743f8c47f9b142f8653ccef389c9b66">mpi::determine_local_root</a>(comm);</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    <span class="keywordflow">if</span> (rank == -1) {</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;      <a class="code" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">logger::out</a>(<a class="code" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">logger::level::error</a>, __FILE__, __LINE__, <span class="stringliteral">&quot;Failed at determining a local root rank&quot;</span>);</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;      ::MPI_Abort(comm, -1);</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    }</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;    <span class="keywordflow">return</span> rank;</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;  }</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160; </div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;  MPI_Comm m_mpi_comm;</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;  <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> m_root_dir_prefix;</div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;  std::unique_ptr&lt;manager_type&gt; m_local_metall_manager;</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;};</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160; </div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;} <span class="comment">// namespace metall::utility</span></div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160; </div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="preprocessor">#endif //METALL_UTILITY_METALL_MPI_ADAPTOR_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclassmetall_1_1utility_1_1metall__mpi__adaptor_html"><div class="ttname"><a href="classmetall_1_1utility_1_1metall__mpi__adaptor.html">metall::utility::metall_mpi_adaptor</a></div><div class="ttdoc">A utility class for using Metall with MPI This is an experimental implementation.</div><div class="ttdef"><b>Definition:</b> metall_mpi_adaptor.hpp:24</div></div>
@@ -441,6 +448,8 @@ $(document).ready(function(){initNavTree('metall__mpi__adaptor_8hpp_source.html'
 <div class="ttc" id="astructmetall_1_1open__read__only__t_html"><div class="ttname"><a href="structmetall_1_1open__read__only__t.html">metall::open_read_only_t</a></div><div class="ttdoc">Tag type to open an already created segment as read only.</div><div class="ttdef"><b>Definition:</b> tags.hpp:28</div></div>
 <div class="ttc" id="anamespacemetall_1_1utility_1_1mpi_html_a8743f8c47f9b142f8653ccef389c9b66"><div class="ttname"><a href="namespacemetall_1_1utility_1_1mpi.html#a8743f8c47f9b142f8653ccef389c9b66">metall::utility::mpi::determine_local_root</a></div><div class="ttdeci">int determine_local_root(const MPI_Comm &amp;comm)</div><div class="ttdoc">Determines a local root rank.</div><div class="ttdef"><b>Definition:</b> mpi.hpp:76</div></div>
 <div class="ttc" id="aclassmetall_1_1utility_1_1metall__mpi__adaptor_html_a7b23a73205468d9d9f831f61b156f646"><div class="ttname"><a href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a7b23a73205468d9d9f831f61b156f646">metall::utility::metall_mpi_adaptor::root_dir_path</a></div><div class="ttdeci">std::string root_dir_path() const</div><div class="ttdoc">Returns the root path of a Metall datastore.</div><div class="ttdef"><b>Definition:</b> metall_mpi_adaptor.hpp:119</div></div>
+<div class="ttc" id="aclassmetall_1_1utility_1_1metall__mpi__adaptor_html_a2860617841b8e570cda4302445295daf"><div class="ttname"><a href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a2860617841b8e570cda4302445295daf">metall::utility::metall_mpi_adaptor::consistent</a></div><div class="ttdeci">static bool consistent(const char *root_dir_prefix, const MPI_Comm &amp;comm=MPI_COMM_WORLD)</div><div class="ttdoc">Checks if all local datastores are consistent.</div><div class="ttdef"><b>Definition:</b> metall_mpi_adaptor.hpp:228</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html_acf7c87f6f553405e86eb4221e1972b44"><div class="ttname"><a href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">metall::basic_manager::consistent</a></div><div class="ttdeci">static bool consistent(const char_type *dir_path) noexcept</div><div class="ttdoc">Check if a data store exists and is consistent (i.e., it was closed properly in the previous run).</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:890</div></div>
 <div class="ttc" id="aclassmetall_1_1basic__manager_html_ab721ac4255db8300c2dbcfc0686ec108"><div class="ttname"><a href="classmetall_1_1basic__manager.html#ab721ac4255db8300c2dbcfc0686ec108">metall::basic_manager::copy</a></div><div class="ttdeci">static bool copy(const char_type *source_dir_path, const char_type *destination_dir_path, const bool clone=true, const int num_max_copy_threads=0) noexcept</div><div class="ttdoc">Copies data store synchronously. The behavior of copying a data store that is open without the read-o...</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:829</div></div>
 <div class="ttc" id="aclassmetall_1_1utility_1_1metall__mpi__adaptor_html_a23b93d40901a12395de5bd1efa59e79f"><div class="ttname"><a href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a23b93d40901a12395de5bd1efa59e79f">metall::utility::metall_mpi_adaptor::copy</a></div><div class="ttdeci">static bool copy(const char *source_dir_path, const char *destination_dir_path, const MPI_Comm &amp;comm=MPI_COMM_WORLD)</div><div class="ttdoc">Copies a Metall datastore to another location.</div><div class="ttdef"><b>Definition:</b> metall_mpi_adaptor.hpp:143</div></div>
 <div class="ttc" id="ampi_8hpp_html"><div class="ttname"><a href="mpi_8hpp.html">mpi.hpp</a></div></div>
