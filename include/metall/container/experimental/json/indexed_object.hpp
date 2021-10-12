@@ -185,8 +185,8 @@ class indexed_object {
     return priv_erase(position);
   }
 
-  /// \brief Erases the element at 'position'.
-  /// \param position The position of the element to erase.
+  /// \brief Erases the element associated with 'key'.
+  /// \param key The key of the element to erase.
   /// \return Iterator following the removed element.
   /// If 'position' refers to the last element, then the end() iterator is returned.
   iterator erase(const key_type &key) {

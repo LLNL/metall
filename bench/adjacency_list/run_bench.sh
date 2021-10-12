@@ -10,15 +10,15 @@
 # Options
 # ------------------------- #
 VERTEX_SCALE=17        # RMAT graph SCALE
+CHUNK_SIZE=$((2 ** 20)) # #of edges/items to insert at each iteration
 FILE_SIZE=$((2 ** 30)) # File size for Boost.Interprocess and MEMKIND (pmem kind)
 LOG_FILE_PREFIX="out_adj_bench"
 NUM_THREADS=""
-OMP_SCHEDULE=""
+OMP_SCHEDULE="env OMP_SCHEDULE=static"
 case "$OSTYPE" in
 darwin*) DATASTORE_DIR_ROOT="/tmp" ;;
 linux*) DATASTORE_DIR_ROOT="/dev/shm" ;;
 esac
-CHUNK_SIZE=$((2 ** 20))
 NO_CLEANING_FILES_AT_END=false
 UMAP_PAGESIZE=""
 EXEC_NAME="metall" # "run_adj_list_bench_${EXEC_NAME}" is the execution file
