@@ -61,8 +61,13 @@ class indexed_object {
   using const_iterator = typename value_storage_type::const_iterator;
 
   /// \brief Constructor.
+  indexed_object()
+      : m_index_table(allocator_type()),
+        m_value_storage(allocator_type()) {}
+
+  /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit indexed_object(const allocator_type &alloc = allocator_type())
+  explicit indexed_object(const allocator_type &alloc)
       : m_index_table(alloc),
         m_value_storage(alloc) {}
 

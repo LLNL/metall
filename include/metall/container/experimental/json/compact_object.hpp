@@ -50,8 +50,12 @@ class compact_object {
   using const_iterator = typename value_storage_type::const_iterator;
 
   /// \brief Constructor.
+  compact_object()
+      : m_value_storage(allocator_type()) {}
+
+  /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit compact_object(const allocator_type &alloc = allocator_type())
+  explicit compact_object(const allocator_type &alloc)
       : m_value_storage(alloc) {}
 
   /// \brief Copy constructor
