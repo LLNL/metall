@@ -37,14 +37,19 @@ class value {
                                           object_type, array_type, string_type>;
 
  public:
-  explicit value(const allocator_type &alloc = allocator_type())
+  /// \brief Constructor.
+  value()
+      : m_allocator(allocator_type()) {}
+
+  /// \brief Constructor.
+  /// \param alloc An allocator object.
+  explicit value(const allocator_type &alloc)
       : m_allocator(alloc) {}
 
   /// \brief Copy constructor
   value(const value &) = default;
 
   /// \brief Allocator-extended copy constructor
-
   value(const value &other, const allocator_type &alloc)
       : m_allocator(alloc) {
     if (other.is_object()) {
