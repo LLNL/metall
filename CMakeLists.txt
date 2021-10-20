@@ -66,6 +66,7 @@ install(FILES
 # ----------
 # User configurable options
 # -------------------------------------------------------------------------------- #
+option(JUST_INSTALL_HEADER "Just install Metall header files (do not build anything)" OFF)
 option(BUILD_UTILITY "Build utility programs" OFF)
 option(BUILD_DOC "Build API documentation" OFF)
 option(BUILD_C "Build C examples and libraries" OFF)
@@ -110,6 +111,26 @@ endif ()
 # -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
+# Exit before building anything
+# -------------------------------------------------------------------------------- #
+if (INSTALL_HEADER_ONLY)
+    message(WARNING "INSTALL_HEADER_ONLY option has been replaced with JUST_INSTALL_HEADER.")
+endif()
+
+if (JUST_INSTALL_HEADER)
+    return()
+endif()
+# -------------------------------------------------------------------------------- #
+
+# -------------------------------------------------------------------------------- #
+# Exit CMake if there is nothing to build
+# -------------------------------------------------------------------------------- #
+if (NOT (BUILD_UTILITY OR BUILD_C OR BUILD_EXAMPLE OR BUILD_BENCH OR BUILD_TEST OR BUILD_VERIFICATION OR RUN_BUILD_AND_TEST_WITH_CI OR BUILD_DOC))
+    return()
+endif ()
+# -------------------------------------------------------------------------------- #
+
+# -------------------------------------------------------------------------------- #
 # Document (Doxygen)
 # -------------------------------------------------------------------------------- #
 if (BUILD_DOC)
@@ -117,23 +138,6 @@ if (BUILD_DOC)
     build_doc()
 endif ()
 # -------------------------------------------------------------------------------- #
-
-# -------------------------------------------------------------------------------- #
-# Old option
-# -------------------------------------------------------------------------------- #
-if (INSTALL_HEADER_ONLY)
-    message(WARNING "INSTALL_HEADER_ONLY option has been removed (as long as no BUILD_*** option is specified, only headers will be installed)")
-endif()
-# -------------------------------------------------------------------------------- #
-
-# -------------------------------------------------------------------------------- #
-# Exit CMake if there is nothing to build
-# -------------------------------------------------------------------------------- #
-if (NOT (BUILD_UTILITY OR BUILD_C OR BUILD_EXAMPLE OR BUILD_BENCH OR BUILD_TEST OR BUILD_VERIFICATION OR RUN_BUILD_AND_TEST_WITH_CI))
-    return()
-endif ()
-# -------------------------------------------------------------------------------- #
-
 
 # -------------------------------------------------------------------------------- #
 # Executables
