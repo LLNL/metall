@@ -399,10 +399,13 @@ class value {
 
  private:
   bool priv_reset() {
-    std::visit([](const auto &arg) {
-      using T = std::decay_t<decltype(arg)>;
-      arg.~T();
+    std::visit([](auto &&data) {
+      using T = std::decay_t<decltype(data)>;
+      if constexpr (!std::is_same_v<T, null_type>) {
+        data.~T();
+      }
     }, m_data);
+
     m_data.template emplace<null_type>();
     return true;
   }
