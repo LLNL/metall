@@ -191,13 +191,14 @@ class key_value_pair {
   }
 
   bool priv_deallocate_key() {
-    if (m_key_length) return true;
-
-    if (m_key_length > k_short_key_max_length) {
+    if (m_key_length <= k_short_key_max_length) {
+      m_key_length = 0;
+      m_value.emplace_null();
+    } else {
       char_allocator_type alloc(m_value.get_allocator());
       std::allocator_traits<char_allocator_type>::deallocate(alloc, m_long_key, m_key_length);
     }
-    m_key_length = 0;
+
     return true;
   }
 
