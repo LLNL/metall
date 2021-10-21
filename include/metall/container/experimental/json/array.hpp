@@ -39,8 +39,7 @@ class array {
   using const_iterator = typename array_type::const_iterator;
 
   /// \brief Constructor.
-  array()
-      : m_array(allocator_type()) {}
+  array() {}
 
   /// \brief Constructor.
   /// \param alloc An allocator object.
@@ -134,7 +133,7 @@ class array {
   }
 
  private:
-  array_type m_array;
+  array_type m_array{_allocator_type{}};
 };
 
 } // namespace metall::container::experimental::json
