@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(FetchContent)
+
+# -------------------------------------------------------------------------------- #
+# CMake policy
+# -------------------------------------------------------------------------------- #
+cmake_policy(SET CMP0077 NEW)
 
 # -------------------------------------------------------------------------------- #
 # Metall general configuration
@@ -66,7 +72,7 @@ install(FILES
 # ----------
 # User configurable options
 # -------------------------------------------------------------------------------- #
-option(JUST_INSTALL_HEADER "Just install Metall header files (do not build anything)" OFF)
+option(JUST_INSTALL_METALL_HEADER "Just install Metall header files (do not build anything)" OFF)
 option(BUILD_UTILITY "Build utility programs" OFF)
 option(BUILD_DOC "Build API documentation" OFF)
 option(BUILD_C "Build C examples and libraries" OFF)
@@ -114,10 +120,10 @@ endif ()
 # Exit before building anything
 # -------------------------------------------------------------------------------- #
 if (INSTALL_HEADER_ONLY)
-    message(WARNING "INSTALL_HEADER_ONLY option has been replaced with JUST_INSTALL_HEADER.")
+    message(WARNING "INSTALL_HEADER_ONLY option has been replaced with JUST_INSTALL_METALL_HEADER.")
 endif()
 
-if (JUST_INSTALL_HEADER)
+if (JUST_INSTALL_METALL_HEADER)
     return()
 endif()
 # -------------------------------------------------------------------------------- #
@@ -242,12 +248,17 @@ endif ()
 # there is a tricky behavior/issue especially in Boost 1.70.0.
 set(Boost_NO_BOOST_CMAKE ON)
 
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    find_package(Boost)
-else ()
+find_package(Boost 1.64 QUIET)
+if (NOT Boost_FOUND)
+    FetchContent_Declare(Boost
+            URL https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2)
+    FetchContent_GetProperties(Boost)
+    if (NOT Boost_POPULATED)
+        FetchContent_Populate(Boost)
+    endif ()
+    set(BOOST_ROOT ${boost_SOURCE_DIR})
     find_package(Boost 1.64)
 endif ()
-
 
 # -------------------------------------------------------------------------------- #
 # Add executable functions
