@@ -50,8 +50,11 @@ class compact_object {
   using const_iterator = typename value_storage_type::const_iterator;
 
   /// \brief Constructor.
+  compact_object() {}
+
+  /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit compact_object(const allocator_type &alloc = allocator_type())
+  explicit compact_object(const allocator_type &alloc)
       : m_value_storage(alloc) {}
 
   /// \brief Copy constructor
@@ -171,8 +174,8 @@ class compact_object {
     return priv_erase(position);
   }
 
-  /// \brief Erases the element at 'position'.
-  /// \param position The position of the element to erase.
+  /// \brief Erases the element associated with 'key'.
+  /// \param key The key of the element to erase.
   /// \return Iterator following the removed element.
   /// If 'position' refers to the last element, then the end() iterator is returned.
   iterator erase(const key_type &key) {
@@ -190,7 +193,7 @@ class compact_object {
     return m_value_storage.max_size(); // Couldn't find
   }
 
-  value_postion_type priv_emplace_value(const key_type &key, mapped_type mapped_value) {
+  value_postion_type priv_emplace_value(const key_type &key, mapped_type&& mapped_value) {
     m_value_storage.emplace_back(key, std::move(mapped_value));
     return m_value_storage.size() - 1;
   }
@@ -204,7 +207,7 @@ class compact_object {
     return m_value_storage.erase(value_position);
   }
 
-  value_storage_type m_value_storage;
+  value_storage_type m_value_storage{_allocator_type{}};
 };
 
 } // namespace metall::container::experimental::json

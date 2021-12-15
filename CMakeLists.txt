@@ -1,36 +1,80 @@
-cmake_minimum_required(VERSION 3.10) # gtest_discover_tests requires >= CMake 3.10
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+cmake_minimum_required(VERSION 3.10)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(FetchContent)
 
 # -------------------------------------------------------------------------------- #
-# Configuration for installing header file
+# CMake policy
 # -------------------------------------------------------------------------------- #
-install(DIRECTORY include/metall DESTINATION include)
-install(DIRECTORY include/metall_container DESTINATION include)
-install(DIRECTORY include/metall_utility DESTINATION include)
-
-option(INSTALL_HEADER_ONLY "Only installing header files" OFF)
-if (INSTALL_HEADER_ONLY)
-    return()
-endif ()
-# -------------------------------------------------------------------------------- #
+cmake_policy(SET CMP0077 NEW)
 
 # -------------------------------------------------------------------------------- #
-# Configuration for building test, benchmark, example, etc.
+# Metall general configuration
 # -------------------------------------------------------------------------------- #
-project(Metall VERSION 0.16)
+project(Metall
+        VERSION 0.17
+        DESCRIPTION "A persistent memory allocator for data-centric analytics"
+        HOMEPAGE_URL "https://github.com/LLNL/metall")
+
 configure_file(MetallConfig.h.in MetallConfig.h)
 
-include_directories(${PROJECT_BINARY_DIR})
+# ----- Setting up a INTERFACE library to install header files ----- #
+include(GNUInstallDirs)
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME}
+        INTERFACE $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}_Targets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(EXPORT ${PROJECT_NAME}_Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/metall DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 # -------------------------------------------------------------------------------- #
+# Generate and install the package configuration and package version files
+# -------------------------------------------------------------------------------- #
+include(CMakePackageConfigHelpers)
+
+# generate the version file for the config file
+write_basic_package_version_file(
+        "${PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY ExactVersion)
+
+# create config file
+configure_package_config_file(
+        "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        INSTALL_DESTINATION
+        ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+# install config files
+install(FILES
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+# -------------------------------------------------------------------------------- #
+
+
+# -------------------------------------------------------------------------------- #
+# Configuration for building test, benchmark, example, etc.
+# ----------
 # User configurable options
 # -------------------------------------------------------------------------------- #
+option(JUST_INSTALL_METALL_HEADER "Just install Metall header files (do not build anything)" OFF)
+option(BUILD_UTILITY "Build utility programs" OFF)
 option(BUILD_DOC "Build API documentation" OFF)
-option(BUILD_DOC_ONLY "Only build API documentation" OFF)
 option(BUILD_C "Build C examples and libraries" OFF)
 option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
 option(DISABLE_FREE_FILE_SPACE "Disable freeing file space" OFF)
@@ -63,128 +107,34 @@ set(FREE_SMALL_OBJECT_SIZE_HINT "0" CACHE STRING
 
 # -------------------------------------------------------------------------------- #
 
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-    message(STATUS "CMAKE_BUILD_TYPE is set as Release")
+# -------------------------------------------------------------------------------- #
+# Only downloading Google Test
+# -------------------------------------------------------------------------------- #
+if (ONLY_DOWNLOAD_GTEST)
+    add_subdirectory(test)
+    return()
 endif ()
+# -------------------------------------------------------------------------------- #
 
-# ---------- CPP ---------- #
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS "-w -pthread")
-else ()
-    set(CMAKE_CXX_FLAGS "-Wall -pthread")
-endif ()
-
-# Memo:
-# On macOS and FreeBSD libc++ is the default standard library and the -stdlib=libc++ is not required.
-# https://libcxx.llvm.org/docs/UsingLibcxx.html
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
-        NOT (CMAKE_CXX_COMPILER_ID MATCHES "Darwin" OR CMAKE_CXX_COMPILER_ID MATCHES "FreeBSD"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-endif ()
-
-# Debug
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wextra")
-if (Linux)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
-endif ()
-
-# Release
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-else ()
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-endif ()
-
-# Release with debug info
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -Og")
-if (Linux)
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -pg")
-endif ()
-
-# ---------- C ---------- #
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS "-w -pthread")
-else ()
-    set(CMAKE_C_FLAGS "-Wall -pthread")
-endif ()
-
-# Debug
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -Wextra")
-if (Linux)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -pg")
-endif ()
-
-# Release
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    set(CMAKE_C_FLAGS_RELEASE "-O3")
-else ()
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-endif ()
-
-# Release with debug info
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g3 -Og")
-if (Linux)
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -pg")
-endif ()
-
-# ---------- MPI ---------- #
-find_package(MPI)
-
-# ---------- Configure Metall ---------- #
-if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
-    add_definitions(-DMETALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT})
-    message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
-endif ()
-
-if (VERBOSE_SYSTEM_SUPPORT_WARNING)
-    add_definitions(-DMETALL_VERBOSE_SYSTEM_SUPPORT_WARNING)
-    message(STATUS "Show compile time warning regarding system support")
-endif ()
-
-if (DISABLE_FREE_FILE_SPACE)
-    add_definitions(-DMETALL_DISABLE_FREE_FILE_SPACE)
-    message(STATUS "Disable freeing file space in Metall")
-endif ()
-
-if (DISABLE_SMALL_OBJECT_CACHE)
-    add_definitions(-DMETALL_DISABLE_OBJECT_CACHE)
-    message(STATUS "Disable small object cache")
-endif ()
-
-if (DEFAULT_VM_RESERVE_SIZE GREATER 0)
-    add_definitions(-DMETALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE})
-    message(STATUS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
-endif ()
-
-if (MAX_SEGMENT_SIZE GREATER 0)
-    add_definitions(-DMETALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE})
-    message(STATUS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
-endif ()
-
-if (INITIAL_SEGMENT_SIZE GREATER 0)
-    add_definitions(-DMETALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE})
-    message(STATUS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
-endif ()
-
-if (LOGGING)
-    add_definitions(-DMETALL_ENABLE_LOGGING)
-    message(STATUS "Enable logging")
+# -------------------------------------------------------------------------------- #
+# Exit before building anything
+# -------------------------------------------------------------------------------- #
+if (INSTALL_HEADER_ONLY)
+    message(WARNING "INSTALL_HEADER_ONLY option has been replaced with JUST_INSTALL_METALL_HEADER.")
 endif()
 
-if (USE_SORTED_BIN)
-    add_definitions(-DMETALL_USE_SORTED_BIN)
-    message(STATUS "Use VM space aware algorithm in the bin directory")
+if (JUST_INSTALL_METALL_HEADER)
+    return()
 endif()
+# -------------------------------------------------------------------------------- #
 
-if (USE_ANONYMOUS_NEW_MAP)
-    if (USE_ANONYMOUS_NEW_MAP AND UMAP_ROOT)
-        message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
-    endif()
-
-    add_definitions(-DMETALL_USE_ANONYMOUS_NEW_MAP)
-    message(STATUS "Use the anonymous map for new map region")
-endif()
+# -------------------------------------------------------------------------------- #
+# Exit CMake if there is nothing to build
+# -------------------------------------------------------------------------------- #
+if (NOT (BUILD_UTILITY OR BUILD_C OR BUILD_EXAMPLE OR BUILD_BENCH OR BUILD_TEST OR BUILD_VERIFICATION OR RUN_BUILD_AND_TEST_WITH_CI OR BUILD_DOC))
+    return()
+endif ()
+# -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
 # Document (Doxygen)
@@ -192,16 +142,75 @@ endif()
 if (BUILD_DOC)
     include(build_doc)
     build_doc()
-    if (BUILD_DOC_ONLY)
-        return()
-    endif ()
 endif ()
-
+# -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
 # Executables
 # -------------------------------------------------------------------------------- #
-include_directories(include)
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+    message(STATUS "CMAKE_BUILD_TYPE is set as Release")
+endif ()
+
+# ---------- MPI ---------- #
+find_package(MPI)
+
+# ---------- Configure Metall ---------- #
+if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
+    list(APPEND METALL_DEFS "METALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT}")
+    message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
+endif ()
+
+if (VERBOSE_SYSTEM_SUPPORT_WARNING)
+    list(APPEND METALL_DEFS "METALL_VERBOSE_SYSTEM_SUPPORT_WARNING")
+    message(STATUS "Show compile time warning regarding system support")
+endif ()
+
+if (DISABLE_FREE_FILE_SPACE)
+    list(APPEND METALL_DEFS "METALL_DISABLE_FREE_FILE_SPACE")
+    message(STATUS "Disable freeing file space in Metall")
+endif ()
+
+if (DISABLE_SMALL_OBJECT_CACHE)
+    list(APPEND METALL_DEFS "METALL_DISABLE_OBJECT_CACHE")
+    message(STATUS "Disable small object cache")
+endif ()
+
+if (DEFAULT_VM_RESERVE_SIZE GREATER 0)
+    list(APPEND METALL_DEFS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
+    message(STATUS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
+endif ()
+
+if (MAX_SEGMENT_SIZE GREATER 0)
+    list(APPEND METALL_DEFS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
+    message(STATUS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
+endif ()
+
+if (INITIAL_SEGMENT_SIZE GREATER 0)
+    list(APPEND METALL_DEFS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
+    message(STATUS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
+endif ()
+
+if (LOGGING)
+    list(APPEND METALL_DEFS "METALL_ENABLE_LOGGING")
+    message(STATUS "Enable logging")
+endif ()
+
+if (USE_SORTED_BIN)
+    list(APPEND METALL_DEFS "METALL_USE_SORTED_BIN")
+    message(STATUS "Use VM space aware algorithm in the bin directory")
+endif ()
+
+if (USE_ANONYMOUS_NEW_MAP)
+    if (USE_ANONYMOUS_NEW_MAP AND UMAP_ROOT)
+        message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
+    endif ()
+
+    list(APPEND METALL_DEFS "METALL_USE_ANONYMOUS_NEW_MAP")
+    message(STATUS "Use the anonymous map for new map region")
+endif ()
+
 
 # Requirements for GCC
 if (NOT RUN_BUILD_AND_TEST_WITH_CI)
@@ -213,11 +222,8 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
 endif ()
 
 
-# ---------- Only downloading Google Test ---------- #
-if (ONLY_DOWNLOAD_GTEST)
-    add_subdirectory(test)
-    return()
-endif ()
+# ---------- Threads ---------- #
+find_package(Threads REQUIRED)
 
 
 # ---------- filesystem ---------- #
@@ -231,15 +237,8 @@ include_cxx_filesystem_library()
 
 # ---------- UMap ---------- #
 if (UMAP_ROOT)
-    include_directories(${UMAP_ROOT}/include)
     if (UNIX AND NOT APPLE)
         find_library(LIBUMAP NAMES umap PATHS ${UMAP_ROOT}/lib)
-        if (LIBUMAP)
-            link_libraries(${LIBUMAP})
-            add_definitions(-DMETALL_USE_UMAP)
-        else ()
-            message(FATAL_ERROR "Cannot find UMap library")
-        endif ()
     endif ()
 endif ()
 
@@ -247,45 +246,127 @@ endif ()
 # ---------- Boost ---------- #
 # Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
 # there is a tricky behavior/issue especially in Boost 1.70.0.
-set (Boost_NO_BOOST_CMAKE ON)
+set(Boost_NO_BOOST_CMAKE ON)
 
-if (RUN_BUILD_AND_TEST_WITH_CI)
-    find_package(Boost)
-else ()
+find_package(Boost 1.64 QUIET)
+if (NOT Boost_FOUND)
+    FetchContent_Declare(Boost
+            URL https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2)
+    FetchContent_GetProperties(Boost)
+    if (NOT Boost_POPULATED)
+        FetchContent_Populate(Boost)
+    endif ()
+    set(BOOST_ROOT ${boost_SOURCE_DIR})
     find_package(Boost 1.64)
 endif ()
 
-if (Boost_FOUND)
+# -------------------------------------------------------------------------------- #
+# Add executable functions
+# -------------------------------------------------------------------------------- #
+function(add_common_compile_options name)
+    # Common
+    target_compile_options(${name} PRIVATE -Wall)
 
-    # Just a sanity check
-    if (NOT Boost_INCLUDE_DIRS)
-        message(FATAL_ERROR "Something is wrong: Boost_INCLUDE_DIRS is empty although Boost_FOUND is true.")
-    endif()
-    include_directories(${Boost_INCLUDE_DIRS})
-
-    add_subdirectory(src)
-
-    if (BUILD_EXAMPLE)
-        add_subdirectory(example)
-    endif()
-
-    if (BUILD_BENCH)
-        add_subdirectory(bench)
+    # Debug
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Og>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-g3>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Wextra>)
+    if (Linux)
+        target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-pg>)
     endif ()
 
-    if (BUILD_TEST)
-        if (RUN_LARGE_SCALE_TEST)
-            add_definitions(-DMETALL_RUN_LARGE_SCALE_TEST)
-            message(STATUS "Run large-scale tests")
+    # Release
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Release>:-Ofast>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:Release>:-DNDEBUG>)
+
+    # Release with debug info
+    target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-Ofast>)
+    target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-g3>)
+    if (Linux)
+        target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-pg>)
+    endif ()
+endfunction()
+
+function(common_setup_for_metall_executable name)
+    target_include_directories(${name} PRIVATE ${Boost_INCLUDE_DIRS})
+
+    target_link_libraries(${name} PRIVATE Threads::Threads)
+
+    # ----- Compile Options ----- #
+    add_common_compile_options(${name})
+
+    # Memo:
+    # On macOS and FreeBSD libc++ is the default standard library and the -stdlib=libc++ is not required.
+    # https://libcxx.llvm.org/docs/UsingLibcxx.html
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
+            NOT (CMAKE_CXX_COMPILER_ID MATCHES "Darwin" OR CMAKE_CXX_COMPILER_ID MATCHES "FreeBSD"))
+        target_compile_options(${name} PRIVATE -stdlib=libc++)
+    endif ()
+    # --------------------
+
+    # ----- Compile Definitions ----- #
+    foreach(X IN LISTS METALL_DEFS)
+        target_compile_definitions(${name} PRIVATE ${X})
+    endforeach()
+    # --------------------
+
+    # ----- CXX17 Filesystem Lib----- #
+    # include_cxx_filesystem_library module must be executed first
+    if (FOUND_CXX17_FILESYSTEM_LIB)
+        if (REQUIRE_LIB_STDCXX_FS)
+            target_link_libraries(${name} PRIVATE stdc++fs)
+        endif()
+    elseif()
+        target_compile_definitions(${name} PRIVATE "METALL_DISABLE_CXX17_FILESYSTEM_LIB")
+    endif()
+    # --------------------
+
+    # ----- Umap----- #
+    if (UMAP_ROOT)
+        target_include_directories(${name} PRIVATE ${UMAP_ROOT}/include)
+        if (LIBUMAP)
+            target_link_libraries(${name} PRIVATE ${LIBUMAP})
+            target_compile_definitions(${name} PRIVATE METALL_USE_UMAP)
         endif ()
-        enable_testing()
-        add_subdirectory(test)
     endif ()
+    # --------------------
+endfunction()
 
-    if (BUILD_VERIFICATION)
-        add_subdirectory(verification)
+function(add_metall_executable name source)
+    set(ADDED_METALL_EXE FALSE PARENT_SCOPE) # Tell the caller if an executable is added w/o issue
+
+    if (Boost_FOUND)
+        add_executable(${name} ${source})
+        target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+        common_setup_for_metall_executable(${name})
+
+        set(ADDED_METALL_EXE TRUE PARENT_SCOPE)
     endif ()
+endfunction()
 
-else ()
-    message(FATAL_ERROR "Can not find Boost C++ Libraries")
+function(add_c_executable name source)
+    add_executable(${name} ${source})
+    add_common_compile_options(${name})
+endfunction()
+
+# -------------------------------------------------------------------------------- #
+# Build tree
+# -------------------------------------------------------------------------------- #
+add_subdirectory(src)
+
+if (BUILD_EXAMPLE)
+    add_subdirectory(example)
+endif ()
+
+if (BUILD_BENCH)
+    add_subdirectory(bench)
+endif ()
+
+if (BUILD_TEST)
+    enable_testing()
+    add_subdirectory(test)
+endif ()
+
+if (BUILD_VERIFICATION)
+    add_subdirectory(verification)
 endif ()

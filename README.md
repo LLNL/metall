@@ -2,7 +2,7 @@
 [![Documentation Status](https://readthedocs.org/projects/metall/badge/?version=latest)](https://metall.readthedocs.io/en/latest/?badge=latest)
 [![Deploy API Doc](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml/badge.svg?branch=master)](https://github.com/LLNL/metall/actions/workflows/deploy-api-doc.yml)
 
-Metall: A Persistent Memory Allocator For Data-Centric Analytics
+Metall: A Persistent Memory Allocator for Data-Centric Analytics
 ===============================================
 
 * Provides rich memory allocation interfaces for C++ applications that
@@ -81,7 +81,12 @@ g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT}/include -I${METALL_RO
 ```
 
 
-# Build Examples
+## Use Metall from Another CMake Project
+
+To download and/or link Metall package from a CMake project,
+see example CMake files placed [here](./example/cmake).
+
+# Build Example Programs
 
 Metall repository contains some example programs under [example directory](./example).
 One can use CMake to build the examples.
@@ -112,10 +117,13 @@ doxygen ../docs/Doxyfile.in
 
 ## Metall: A Persistent Memory Allocator Enabling Graph Processing
 
-[Paper PDF](https://www.osti.gov/servlets/purl/1576900)
+* [Paper PDF](https://www.osti.gov/servlets/purl/1576900)
 
-[IEEE Xplore](https://ieeexplore.ieee.org/document/8945094)
+* [IEEE Xplore](https://ieeexplore.ieee.org/document/8945094)
 
+## Metall: A Persistent Memory Allocator for Data-Centric Analytics (latest publication, preprint)
+
+* [arXiv](https://arxiv.org/abs/2108.07223)
 
 # About
 

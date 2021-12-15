@@ -37,7 +37,7 @@ build_docs() {
 
   # Build
   local CMAKE_FILE_LOCATION=${METALL_ROOT_DIR}
-  or_die cmake ${CMAKE_FILE_LOCATION} -DBUILD_DOC=ON -DBUILD_DOC_ONLY=ON
+  or_die cmake ${CMAKE_FILE_LOCATION} -DBUILD_DOC=ON
   or_die make build_doc
 
   cd ../
@@ -126,8 +126,8 @@ main() {
               -DBUILD_TEST=ON \
               -DRUN_LARGE_SCALE_TEST=ON \
               -DBUILD_DOC=OFF \
-              -DBUILD_DOC_ONLY=OFF \
               -DBUILD_C=ON \
+              -DBUILD_UTILITY=ON \
               -DBUILD_EXAMPLE=ON \
               -DRUN_BUILD_AND_TEST_WITH_CI=OFF \
               -DBUILD_VERIFICATION=OFF \
