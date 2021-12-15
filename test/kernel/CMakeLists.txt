@@ -24,6 +24,6 @@ endif()
 
 add_metall_test_executable(multimanager_test multimanager_test.cpp)
 
-add_metall_test_executable(multifile_segment_storage_test multifile_segment_storage_test.cpp)
+add_metall_test_executable(mmap_segment_storage_test mmap_segment_storage_test.cpp)
 
 add_metall_test_executable(object_attribute_accessor_test object_attribute_accessor_test.cpp)
