@@ -773,11 +773,17 @@ class basic_manager {
 
   /// \brief Check if all allocated memory has been deallocated.
   /// \return Returns true if all allocated memory has been deallocated; otherwise, false.
-  bool all_memory_deallocated() const {
+  bool all_memory_deallocated() const noexcept {
     if (!check_sanity()) {
       return false;
     }
-    return m_kernel->all_memory_deallocated();
+
+    try {
+      return m_kernel->all_memory_deallocated();
+    } catch (...) {
+      logger::out(logger::level::error, __FILE__, __LINE__, "An exception has been thrown");
+    }
+    return false;
   }
 
   // -------------------- Flush -------------------- //
@@ -1107,8 +1113,8 @@ class basic_manager {
 
   // bool belongs_to_segment (const void *ptr) const
 
-  // Makes an internal sanity check
-  // and returns true if success
+  /// \brief Checks the sanity.
+  /// \return Returns true if there is no issue; otherwise, returns false.
   bool check_sanity() const noexcept {
     return !!m_kernel; // TODO: also implement m_kernel->check_sanity();
   }

@@ -37,14 +37,22 @@ class value {
                                           object_type, array_type, string_type>;
 
  public:
-  explicit value(const allocator_type &alloc = allocator_type())
+  /// \brief Constructor.
+  value() {}
+
+  /// \brief Constructor.
+  /// \param alloc An allocator object.
+  explicit value(const allocator_type &alloc)
       : m_allocator(alloc) {}
 
   /// \brief Copy constructor
   value(const value &) = default;
 
-  /// \brief Allocator-extended copy constructor
+  ~value() noexcept {
+    priv_reset();
+  }
 
+  /// \brief Allocator-extended copy constructor
   value(const value &other, const allocator_type &alloc)
       : m_allocator(alloc) {
     if (other.is_object()) {
@@ -59,10 +67,13 @@ class value {
   }
 
   /// \brief Move constructor
-  value(value &&) noexcept = default;
+  value(value &&other) noexcept
+      : m_data(std::move(other.m_data)),
+        m_allocator(std::move(other.m_allocator)) {
+    other.priv_reset();
+  }
 
   /// \brief Allocator-extended move constructor
-
   value(value &&other, const allocator_type &alloc) noexcept
       : m_allocator(alloc) {
     if (other.is_object()) {
@@ -74,13 +85,26 @@ class value {
     } else {
       m_data = std::move(other.m_data);
     }
+    other.priv_reset();
   }
 
   /// \brief Copy assignment operator
   value &operator=(const value &) = default;
 
   /// \brief Move assignment operator
-  value &operator=(value &&) noexcept = default;
+  value &operator=(value &&other) noexcept {
+    if (other.is_object()) {
+      emplace_object() = std::move(other.as_object());
+    } else if (other.is_array()) {
+      emplace_array() = std::move(other.as_array());
+    } else if (other.is_string()) {
+      emplace_string() = std::move(other.as_string());
+    } else {
+      m_data = std::move(other.m_data);
+    }
+    other.priv_reset();
+    return *this;
+  }
 
   /// \brief Assign a bool value.
   /// Allocates a memory storage or destroy the old content, if necessary.
@@ -394,16 +418,12 @@ class value {
 
  private:
   bool priv_reset() {
-    std::visit([](const auto &arg) {
-      using T = std::decay_t<decltype(arg)>;
-      arg.~T();
-    }, m_data);
     m_data.template emplace<null_type>();
     return true;
   }
 
   internal_data_type m_data{null_type{}};
-  allocator_type m_allocator;
+  allocator_type m_allocator{allocator_type{}};
 };
 
 }

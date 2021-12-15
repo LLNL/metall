@@ -28,7 +28,7 @@ template <typename allocator_type>
 std::string serialize(const mj::object<allocator_type> &input) {
   bj::object object;
   for (const auto &elem : input) {
-    object[elem.key()] = elem.value();
+    object[elem.key().data()] = value_to<bj::value>(elem.value());
   }
   return bj::serialize(object);
 }
@@ -37,7 +37,7 @@ template <typename allocator_type>
 std::string serialize(const mj::array<allocator_type> &input) {
   bj::array array;
   for (const auto &elem : input) {
-    array.template emplace_back(elem);
+    array.emplace_back(value_to<bj::value>(elem));
   }
   return bj::serialize(array);
 }

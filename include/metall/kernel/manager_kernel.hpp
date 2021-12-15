@@ -460,6 +460,15 @@ class manager_kernel {
   /// \return Returns an instance of anonymous_object_attr_accessor_type.
   static anonymous_object_attr_accessor_type access_anonymous_object_attribute(const std::string &base_dir_path);
 
+
+  /// \brief Checks if this kernel is open.
+  /// \return Returns true if it is open; otherwise, returns false.
+  bool is_open() const noexcept;
+
+  /// \brief Checks if the status of this kernel is good.
+  /// \return Returns true if it is good; otherwise, returns false.
+  bool good() const noexcept;
+
   /// \brief Show some profile information.
   /// This method release object caches (which will slow down Metall).
   /// \tparam out_stream_type
@@ -559,15 +568,17 @@ class manager_kernel {
   // -------------------------------------------------------------------------------- //
   // Private fields
   // -------------------------------------------------------------------------------- //
-  std::string m_base_dir_path;
-  size_type m_vm_region_size;
+  bool m_good{false};
+  bool m_open{false};
+  std::string m_base_dir_path{};
+  size_type m_vm_region_size{0};
   void *m_vm_region{nullptr};
   segment_header_type *m_segment_header{nullptr};
-  attributed_object_directory_type m_named_object_directory;
-  attributed_object_directory_type m_unique_object_directory;
-  attributed_object_directory_type m_anonymous_object_directory;
-  segment_storage_type m_segment_storage;
-  segment_memory_allocator m_segment_memory_allocator;
+  attributed_object_directory_type m_named_object_directory{};
+  attributed_object_directory_type m_unique_object_directory{};
+  attributed_object_directory_type m_anonymous_object_directory{};
+  segment_storage_type m_segment_storage{};
+  segment_memory_allocator m_segment_memory_allocator{nullptr};
   std::unique_ptr<json_store> m_manager_metadata{nullptr};
 
 #if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL

@@ -61,8 +61,11 @@ class indexed_object {
   using const_iterator = typename value_storage_type::const_iterator;
 
   /// \brief Constructor.
+  indexed_object() {}
+
+  /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit indexed_object(const allocator_type &alloc = allocator_type())
+  explicit indexed_object(const allocator_type &alloc)
       : m_index_table(alloc),
         m_value_storage(alloc) {}
 
@@ -245,8 +248,8 @@ class indexed_object {
     return m_value_storage.erase(value_position);
   }
 
-  index_table_type m_index_table;
-  value_storage_type m_value_storage;
+  index_table_type m_index_table{_allocator_type{}};
+  value_storage_type m_value_storage{_allocator_type{}};
 };
 
 } // namespace metall::container::experimental::json
