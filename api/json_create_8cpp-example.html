@@ -31,9 +31,9 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.17</span>
+   &#160;<span id="projectnumber">v0.18</span>
    </div>
-   <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
+   <div id="projectbrief">Apersistentmemoryallocatorfordata-centricanalytics</div>
   </td>
    <td>        <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -130,10 +130,10 @@ $(document).ready(function(){initNavTree('json_create_8cpp-example.html',''); in
 <div class="line"><span class="stringliteral"></span> </div>
 <div class="line"><span class="stringliteral">  std::cout &lt;&lt; </span><span class="stringliteral">&quot;Create&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"> </div>
-<div class="line">  <span class="keyword">using</span> metall_value_type = <a name="_a2"></a><a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">json::value&lt;metall::manager::allocator_type&lt;std::byte&gt;</a>&gt;;</div>
+<div class="line">  <span class="keyword">using</span> <a name="_a2"></a><a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">metall_value_type</a> = <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">json::value&lt;metall::manager::allocator_type&lt;std::byte&gt;</a>&gt;;</div>
 <div class="line">  <a name="_a3"></a><a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a name="a4"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::create_only, <span class="stringliteral">&quot;./test&quot;</span>);</div>
 <div class="line"> </div>
-<div class="line">  <span class="keyword">auto</span> *value = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;metall_value_type&gt;(metall::unique_instance)</div>
+<div class="line">  <span class="keyword">auto</span> *value = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;<a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">metall_value_type</a>&gt;(metall::unique_instance)</div>
 <div class="line">      (<a name="a5"></a><a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a78a8ca04654620703e0e226c44c1aab1">json::parse</a>(json_string, <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator()));</div>
 <div class="line">  <a name="a6"></a><a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af3f6e9fee54fdf122259c13cc258e93c">json::pretty_print</a>(std::cout, *value);</div>
 <div class="line"> </div>

@@ -31,9 +31,9 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.17</span>
+   &#160;<span id="projectnumber">v0.18</span>
    </div>
-   <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
+   <div id="projectbrief">Apersistentmemoryallocatorfordata-centricanalytics</div>
   </td>
    <td>        <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -263,13 +263,13 @@ $(document).ready(function(){initNavTree('key__value__pair_8hpp_source.html','')
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  }</div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160; </div>
 <div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;  <span class="keywordtype">bool</span> priv_deallocate_key() {</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keywordflow">if</span> (m_key_length) <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160; </div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordflow">if</span> (m_key_length &gt; k_short_key_max_length) {</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;      char_allocator_type alloc(m_value.<a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a">get_allocator</a>());</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;      std::allocator_traits&lt;char_allocator_type&gt;::deallocate(alloc, <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#af97042575ed2a9965f9bda85fe706635">m_long_key</a>, m_key_length);</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    }</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    m_key_length = 0;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keywordflow">if</span> (m_key_length &gt; k_short_key_max_length) {</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;      char_allocator_type alloc(m_value.<a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a">get_allocator</a>());</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;      std::allocator_traits&lt;char_allocator_type&gt;::deallocate(alloc, <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#af97042575ed2a9965f9bda85fe706635">m_long_key</a>, m_key_length + 1);</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    }</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160; </div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    m_key_length = 0;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;  }</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160; </div>
@@ -318,7 +318,7 @@ $(document).ready(function(){initNavTree('key__value__pair_8hpp_source.html','')
 <div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair_html_ac738dacb62b29de5ac409a70bfe09cc8"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#ac738dacb62b29de5ac409a70bfe09cc8">metall::container::experimental::json::key_value_pair::value_type</a></div><div class="ttdeci">metall::container::experimental::json::value&lt; allocator_type &gt; value_type</div><div class="ttdef"><b>Definition:</b> key_value_pair.hpp:36</div></div>
 <div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair_html_ab18a3d773bd73ad4edc9811ea55dfcbe"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#ab18a3d773bd73ad4edc9811ea55dfcbe">metall::container::experimental::json::key_value_pair::allocator_type</a></div><div class="ttdeci">_allocator_type allocator_type</div><div class="ttdef"><b>Definition:</b> key_value_pair.hpp:34</div></div>
 <div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair_html_af5d25bff7a127135b5677782ea48da55"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#af5d25bff7a127135b5677782ea48da55">metall::container::experimental::json::key_value_pair::m_short_key</a></div><div class="ttdeci">char m_short_key[k_short_key_max_length+1]</div><div class="ttdef"><b>Definition:</b> key_value_pair.hpp:208</div></div>
-<div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1value_html_addf1e522e9413030cd98778c3862706a"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a">metall::container::experimental::json::value::get_allocator</a></div><div class="ttdeci">allocator_type get_allocator() const noexcept</div><div class="ttdef"><b>Definition:</b> value.hpp:391</div></div>
+<div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1value_html_addf1e522e9413030cd98778c3862706a"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a">metall::container::experimental::json::value::get_allocator</a></div><div class="ttdeci">allocator_type get_allocator() const noexcept</div><div class="ttdef"><b>Definition:</b> value.hpp:415</div></div>
 <div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair_html_a89d61f7f1b881a5bfa57a530c9bc843c"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#a89d61f7f1b881a5bfa57a530c9bc843c">metall::container::experimental::json::key_value_pair::key_c_str</a></div><div class="ttdeci">const char_type * key_c_str() const noexcept</div><div class="ttdoc">Returns the stored key as const char*.</div><div class="ttdef"><b>Definition:</b> key_value_pair.hpp:149</div></div>
 <div class="ttc" id="aclassmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair_html_aa64e75820e885e1b1131fe1a70a225c2"><div class="ttname"><a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#aa64e75820e885e1b1131fe1a70a225c2">metall::container::experimental::json::key_value_pair::~key_value_pair</a></div><div class="ttdeci">~key_value_pair() noexcept</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition:</b> key_value_pair.hpp:137</div></div>
 <!-- start footer part -->

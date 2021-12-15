@@ -31,9 +31,9 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.17</span>
+   &#160;<span id="projectnumber">v0.18</span>
    </div>
-   <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
+   <div id="projectbrief">Apersistentmemoryallocatorfordata-centricanalytics</div>
   </td>
    <td>        <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -127,7 +127,7 @@ $(document).ready(function(){initNavTree('serialize_8hpp_source.html',''); initR
 <div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container_1_1experimental_1_1json.html#aceff306b9f4ca124373479c3b1e779f6">   28</a></span>&#160;<a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a7a3beec419c392809e63b292ffe7fc34">serialize</a>(<span class="keyword">const</span> <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">mj::object&lt;allocator_type&gt;</a> &amp;input) {</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">bj::object</a> <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">object</a>;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;elem : input) {</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">object</span>[elem.key()] = elem.value();</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">object</span>[elem.key().data()] = value_to&lt;bj::value&gt;(elem.value());</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  }</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a2c8716e182184f8e2c0a7fe4a5ace675">bj::serialize</a>(<span class="keywordtype">object</span>);</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;}</div>
@@ -136,7 +136,7 @@ $(document).ready(function(){initNavTree('serialize_8hpp_source.html',''); initR
 <div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a95a8f44b9533c748ddb08fb2506a8843">   37</a></span>&#160;<a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a7a3beec419c392809e63b292ffe7fc34">serialize</a>(<span class="keyword">const</span> <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">mj::array&lt;allocator_type&gt;</a> &amp;input) {</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  bj::array <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;elem : input) {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>.template emplace_back(elem);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>.emplace_back(value_to&lt;bj::value&gt;(elem));</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  }</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a2c8716e182184f8e2c0a7fe4a5ace675">bj::serialize</a>(<a class="code" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;}</div>

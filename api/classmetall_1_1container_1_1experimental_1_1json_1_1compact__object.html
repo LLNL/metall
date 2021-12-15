@@ -31,9 +31,9 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.17</span>
+   &#160;<span id="projectnumber">v0.18</span>
    </div>
-   <div id="projectbrief">Memoryallocatorforpersistentmemory</div>
+   <div id="projectbrief">Apersistentmemoryallocatorfordata-centricanalytics</div>
   </td>
    <td>        <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -124,9 +124,12 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a38c222520d339078d86ffdf2d2484e0e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a38c222520d339078d86ffdf2d2484e0e">compact_object</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3924c8df6b26f1a88cb1b946ba2df104">allocator_type</a> &amp;alloc=<a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3924c8df6b26f1a88cb1b946ba2df104">allocator_type</a>())</td></tr>
-<tr class="memdesc:a38c222520d339078d86ffdf2d2484e0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a38c222520d339078d86ffdf2d2484e0e">More...</a><br /></td></tr>
-<tr class="separator:a38c222520d339078d86ffdf2d2484e0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a9bcfea4e2de0acf953a29aac0b054e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a9a9bcfea4e2de0acf953a29aac0b054e">compact_object</a> ()</td></tr>
+<tr class="memdesc:a9a9bcfea4e2de0acf953a29aac0b054e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a9a9bcfea4e2de0acf953a29aac0b054e">More...</a><br /></td></tr>
+<tr class="separator:a9a9bcfea4e2de0acf953a29aac0b054e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f481d413e278d7ab14a0471b92f01fd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a4f481d413e278d7ab14a0471b92f01fd">compact_object</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3924c8df6b26f1a88cb1b946ba2df104">allocator_type</a> &amp;alloc)</td></tr>
+<tr class="memdesc:a4f481d413e278d7ab14a0471b92f01fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a4f481d413e278d7ab14a0471b92f01fd">More...</a><br /></td></tr>
+<tr class="separator:a4f481d413e278d7ab14a0471b92f01fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73d74607225ce218605c3965ba83370f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a73d74607225ce218605c3965ba83370f">compact_object</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">compact_object</a> &amp;)=default</td></tr>
 <tr class="memdesc:a73d74607225ce218605c3965ba83370f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a73d74607225ce218605c3965ba83370f">More...</a><br /></td></tr>
 <tr class="separator:a73d74607225ce218605c3965ba83370f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -289,8 +292,37 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a38c222520d339078d86ffdf2d2484e0e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38c222520d339078d86ffdf2d2484e0e">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[1/5]</span></h2>
+<a id="a9a9bcfea4e2de0acf953a29aac0b054e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a9bcfea4e2de0acf953a29aac0b054e">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[1/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">metall::container::experimental::json::compact_object</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">compact_object</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. </p>
+
+</div>
+</div>
+<a id="a4f481d413e278d7ab14a0471b92f01fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f481d413e278d7ab14a0471b92f01fd">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[2/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -304,7 +336,7 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
           <td class="memname"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">metall::container::experimental::json::compact_object</a>&lt; _allocator_type &gt;::<a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html">compact_object</a> </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3924c8df6b26f1a88cb1b946ba2df104">allocator_type</a> &amp;&#160;</td>
-          <td class="paramname"><em>alloc</em> = <code><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3924c8df6b26f1a88cb1b946ba2df104">allocator_type</a>()</code></td><td>)</td>
+          <td class="paramname"><em>alloc</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -326,7 +358,7 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
 </div>
 </div>
 <a id="a73d74607225ce218605c3965ba83370f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73d74607225ce218605c3965ba83370f">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[2/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a73d74607225ce218605c3965ba83370f">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[3/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -356,7 +388,7 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
 </div>
 </div>
 <a id="a2a957f8473a0ea577ff9cadb8ed6a838"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a957f8473a0ea577ff9cadb8ed6a838">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[3/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a957f8473a0ea577ff9cadb8ed6a838">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[4/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -396,7 +428,7 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
 </div>
 </div>
 <a id="a2da1e6c67615b7c307b52a9805ea6a76"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2da1e6c67615b7c307b52a9805ea6a76">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[4/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2da1e6c67615b7c307b52a9805ea6a76">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[5/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -426,7 +458,7 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
 </div>
 </div>
 <a id="a4ceed7d0d5483e8bc3e98d25654cfa04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ceed7d0d5483e8bc3e98d25654cfa04">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[5/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ceed7d0d5483e8bc3e98d25654cfa04">&#9670;&nbsp;</a></span>compact_object() <span class="overload">[6/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
