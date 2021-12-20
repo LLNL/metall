@@ -13,7 +13,9 @@ Here is how to use the CMake file in this directory.
 mkdir build
 cd build
 
-cmake ../ -DBOOST_ROOT=/path/to/boost \
--DBUILD_C=ON # Required to use Metall C API
+# BOOST_ROOT: Path to Boost C++ Libraries (option)
+#  If Boost is not found in the local environment, the CMake file will download it automatically.
+# BUILD_C: Required to use Metall C (not 'C++') API (option)
+cmake ../ -DBOOST_ROOT=/path/to/boost -DBUILD_C=ON
 make
 ```
