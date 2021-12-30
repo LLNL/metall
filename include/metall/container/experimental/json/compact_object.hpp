@@ -10,6 +10,7 @@
 #include <memory>
 #include <utility>
 #include <string_view>
+#include <algorithm>
 
 #include <metall/container/scoped_allocator.hpp>
 #include <metall/container/vector.hpp>
@@ -22,6 +23,24 @@ namespace metall::container::experimental::json {
 namespace {
 namespace mc = metall::container;
 }
+
+namespace jsndtl {
+
+/// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
+template <typename allocator_type, typename other_object_type>
+inline bool general_compact_object_equal(const compact_object<allocator_type> &object, const other_object_type &other_object) noexcept {
+  if (object.size() != other_object.size()) return false;
+
+  for (const auto &key_value: object) {
+    auto itr = other_object.find(key_value.key());
+    if (itr == other_object.end()) return false;
+    if (key_value.value() != itr->value()) return false;
+  }
+
+  return true;
+}
+
+} // namespace jsndtl
 
 /// \brief JSON object implementation.
 /// This class is designed to use a small amount of memory even sacrificing the look-up performance.
@@ -182,6 +201,22 @@ class compact_object {
     return priv_erase(find(key));
   }
 
+  /// \brief Return `true` if two objects are equal.
+  /// \param lhs An object to compare.
+  /// \param rhs An object to compare.
+  /// \return True if two objects are equal. Otherwise, false.
+  friend bool operator==(const compact_object &lhs, const compact_object &rhs) noexcept {
+    return jsndtl::general_compact_object_equal(lhs, rhs);
+  }
+
+  /// \brief Return `true` if two objects are not equal.
+  /// \param lhs An object to compare.
+  /// \param rhs An object to compare.
+  /// \return True if two objects are not equal. Otherwise, false.
+  friend bool operator!=(const compact_object &lhs, const compact_object &rhs) noexcept {
+    return !(lhs == rhs);
+  }
+
  private:
 
   value_postion_type priv_locate_value(const key_type &key) const {
@@ -193,7 +228,7 @@ class compact_object {
     return m_value_storage.max_size(); // Couldn't find
   }
 
-  value_postion_type priv_emplace_value(const key_type &key, mapped_type&& mapped_value) {
+  value_postion_type priv_emplace_value(const key_type &key, mapped_type &&mapped_value) {
     m_value_storage.emplace_back(key, std::move(mapped_value));
     return m_value_storage.size() - 1;
   }

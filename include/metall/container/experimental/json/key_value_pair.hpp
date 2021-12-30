@@ -9,12 +9,24 @@
 #include <string_view>
 #include <memory>
 #include <string>
+#include <algorithm>
+#include <cstring>
 
 #include <metall/offset_ptr.hpp>
 #include <metall/detail/utilities.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
 
 namespace metall::container::experimental::json {
+
+namespace jsndtl {
+/// \brief Provides 'equal' calculation for other key-value types that have the same interface as the object class.
+template <typename char_type, typename char_traits, typename allocator_type, typename other_key_value_pair_type>
+inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_traits, allocator_type> &key_value,
+                                     const other_key_value_pair_type &other_key_value) noexcept {
+  if (std::strcmp(key_value.c_str(), other_key_value.c_str()) != 0) return false;
+  return key_value.value() == other_key_value.value();
+}
+} // namespace jsndtl
 
 /// \brief A class for holding a pair of JSON string (as its key) and JSON value (as its value).
 /// \tparam char_type A char type to store.
@@ -165,7 +177,24 @@ class key_value_pair {
     return m_value;
   }
 
+  /// \brief Return `true` if two key-value pairs are equal.
+  /// \param lhs A key-value pair to compare.
+  /// \param rhs A key-value pair to compare.
+  /// \return True if two key-value pairs are equal. Otherwise, false.
+  friend bool operator==(const key_value_pair &lhs, const key_value_pair &rhs) noexcept {
+    return jsndtl::general_key_value_pair_equal(lhs, rhs);
+  }
+
+  /// \brief Return `true` if two key-value pairs are not equal.
+  /// \param lhs A key-value pair to compare.
+  /// \param rhs A key-value pair to compare.
+  /// \return True if two key-value pairs are not equal. Otherwise, false.
+  friend bool operator!=(const key_value_pair &lhs, const key_value_pair &rhs) noexcept {
+    return !(lhs == rhs);
+  }
+
  private:
+  static constexpr uint32_t k_short_key_max_length = sizeof(char_pointer) - 1; // -1 for '0'
 
   bool priv_allocate_key(const char_type *const key, const size_type length) {
     assert(m_key_length == 0);
@@ -200,8 +229,6 @@ class key_value_pair {
 
     return true;
   }
-
-  static constexpr uint32_t k_short_key_max_length = sizeof(char_pointer) - 1; // -1 for '0'
 
   union {
     char_pointer m_long_key{nullptr};

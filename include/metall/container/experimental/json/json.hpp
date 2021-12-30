@@ -17,6 +17,7 @@
 #include <metall/container/experimental/json/value_to.hpp>
 #include <metall/container/experimental/json/indexed_object.hpp>
 #include <metall/container/experimental/json/compact_object.hpp>
+#include <metall/container/experimental/json/equal.hpp>
 
 /// \example json_create.cpp
 /// This is an example of how to create a JSON object with Metall.

@@ -18,8 +18,8 @@ namespace metall::container::experimental::json {}
 
 namespace metall::container::experimental::json {
 
-#if !defined(DOXYGEN_SKIP)
 // Forward declaration
+#if !defined(DOXYGEN_SKIP)
 
 template <typename allocator_type>
 class value;
@@ -31,10 +31,10 @@ template <typename char_type, typename char_traits, typename _allocator_type>
 class key_value_pair;
 
 template <typename T, typename allocator_type>
-inline value<allocator_type> value_from(T &&, const allocator_type& allocator = allocator_type());
+inline value<allocator_type> value_from(T &&, const allocator_type & = allocator_type());
 
 template <typename T, typename allocator_type>
-inline T value_to(const value<allocator_type>&);
+inline T value_to(const value<allocator_type> &);
 
 template <typename allocator_type>
 class indexed_object;
@@ -42,6 +42,20 @@ class indexed_object;
 template <typename allocator_type>
 class compact_object;
 
+namespace jsndtl {
+template <typename char_type, typename char_traits, typename allocator_type, typename other_key_value_pair_type>
+inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_traits, allocator_type> &,
+                                         const other_key_value_pair_type &) noexcept;
+
+template <typename allocator_type, typename other_object_type>
+inline bool general_compact_object_equal(const compact_object<allocator_type> &, const other_object_type &) noexcept;
+
+template <typename allocator_type, typename other_object_type>
+inline bool general_indexed_object_equal(const indexed_object<allocator_type> &, const other_object_type &) noexcept;
+
+template <typename allocator_type, typename other_array_type>
+inline bool general_array_equal(const array<allocator_type> &, const other_array_type &) noexcept;
+}
 #endif // DOXYGEN_SKIP
 
 /// \brief JSON null.
