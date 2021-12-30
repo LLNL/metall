@@ -34,7 +34,7 @@ inline bool general_indexed_object_equal(const indexed_object<allocator_type> &o
   if (object.size() != other_object.size()) return false;
 
   for (const auto &key_value: object) {
-    auto itr = other_object.find(key_value.key());
+    auto itr = other_object.find(key_value.key_c_str());
     if (itr == other_object.end()) return false;
     if (key_value.value() != itr->value()) return false;
   }
