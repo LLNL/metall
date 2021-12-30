@@ -49,5 +49,8 @@ int main() {
 
   json::pretty_print(std::cout, *value);
 
+  const auto clone(*value);
+  std::cout << (clone == *value) << std::endl;
+
   return 0;
 }
