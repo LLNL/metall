@@ -1,0 +1,1 @@
+add_metall_test_executable(json_value json_value.cpp)

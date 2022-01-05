@@ -452,10 +452,12 @@ class value {
     return std::holds_alternative<object_type>(m_data);
   }
 
+  /// \brief Return an allocator object.
   allocator_type get_allocator() const noexcept {
     return m_allocator;
   }
 
+  /// \brief Equal operator.
   friend bool operator==(const value &lhs, const value &rhs) noexcept {
     return jsndtl::general_value_equal(lhs, rhs);;
   }
