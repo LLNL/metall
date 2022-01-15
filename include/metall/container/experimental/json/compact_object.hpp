@@ -117,6 +117,19 @@ class compact_object {
     return m_value_storage[priv_locate_value(key)].value();
   }
 
+  /// \brief Return true if the key is found.
+  /// \return True if found; otherwise, false.
+  bool contains(const key_type &key) const {
+    return count(key) > 0;
+  }
+
+  /// \brief Count the number of elements with a specific key.
+  /// \return The number elements with a specific key.
+  std::size_t count(const key_type &key) const {
+    const auto pos = priv_locate_value(key);
+    return pos < m_value_storage.max_size() ? 1 : 0;
+  }
+
   /// \brief Access a mapped value.
   /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.

@@ -1,0 +1,4 @@
+if (Boost_VERSION_STRING VERSION_GREATER_EQUAL "1.75")
+    add_metall_test_executable(json_value json_value.cpp)
+    add_metall_test_executable(json_object json_object.cpp)
+endif ()
