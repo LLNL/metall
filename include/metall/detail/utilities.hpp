@@ -109,7 +109,7 @@ struct unsigned_variable_type {
 /// \param block_no A block number.
 /// \param num_blocks The number of total blocks.
 /// \return The begin and end index of the range. Note that [begin, end).
-std::pair<std::size_t, std::size_t> partial_range(const std::size_t length,
+inline std::pair<std::size_t, std::size_t> partial_range(const std::size_t length,
                                                   const std::size_t block_no,
                                                   const std::size_t num_blocks) {
   std::size_t partial_length = length / num_blocks;
