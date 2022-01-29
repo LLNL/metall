@@ -11,7 +11,7 @@ cmake_policy(SET CMP0077 NEW)
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.18
+        VERSION 0.19
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 
@@ -251,7 +251,7 @@ set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost 1.64 QUIET)
 if (NOT Boost_FOUND)
     FetchContent_Declare(Boost
-            URL https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2)
+            URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2)
     FetchContent_GetProperties(Boost)
     if (NOT Boost_POPULATED)
         FetchContent_Populate(Boost)

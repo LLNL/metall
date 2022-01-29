@@ -87,8 +87,8 @@ class logger {
   static bool abort_on_critical;
 };
 
-logger::level logger::log_message_out_level = logger::level::error;
-bool logger::abort_on_critical = true;
+inline logger::level logger::log_message_out_level = logger::level::error;
+inline bool logger::abort_on_critical = true;
 
 } // namespace metall
 

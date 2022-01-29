@@ -20,6 +20,46 @@ namespace {
 namespace mc = metall::container;
 }
 
+namespace jsndtl {
+
+/// \brief Provides 'equal' calculation for other value types that have the same interface as the value class.
+template <typename allocator_type, typename other_value_type>
+inline bool general_value_equal(const value<allocator_type>& value, const other_value_type& other_value) noexcept {
+  if (other_value.is_null()) {
+    return value.is_null();
+  } else if (other_value.is_bool()) {
+    return value.is_bool() && value.as_bool() == other_value.as_bool();
+  } else if (other_value.is_int64()) {
+    if (value.is_int64()) {
+      return value.as_int64() == other_value.as_int64();
+    }
+    if (value.is_uint64()) {
+      return (other_value.as_int64() < 0) ? false : value.as_uint64() == static_cast<std::uint64_t>(other_value.as_int64());
+    }
+    return false;
+  } else if (other_value.is_uint64()) {
+    if (value.is_uint64()) {
+      return value.as_uint64() == other_value.as_uint64();
+    }
+    if (value.is_int64()) {
+      return (value.as_int64() < 0) ? false : static_cast<std::uint64_t>(value.as_int64()) == other_value.as_uint64();
+    }
+    return false;
+  } else if (other_value.is_double()) {
+    return value.is_double() && value.as_double() == other_value.as_double();
+  } else if (other_value.is_object()) {
+    return value.is_object() && (value.as_object() == other_value.as_object());
+  } else if (other_value.is_array()) {
+    return value.is_array() && (value.as_array() == other_value.as_array());
+  } else if (other_value.is_string()) {
+    return value.is_string() && (value.as_string() == other_value.as_string());
+  }
+
+  assert(false);
+  return false;
+}
+} // namespace metall::container::experimental::json::jsndtl
+
 /// \brief JSON value.
 /// A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.
 template <typename _allocator_type = std::allocator<std::byte>>
@@ -412,11 +452,27 @@ class value {
     return std::holds_alternative<object_type>(m_data);
   }
 
+  /// \brief Return an allocator object.
   allocator_type get_allocator() const noexcept {
     return m_allocator;
   }
 
+  /// \brief Equal operator.
+  friend bool operator==(const value &lhs, const value &rhs) noexcept {
+    return jsndtl::general_value_equal(lhs, rhs);;
+  }
+
+  /// \brief Return `true` if two values are not equal.
+  /// Two values are equal when they are the
+  /// same kind and their referenced values
+  /// are equal, or when they are both integral
+  /// types and their integral representations are equal.
+  friend bool operator!=(const value &lhs, const value &rhs) noexcept {
+    return !(lhs == rhs);
+  }
+
  private:
+
   bool priv_reset() {
     m_data.template emplace<null_type>();
     return true;
@@ -426,6 +482,6 @@ class value {
   allocator_type m_allocator{allocator_type{}};
 };
 
-}
+} // namespace metall::container::experimental::json
 
 #endif //METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP

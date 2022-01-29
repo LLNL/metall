@@ -3,13 +3,14 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_OBJECT_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_OBJECT_HPP
+#ifndef METALL_CONTAINER_EXPERIMENT_JSON_INDEXED_OBJECT_HPP
+#define METALL_CONTAINER_EXPERIMENT_JSON_INDEXED_OBJECT_HPP
 
 #include <iostream>
 #include <memory>
 #include <utility>
 #include <string_view>
+#include <algorithm>
 
 #include <metall/container/scoped_allocator.hpp>
 #include <metall/container/vector.hpp>
@@ -23,6 +24,25 @@ namespace metall::container::experimental::json {
 namespace {
 namespace mc = metall::container;
 }
+
+namespace jsndtl {
+
+/// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
+template <typename allocator_type, typename other_object_type>
+inline bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
+                                 const other_object_type &other_object) noexcept {
+  if (object.size() != other_object.size()) return false;
+
+  for (const auto &key_value: object) {
+    auto itr = other_object.find(key_value.key_c_str());
+    if (itr == other_object.end()) return false;
+    if (key_value.value() != itr->value()) return false;
+  }
+
+  return true;
+}
+
+} // namespace jsndtl
 
 /// \brief JSON object.
 /// An object is an unordered map of key and value pairs.
@@ -112,6 +132,19 @@ class indexed_object {
     return m_value_storage[priv_locate_value(key)].value();
   }
 
+  /// \brief Return true if the key is found.
+  /// \return True if found; otherwise, false.
+  bool contains(const key_type &key) const {
+    return count(key) > 0;
+  }
+
+  /// \brief Count the number of elements with a specific key.
+  /// \return The number elements with a specific key.
+  std::size_t count(const key_type &key) const {
+    const auto pos = priv_locate_value(key);
+    return pos < m_value_storage.max_size() ? 1 : 0;
+  }
+
   /// \brief Access a mapped value.
   /// \param key The key of the mapped value to access.
   /// \return A reference to the mapped value associated with 'key'.
@@ -196,6 +229,22 @@ class indexed_object {
     return erase(find(key));
   }
 
+  /// \brief Return `true` if two objects are equal.
+  /// \param lhs An object to compare.
+  /// \param rhs An object to compare.
+  /// \return True if two objects are equal. Otherwise, false.
+  friend bool operator==(const indexed_object &lhs, const indexed_object &rhs) noexcept {
+    return jsndtl::general_indexed_object_equal(lhs, rhs);
+  }
+
+  /// \brief Return `true` if two objects are not equal.
+  /// \param lhs An object to compare.
+  /// \param rhs An object to compare.
+  /// \return True if two objects are not equal. Otherwise, false.
+  friend bool operator!=(const indexed_object &lhs, const indexed_object &rhs) noexcept {
+    return !(lhs == rhs);
+  }
+
  private:
 
   value_postion_type priv_locate_value(const key_type &key) const {
@@ -238,7 +287,7 @@ class indexed_object {
     assert(erased);
 
     // Update the positions of the values that will be moved forward.
-    for (auto &elem : m_index_table) {
+    for (auto &elem: m_index_table) {
       if ((ssize_t)elem.second > value_position_raw) {
         --elem.second;
       }
@@ -254,4 +303,4 @@ class indexed_object {
 
 } // namespace metall::container::experimental::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_OBJECT_HPP
+#endif //METALL_CONTAINER_EXPERIMENT_JSON_INDEXED_OBJECT_HPP
