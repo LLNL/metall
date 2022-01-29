@@ -3,38 +3,42 @@ name: CI Test
 on: [push, pull_request]
 
 jobs:
-  gcc11-2_bst1-77-0:
+  bst1-78-0:
     runs-on: ubuntu-latest
-    container:
-      image: kiwabuchi/metall_test:centos8_min
     env:
-      GCC_VERSION: 11.2.0
-      BOOST_VERSION: 1.77.0
       METALL_LIMIT_MAKE_PARALLELS: 8
     steps:
       - uses: actions/checkout@v2
       - name: Test
         run: |
-          . /var/spack/share/spack/setup-env.sh
-          spack load boost@${BOOST_VERSION} gcc@${GCC_VERSION}
+          pushd /dev/shm
+          wget -q https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz
+          mkdir boost
+          tar xf boost_1_78_0.tar.gz -C boost --strip-components 1
+          export BOOST_ROOT=${PWD}/boost
+          popd
           export METALL_TEST_DIR=${GITHUB_JOB}
+          export CC=gcc-10
+          export CXX=g++-10
           cd $GITHUB_WORKSPACE
           bash ./scripts/CI/build_and_test.sh
 
-  gcc8-1_bst1-64-0:
+  bst1-64-0:
     runs-on: ubuntu-latest
-    container:
-      image: kiwabuchi/metall_test:centos7_min
     env:
-      GCC_VERSION: 8.1.0
-      BOOST_VERSION: 1.64.0
       METALL_LIMIT_MAKE_PARALLELS: 8
     steps:
       - uses: actions/checkout@v2
       - name: Test
         run: |
-          . /var/spack/share/spack/setup-env.sh
-          spack load boost@${BOOST_VERSION} gcc@${GCC_VERSION}
+          pushd /dev/shm
+          wget -q https://boostorg.jfrog.io/artifactory/main/release/1.64.0/source/boost_1_64_0.tar.gz
+          mkdir boost
+          tar xf boost_1_64_0.tar.gz -C boost --strip-components 1
+          export BOOST_ROOT=${PWD}/boost
+          popd
           export METALL_TEST_DIR=${GITHUB_JOB}
+          export CC=gcc-10
+          export CXX=g++-10
           cd $GITHUB_WORKSPACE
           bash ./scripts/CI/build_and_test.sh
