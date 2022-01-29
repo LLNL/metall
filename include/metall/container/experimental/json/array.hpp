@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <memory>
+#include <algorithm>
 
 #include <boost/container/vector.hpp>
 #include <boost/container/scoped_allocator.hpp>
@@ -19,6 +20,17 @@ namespace metall::container::experimental::json {
 namespace {
 namespace bc = boost::container;
 }
+
+namespace jsndtl {
+
+/// \brief Provides 'equal' calculation for other array types that have the same interface as the array class.
+template <typename allocator_type, typename other_array_type>
+inline bool general_array_equal(const array<allocator_type> &array, const other_array_type &other_array) noexcept {
+  if (array.size() != other_array.size()) return false;
+  return std::equal(array.begin(), array.end(), other_array.begin());
+}
+
+} // namespace jsndtl
 
 /// \brief JSON array.
 /// An array is an ordered collection of values.
@@ -132,7 +144,26 @@ class array {
     return m_array.erase(position);
   }
 
+  /// \brief Return `true` if two arrays are equal.
+  /// Arrays are equal when their sizes are the same, and they are element-for-element equal in order.
+  /// \param lhs An array to compare.
+  /// \param rhs An array to compare.
+  /// \return True if two arrays are equal. Otherwise, false.
+  friend bool operator==(const array &lhs, const array &rhs) noexcept {
+    return jsndtl::general_array_equal(lhs, rhs);
+  }
+
+  /// \brief Return `true` if two arrays are not equal.
+  /// Arrays are equal when their sizes are the same, and they are element-for-element equal in order.
+  /// \param lhs An array to compare.
+  /// \param rhs An array to compare.
+  /// \return True if two arrays are not equal. Otherwise, false.
+  friend bool operator!=(const array &lhs, const array &rhs) noexcept {
+    return !(lhs == rhs);
+  }
+
  private:
+
   array_type m_array{_allocator_type{}};
 };
 
