@@ -13,7 +13,7 @@ find_package(Boost 1.64)
 if (NOT Boost_FOUND)
     message(STATUS "Download or search previously downloaded Boost using FetchContent")
     FetchContent_Declare(Boost
-            URL https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2)
+            URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2)
     FetchContent_GetProperties(Boost)
     if (NOT Boost_POPULATED)
         FetchContent_Populate(Boost)
@@ -30,7 +30,7 @@ endif()
 FetchContent_Declare(
         metall
         GIT_REPOSITORY https://github.com/LLNL/metall.git
-        GIT_TAG develop
+        GIT_TAG master
 )
 FetchContent_MakeAvailable(metall)
 
