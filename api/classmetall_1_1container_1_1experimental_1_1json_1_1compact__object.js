@@ -16,6 +16,8 @@ var classmetall_1_1container_1_1experimental_1_1json_1_1compact__object =
     [ "operator=", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a84693611ed5c515792f092685c274c7a", null ],
     [ "operator[]", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a687a19965d3acb98420404e533ad5732", null ],
     [ "operator[]", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a1b811c6cf123b7acbc719a0039d6e599", null ],
+    [ "contains", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#ad44ce085da4c1fdbef84abb296b0175f", null ],
+    [ "count", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a699a19fe50bf76d8b0b64eae6c0fbd28", null ],
     [ "at", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a6426dee2753e3aa3bac103e6c94617f0", null ],
     [ "at", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#aa87a9dc92e16cc1e223b3fd922a7e9cc", null ],
     [ "find", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a43a77ba84e155facbf906da79c63d53b", null ],
@@ -27,5 +29,7 @@ var classmetall_1_1container_1_1experimental_1_1json_1_1compact__object =
     [ "size", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a0188aa9a788987f24e7864f78209b63b", null ],
     [ "erase", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a9e0fa3bd351593febb309204f4e8ce8e", null ],
     [ "erase", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#ac9504a5522ed1919160a5584fa359481", null ],
-    [ "erase", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3b4c60a2b5ec0ddb66beb5ee2ce8a8c3", null ]
+    [ "erase", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a3b4c60a2b5ec0ddb66beb5ee2ce8a8c3", null ],
+    [ "operator==", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a6af2f448ce5f0d0a122e0caa73b54bff", null ],
+    [ "operator!=", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html#a16bd79d2c21b7f43c31f9ea319bcebd9", null ]
 ];

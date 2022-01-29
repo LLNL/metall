@@ -20,5 +20,7 @@ var classmetall_1_1container_1_1experimental_1_1json_1_1array =
     [ "end", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html#ab915066351a4be83f1390996d1c1acf0", null ],
     [ "end", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a2fe210a03a1b4e719d0c3d97ec4d3c45", null ],
     [ "erase", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a6c7772b10fc038f4f8f00fd29481e56d", null ],
-    [ "erase", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a53bc84032a1cfc8f6aed59a63cff71f1", null ]
+    [ "erase", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a53bc84032a1cfc8f6aed59a63cff71f1", null ],
+    [ "operator==", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a06cf25e3f80c98d88e041ef9823976c0", null ],
+    [ "operator!=", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html#af06c7437a0946a9d5e093d903b59f6a4", null ]
 ];

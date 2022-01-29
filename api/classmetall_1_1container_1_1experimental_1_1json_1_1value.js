@@ -64,5 +64,7 @@ var classmetall_1_1container_1_1experimental_1_1json_1_1value =
     [ "is_string", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html#ab50bae435568213670791de50716ec3f", null ],
     [ "is_array", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a669afdd651b8c013cee2a9d720e9eb9b", null ],
     [ "is_object", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a50458847229dbbfc9bd62eb37945128f", null ],
-    [ "get_allocator", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a", null ]
+    [ "get_allocator", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a", null ],
+    [ "operator==", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a5ff6d1ff539f45d178e327522052941e", null ],
+    [ "operator!=", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a66ef9b8dc9acef29c9e16332a5131fd2", null ]
 ];

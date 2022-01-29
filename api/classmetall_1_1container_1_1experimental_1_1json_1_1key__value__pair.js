@@ -19,6 +19,8 @@ var classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair =
     [ "key_c_str", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#a89d61f7f1b881a5bfa57a530c9bc843c", null ],
     [ "value", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#ad1d2838131bab748e85d6e031b0b87f9", null ],
     [ "value", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#a8dc354bd97e55c8b7d6706267693bd9e", null ],
+    [ "operator==", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#a3fe0e99ad21be1c8a0f57cf295dd5c4b", null ],
+    [ "operator!=", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#abe9a2f9862cdd5929f757133a04fcfd5", null ],
     [ "m_long_key", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#af97042575ed2a9965f9bda85fe706635", null ],
     [ "m_short_key", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#af5d25bff7a127135b5677782ea48da55", null ],
     [ "m_key_data", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#ad1cd36052f53e9da876a2912a701b0e6", null ]

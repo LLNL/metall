@@ -96,6 +96,7 @@ $(document).ready(function(){initNavTree('classmetall_1_1container_1_1experiment
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classmetall_1_1container_1_1experimental_1_1json_1_1value-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">metall::container::experimental::json::value&lt; _allocator_type &gt; Class Template Reference</div>  </div>
@@ -300,7 +301,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a50458847229dbbfc9bd62eb37945128f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if this is a object.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a50458847229dbbfc9bd62eb37945128f">More...</a><br /></td></tr>
 <tr class="separator:a50458847229dbbfc9bd62eb37945128f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addf1e522e9413030cd98778c3862706a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#acd7d54544bc1d5b0a7dd23fb77a75eed">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a">get_allocator</a> () const noexcept</td></tr>
+<tr class="memdesc:addf1e522e9413030cd98778c3862706a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an allocator object.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#addf1e522e9413030cd98778c3862706a">More...</a><br /></td></tr>
 <tr class="separator:addf1e522e9413030cd98778c3862706a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a5ff6d1ff539f45d178e327522052941e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a5ff6d1ff539f45d178e327522052941e">operator==</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a> &amp;lhs, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a> &amp;rhs) noexcept</td></tr>
+<tr class="memdesc:a5ff6d1ff539f45d178e327522052941e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equal operator.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a5ff6d1ff539f45d178e327522052941e">More...</a><br /></td></tr>
+<tr class="separator:a5ff6d1ff539f45d178e327522052941e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66ef9b8dc9acef29c9e16332a5131fd2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a66ef9b8dc9acef29c9e16332a5131fd2">operator!=</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a> &amp;lhs, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a> &amp;rhs) noexcept</td></tr>
+<tr class="memdesc:a66ef9b8dc9acef29c9e16332a5131fd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return <code>true</code> if two values are not equal. Two values are equal when they are the same kind and their referenced values are equal, or when they are both integral types and their integral representations are equal.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html#a66ef9b8dc9acef29c9e16332a5131fd2">More...</a><br /></td></tr>
+<tr class="separator:a66ef9b8dc9acef29c9e16332a5131fd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename _allocator_type = std::allocator&lt;std::byte&gt;&gt;<br />
@@ -2192,6 +2203,89 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Return an allocator object. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Function Documentation</h2>
+<a id="a5ff6d1ff539f45d178e327522052941e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ff6d1ff539f45d178e327522052941e">&#9670;&nbsp;</a></span>operator==</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Equal operator. </p>
+
+</div>
+</div>
+<a id="a66ef9b8dc9acef29c9e16332a5131fd2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66ef9b8dc9acef29c9e16332a5131fd2">&#9670;&nbsp;</a></span>operator!=</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool operator!= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return <code>true</code> if two values are not equal. Two values are equal when they are the same kind and their referenced values are equal, or when they are both integral types and their integral representations are equal. </p>
 
 </div>
 </div>

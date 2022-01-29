@@ -96,6 +96,7 @@ $(document).ready(function(){initNavTree('classmetall_1_1container_1_1experiment
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classmetall_1_1container_1_1experimental_1_1json_1_1array-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">metall::container::experimental::json::array&lt; _allocator_type &gt; Class Template Reference</div>  </div>
@@ -172,6 +173,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a53bc84032a1cfc8f6aed59a63cff71f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a20d9d62e8b41ae54de1d5086dc92957d">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a53bc84032a1cfc8f6aed59a63cff71f1">erase</a> (<a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a0a83d23cb11869ec9bf8e7e323366067">const_iterator</a> position)</td></tr>
 <tr class="memdesc:a53bc84032a1cfc8f6aed59a63cff71f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erases the element at 'position'.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a53bc84032a1cfc8f6aed59a63cff71f1">More...</a><br /></td></tr>
 <tr class="separator:a53bc84032a1cfc8f6aed59a63cff71f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a06cf25e3f80c98d88e041ef9823976c0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a06cf25e3f80c98d88e041ef9823976c0">operator==</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a> &amp;lhs, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a> &amp;rhs) noexcept</td></tr>
+<tr class="memdesc:a06cf25e3f80c98d88e041ef9823976c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return <code>true</code> if two arrays are equal. Arrays are equal when their sizes are the same, and they are element-for-element equal in order.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#a06cf25e3f80c98d88e041ef9823976c0">More...</a><br /></td></tr>
+<tr class="separator:a06cf25e3f80c98d88e041ef9823976c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af06c7437a0946a9d5e093d903b59f6a4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#af06c7437a0946a9d5e093d903b59f6a4">operator!=</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a> &amp;lhs, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a> &amp;rhs) noexcept</td></tr>
+<tr class="memdesc:af06c7437a0946a9d5e093d903b59f6a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return <code>true</code> if two arrays are not equal. Arrays are equal when their sizes are the same, and they are element-for-element equal in order.  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#af06c7437a0946a9d5e093d903b59f6a4">More...</a><br /></td></tr>
+<tr class="separator:af06c7437a0946a9d5e093d903b59f6a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename _allocator_type = std::allocator&lt;std::byte&gt;&gt;<br />
@@ -825,6 +835,103 @@ template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </di
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Iterator following the removed element. If 'position' refers to the last element, then the <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html#ab915066351a4be83f1390996d1c1acf0" title="Returns an iterator that is at the end of the array.">end()</a> iterator is returned. </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Function Documentation</h2>
+<a id="a06cf25e3f80c98d88e041ef9823976c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06cf25e3f80c98d88e041ef9823976c0">&#9670;&nbsp;</a></span>operator==</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return <code>true</code> if two arrays are equal. Arrays are equal when their sizes are the same, and they are element-for-element equal in order. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lhs</td><td>An array to compare. </td></tr>
+    <tr><td class="paramname">rhs</td><td>An array to compare. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if two arrays are equal. Otherwise, false. </dd></dl>
+
+</div>
+</div>
+<a id="af06c7437a0946a9d5e093d903b59f6a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af06c7437a0946a9d5e093d903b59f6a4">&#9670;&nbsp;</a></span>operator!=</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _allocator_type  = std::allocator&lt;std::byte&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool operator!= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">array</a>&lt; _allocator_type &gt; &amp;&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return <code>true</code> if two arrays are not equal. Arrays are equal when their sizes are the same, and they are element-for-element equal in order. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lhs</td><td>An array to compare. </td></tr>
+    <tr><td class="paramname">rhs</td><td>An array to compare. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if two arrays are not equal. Otherwise, false. </dd></dl>
 
 </div>
 </div>
