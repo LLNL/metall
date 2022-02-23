@@ -12,7 +12,7 @@
 int main() {
   // ----- Non-static methods ----- //
   {
-    metall::manager manager(metall::create_only, "/tmp/dir");
+    metall::manager manager(metall::create_only, "/tmp/dir/version_0");
 
     std::string buf;
     const auto ret = manager.get_description(&buf);
@@ -25,10 +25,10 @@ int main() {
 
   // ----- Static methods ----- //
   {
-    metall::manager::set_description("/tmp/dir", "description example 2");
+    metall::manager::set_description("/tmp/dir/version_0", "description example 2");
 
     std::string buf;
-    metall::manager::get_description("/tmp/dir", &buf);
+    metall::manager::get_description("/tmp/dir/version_0", &buf);
     std::cout << buf << std::endl; // Shows "description example 2"
   }
 

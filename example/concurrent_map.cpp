@@ -44,7 +44,7 @@ void edit(const char key, const int value, map_type *pmap) {
 int main() {
 
   {
-    metall::manager manager(metall::create_only, "/tmp/datastore");
+    metall::manager manager(metall::create_only, "/tmp/datastore/version_0");
     auto pmap = manager.construct<map_type>("map")(manager.get_allocator<>());
 
     // Insert elements concurrently, using the 3 styles
@@ -72,7 +72,7 @@ int main() {
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/datastore");
+    metall::manager manager(metall::open_only, "/tmp/datastore/version_0");
     auto pmap = manager.find<map_type>("map").first;
 
     // Of course, one can update values after reattaching

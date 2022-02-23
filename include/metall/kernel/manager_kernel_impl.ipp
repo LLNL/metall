@@ -615,6 +615,11 @@ manager_kernel<chnk_no, chnk_sz>::priv_make_segment_dir_path(const std::string &
 template <typename chnk_no, std::size_t chnk_sz>
 bool
 manager_kernel<chnk_no, chnk_sz>::priv_init_datastore_directory(const std::string &base_dir_path) {
+  #ifdef METALL_USE_PRIVATEER
+  // Init privateer objerct
+  // bool create_new = true;
+  m_segment_storage.init_privateer_datastore(base_dir_path);
+  #else
   // Create the base directory if needed
   if (!mdtl::create_directory(base_dir_path)) {
     std::string s("Failed to create directory: " + base_dir_path);
@@ -628,6 +633,7 @@ manager_kernel<chnk_no, chnk_sz>::priv_init_datastore_directory(const std::strin
     logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
     return false;
   }
+  #endif
 
   // Create internal directories if needed
   if (!mdtl::create_directory(priv_make_management_dir_path(base_dir_path))) {
@@ -945,7 +951,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_open(const char *base_dir_path,
 
   m_base_dir_path = base_dir_path;
 
-  const size_type existing_segment_size = segment_storage_type::get_size(priv_make_segment_dir_path(m_base_dir_path));
+  const size_type existing_segment_size = segment_storage_type::get_size(/*priv_make_segment_dir_path(*/m_base_dir_path/*)*/);
   const size_type vm_reserve_size = (read_only) ? existing_segment_size + k_segment_header_size
                                                 : std::max(existing_segment_size + k_segment_header_size,
                                                            vm_reserve_size_request);
@@ -969,7 +975,11 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_open(const char *base_dir_path,
     priv_release_vm_region();
     return false;
   }
-
+  #ifdef METALL_USE_PRIVATEER
+    // Init privateer objerct
+    // bool create_new = false;
+    m_segment_storage.init_privateer_datastore(base_dir_path);
+  #endif
   if (!m_segment_storage.open(priv_make_segment_dir_path(m_base_dir_path),
                               m_vm_region_size - k_segment_header_size,
                               static_cast<char *>(m_vm_region) + k_segment_header_size,
@@ -1111,9 +1121,12 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(const char *destination_bas
                                                      const bool clone,
                                                      const int num_max_copy_threads) {
   assert(priv_initialized());
-  m_segment_storage.sync(true);
+  // m_segment_storage.sync(true);
+  if (!m_segment_storage.snapshot(destination_base_dir_path)){
+    return false;
+  }
   priv_serialize_management_data();
-
+  std::cout << "Metall snapshot destination path: " << destination_base_dir_path << std::endl;
   const auto dst_top_dir = priv_make_top_dir_path(destination_base_dir_path);
   if (!mdtl::create_directory(dst_top_dir)) {
     std::stringstream ss;
@@ -1363,6 +1376,21 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_write_description(const std::string 
 
   return true;
 }
+
+/* #ifdef METALL_USE_PRIVATEER
+template <typename chnk_no, std::size_t chnk_sz>
+std::pair<std::string, std::string>
+manager_kernel<chnk_no, chnk_sz>::priv_parse_privateer_paths(const std::string &base_dir_path) {
+  std::pair<std::string, std::string> parsed;
+  size_t position = 0;
+  std::string token = "/";
+  position = base_dir_path.find_last_of(token);
+  std::string privateer_base_path = base_dir_path.substr(0,position);
+  std::string version_name = base_dir_path.substr(position, base_dir_path.length());
+  parsed = std::make_pair(privateer_base_path, version_name);
+  return parsed;
+}
+#endif */
 
 } // namespace kernel
 } // namespace metall

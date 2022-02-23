@@ -15,7 +15,7 @@ int main() {
 
   {
     // Create a new Metall datastore in "/tmp/dir"
-    metall::manager manager(metall::create_only, "/tmp/dir");
+    metall::manager manager(metall::create_only, "/tmp/dir/version_0");
 
     // Allocate and construct an object in the persistent memory with a name "adj_list_graph"
     adj_list_graph_t *adj_list_graph = manager.construct<adj_list_graph_t>("adj_list_graph")
@@ -27,7 +27,7 @@ int main() {
 
   {
     // Open the existing Metall datastore in "/tmp/dir"
-    metall::manager manager(metall::open_only, "/tmp/dir");
+    metall::manager manager(metall::open_only, "/tmp/dir/version_0");
 
     adj_list_graph_t *adj_list_graph = manager.find<adj_list_graph_t>("adj_list_graph").first;
 

@@ -10,7 +10,7 @@ int main(void) {
 
   // Basic allocation
   {
-    metall_open(METALL_CREATE_ONLY, "/tmp/metall1");
+    metall_open(METALL_CREATE_ONLY, "/tmp/dir/metall1/");
 
     uint64_t *x = metall_malloc(sizeof(uint64_t));
     x[0] = 1;
@@ -22,7 +22,7 @@ int main(void) {
 
   // Allocate named object
   {
-    metall_open(METALL_CREATE_ONLY, "/tmp/metall2");
+    metall_open(METALL_CREATE_ONLY, "/tmp/dir/metall2");
 
     uint64_t *array = metall_named_malloc("array", sizeof(uint64_t) * 10);
 
@@ -37,7 +37,7 @@ int main(void) {
 
   // Retrieve named object
   {
-    metall_open(METALL_OPEN_ONLY, "/tmp/metall2");
+    metall_open(METALL_OPEN_ONLY, "/tmp/dir/metall2");
 
     uint64_t *array = metall_find("array");
 

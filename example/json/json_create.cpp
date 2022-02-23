@@ -31,7 +31,7 @@ int main() {
   std::cout << "Create" << std::endl;
 
   using metall_value_type = json::value<metall::manager::allocator_type<std::byte>>;
-  metall::manager manager(metall::create_only, "./test");
+  metall::manager manager(metall::create_only, "/tmp/dir/test_0");
 
   auto *value = manager.construct<metall_value_type>(metall::unique_instance)
       (json::parse(json_string, manager.get_allocator()));

@@ -20,7 +20,7 @@ using namespace metall;
 namespace mc = metall::container;
 
 int main() {
-  manager mg(create_only, "/tmp/dir");
+  manager mg(create_only, "/tmp/dir/version_0");
 
   auto *deque = mg.construct<mc::deque<int>>("deque")(mg.get_allocator());
   mg.destroy_ptr(deque);

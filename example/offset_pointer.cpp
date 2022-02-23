@@ -14,7 +14,7 @@ using int_offset_prt = metall::offset_ptr<int>;
 
 int main() {
   {
-    metall::manager manager(metall::create_only, "/tmp/datastore");
+    metall::manager manager(metall::create_only, "/tmp/datastore/version_0");
 
     // Allocate a simple array in persistent memory
     int *array = static_cast<int *>(manager.allocate(10 * sizeof(int)));
@@ -26,7 +26,7 @@ int main() {
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/datastore");
+    metall::manager manager(metall::open_only, "/tmp/datastore/version_0");
 
     int_offset_prt* ptr = manager.find<int_offset_prt>("ptr").first;
 
