@@ -353,7 +353,7 @@ class privateer_segment_storage {
 
     // init Privateer object and get data
     // privateer = new Privateer(Privateer::CREATE, privateer_path.c_str());
-    void* data = privateer->create(addr, privateer_version_name.c_str(), file_size + (2*1024*1024));
+    void* data = privateer->create(addr, privateer_version_name.c_str(), file_size + (2*1024*1024), true);
     if (data == nullptr){
       return false;
     }

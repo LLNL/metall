@@ -28,6 +28,11 @@ if (OpenMP_CXX_FOUND)
     target_link_libraries(run_adj_list_bench_reflink_snapshot PRIVATE OpenMP::OpenMP_CXX)
 endif ()
 
+add_metall_executable(run_adj_list_bench_metall_snapshot run_adj_list_bench_metall_snapshot.cpp)
+if (OpenMP_CXX_FOUND)
+    target_link_libraries(run_adj_list_bench_reflink_snapshot PRIVATE OpenMP::OpenMP_CXX)
+endif ()
+
 if (MEMKIND_ROOT)
     add_metall_executable(run_adj_list_bench_pmem run_adj_list_bench_pmem.cpp)
     target_include_directories(run_adj_list_bench_pmem PRIVATE ${MEMKIND_ROOT}/include)
