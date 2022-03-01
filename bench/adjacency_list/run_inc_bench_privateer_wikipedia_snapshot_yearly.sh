@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export OMP_SCHEDULE="static"
-export OMP_NUM_THREADS=96
+export OMP_NUM_THREADS=1
 
 INPUT_BASE_PATH=$1
 INPUT_FILES_LIST=$2
@@ -16,6 +16,9 @@ echo "Adding first chunk"
 # srun --drop-caches=pagecache true
 ./run_adj_list_bench_metall_snapshot -o ${DATASTORE_DIR} -V ${INPUT_BASE_PATH}/${first_file}
 du --apparent-size ${DATASTORE_DIR}"/"
+parent_dir="$(dirname "${DATASTORE_DIR}")"
+blocks_dir="${parent_dir}/blocks"
+du --apparent-size ${blocks_dir}
 # rm /dev/shm/sem.*
 # echo "Snapshots storage usage"
 # du -hs --apparent-size ${DATASTORE_DIR}_*
@@ -33,6 +36,9 @@ if [ "$line" != "${first_file}" ]; then
    # srun --drop-caches=pagecache true
    ./run_adj_list_bench_metall_snapshot -o ${DATASTORE_DIR} -V -A ${INPUT_BASE_PATH}/$line
    du --apparent-size ${DATASTORE_DIR}"/"
+   parent_dir="$(dirname "${DATASTORE_DIR}")"
+   blocks_dir="${parent_dir}/blocks"
+   du --apparent-size ${blocks_dir}
    # rm /dev/shm/sem.*
    # echo "Snapshots storage usage"
    # du -hs --apparent-size ${DATASTORE_DIR}_*
