@@ -1,4 +1,4 @@
-project(myproject)
+project(myproject LANGUAGES C CXX)
 
 # Metall requires C++ 17
 set(CMAKE_CXX_STANDARD 17)
