@@ -1,0 +1,34 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Metall: A Persistent Memory Allocator for
+  Data-Centric Analytics
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Keita
+    family-names: Iwabuchi
+    email: kiwabuchi@llnl.gov
+    affiliation: ' Lawrence Livermore National Laboratory'
+    orcid: 'https://orcid.org/0000-0002-9395-0843'
+  - given-names: 'Roger '
+    family-names: Pearce
+    affiliation: Lawrence Livermore National Laboratory
+  - given-names: Maya
+    family-names: Gokhale
+    affiliation: Lawrence Livermore National Laboratory
+identifiers:
+  - type: url
+    value: 'https://doi.org/10.11578/dc.20190410.1'
+repository-code: 'https://github.com/LLNL/metall'
+abstract: >-
+  Metall is a persistent memory allocator built on
+  top of the memory-mapped file mechanism.
+
+  Metall enables applications to transparently
+  allocate custom C++ data structures into various
+  types of persistent memories.
