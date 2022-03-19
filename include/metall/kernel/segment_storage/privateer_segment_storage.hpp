@@ -246,16 +246,51 @@ class privateer_segment_storage {
   }
 
   void init_privateer_datastore(std::string path){
-    std::pair<std::string, std::string> parsed_path = priv_parse_path(path);
+    std::pair<std::string, std::string> base_stash_pair = parse_path(path);
+    std::string base_dir = base_stash_pair.first;
+    std::string stash_dir = base_stash_pair.second;
+    std::pair<std::string, std::string> parsed_path = priv_parse_path(base_dir);
     std::string privateer_base_path = parsed_path.first;
     std::string version_path = parsed_path.second;
-    std::cout << "received path: " << path << std::endl;
+    std::cout << "received path: " << base_dir << std::endl;
     std::cout << "privateer_base_path_test: " << privateer_base_path << " version_path_test: " << version_path << std::endl;
     privateer_version_name = version_path;
     int action = std::filesystem::exists(std::filesystem::path(privateer_base_path))? Privateer::OPEN : Privateer::CREATE;
     // int action = create_new? Privateer::CREATE : Privateer::OPEN;
-    privateer = new Privateer(action, privateer_base_path.c_str());
+    if (!stash_dir.empty()){
+      privateer = new Privateer(action, privateer_base_path.c_str(), stash_dir.c_str());
+    }
+    else{
+      privateer = new Privateer(action, privateer_base_path.c_str());
+    }
   }
+  
+  static std::pair<std::string, std::string> parse_path(std::string path){
+    std::string base_dir = "";
+    std::string stash_dir = "";
+    size_t stash_path_index = path.find("<stash>");
+    if ( stash_path_index != std::string::npos) {
+      stash_dir = path.substr(0, stash_path_index);
+      base_dir = path.substr((stash_path_index + 7), path.length() - (stash_path_index + 7));
+      std::cout << "base_dir  = " << base_dir << std::endl;
+      std::cout << "stash_dir = " << stash_dir << std::endl;
+    }
+    else{
+      base_dir = path;
+    }
+    return std::pair<std::string, std::string>(base_dir, stash_dir);
+  }
+  /* void init_privateer_datastore(std::string base_path, std::string stash_path){
+    std::pair<std::string, std::string> parsed_path = priv_parse_path(base_path);
+    std::string privateer_base_path = parsed_path.first;
+    std::string version_path = parsed_path.second;
+    std::cout << "received path: " << base_path << std::endl;
+    std::cout << "privateer_base_path_test: " << privateer_base_path << " version_path_test: " << version_path << std::endl;
+    privateer_version_name = version_path;
+    int action = std::filesystem::exists(std::filesystem::path(privateer_base_path))? Privateer::OPEN : Privateer::CREATE;
+    // int action = create_new? Privateer::CREATE : Privateer::OPEN;
+    privateer = new Privateer(action, privateer_base_path.c_str(), stash_path.c_str());
+  } */
 
   /// \brief Destroy (unmap) the segment.
   void destroy() {
