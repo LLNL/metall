@@ -129,7 +129,9 @@ Parallel Computing, 2022, 102905, ISSN 0167-8191, https://doi.org/10.1016/j.parc
 
 ## Contact
 
-[Keita Iwabuchi](https://github.com/KIwabuchi) / [Roger Pearce](https://github.com/rogerpearce) / [Maya Gokhale](https://github.com/mayagokhale)
+- [GitHub Issues](https://github.com/LLNL/metall/issues) is open.
+  
+- Primary contact: [Keita Iwabuchi (LLNL)](https://github.com/KIwabuchi).
 
 ## License
 
