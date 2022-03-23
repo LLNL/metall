@@ -127,6 +127,10 @@ Parallel Computing, 2022, 102905, ISSN 0167-8191, https://doi.org/10.1016/j.parc
 
 # About
 
+## Contact
+
+[Keita Iwabuchi](https://github.com/KIwabuchi) / [Roger Pearce](https://github.com/rogerpearce) / [Maya Gokhale](https://github.com/mayagokhale)
+
 ## License
 
 Metall is distributed under the terms of both the MIT license and the
