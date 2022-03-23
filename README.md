@@ -115,15 +115,15 @@ doxygen ../docs/Doxyfile.in
 
 # Publication
 
-## Metall: A Persistent Memory Allocator Enabling Graph Processing
+```
+Keita Iwabuchi, Karim Youssef, Kaushik Velusamy, Maya Gokhale, Roger Pearce,
+Metall: A persistent memory allocator for data-centric analytics,
+Parallel Computing, 2022, 102905, ISSN 0167-8191, https://doi.org/10.1016/j.parco.2022.102905.
+```
 
-* [Paper PDF](https://www.osti.gov/servlets/purl/1576900)
+* [Parallel Computing](https://www.sciencedirect.com/science/article/abs/pii/S0167819122000114) (journal)
 
-* [IEEE Xplore](https://ieeexplore.ieee.org/document/8945094)
-
-## Metall: A Persistent Memory Allocator for Data-Centric Analytics (latest publication, preprint)
-
-* [arXiv](https://arxiv.org/abs/2108.07223)
+* [arXiv](https://arxiv.org/abs/2108.07223) (preprint)
 
 # About
 
