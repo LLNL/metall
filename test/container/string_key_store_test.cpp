@@ -9,7 +9,6 @@
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/container/vector.hpp>
 #include <metall/container/string_key_store.hpp>
-#include <metall/container/string.hpp>
 #include "../test_utility.hpp"
 
 #define METALL_CONTAINER_STRING_KEY_STORE_USE_SIMPLE_HASH
@@ -19,8 +18,9 @@ namespace {
 namespace bip = boost::interprocess;
 
 TEST (StringKeyStoreTest, DuplicateInsert) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
 
+  ASSERT_FALSE(store.unique());
   ASSERT_EQ(store.count("a"), 0);
   ASSERT_EQ(store.size(), 0);
 
@@ -47,8 +47,9 @@ TEST (StringKeyStoreTest, DuplicateInsert) {
 }
 
 TEST (StringKeyStoreTest, UniqueInsert) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
 
+  ASSERT_TRUE(store.unique());
   ASSERT_EQ(store.count("a"), 0);
   ASSERT_EQ(store.size(), 0);
 
@@ -75,7 +76,7 @@ TEST (StringKeyStoreTest, UniqueInsert) {
 }
 
 TEST (StringKeyStoreTest, CopyConstructorDuplicate) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -84,6 +85,10 @@ TEST (StringKeyStoreTest, CopyConstructorDuplicate) {
   ASSERT_EQ(store.count("a"), 1);
   ASSERT_EQ(store.count("b"), 2);
   ASSERT_EQ(store.size(), 3);
+
+  ASSERT_EQ(store.get_allocator(), store_copy.get_allocator());
+  ASSERT_EQ(store.unique(), store_copy.unique());
+  ASSERT_EQ(store.hash_seed(), store_copy.hash_seed());
 
   ASSERT_EQ(store_copy.count("a"), 1);
   ASSERT_EQ(store_copy.count("b"), 2);
@@ -95,7 +100,7 @@ TEST (StringKeyStoreTest, CopyConstructorDuplicate) {
 }
 
 TEST (StringKeyStoreTest, CopyConstructorUnique) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -103,6 +108,10 @@ TEST (StringKeyStoreTest, CopyConstructorUnique) {
   ASSERT_EQ(store.count("a"), 1);
   ASSERT_EQ(store.count("b"), 1);
   ASSERT_EQ(store.size(), 2);
+
+  ASSERT_EQ(store.get_allocator(), store_copy.get_allocator());
+  ASSERT_EQ(store.unique(), store_copy.unique());
+  ASSERT_EQ(store.hash_seed(), store_copy.hash_seed());
 
   ASSERT_EQ(store_copy.count("a"), 1);
   ASSERT_EQ(store_copy.count("b"), 1);
@@ -114,7 +123,7 @@ TEST (StringKeyStoreTest, CopyConstructorUnique) {
 }
 
 TEST (StringKeyStoreTest, CopyAsignmentDuplicate) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -123,6 +132,10 @@ TEST (StringKeyStoreTest, CopyAsignmentDuplicate) {
   ASSERT_EQ(store.count("a"), 1);
   ASSERT_EQ(store.count("b"), 2);
   ASSERT_EQ(store.size(), 3);
+
+  ASSERT_EQ(store.get_allocator(), store_copy.get_allocator());
+  ASSERT_EQ(store.unique(), store_copy.unique());
+  ASSERT_EQ(store.hash_seed(), store_copy.hash_seed());
 
   ASSERT_EQ(store_copy.count("a"), 1);
   ASSERT_EQ(store_copy.count("b"), 2);
@@ -134,7 +147,7 @@ TEST (StringKeyStoreTest, CopyAsignmentDuplicate) {
 }
 
 TEST (StringKeyStoreTest, CopyAsignmentUnique) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -142,6 +155,10 @@ TEST (StringKeyStoreTest, CopyAsignmentUnique) {
   ASSERT_EQ(store.count("a"), 1);
   ASSERT_EQ(store.count("b"), 1);
   ASSERT_EQ(store.size(), 2);
+
+  ASSERT_EQ(store.get_allocator(), store_copy.get_allocator());
+  ASSERT_EQ(store.unique(), store_copy.unique());
+  ASSERT_EQ(store.hash_seed(), store_copy.hash_seed());
 
   ASSERT_EQ(store_copy.count("a"), 1);
   ASSERT_EQ(store_copy.count("b"), 1);
@@ -153,7 +170,7 @@ TEST (StringKeyStoreTest, CopyAsignmentUnique) {
 }
 
 TEST (StringKeyStoreTest, MoveConstructorDuplicate) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -169,7 +186,7 @@ TEST (StringKeyStoreTest, MoveConstructorDuplicate) {
 }
 
 TEST (StringKeyStoreTest, MoveConstructorUnique) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -184,7 +201,7 @@ TEST (StringKeyStoreTest, MoveConstructorUnique) {
 }
 
 TEST (StringKeyStoreTest, MoveAsignmentDuplicate) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -200,7 +217,7 @@ TEST (StringKeyStoreTest, MoveAsignmentDuplicate) {
 }
 
 TEST (StringKeyStoreTest, MoveAsignmentUnique) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -215,7 +232,7 @@ TEST (StringKeyStoreTest, MoveAsignmentUnique) {
 }
 
 TEST (StringKeyStoreTest, Clear) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   store.insert("a");
   store.insert("b", "0");
   store.clear();
@@ -223,7 +240,7 @@ TEST (StringKeyStoreTest, Clear) {
 }
 
 TEST (StringKeyStoreTest, EraseMultipleWithKey) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
   ASSERT_EQ(store.erase("a"), 0);
   store.insert("a");
   store.insert("b");
@@ -236,7 +253,7 @@ TEST (StringKeyStoreTest, EraseMultipleWithKey) {
 }
 
 TEST (StringKeyStoreTest, EraseSingleWithKey) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   ASSERT_EQ(store.erase("a"), 0);
   store.insert("a");
   store.insert("b");
@@ -249,7 +266,7 @@ TEST (StringKeyStoreTest, EraseSingleWithKey) {
 }
 
 TEST (StringKeyStoreTest, EraseMultipleWithLocator) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
   ASSERT_EQ(store.erase(store.find("a")), store.end());
   store.insert("a");
   store.insert("b");
@@ -263,7 +280,7 @@ TEST (StringKeyStoreTest, EraseMultipleWithLocator) {
 }
 
 TEST (StringKeyStoreTest, EraseSingleWithLocator) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   ASSERT_EQ(store.erase(store.find("a")), store.end());
   store.insert("a");
   store.insert("b");
@@ -276,7 +293,7 @@ TEST (StringKeyStoreTest, EraseSingleWithLocator) {
 }
 
 TEST (StringKeyStoreTest, LocatorDuplicate) {
-  metall::container::string_key_store<std::string> store(false);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
   ASSERT_EQ(store.begin(), store.end());
   ASSERT_EQ(store.find("a"), store.end());
   ASSERT_EQ(store.equal_range("a").first, store.end());
@@ -335,7 +352,7 @@ TEST (StringKeyStoreTest, LocatorDuplicate) {
 }
 
 TEST (StringKeyStoreTest, LocatorUnique) {
-  metall::container::string_key_store<std::string> store(true);
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
   ASSERT_EQ(store.begin(), store.end());
   ASSERT_EQ(store.find("a"), store.end());
   ASSERT_EQ(store.equal_range("a").first, store.end());
@@ -394,7 +411,7 @@ TEST (StringKeyStoreTest, LocatorUnique) {
 }
 
 TEST (StringKeyStoreTest, MaxProbeDistance) {
-  metall::container::string_key_store<int> store;
+  metall::container::string_key_store<int, std::allocator<std::byte>> store;
   ASSERT_EQ(store.max_id_probe_distance(), 0);
   store.insert("a");
   ASSERT_EQ(store.max_id_probe_distance(), 0);
@@ -403,7 +420,7 @@ TEST (StringKeyStoreTest, MaxProbeDistance) {
 }
 
 TEST (StringKeyStoreTest, Rehash) {
-  metall::container::string_key_store<std::string> store;
+  metall::container::string_key_store<std::string, std::allocator<std::byte>> store;
   store.insert("a", "0");
   store.insert("b", "1");
   store.insert("c", "2");
@@ -429,7 +446,7 @@ TEST (StringKeyStoreTest, Persistence) {
   // Create
   {
     bip::managed_mapped_file mfile(bip::create_only, file_path.c_str(), 1 << 20);
-    auto* store = mfile.construct<store_type>(bip::unique_instance)(true, 123, mfile.get_allocator<std::byte>());
+    auto *store = mfile.construct<store_type>(bip::unique_instance)(true, 111, mfile.get_allocator<std::byte>());
     store->insert("a");
     store->value(store->find("a")).push_back(10);
   }
@@ -437,7 +454,7 @@ TEST (StringKeyStoreTest, Persistence) {
   // Append
   {
     bip::managed_mapped_file mfile(bip::open_only, file_path.c_str());
-    auto* store = mfile.find<store_type>(bip::unique_instance).first;
+    auto *store = mfile.find<store_type>(bip::unique_instance).first;
 
     ASSERT_EQ(store->size(), 1);
     ASSERT_EQ(store->value(store->find("a"))[0], 10);
@@ -451,11 +468,12 @@ TEST (StringKeyStoreTest, Persistence) {
   // Read only
   {
     bip::managed_mapped_file mfile(bip::open_read_only, file_path.c_str());
-    auto* store = mfile.find<store_type>(bip::unique_instance).first;
+    auto *store = mfile.find<store_type>(bip::unique_instance).first;
     ASSERT_EQ(store->size(), 2);
     ASSERT_EQ(store->value(store->find("a"))[0], 10);
     ASSERT_EQ(store->value(store->find("b"))[0], 20);
     ASSERT_EQ(store->value(store->find("b"))[1], 30);
   }
 }
+
 }
