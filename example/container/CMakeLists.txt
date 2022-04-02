@@ -1,0 +1,1 @@
+add_metall_executable(string_key_store string_key_store.cpp)
