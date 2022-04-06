@@ -259,7 +259,7 @@ endif ()
 # there is a tricky behavior/issue especially in Boost 1.70.0.
 set(Boost_NO_BOOST_CMAKE ON)
 
-find_package(Boost 1.64 QUIET)
+find_package(Boost 1.64 QUIET) # COMPONENTS iostreams)
 if (NOT Boost_FOUND)
     FetchContent_Declare(Boost
             URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2)
@@ -346,15 +346,26 @@ function(common_setup_for_metall_executable name)
     if (PRIVATEER_ROOT)
         target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
         if (LIBPRIVATEER)
+            # 1) Privateer Dependencies
             FIND_PACKAGE(OpenSSL)
             target_link_libraries(${name} PRIVATE OpenSSL::SSL)
             target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
             target_link_libraries(${name} PRIVATE rt)
+            if (ZSTD_ROOT)
+                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
+                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
+                target_link_libraries(${name} PRIVATE ${LIBZSTD})
+            endif()
+            # ------------------------------------------
+            
+            # 2) Link Privateer
             target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
             target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
+            target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
+            # ------------------------------------------
         endif ()
     endif ()
-    #
+    # --------------------
 endfunction()
 
 function(add_metall_executable name source)

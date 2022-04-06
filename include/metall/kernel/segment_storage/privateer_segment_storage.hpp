@@ -119,8 +119,8 @@ class privateer_segment_storage {
                    const std::string &destination_path,
                    const bool clone,
                    const int max_num_threads) {
-    std::cout << "copy source_path: " << source_path << std::endl;
-    std::cout << "copy destination_path: " << destination_path << std::endl;
+    // std::cout << "copy source_path: " << source_path << std::endl;
+    // std::cout << "copy destination_path: " << destination_path << std::endl;
     // std::string destination_privateer_metadata_path = destination_path + "/version_metadata";
     if (!mdtl::directory_exist(destination_path)) {
       if (!mdtl::create_directory(destination_path)) {
@@ -252,8 +252,8 @@ class privateer_segment_storage {
     std::pair<std::string, std::string> parsed_path = priv_parse_path(base_dir);
     std::string privateer_base_path = parsed_path.first;
     std::string version_path = parsed_path.second;
-    std::cout << "received path: " << base_dir << std::endl;
-    std::cout << "privateer_base_path_test: " << privateer_base_path << " version_path_test: " << version_path << std::endl;
+    // std::cout << "received path: " << base_dir << std::endl;
+    // std::cout << "privateer_base_path_test: " << privateer_base_path << " version_path_test: " << version_path << std::endl;
     privateer_version_name = version_path;
     int action = std::filesystem::exists(std::filesystem::path(privateer_base_path))? Privateer::OPEN : Privateer::CREATE;
     // int action = create_new? Privateer::CREATE : Privateer::OPEN;
@@ -272,8 +272,8 @@ class privateer_segment_storage {
     if ( stash_path_index != std::string::npos) {
       stash_dir = path.substr(0, stash_path_index);
       base_dir = path.substr((stash_path_index + 7), path.length() - (stash_path_index + 7));
-      std::cout << "base_dir  = " << base_dir << std::endl;
-      std::cout << "stash_dir = " << stash_dir << std::endl;
+      // std::cout << "base_dir  = " << base_dir << std::endl;
+      // std::cout << "stash_dir = " << stash_dir << std::endl;
     }
     else{
       base_dir = path;
@@ -373,7 +373,8 @@ class privateer_segment_storage {
     assert(!path.empty());
     assert(file_size > 0);
     assert(addr);
-
+    // std::cout << "priv_map_file_create() file_size: " << file_size << std::endl;
+    // std::cout << "priv_map_file_create() addr: " << (uint64_t) addr << std::endl;
     /* std::pair<std::string, std::string> parsed_path = priv_parse_path(path);
     std::string version_name = parsed_path.second;
     std::cout << "path: " << path << std::endl;
@@ -407,11 +408,11 @@ class privateer_segment_storage {
     std::string version_path = parsed_path.second; */
 
     // privateer = new Privateer(Privateer::OPEN, privateer_path.c_str());
-    std::cout << "Before opening privateer version" << std::endl;
+    // std::cout << "Before opening privateer version" << std::endl;
     void *data = read_only? privateer->open(addr, privateer_version_name.c_str()) : privateer->open_read_only(addr, privateer_version_name.c_str());
-    std::cout << "After opening" << std::endl;
+    // std::cout << "After opening" << std::endl;
     m_current_segment_size = privateer->region_size();
-    std::cout << "After region size" << std::endl;
+    // std::cout << "After region size" << std::endl;
     return true;
   }
 

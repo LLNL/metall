@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export OMP_SCHEDULE="static"
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=96
 
 INPUT_BASE_PATH=$1
 INPUT_FILES_LIST=$2
@@ -15,10 +15,11 @@ echo "Adding first chunk"
 
 # srun --drop-caches=pagecache true
 ./run_adj_list_bench_metall_snapshot -o ${DATASTORE_DIR} -V ${INPUT_BASE_PATH}/${first_file}
-du --apparent-size ${DATASTORE_DIR}"/"
-parent_dir="$(dirname "${DATASTORE_DIR}")"
-blocks_dir="${parent_dir}/blocks"
-du --apparent-size ${blocks_dir}
+du --apparent-size ${DATASTORE_DIR}"/" # TODO: CHANGE
+du --apparent-size "${DATASTORE_DIR}/../blocks"
+# parent_dir="$(dirname "${DATASTORE_DIR}")"
+# blocks_dir="${parent_dir}/blocks"
+# du --apparent-size ${blocks_dir}
 # rm /dev/shm/sem.*
 # echo "Snapshots storage usage"
 # du -hs --apparent-size ${DATASTORE_DIR}_*
@@ -35,10 +36,11 @@ if [ "$line" != "${first_file}" ]; then
    echo "Adding ${line}"
    # srun --drop-caches=pagecache true
    ./run_adj_list_bench_metall_snapshot -o ${DATASTORE_DIR} -V -A ${INPUT_BASE_PATH}/$line
-   du --apparent-size ${DATASTORE_DIR}"/"
-   parent_dir="$(dirname "${DATASTORE_DIR}")"
-   blocks_dir="${parent_dir}/blocks"
-   du --apparent-size ${blocks_dir}
+   du --apparent-size ${DATASTORE_DIR}"/" # TODO: CHANGE
+   du --apparent-size "${DATASTORE_DIR}/../blocks"
+   # parent_dir="$(dirname "${DATASTORE_DIR}")"
+   # blocks_dir="${parent_dir}/blocks"
+   # du --apparent-size ${blocks_dir}
    # rm /dev/shm/sem.*
    # echo "Snapshots storage usage"
    # du -hs --apparent-size ${DATASTORE_DIR}_*
@@ -50,13 +52,14 @@ done < "${INPUT_FILES_LIST}"
 
 # Useful information
 echo "Datastore"
-ls -Rlsth ${DATASTORE_DIR}"/"
-df ${DATASTORE_DIR}"/"
-du -h --apparent-size ${DATASTORE_DIR}"/"
+ls -Rlsth ${DATASTORE_DIR}"/" # TODO CHANGE
+df ${DATASTORE_DIR}"/" # TODO CHANGE
+du -h --apparent-size ${DATASTORE_DIR}"/" # TODO CHANGE
+du --apparent-size "${DATASTORE_DIR}/../blocks"
 echo "Sizes of snapshots"
-du -h --apparent-size ${DATASTORE_DIR}_*
+du -h --apparent-size ${DATASTORE_DIR}_* # TODO CHANGE
 # cp -r ${DATASTORE_DIR}/metall_datastore/segment/version_metadata /g/g90/youssef2/metall-1/build_privateer_2/bench/adjacency_list/version_metadata_${FILE_GRANULARITY}
-rm -rf ${DATASTORE_DIR}
-mkdir -p /p/lustre3/youssef2/metall_privateer_snapshot_final_hpec/${FILE_GRANULARITY}_yearly_final_no_copies
-cp -r ${DATASTORE_DIR}_* /p/lustre3/youssef2/metall_privateer_snapshot_final_hpec/${FILE_GRANULARITY}_yearly_final_no_copies
-rm -rf ${DATASTORE_DIR}_*
+rm -rf ${DATASTORE_DIR} # TODO CHSANGE
+# mkdir -p /p/lustre3/youssef2/metall_privateer_snapshot_final_hpec/${FILE_GRANULARITY}_yearly_final_no_copies
+# cp -r ${DATASTORE_DIR}_* /p/lustre3/youssef2/metall_privateer_snapshot_final_hpec/${FILE_GRANULARITY}_yearly_final_no_copies # TODO CHANGE
+rm -rf ${DATASTORE_DIR}_* # TODO CHANGE
