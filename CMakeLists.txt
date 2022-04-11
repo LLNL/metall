@@ -250,6 +250,7 @@ if (UMAP_ROOT)
 endif ()
 
 # ---------- Privateer ---------- #
+message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
 if (PRIVATEER_ROOT)
     find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
 endif ()
