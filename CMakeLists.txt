@@ -98,7 +98,7 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
 # ---------- Experimental options ---------- #
 option(USE_ANONYMOUS_NEW_MAP "Use the anonymous map when creating a new map region" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
-set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
+set(PRIVATEER_ROOT "/g/g90/youssef2/privateer_github_private/build_no_compression" CACHE PATH "Privateer installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
