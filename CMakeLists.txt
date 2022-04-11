@@ -355,13 +355,13 @@ function(common_setup_for_metall_executable name)
                 find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
                 target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
                 target_link_libraries(${name} PRIVATE ${LIBZSTD})
+                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
             endif()
             # ------------------------------------------
             
             # 2) Link Privateer
             target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
             target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
-            target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
             # ------------------------------------------
         endif ()
     endif ()
