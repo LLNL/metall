@@ -44,9 +44,9 @@ For example,
 ```bash
 # Download Boost (Boost C++ Libraries 1.64 or more is required)
 # One can skip this step if Boost is already available.
-wget https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.gz
-tar xvf boost_1_77_0.tar.gz
-export BOOST_ROOT=$PWD/boost_1_77_0
+wget https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz
+tar xvf boost_1_78_0.tar.gz
+export BOOST_ROOT=$PWD/boost_1_78_0
 
 git clone https://github.com/LLNL/metall
 export METALL_INCLUDE=$PWD/metall/include
@@ -115,24 +115,23 @@ doxygen ../docs/Doxyfile.in
 
 # Publication
 
-## Metall: A Persistent Memory Allocator Enabling Graph Processing
+```
+Keita Iwabuchi, Karim Youssef, Kaushik Velusamy, Maya Gokhale, Roger Pearce,
+Metall: A persistent memory allocator for data-centric analytics,
+Parallel Computing, 2022, 102905, ISSN 0167-8191, https://doi.org/10.1016/j.parco.2022.102905.
+```
 
-* [Paper PDF](https://www.osti.gov/servlets/purl/1576900)
+* [Parallel Computing](https://www.sciencedirect.com/science/article/abs/pii/S0167819122000114) (journal)
 
-* [IEEE Xplore](https://ieeexplore.ieee.org/document/8945094)
-
-## Metall: A Persistent Memory Allocator for Data-Centric Analytics (latest publication, preprint)
-
-* [arXiv](https://arxiv.org/abs/2108.07223)
+* [arXiv](https://arxiv.org/abs/2108.07223) (preprint)
 
 # About
 
-## Authors
+## Contact
 
-* Keita Iwabuchi (kiwabuchi at llnl dot gov)
-* Roger A Pearce (rpearce at llnl dot gov)
-* Maya B Gokhale (gokhale2 at llnl dot gov).
-
+- [GitHub Issues](https://github.com/LLNL/metall/issues) is open.
+  
+- Primary contact: [Keita Iwabuchi (LLNL)](https://github.com/KIwabuchi).
 
 ## License
 
