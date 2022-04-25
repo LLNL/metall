@@ -13,6 +13,12 @@ var dir_b076435bd9cb7fc857f2c822f589f071 =
     [ "set.hpp", "set_8hpp.html", "set_8hpp" ],
     [ "stack.hpp", "stack_8hpp.html", "stack_8hpp" ],
     [ "string.hpp", "string_8hpp.html", "string_8hpp" ],
+    [ "string_key_store.hpp", "string__key__store_8hpp.html", [
+      [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html", "classmetall_1_1container_1_1string__key__store" ]
+    ] ],
+    [ "string_key_store_locator.hpp", "string__key__store__locator_8hpp.html", [
+      [ "string_key_store_locator", "classmetall_1_1container_1_1string__key__store__locator.html", "classmetall_1_1container_1_1string__key__store__locator" ]
+    ] ],
     [ "unordered_map.hpp", "unordered__map_8hpp.html", "unordered__map_8hpp" ],
     [ "unordered_set.hpp", "unordered__set_8hpp.html", "unordered__set_8hpp" ],
     [ "vector.hpp", "vector_8hpp.html", "vector_8hpp" ]

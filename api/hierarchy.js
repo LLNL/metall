@@ -18,6 +18,8 @@ var hierarchy =
     [ "metall::container::experimental::json::indexed_object< _allocator_type >", "classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object.html", null ],
     [ "metall::container::experimental::json::key_value_pair< _char_type, _char_traits, _allocator_type >", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html", null ],
     [ "metall::container::experimental::json::value< _allocator_type >", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html", null ],
+    [ "metall::container::string_key_store< _value_type, allocator_type >", "classmetall_1_1container_1_1string__key__store.html", null ],
+    [ "metall::container::string_key_store_locator< iterator_type >", "classmetall_1_1container_1_1string__key__store__locator.html", null ],
     [ "metall::create_only_t", "structmetall_1_1create__only__t.html", null ],
     [ "metall::logger", "classmetall_1_1logger.html", null ],
     [ "metall::open_only_t", "structmetall_1_1open__only__t.html", null ],
