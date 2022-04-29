@@ -252,9 +252,28 @@ endif ()
 # ---------- Privateer ---------- #
 message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
 if (PRIVATEER_ROOT)
-    message(STATUS "Finding Library")
     find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
-    message(STATUS "Library Found")
+    target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
+        if (LIBPRIVATEER)
+            message(STATUS "Found libprivateer")
+            # 1) Privateer Dependencies
+            FIND_PACKAGE(OpenSSL)
+            target_link_libraries(${name} PRIVATE OpenSSL::SSL)
+            target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
+            target_link_libraries(${name} PRIVATE rt)
+            if (ZSTD_ROOT)
+                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
+                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
+                target_link_libraries(${name} PRIVATE ${LIBZSTD})
+                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
+            endif()
+            # ------------------------------------------
+            
+            # 2) Link Privateer
+            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
+            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
+            # ------------------------------------------
+        endif ()
 endif ()
 
 # ---------- Boost ---------- #
@@ -347,10 +366,8 @@ function(common_setup_for_metall_executable name)
 
     # ----- Privateeer----- #
     if (PRIVATEER_ROOT)
-        message(STATUS "Including Privateer")
         target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
         if (LIBPRIVATEER)
-            message(STATUS "Found libprivateer")
             # 1) Privateer Dependencies
             FIND_PACKAGE(OpenSSL)
             target_link_libraries(${name} PRIVATE OpenSSL::SSL)
