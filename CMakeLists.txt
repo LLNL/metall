@@ -252,7 +252,9 @@ endif ()
 # ---------- Privateer ---------- #
 message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
 if (PRIVATEER_ROOT)
+    message(STATUS "Finding Library")
     find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+    message(STATUS "Library Found")
 endif ()
 
 # ---------- Boost ---------- #
@@ -345,8 +347,10 @@ function(common_setup_for_metall_executable name)
 
     # ----- Privateeer----- #
     if (PRIVATEER_ROOT)
+        message(STATUS "Including Privateer")
         target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
         if (LIBPRIVATEER)
+            message(STATUS "Found libprivateer")
             # 1) Privateer Dependencies
             FIND_PACKAGE(OpenSSL)
             target_link_libraries(${name} PRIVATE OpenSSL::SSL)
