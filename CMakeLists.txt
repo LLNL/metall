@@ -253,27 +253,6 @@ endif ()
 message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
 if (PRIVATEER_ROOT)
     find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
-    target_include_directories(${name} INTERFACE ${PRIVATEER_ROOT}/include)
-        if (LIBPRIVATEER)
-            message(STATUS "Found libprivateer")
-            # 1) Privateer Dependencies
-            FIND_PACKAGE(OpenSSL)
-            target_link_libraries(${name} OpenSSL::SSL)
-            target_link_libraries(${name} OpenSSL::Crypto)
-            target_link_libraries(${name} PUBLIC rt)
-            if (ZSTD_ROOT)
-                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
-                target_include_directories(${name} ${ZSTD_ROOT}/lib)
-                target_link_libraries(${name} ${LIBZSTD})
-                target_compile_definitions(${name} USE_COMPRESSION)
-            endif()
-            # ------------------------------------------
-            
-            # 2) Link Privateer
-            target_link_libraries(${name} ${LIBPRIVATEER})
-            target_compile_definitions(${name} METALL_USE_PRIVATEER)
-            # ------------------------------------------
-        endif ()
 endif ()
 
 # ---------- Boost ---------- #
