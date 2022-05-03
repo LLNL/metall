@@ -27,6 +27,8 @@ install_boost:
   script:
     - hostname
     - pwd
+#    - spack install boost@1.79.0
+#    - spack install boost@1.78.0
 #    - spack install boost@1.77.0
 #    - spack install boost@1.76.0
 #    - spack install boost@1.75.0
@@ -57,6 +59,18 @@ install_boost:
     - spack load boost@${BOOST_VERSION} ${SPACK_ARCH_INFO}
     - export METALL_TEST_DIR="/dev/shm/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
     - srun -N1 -ppdebug bash ./scripts/CI/build_and_test.sh
+
+build_gcc10.2.1_bst1.79.0:
+  extends: .build
+  variables:
+    GCC_VERSION: "10.2.1"
+    BOOST_VERSION: "1.79.0"
+
+build_gcc10.2.1_bst1.78.0:
+  extends: .build
+  variables:
+    GCC_VERSION: "10.2.1"
+    BOOST_VERSION: "1.78.0"
 
 build_gcc10.2.1_bst1.77.0:
   extends: .build
