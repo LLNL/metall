@@ -11,8 +11,9 @@
 namespace metall::container::experimental::json {
 namespace jsndtl {
 
-template <typename allocator_type, typename other_string_type>
-inline bool general_string_equal(const string<allocator_type> &string, const other_string_type &other_string) noexcept {
+template <typename char_t, typename traits, typename allocator, typename other_string_type>
+inline bool general_string_equal(const string<char_t, traits, allocator> &string,
+                                 const other_string_type &other_string) noexcept {
   return std::strcmp(string.c_str(), other_string.c_str()) == 0;
 }
 
