@@ -67,7 +67,7 @@ inline bool operator==(const array<allocator_type> &array, const bj::array &bj_a
 
 template <typename allocator_type>
 inline bool operator==(const bj::array &bj_array, const array<allocator_type> &array) {
-  return bj_array == array;
+  return array == bj_array;
 }
 
 template <typename allocator_type>
@@ -77,7 +77,7 @@ inline bool operator!=(const array<allocator_type> &array, const bj::array &bj_a
 
 template <typename allocator_type>
 inline bool operator!=(const bj::array &bj_array, const array<allocator_type> &array) {
-  return bj_array != array;
+  return array != bj_array;
 }
 
 template <typename allocator_type>
@@ -87,7 +87,7 @@ inline bool operator==(const compact_object<allocator_type> &object, const bj::o
 
 template <typename allocator_type>
 inline bool operator==(const bj::object &bj_object, const compact_object<allocator_type> &object) {
-  return bj_object == object;
+  return object == bj_object;
 }
 
 template <typename allocator_type>
@@ -97,7 +97,7 @@ inline bool operator!=(const compact_object<allocator_type> &object, const bj::o
 
 template <typename allocator_type>
 inline bool operator!=(const bj::object &bj_object, const compact_object<allocator_type> &object) {
-  return bj_object != object;
+  return object != bj_object;
 }
 
 template <typename allocator_type>
@@ -107,7 +107,7 @@ inline bool operator==(const indexed_object<allocator_type> &object, const bj::o
 
 template <typename allocator_type>
 inline bool operator==(const bj::object &bj_object, const indexed_object<allocator_type> &object) {
-  return bj_object == object;
+  return object == bj_object;
 }
 
 template <typename allocator_type>
@@ -117,7 +117,27 @@ inline bool operator!=(const indexed_object<allocator_type> &object, const bj::o
 
 template <typename allocator_type>
 inline bool operator!=(const bj::object &bj_object, const indexed_object<allocator_type> &object) {
-  return bj_object != object;
+  return object != bj_object;
+}
+
+template <typename char_t, typename traits, typename allocator>
+inline bool operator==(const string<char_t, traits, allocator> &string, const bj::string &bj_string) {
+  return jsndtl::general_string_equal(string, bj_string);
+}
+
+template <typename char_t, typename traits, typename allocator>
+inline bool operator==(const bj::string &bj_string, const string<char_t, traits, allocator> &string) {
+  return string == bj_string;
+}
+
+template <typename char_t, typename traits, typename allocator>
+inline bool operator!=(const string<char_t, traits, allocator> &string, const bj::string &bj_string) {
+  return !(string == bj_string);
+}
+
+template <typename char_t, typename traits, typename allocator>
+inline bool operator!=(const bj::string &bj_string, const string<char_t, traits, allocator> &string) {
+  return string != bj_string;
 }
 } // namespace metall::container::experimental::json
 #endif //METALL_CONTAINER_EXPERIMENT_JSON_EQUAL_HPP

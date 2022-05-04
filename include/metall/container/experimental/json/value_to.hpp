@@ -28,7 +28,7 @@ inline void value_to_impl_helper(const mj::value<allocator_type> &input_value, b
   } else if (input_value.is_double()) {
     *out_bj_value = input_value.as_double();
   } else if (input_value.is_string()) {
-    *out_bj_value = input_value.as_string();
+    *out_bj_value = input_value.as_string().c_str();
   } else if (input_value.is_array()) {
     bj::array bj_array;
     for (const auto &elem : input_value.as_array()) {
