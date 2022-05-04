@@ -63,8 +63,8 @@ inline bool general_indexed_object_equal(const indexed_object<allocator_type> &,
 template <typename allocator_type, typename other_array_type>
 inline bool general_array_equal(const array<allocator_type> &, const other_array_type &) noexcept;
 
-template <typename allocator_type, typename other_string_type>
-inline bool general_string_equal(const string<allocator_type> &, const other_string_type &) noexcept;
+template <typename char_t, typename traits, typename allocator, typename other_string_type>
+inline bool general_string_equal(const string<char_t, traits, allocator> &, const other_string_type &) noexcept;
 }
 #endif // DOXYGEN_SKIP
 
