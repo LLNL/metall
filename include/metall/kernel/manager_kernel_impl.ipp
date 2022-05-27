@@ -997,7 +997,12 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_open(const char *base_dir_path,
   
   m_base_dir_path = base_dir;
 
-  const size_type existing_segment_size = segment_storage_type::get_size(/*priv_make_segment_dir_path(*/m_base_dir_path/*)*/);
+  #ifdef METALL_USE_PRIVATEER
+  const size_type existing_segment_size = segment_storage_type::get_size(m_base_dir_path);
+  #else
+  const size_type existing_segment_size = segment_storage_type::get_size(priv_make_segment_dir_path(m_base_dir_path));
+  #endif
+
   const size_type vm_reserve_size = (read_only) ? existing_segment_size + k_segment_header_size
                                                 : std::max(existing_segment_size + k_segment_header_size,
                                                            vm_reserve_size_request);
