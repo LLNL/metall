@@ -1072,9 +1072,15 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_create(const char *base_dir_path,
     return false;
   }
 
+  #ifdef METALL_USE_PRIVATEER
+  if (!priv_reserve_vm_region(vm_reserve_size + k_segment_header_size)) {
+    return false;
+  }
+  #else
   if (!priv_reserve_vm_region(vm_reserve_size)) {
     return false;
   }
+  #endif
 
   if (!priv_allocate_segment_header(m_vm_region)) {
     priv_release_vm_region();
