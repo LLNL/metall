@@ -331,8 +331,10 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 #endif
 }
 
+namespace file_copy_detail {
+
 #if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
-inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
+inline bool copy_file_dense(const std::string &source_path, const std::string &destination_path) {
   bool success = true;
   try {
     if (!fs::copy_file(source_path, destination_path, fs::copy_options::overwrite_existing)) {
@@ -355,7 +357,7 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 
 #else
 
-inline bool copy_file(const std::string &source_path, const std::string &destination_path) {
+inline bool copy_file_dense(const std::string &source_path, const std::string &destination_path) {
   {
     const ssize_t source_file_size = get_file_size(source_path);
     const ssize_t actual_source_file_size = get_actual_file_size(source_path);
@@ -417,6 +419,41 @@ inline bool copy_file(const std::string &source_path, const std::string &destina
 }
 
 #endif
+
+#ifdef __linux__
+inline bool copy_file_sparse_linux(const std::string &source_path, const std::string &destination_path) {
+  std::string command("cp --sparse=auto " + source_path + " " + destination_path);
+  const int status = std::system(command.c_str());
+  const bool success = (status != -1) && !!(WIFEXITED(status));
+  if (!success) {
+    std::stringstream ss;
+    ss << "Failed copying file: " << source_path << " -> " << destination_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    return false;
+  }
+  return success;
+}
+#endif
+
+}// namespace file_copy_detail
+
+/// \brief Copy a file.
+/// \param source_path A source file path.
+/// \param destination_path A destination path.
+/// \param sparse_copy If true is specified, tries to perform sparse file copy.
+/// \return  On success, returns true. On error, returns false.
+inline bool copy_file(const std::string &source_path,
+                      const std::string &destination_path,
+                      const bool sparse_copy = true) {
+  if (sparse_copy) {
+#ifdef __linux__
+    return file_copy_detail::copy_file_sparse_linux(source_path, destination_path);
+#else
+    logger::out(logger::level::info, __FILE__, __LINE__, "Sparse file copy is not available");
+#endif
+  }
+  return file_copy_detail::copy_file_dense(source_path, destination_path);
+}
 
 /// \brief Get the file names in a directory.
 /// This function does not list files recursively.
@@ -487,25 +524,26 @@ copy_files_in_directory_in_parallel_helper(const std::string &source_dir_path,
 
   std::atomic_uint_fast64_t num_successes = 0;
   std::atomic_uint_fast64_t file_no_cnt = 0;
-  auto copy_lambda = [&file_no_cnt, &num_successes, &source_dir_path, &src_file_names, &destination_dir_path, &copy_func]() {
-    while (true) {
-      const auto file_no = file_no_cnt.fetch_add(1);
-      if (file_no >= src_file_names.size()) break;
-      const std::string &src_file_path = source_dir_path + "/" + src_file_names[file_no];
-      const std::string &dst_file_path = destination_dir_path + "/" + src_file_names[file_no];
-      num_successes.fetch_add(copy_func(src_file_path, dst_file_path) ? 1 : 0);
-    }
-  };
+  auto copy_lambda
+      = [&file_no_cnt, &num_successes, &source_dir_path, &src_file_names, &destination_dir_path, &copy_func]() {
+        while (true) {
+          const auto file_no = file_no_cnt.fetch_add(1);
+          if (file_no >= src_file_names.size()) break;
+          const std::string &src_file_path = source_dir_path + "/" + src_file_names[file_no];
+          const std::string &dst_file_path = destination_dir_path + "/" + src_file_names[file_no];
+          num_successes.fetch_add(copy_func(src_file_path, dst_file_path) ? 1 : 0);
+        }
+      };
 
   const auto num_threads = (int)std::min(src_file_names.size(),
                                          (std::size_t)(max_num_threads > 0 ? max_num_threads
                                                                            : std::thread::hardware_concurrency()));
   std::vector<std::thread *> threads(num_threads, nullptr);
-  for (auto &th : threads) {
+  for (auto &th: threads) {
     th = new std::thread(copy_lambda);
   }
 
-  for (auto &th : threads) {
+  for (auto &th: threads) {
     th->join();
   }
 
@@ -518,11 +556,19 @@ copy_files_in_directory_in_parallel_helper(const std::string &source_dir_path,
 /// \param destination_dir_path A path to destination directory.
 /// \param max_num_threads The maximum number of threads to use.
 /// If <= 0 is given, it is automatically determined.
+/// \param sparse_copy Performs sparse file copy.
 /// \return  On success, returns true. On error, returns false.
 inline bool copy_files_in_directory_in_parallel(const std::string &source_dir_path,
                                                 const std::string &destination_dir_path,
-                                                const int max_num_threads) {
-  return copy_files_in_directory_in_parallel_helper(source_dir_path, destination_dir_path, max_num_threads, copy_file);
+                                                const int max_num_threads,
+                                                const bool sparse_copy = true) {
+  return copy_files_in_directory_in_parallel_helper(source_dir_path,
+                                                    destination_dir_path,
+                                                    max_num_threads,
+                                                    [&sparse_copy](const std::string &src,
+                                                                   const std::string &dst) -> bool {
+                                                      return copy_file(src, dst, sparse_copy);
+                                                    });
 }
 } // namespace metall::mtlldetail
 
