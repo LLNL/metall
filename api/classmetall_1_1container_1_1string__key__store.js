@@ -3,7 +3,8 @@ var classmetall_1_1container_1_1string__key__store =
     [ "key_type", "classmetall_1_1container_1_1string__key__store.html#af2d91d0be1075fa4ea9e7cf59bebeb31", null ],
     [ "value_type", "classmetall_1_1container_1_1string__key__store.html#a89f68a8245a1bd57cb5b04726c72304e", null ],
     [ "locator_type", "classmetall_1_1container_1_1string__key__store.html#aec8192b6e8a9563bbb11f22f3f4d97e0", null ],
-    [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html#aab80b0bdb43d213a87d8d88d2d728bc2", null ],
+    [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html#a4d9d749adfe178c2c30f168b42ca7b2e", null ],
+    [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html#aff47aa0197aed41b6220dc6462a90f73", null ],
     [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html#a99f7ad526ac8b57d5a7063d27e3132ae", null ],
     [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html#a1d3f0d8c00a15d519ce1b5ed68f8aab9", null ],
     [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html#a9409c3381d7c6b2353fd521f42d63c0c", null ],
@@ -27,5 +28,7 @@ var classmetall_1_1container_1_1string__key__store =
     [ "erase", "classmetall_1_1container_1_1string__key__store.html#a25481727e6de6259f837bc8b721d182e", null ],
     [ "max_id_probe_distance", "classmetall_1_1container_1_1string__key__store.html#a4e828abbfb44c1aa91da52703871fdde", null ],
     [ "rehash", "classmetall_1_1container_1_1string__key__store.html#a149b2d17071711d0d11f501b61668309", null ],
-    [ "get_allocator", "classmetall_1_1container_1_1string__key__store.html#ab7a6c87432cfd8fe68fbbc9f5df8f390", null ]
+    [ "get_allocator", "classmetall_1_1container_1_1string__key__store.html#ab7a6c87432cfd8fe68fbbc9f5df8f390", null ],
+    [ "unique", "classmetall_1_1container_1_1string__key__store.html#a927921630ead4b009913d9504bdc8165", null ],
+    [ "hash_seed", "classmetall_1_1container_1_1string__key__store.html#a37ab4c010ed5f14f0d44944e33bf09af", null ]
 ];

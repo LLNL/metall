@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.20</span>
+   &#160;<span id="projectnumber">v0.21</span>
    </div>
    <div id="projectbrief">Apersistentmemoryallocatorfordata-centricanalytics</div>
   </td>
@@ -121,6 +121,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a3eba83640d0f56cacc2f02e7a8c29da8"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type , int indent_size&gt; </td></tr>
 <tr class="memitem:a3eba83640d0f56cacc2f02e7a8c29da8"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl.html#a3eba83640d0f56cacc2f02e7a8c29da8">pretty_print_impl</a> (std::ostream &amp;os, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; allocator_type &gt; &amp;jv, const std::string &amp;indent)</td></tr>
 <tr class="separator:a3eba83640d0f56cacc2f02e7a8c29da8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3e46700231cc164fd9337e26fab6f23"><td class="memTemplParams" colspan="2">template&lt;typename char_t , typename traits , typename allocator , typename other_string_type &gt; </td></tr>
+<tr class="memitem:aa3e46700231cc164fd9337e26fab6f23"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl.html#aa3e46700231cc164fd9337e26fab6f23">general_string_equal</a> (const <a class="el" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">string</a>&lt; char_t, traits, allocator &gt; &amp;<a class="el" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">string</a>, const other_string_type &amp;other_string) noexcept</td></tr>
+<tr class="separator:aa3e46700231cc164fd9337e26fab6f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f459b11c969bb1fa163226cbdf96048"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type , typename other_value_type &gt; </td></tr>
 <tr class="memitem:a3f459b11c969bb1fa163226cbdf96048"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl.html#a3f459b11c969bb1fa163226cbdf96048">general_value_equal</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>&lt; allocator_type &gt; &amp;<a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">value</a>, const other_value_type &amp;other_value) noexcept</td></tr>
 <tr class="memdesc:a3f459b11c969bb1fa163226cbdf96048"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides 'equal' calculation for other value types that have the same interface as the value class.  <a href="namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl.html#a3f459b11c969bb1fa163226cbdf96048">More...</a><br /></td></tr>
@@ -337,6 +340,44 @@ template&lt;typename allocator_type , int indent_size&gt; </div>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa3e46700231cc164fd9337e26fab6f23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3e46700231cc164fd9337e26fab6f23">&#9670;&nbsp;</a></span>general_string_equal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename char_t , typename traits , typename allocator , typename other_string_type &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool metall::container::experimental::json::jsndtl::general_string_equal </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">string</a>&lt; char_t, traits, allocator &gt; &amp;&#160;</td>
+          <td class="paramname"><em>string</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const other_string_type &amp;&#160;</td>
+          <td class="paramname"><em>other_string</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

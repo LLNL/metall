@@ -19,5 +19,9 @@ var equal_8hpp =
     [ "operator==", "equal_8hpp.html#ae95ddfa27a8618474413583f407c67d7", null ],
     [ "operator==", "equal_8hpp.html#aa562e31c295d612e96a306ad6f27a6a8", null ],
     [ "operator!=", "equal_8hpp.html#a5cbe3d8dbf2922994bac54aca5a4d606", null ],
-    [ "operator!=", "equal_8hpp.html#a428f6275de54c5d84ff16bbe89806ba0", null ]
+    [ "operator!=", "equal_8hpp.html#a428f6275de54c5d84ff16bbe89806ba0", null ],
+    [ "operator==", "equal_8hpp.html#a4d5a905d922b01313a40de684cfd2817", null ],
+    [ "operator==", "equal_8hpp.html#a303d042210f296fc9a6cb15ef6f649ce", null ],
+    [ "operator!=", "equal_8hpp.html#a567bb17ee5aae600a632d292d9d4b13f", null ],
+    [ "operator!=", "equal_8hpp.html#aaf096b063a301b29f1d1abeb1a06cd3f", null ]
 ];
