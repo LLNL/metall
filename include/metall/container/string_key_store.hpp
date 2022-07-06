@@ -14,6 +14,7 @@
 #include <metall/container/string.hpp>
 #include <metall/container/scoped_allocator.hpp>
 #include <metall/container/string_key_store_locator.hpp>
+#include <metall/metall.hpp>
 
 namespace metall::container {
 
@@ -26,7 +27,7 @@ namespace mc = metall::container;
 /// i.e., it does not work if used inside another container.
 /// \tparam _value_type A value type.
 /// \tparam allocator_type An allocator type.
-template <typename _value_type, typename allocator_type = std::allocator<std::byte>>
+template <typename _value_type, typename allocator_type = metall::manager::allocator_type<std::byte>>
 class string_key_store {
  private:
   template <typename T>
@@ -55,14 +56,19 @@ class string_key_store {
   using locator_type = string_key_store_locator<typename map_type::const_iterator>;
 
   /// \brief Constructor.
-  /// \param unique Accept duplicate keys if false is specified.
-  /// \param seed Hash function seed.
   /// \param allocator An allocator object.
-  explicit string_key_store(const bool unique = false,
-                            const uint64_t seed = 123,
-                            const allocator_type &allocator = allocator_type())
+  explicit string_key_store(const allocator_type &allocator = allocator_type())
+      : m_map(allocator) {}
+
+  /// \brief Constructor.
+  /// \param unique Accept duplicate keys if false is specified.
+  /// \param hash_seed Hash function seed.
+  /// \param allocator An allocator object.
+  string_key_store(const bool unique,
+                   const uint64_t hash_seed,
+                   const allocator_type &allocator = allocator_type())
       : m_unique(unique),
-        m_seed(seed),
+        m_hash_seed(hash_seed),
         m_map(allocator) {}
 
   /// \brief Copy constructor
@@ -71,7 +77,7 @@ class string_key_store {
   /// \brief Allocator-extended copy constructor
   string_key_store(const string_key_store &other, const allocator_type &alloc)
       : m_unique(other.m_unique),
-        m_seed(other.m_seed),
+        m_hash_seed(other.m_hash_seed),
         m_map(other.m_map, alloc) {}
 
   /// \brief Move constructor
@@ -80,7 +86,7 @@ class string_key_store {
   /// \brief Allocator-extended move constructor
   string_key_store(string_key_store &&other, const allocator_type &alloc) noexcept
       : m_unique(other.m_unique),
-        m_seed(other.m_seed),
+        m_hash_seed(other.m_hash_seed),
         m_map(std::move(other.m_map), alloc) {}
 
   /// \brief Copy assignment operator
@@ -263,10 +269,22 @@ class string_key_store {
     return m_map.get_allocator();
   }
 
+  /// \brief Returns if this container inserts keys uniquely.
+  /// \return True if this container inserts key avoiding duplicates; otherwise false.
+  bool unique() const {
+    return m_unique;
+  }
+
+  /// \brief Returns the hash seed.
+  /// \return Hash seed.
+  bool hash_seed() const {
+    return m_hash_seed;
+  }
+
  private:
   /// \brief Generates a new internal ID for 'key'.
   internal_id_type priv_generate_internal_id(const key_type &key) {
-    auto internal_id = priv_hash_key(key, m_seed);
+    auto internal_id = priv_hash_key(key, m_hash_seed);
 
     std::size_t distance = 0;
     while (m_map.count(internal_id) > 0) {
@@ -282,7 +300,7 @@ class string_key_store {
   /// If this container does not have an element with 'key',
   /// returns k_max_internal_id.
   internal_id_type priv_find_internal_id(const key_type &key) const {
-    auto internal_id = priv_hash_key(key, m_seed);
+    auto internal_id = priv_hash_key(key, m_hash_seed);
 
     for (std::size_t d = 0; d <= m_max_id_probe_distance; ++d) {
       const auto itr = m_map.find(internal_id);
@@ -330,9 +348,9 @@ class string_key_store {
     return new_id;
   }
 
-  bool m_unique;
-  uint64_t m_seed;
-  map_type m_map;
+  bool m_unique{false};
+  uint64_t m_hash_seed{123};
+  map_type m_map{allocator_type{}};
   std::size_t m_max_id_probe_distance{0};
 };
 

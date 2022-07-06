@@ -11,7 +11,7 @@ cmake_policy(SET CMP0077 NEW)
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.20
+        VERSION 0.21
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 

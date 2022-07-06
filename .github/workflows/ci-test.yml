@@ -3,7 +3,7 @@ name: CI Test
 on: [push, pull_request]
 
 jobs:
-  bst1-78-0:
+  bst1-79-0:
     runs-on: ubuntu-latest
     env:
       METALL_LIMIT_MAKE_PARALLELS: 8
@@ -12,9 +12,9 @@ jobs:
       - name: Test
         run: |
           pushd /dev/shm
-          wget -q https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz
+          wget -q https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz
           mkdir boost
-          tar xf boost_1_78_0.tar.gz -C boost --strip-components 1
+          tar xf boost_1_79_0.tar.gz -C boost --strip-components 1
           export BOOST_ROOT=${PWD}/boost
           popd
           export METALL_TEST_DIR=${GITHUB_JOB}

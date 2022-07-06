@@ -11,7 +11,6 @@
 #include <string_view>
 #include <variant>
 
-#include <metall/container/string.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
 
 namespace metall::container::experimental::json {
@@ -24,7 +23,7 @@ namespace jsndtl {
 
 /// \brief Provides 'equal' calculation for other value types that have the same interface as the value class.
 template <typename allocator_type, typename other_value_type>
-inline bool general_value_equal(const value<allocator_type>& value, const other_value_type& other_value) noexcept {
+inline bool general_value_equal(const value<allocator_type> &value, const other_value_type &other_value) noexcept {
   if (other_value.is_null()) {
     return value.is_null();
   } else if (other_value.is_bool()) {
@@ -34,7 +33,8 @@ inline bool general_value_equal(const value<allocator_type>& value, const other_
       return value.as_int64() == other_value.as_int64();
     }
     if (value.is_uint64()) {
-      return (other_value.as_int64() < 0) ? false : value.as_uint64() == static_cast<std::uint64_t>(other_value.as_int64());
+      return (other_value.as_int64() < 0) ? false : value.as_uint64()
+          == static_cast<std::uint64_t>(other_value.as_int64());
     }
     return false;
   } else if (other_value.is_uint64()) {
@@ -66,9 +66,9 @@ template <typename _allocator_type = std::allocator<std::byte>>
 class value {
  public:
   using allocator_type = _allocator_type;
-  using string_type = mc::basic_string<char,
-                                       std::char_traits<char>,
-                                       typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
+  using string_type = string<char,
+                             std::char_traits<char>,
+                             typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
   using object_type = object<_allocator_type>;
   using array_type = array<_allocator_type>;
 

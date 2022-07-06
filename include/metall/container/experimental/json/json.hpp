@@ -10,6 +10,7 @@
 #include <metall/container/experimental/json/array.hpp>
 #include <metall/container/experimental/json/key_value_pair.hpp>
 #include <metall/container/experimental/json/value.hpp>
+#include <metall/container/experimental/json/string.hpp>
 #include <metall/container/experimental/json/parse.hpp>
 #include <metall/container/experimental/json/serialize.hpp>
 #include <metall/container/experimental/json/pretty_print.hpp>

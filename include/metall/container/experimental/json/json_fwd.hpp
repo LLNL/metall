@@ -7,6 +7,8 @@
 #define METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
 
 #include <variant>
+#include <string>
+#include <metall/container/string.hpp>
 
 /// \namespace metall::container::experimental
 /// \brief Namespace for Metall containers in an experimental phase.
@@ -42,6 +44,11 @@ class indexed_object;
 template <typename allocator_type>
 class compact_object;
 
+template <typename char_t = char,
+          typename traits = std::char_traits<char_t>,
+          typename allocator = std::allocator<char_t>>
+using string = metall::container::basic_string<char_t, traits, allocator>;
+
 namespace jsndtl {
 template <typename char_type, typename char_traits, typename allocator_type, typename other_key_value_pair_type>
 inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_traits, allocator_type> &,
@@ -55,6 +62,9 @@ inline bool general_indexed_object_equal(const indexed_object<allocator_type> &,
 
 template <typename allocator_type, typename other_array_type>
 inline bool general_array_equal(const array<allocator_type> &, const other_array_type &) noexcept;
+
+template <typename char_t, typename traits, typename allocator, typename other_string_type>
+inline bool general_string_equal(const string<char_t, traits, allocator> &, const other_string_type &) noexcept;
 }
 #endif // DOXYGEN_SKIP
 
