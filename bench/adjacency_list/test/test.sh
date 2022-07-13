@@ -29,7 +29,8 @@ compare() {
   check_program_exit_status
 
   echo "Compare the dumped edges"
-  diff ${DATASTORE_DIR_ROOT}/file1_sorted ${DATASTORE_DIR_ROOT}/file2_sorted > ${DATASTORE_DIR_ROOT}/file_diff
+  diff ${DATASTORE_DIR_ROOT}/file1_sorted ${DATASTORE_DIR_ROOT}/file2_sorted
+  #diff ${DATASTORE_DIR_ROOT}/file1_sorted ${DATASTORE_DIR_ROOT}/file2_sorted > ${DATASTORE_DIR_ROOT}/file_diff
   check_program_exit_status
   num_diff=$(< ${DATASTORE_DIR_ROOT}/file_diff wc -l)
 
