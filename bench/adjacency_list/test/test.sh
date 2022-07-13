@@ -74,6 +74,7 @@ main() {
   echo "Create Test"
   ./run_adj_list_bench_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir -d ${DATASTORE_DIR_ROOT}/adj_out ${DATA}*
   check_program_exit_status
+  rm -f ${DATASTORE_DIR_ROOT}/adj_ref
   cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
   compare "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
   /bin/rm -f "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
