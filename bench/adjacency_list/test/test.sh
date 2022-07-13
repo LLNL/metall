@@ -25,7 +25,7 @@ compare() {
   sort -k 1,1n -k2,2n < ${file1} > ${DATASTORE_DIR_ROOT}/file1_sorted
   check_program_exit_status
 
-  sort -k 1,1n -k2,2n < ${file1} > ${DATASTORE_DIR_ROOT}/file2_sorted
+  sort -k 1,1n -k2,2n < ${file2} > ${DATASTORE_DIR_ROOT}/file2_sorted
   check_program_exit_status
 
   echo "Compare the dumped edges"
