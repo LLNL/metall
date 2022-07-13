@@ -77,7 +77,7 @@ main() {
   rm -f ${DATASTORE_DIR_ROOT}/adj_ref
   cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
   compare "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
-  /bin/rm -f "${DATASTORE_DIR_ROOT}/adj_out" "${DATASTORE_DIR_ROOT}/adj_ref"
+  /bin/rm -f "${DATASTORE_DIR_ROOT}/adj_out"
 
   # Open the adj-list with the open mode and add more edges
   echo ""
@@ -92,7 +92,6 @@ main() {
   echo "Open Test"
   ./test/open_metall -o ${DATASTORE_DIR_ROOT}/metall_test_dir -d ${DATASTORE_DIR_ROOT}/adj_out_open
   check_program_exit_status
-  cat ${DATA}* >> ${DATASTORE_DIR_ROOT}/adj_ref
   compare "${DATASTORE_DIR_ROOT}/adj_out_open" "${DATASTORE_DIR_ROOT}/adj_ref"
 
   # Open the adj-list and destroy it to test memory leak
