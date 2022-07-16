@@ -297,7 +297,7 @@ inline void dump_adj_list(const adjacency_list_type &adj_list, const std::string
   for (auto key_itr = adj_list.keys_begin(), key_end = adj_list.keys_end(); key_itr != key_end; ++key_itr) {
     for (auto value_itr = adj_list.values_begin(key_itr->first), value_end = adj_list.values_end(key_itr->first);
          value_itr != value_end; ++value_itr) {
-      ofs << key_itr->first << "\t" << *value_itr << "\n";
+      ofs << key_itr->first << " " << *value_itr << "\n";
     }
   }
   ofs.close();
