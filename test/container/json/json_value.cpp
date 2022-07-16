@@ -278,4 +278,40 @@ TEST (JSONValueTest, Equal) {
   jv1.as_object()["object"].as_object()["currency"].as_string() = "JPY";
   GTEST_ASSERT_NE(jv1, jv2);
 }
+
+TEST (JSONValueTest, EqualBool) {
+  auto jv = json::value();
+  jv.emplace_bool() = true;
+  GTEST_ASSERT_EQ(jv, true);
+  GTEST_ASSERT_NE(jv, -10);
+  GTEST_ASSERT_NE(jv, 10);
+  GTEST_ASSERT_NE(jv, 10.0);
+}
+
+TEST (JSONValueTest, EqualInt64) {
+  auto jv = json::value();
+  jv.emplace_int64() = -10;
+  GTEST_ASSERT_NE(jv, true);
+  GTEST_ASSERT_EQ(jv, -10);
+  GTEST_ASSERT_NE(jv, 10);
+  GTEST_ASSERT_NE(jv, 10.0);
+}
+
+TEST (JSONValueTest, EqualUint64) {
+  auto jv = json::value();
+  jv.emplace_uint64() = 10;
+  GTEST_ASSERT_NE(jv, true);
+  GTEST_ASSERT_NE(jv, -10);
+  GTEST_ASSERT_EQ(jv, 10);
+  GTEST_ASSERT_NE(jv, 10.0);
+}
+
+TEST (JSONValueTest, EqualDouble) {
+  auto jv = json::value();
+  jv.emplace_double() = 10.0;
+  GTEST_ASSERT_NE(jv, true);
+  GTEST_ASSERT_NE(jv, -10);
+  GTEST_ASSERT_NE(jv, 10);
+  GTEST_ASSERT_EQ(jv, 10.0);
+}
 }
