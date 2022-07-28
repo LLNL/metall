@@ -11,7 +11,7 @@
 int main() {
   // Set and get object attributes via metall::manager object
   {
-    metall::manager manager(metall::create_only, "/tmp/dir");
+    metall::manager manager(metall::create_only, "/tmp/dir/version_0");
     auto *obj = manager.construct<int>("obj")();
 
     std::string description;
@@ -27,7 +27,7 @@ int main() {
   // Using object attribute accessor, one can access object attribute without allocating a metall::manager object
   // (i.e., w/o memory mapping files).
   {
-    auto accessor = metall::manager::access_named_object_attribute("/tmp/dir");
+    auto accessor = metall::manager::access_named_object_attribute("/tmp/dir/version_0");
     for (const auto &object : accessor) {
       std::cout << "Name: " << object.name()
                 << ", Length: " << object.length()

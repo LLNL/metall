@@ -24,7 +24,7 @@ int main() {
   {
     // Create a new Metall datastore in "/tmp/dir"
     // If 'dir' does not exist, Metall creates automatically
-    metall::manager manager(metall::create_only, "/tmp/dir");
+    metall::manager manager(metall::create_only, "/tmp/dir/version_0");
 
     std::size_t num_vertices = 16;
     std::size_t num_edges = 256;
@@ -41,7 +41,7 @@ int main() {
 
   {
     // Open the existing Metall datastore in "/tmp/dir"
-    metall::manager manager(metall::open_read_only, "/tmp/dir");
+    metall::manager manager(metall::open_read_only, "/tmp/dir/version_0");
 
     csr_graph_t *csr_graph = manager.find<csr_graph_t>("csr_graph").first;
     if (!csr_graph) {

@@ -98,6 +98,7 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
 # ---------- Experimental options ---------- #
 option(USE_ANONYMOUS_NEW_MAP "Use the anonymous map when creating a new map region" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
+set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
@@ -206,6 +207,9 @@ if (USE_ANONYMOUS_NEW_MAP)
     if (USE_ANONYMOUS_NEW_MAP AND UMAP_ROOT)
         message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
     endif ()
+    if (USE_ANONYMOUS_NEW_MAP AND PRIVATEER_ROOT)
+        message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and PRIVATEER_ROOT options cannot coexist")
+    endif ()    
 
     list(APPEND METALL_DEFS "METALL_USE_ANONYMOUS_NEW_MAP")
     message(STATUS "Use the anonymous map for new map region")
@@ -237,18 +241,26 @@ include_cxx_filesystem_library()
 
 # ---------- UMap ---------- #
 if (UMAP_ROOT)
+    if (UMAP_ROOT AND PRIVATEER_ROOT)
+        message(FATAL_ERROR "UMAP_ROOT and PRIVATEER_ROOT options cannot coexist")
+    endif ()
     if (UNIX AND NOT APPLE)
         find_library(LIBUMAP NAMES umap PATHS ${UMAP_ROOT}/lib)
     endif ()
 endif ()
 
+# ---------- Privateer ---------- #
+message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
+if (PRIVATEER_ROOT)
+    find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+endif ()
 
 # ---------- Boost ---------- #
 # Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
 # there is a tricky behavior/issue especially in Boost 1.70.0.
 set(Boost_NO_BOOST_CMAKE ON)
 
-find_package(Boost 1.64 QUIET)
+find_package(Boost 1.64 QUIET) # COMPONENTS iostreams)
 if (NOT Boost_FOUND)
     FetchContent_Declare(Boost
             URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2)
@@ -327,6 +339,31 @@ function(common_setup_for_metall_executable name)
         if (LIBUMAP)
             target_link_libraries(${name} PRIVATE ${LIBUMAP})
             target_compile_definitions(${name} PRIVATE METALL_USE_UMAP)
+        endif ()
+    endif ()
+    # --------------------
+
+    # ----- Privateeer----- #
+    if (PRIVATEER_ROOT)
+        target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
+        if (LIBPRIVATEER)
+            # 1) Privateer Dependencies
+            FIND_PACKAGE(OpenSSL)
+            target_link_libraries(${name} PRIVATE OpenSSL::SSL)
+            target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
+            target_link_libraries(${name} PRIVATE rt)
+            if (ZSTD_ROOT)
+                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
+                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
+                target_link_libraries(${name} PRIVATE ${LIBZSTD})
+                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
+            endif()
+            # ------------------------------------------
+            
+            # 2) Link Privateer
+            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
+            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
+            # ------------------------------------------
         endif ()
     endif ()
     # --------------------

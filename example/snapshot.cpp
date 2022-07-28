@@ -8,8 +8,8 @@
 #include <metall/metall.hpp>
 
 int main() {
-  const std::string master_path("/tmp/dir_path");
-  const std::string snapshot_dir_prefix("/tmp/snapshot-");
+  const std::string master_path("/tmp/dir_path/original_version");
+  const std::string snapshot_dir_prefix("/tmp/dir_path/snapshot-");
   const std::string snapshot_name0 = snapshot_dir_prefix + "ver0";
   const std::string snapshot_name1 = snapshot_dir_prefix + "ver1";
 

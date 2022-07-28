@@ -49,7 +49,7 @@ using metall_map_type = map_type<metall::manager::allocator_type<std::byte>>;
 
 int main() {
   {
-    metall::manager manager(metall::create_only, "/tmp/datastore");
+    metall::manager manager(metall::create_only, "/tmp/datastore/version_0");
     auto pmap = manager.construct<metall_map_type>("map")(manager.get_allocator<>());
 
     (*pmap)[0] = metall_map_type::mapped_type(manager.get_allocator<>());
@@ -63,7 +63,7 @@ int main() {
   }
 
   {
-    metall::manager manager(metall::open_only, "/tmp/datastore");
+    metall::manager manager(metall::open_only, "/tmp/datastore/version_0");
     auto pmap = manager.find<metall_map_type>("map").first;
 
     std::cout << pmap->at(0).vec[0] << std::endl; // Prints out "0"

@@ -21,7 +21,7 @@ int main() {
   // Allocation with Metall
   // The code below works with both 'fallback_allocator_adaptor<..>' and 'metall::manager::allocator_type<...>'.
   {
-    metall::manager manager(metall::create_only, "/tmp/dir");
+    metall::manager manager(metall::create_only, "/tmp/dir/version_0");
     auto pvec = manager.construct<vector_t>("vec")(manager.get_allocator());
     pvec->push_back(1);
     std::cout << (*pvec)[0] << std::endl;

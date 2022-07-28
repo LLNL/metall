@@ -39,6 +39,8 @@
 
 #ifdef METALL_USE_UMAP
 #include <metall/kernel/segment_storage/umap_sparse_segment_storage.hpp>
+#elif METALL_USE_PRIVATEER
+#include <metall/kernel/segment_storage/privateer_segment_storage.hpp>
 #else
 #include <metall/kernel/segment_storage/mmap_segment_storage.hpp>
 #endif
@@ -102,6 +104,8 @@ class manager_kernel {
   using segment_storage_type =
 #ifdef METALL_USE_UMAP
   umap_sparse_segment_storage<difference_type, size_type>;
+#elif METALL_USE_PRIVATEER
+  privateer_segment_storage<difference_type, size_type>;
 #else
   mmap_segment_storage<difference_type, size_type>;
 #endif
@@ -500,7 +504,7 @@ class manager_kernel {
   static std::string priv_make_management_dir_path(const std::string &base_dir_path);
   static std::string priv_make_management_file_name(const std::string &base_dir_path, const std::string &item_name);
   static std::string priv_make_segment_dir_path(const std::string &base_dir_path);
-  static bool priv_init_datastore_directory(const std::string &base_dir_path);
+  /*static*/ bool priv_init_datastore_directory(const std::string &base_dir_path);
 
   // ---------------------------------------- For consistence support ---------------------------------------- //
   static bool priv_consistent(const std::string &base_dir_path);
@@ -540,6 +544,11 @@ class manager_kernel {
   // ---------------------------------------- snapshot ---------------------------------------- //
   /// \brief Takes a snapshot. The snapshot has a different UUID.
   bool priv_snapshot(const char *destination_base_dir_path, const bool clone, const int num_max_copy_threads);
+
+  // ---------------------------------------- privateer ---------------------------------------- //
+  /* #ifdef METALL_USE_PRIVATEER
+    std::pair<std::string, std::string> priv_parse_privateer_paths(const std::string &base_dir_path);
+  #endif */
 
   // ---------------------------------------- File operations ---------------------------------------- //
   /// \brief Copies all backing files using reflink if possible
