@@ -93,7 +93,7 @@ see example CMake files placed [here](./example/cmake).
 Metall repository contains some example programs under [example directory](./example).
 One can use CMake to build the examples.
 For more details, see a page
-[here](https://metall.readthedocs.io/en/latest/advanced_build/example_test_bench/).
+[here](https://metall.readthedocs.io/en/latest/advanced_build/cmake/).
 
 
 # Documentations

@@ -31,13 +31,13 @@ In addition to the standard CMake options, Metall have additional options as fol
     * One can also build the document by using doxygen directly; see README.md in the repository of Metall.
     * ON or OFF (default is OFF)
 
-* BUILD_UTILITY
-    *  Build utility programs under src/
+* BUILD_UTILITY 
+    * Build utility programs under src/
     * ON or OFF (default is OFF)
 
 * BUILD_EXAMPLE
-  * Build examples under example/
-  * ON or OFF (default is OFF)
+    * Build examples under example/
+    * ON or OFF (default is OFF)
 
 * BUILD_BENCH
     * Builds subdirectory bench/
