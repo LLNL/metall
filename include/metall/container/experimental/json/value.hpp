@@ -52,7 +52,10 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
   } else if (other_value.is_array()) {
     return value.is_array() && (value.as_array() == other_value.as_array());
   } else if (other_value.is_string()) {
-    return value.is_string() && (value.as_string() == other_value.as_string());
+    if (!value.is_string()) return false;
+    const auto& str = value.as_string();
+    const auto& other_srt = other_value.as_string();
+    return str.compare(other_srt.c_str()) == 0;
   }
 
   assert(false);
