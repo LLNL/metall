@@ -30,7 +30,7 @@ nav:
   - 'Example': 'detail/example.md'
   - 'Internal Architecture': 'detail/internal_architecture.md'
 - 'External':
-    - 'Open Source Projects Using Metall': 'external/index.md'
+    - 'Open Source Projects Using Metall': 'external/list.md'
     - 'Use Ripples with Metall': 'external/ripples.md'
 - 'ABOUT':
   - 'License and Notice': 'about/license_notice.md'
