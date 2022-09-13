@@ -1,6 +1,6 @@
 # Metall: Persistent Memory Allocator for Data-Centric Analytics
 
-This Read the Docs page describes an open-source persistent memory allocator Metall, available at [here]((https://github.com/LLNL/metall)).
+This Read the Docs page describes Metall (open-source library available [here]((https://github.com/LLNL/metall))).
 
 ## Overview
 
@@ -21,5 +21,3 @@ and provides persistent memory snapshotting (versioning) capabilities.
 Example programs that use Metall are listed [here](detail/example.md).
 
 ![Metall Overview](./img/metall_overview.png)
-
-## Publication
