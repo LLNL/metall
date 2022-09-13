@@ -26,7 +26,7 @@ Objects larger than the half chunk size (*large objects*) use a single or multip
 By default, Metall frees DRAM and file space by chunk, that is,
 small object deallocations do not free physical memory immediately, whereas large object deallocations do.
 Metall also has a mode that tries to free the corresponding space when an object equal or larger than *N* bytes is deallocated,
-where N is set by the compile time option *METALL_FREE_SMALL_OBJECT_SIZE_HINT=N* (see [Build and Install](../getting_started/build_and_install.md)).
+where N is set by the compile time option (macro) *METALL_FREE_SMALL_OBJECT_SIZE_HINT=N* (see [Build and Install](../basics/compile_time_options.md)).
 
 ### Internal Allocation Size
 Same as other major heap memory allocators, Metall rounds up a small object to the nearest internal allocation size.

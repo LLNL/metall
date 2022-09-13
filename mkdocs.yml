@@ -33,4 +33,5 @@ nav:
     - 'Open Source Projects Using Metall': 'external/list.md'
     - 'Use Ripples with Metall': 'external/ripples.md'
 - 'ABOUT':
+  - 'Publication': 'about/publication.md'
   - 'License and Notice': 'about/license_notice.md'
