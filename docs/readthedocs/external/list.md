@@ -1,27 +1,26 @@
 # Open Source Projects Using Metall
 
-## miniVite
+## Collaboration Work with the ECP ExaGraph Project
+### miniVite
 
-MiniVite is benchmark in the ECP ExaGraph suite that implements a single phase of the Louvain method for community detection.
+miniVite is a proxy app that implements a single phase of Louvain method in distributed memory for graph community detection.
 
-miniVite has a mode that uses Metall to store a graph into persistent memory.
+miniVite has a mode that uses Metall to store a graph in persistent memory to reuse the data and reduce the overall analytics workload.
 
-The miniVite version that works with Metall comes with a CMake file.
+For building and running miniVite with Metall,
+see the details located [here](https://github.com/ECP-ExaGraph/miniVite/tree/metallds2#minivite--metall-and-umap).
 
-For building and running miniVite with Metall see details [here](https://github.com/ECP-ExaGraph/miniVite/tree/metallds2#minivite--metall-and-umap).
+### Ripples
 
-## Ripples
+Ripples is a software framework to study the Influence Maximization problem developed at Pacific Northwest National Laboratory.
 
-Ripples is a software framework to study the Influence Maximization problem.
-
-See [detail](./ripples.md).
-
+To build Riplles with Metall, see the details located [here](./ripples.md).
 
 ## HavoqGT
 
 HavoqGT (Highly Asynchronous Visitor Queue Graph Toolkit) is a framework for expressing asynchronous vertex-centric graph algorithms.
 
-All graph data is allocated by Metall.
+Same as MiniVite, HavoqGT uses Metall to store a graph in persistent memory to reuse the data and reduce the overall analytics workload.
 
 https://github.com/LLNL/havoqgt
 
