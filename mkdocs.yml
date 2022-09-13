@@ -30,4 +30,5 @@ nav:
   - 'Example': 'detail/example.md'
   - 'Internal Architecture': 'detail/internal_architecture.md'
 - 'ABOUT':
+  - 'Publication': 'about/publication.md'
   - 'License and Notice': 'about/license_notice.md'
