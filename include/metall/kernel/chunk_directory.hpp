@@ -412,17 +412,16 @@ class chunk_directory {
     return buf;
   }
 
-  std::vector<chunk_no_type> get_all_large_chunks() const {
-    std::vector<chunk_no_type> buf;
-
+  const std::size_t num_used_large_chunks() const {
+    std::size_t count = 0;
     for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
       if (m_table[chunk_no].type == chunk_type::large_chunk_head
           || m_table[chunk_no].type == chunk_type::large_chunk_body) {
-        buf.push_back(chunk_no);
+        ++count;
       }
     }
 
-    return buf;
+    return count;
   }
 
  private:
