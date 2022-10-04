@@ -187,11 +187,17 @@ class segment_allocator {
 
   /// \brief Checks if all memory is deallocated.
   bool all_memory_deallocated() const {
+    if (m_chunk_directory.size() == 0) {
+      return true;
+    }
+
 #ifndef METALL_DISABLE_OBJECT_CACHE
-    if (!priv_check_all_small_allocations_are_deallocated())
-      return false;
+    if (priv_check_all_small_allocations_are_cached() && m_chunk_directory.num_used_large_chunks() == 0) {
+      return true;
+    }
 #endif
-    return m_chunk_directory.get_all_large_chunks().empty();
+
+    return false;
   }
 
   /// \brief
@@ -536,7 +542,8 @@ class segment_allocator {
 #endif
 
 #ifndef METALL_DISABLE_OBJECT_CACHE
-  bool priv_check_all_small_allocations_are_deallocated() const {
+  /// \brief Checks if all marked (used) slots in the chunk directory exist in the object cache.
+  bool priv_check_all_small_allocations_are_cached() const {
     const auto marked_slots = m_chunk_directory.get_all_marked_slots();
     std::set<difference_type> small_allocs;
     for (const auto &item : marked_slots) {
