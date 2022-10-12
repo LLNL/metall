@@ -12,8 +12,18 @@
 run_build_and_test_kernel() {
   source ${METALL_ROOT_DIR}/scripts/test_utility.sh
 
-  mkdir -p ${METALL_BUILD_DIR}
-  pushd ${METALL_BUILD_DIR}
+  local test_dir=${METALL_TEST_DIR}
+  if [ -d ${test_dir} ]; then
+    test_dir="${test_dir}/metall-test-${RANDOM}"
+  fi
+
+  local build_dir=${METALL_BUILD_DIR}
+  if [ -d ${build_dir} ]; then
+    build_dir="${build_dir}/metall-build-${RANDOM}"
+  fi
+
+  mkdir -p ${build_dir}
+  pushd ${build_dir}
   echo "Build and test in ${PWD}"
 
   # Build
@@ -27,26 +37,26 @@ run_build_and_test_kernel() {
   fi
 
   # Test 1
-  rm -rf ${METALL_TEST_DIR}
+  rm -rf ${test_dir}
   or_die ctest --timeout 1000
 
   # Test 2
-  rm -rf ${METALL_TEST_DIR}
+  rm -rf ${test_dir}
   pushd bench/adjacency_list
-  or_die bash ./test/test.sh -d${METALL_TEST_DIR}
+  or_die bash ./test/test.sh -d${test_dir}
   popd
 
   # Test 3
-  rm -rf ${METALL_TEST_DIR}
+  rm -rf ${test_dir}
   pushd bench/adjacency_list
-  or_die bash ./test/test_large.sh -d${METALL_TEST_DIR}
+  or_die bash ./test/test_large.sh -d${test_dir}
   popd
 
   # TODO: reflink test and C_API test
 
-  rm -rf ${METALL_TEST_DIR}
+  rm -rf ${test_dir}
   popd
-  rm -rf ${METALL_BUILD_DIR}
+  rm -rf ${build_dir}
 }
 
 
@@ -60,8 +70,13 @@ run_build_and_test_kernel() {
 build_docs() {
   source ${METALL_ROOT_DIR}/scripts/test_utility.sh
 
-  mkdir -p ${METALL_BUILD_DIR}
-  cd ${METALL_BUILD_DIR}
+  local build_dir=${METALL_BUILD_DIR}
+  if [ -d ${build_dir} ]; then
+    build_dir="${build_dir}/metall-build-${RANDOM}"
+  fi
+
+  mkdir -p ${build_dir}
+  cd ${build_dir}
   echo "Build and test in ${PWD}"
 
   # Build
@@ -70,5 +85,5 @@ build_docs() {
   or_die make build_doc
 
   cd ../
-  rm -rf ${METALL_BUILD_DIR}
+  rm -rf ${build_dir}
 }
