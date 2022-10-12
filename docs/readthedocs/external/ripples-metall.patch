@@ -1,0 +1,741 @@
+diff --git a/conan/trng/conanfile.py b/conan/trng/conanfile.py
+index c5feaeb..adbdc81 100644
+--- a/conan/trng/conanfile.py
++++ b/conan/trng/conanfile.py
+@@ -5,6 +5,7 @@ from conans import ConanFile, CMake, tools
+ class LibtrngConan(ConanFile):
+     name = "libtrng"
+     license = "BSD"
++    version = "4.22"
+     author = "Heiko Bauke"
+     url = "https://www.numbercrunch.de/trng/"
+     description = "Tina's Random Number Generator Library"
+@@ -13,15 +14,18 @@ class LibtrngConan(ConanFile):
+     options = {"shared": [True, False]}
+     default_options = "shared=True"
+     generators = "cmake"
+-
+-    def source(self):
+-        tools.download('https://github.com/rabauke/trng4/archive/refs/tags/v' + self.version + '.tar.gz', 'trng-' + self.version + '.tar.gz')
+-        tools.unzip('trng-' + self.version + '.tar.gz')
+-        return 'trng4-' + self.version
++    scm = {
++        "type" : "git",
++        "url" : "https://github.com/mminutoli/trng4.git",
++        "subfolder" : "trng",
++        "revision" : "basic_hip_support"
++    }
+
+     def build(self):
+         cmake = CMake(self)
+-        cmake.configure(source_folder='trng4-' + self.version)
++        cmake.definitions['TRNG_ENABLE_EXAMPLES'] = False
++        cmake.definitions['TRNG_ENABLE_TESTS'] = False
++        cmake.configure(source_folder='trng')
+         cmake.parallel = False
+         cmake.build()
+         cmake.install()
+diff --git a/conanfile.py b/conanfile.py
+index 6b7196a..ab00183 100644
+--- a/conanfile.py
++++ b/conanfile.py
+@@ -15,7 +15,8 @@ class RipplesConan(ConanFile):
+         self.options['spdlog'].shared = True
+
+     def requirements(self):
+-        self.requires('spdlog/1.9.2')
++        self.requires('fmt/9.1.0')
++        self.requires('spdlog/1.10.0')
+         self.requires('nlohmann_json/3.9.1')
+         self.requires('catch2/2.13.3')
+         self.requires('cli11/2.1.1')
+diff --git a/include/ripples/configuration.h b/include/ripples/configuration.h
+index a1c2b2f..3b260e6 100644
+--- a/include/ripples/configuration.h
++++ b/include/ripples/configuration.h
+@@ -55,6 +55,7 @@ namespace ripples {
+ //! input graphs.
+ struct GraphInputConfiguration {
+   std::string IFileName{""};        //!< The input file name
++  std::string metall_dir{"/tmp/graph"}; //!< Where is the metall directory?
+   bool weighted{false};             //!< is Graph weighted?
+   bool undirected{false};           //!< is Graph undirected?
+   bool disable_renumbering{false};  //!< trust the input to be clean.
+@@ -72,6 +73,9 @@ struct GraphInputConfiguration {
+                    "The input file with the edge-list.")
+         ->group("Input Options")
+         ->required();
++    app.add_flag("--metall-store-dir", metall_dir,
++                 "Directory to store metall graph data.")
++        ->group("Input Options");
+     app.add_flag("--reload-binary", reload, "Reload a graph from binary input")
+         ->group("Input Options");
+     app.add_flag("-u,--undirected", undirected, "The input graph is undirected")
+diff --git a/include/ripples/generate_rrr_sets.h b/include/ripples/generate_rrr_sets.h
+index df44175..919b063 100644
+--- a/include/ripples/generate_rrr_sets.h
++++ b/include/ripples/generate_rrr_sets.h
+@@ -61,9 +61,10 @@
+
+ #ifdef ENABLE_MEMKIND
+ #include "memkind_allocator.h"
++#include "pmem_allocator.h"
+ #endif
+
+-#ifdef ENABLE_METALL
++#ifdef ENABLE_METALL_RRRSETS
+ #include "metall/metall.hpp"
+ #include "metall/container/vector.hpp"
+ #endif
+@@ -72,13 +73,13 @@ namespace ripples {
+
+ #if defined ENABLE_MEMKIND
+ template<typename vertex_type>
+-using RRRsetAllocator = libmemkind::static_kind::allocator<vertex_type>;
+-#elif defined ENABLE_METALL
++using RRRsetAllocator = libmemkind::pmem::allocator<vertex_type>;
++#elif defined ENABLE_METALL_RRRSETS
+ template<typename vertex_type>
+ using RRRsetAllocator = metall::manager::allocator_type<vertex_type>;
+
+ metall::manager &metall_manager_instance() {
+-  static metall::manager manager(metall::create_only, "/tmp/ripples");
++  static metall::manager manager(metall::create_only, "/dev/shm/metall_tmp");
+   return manager;
+ }
+
+@@ -90,7 +91,7 @@ using RRRsetAllocator = std::allocator<vertex_type>;
+ //! \brief The Random Reverse Reachability Sets type
+ template <typename GraphTy>
+ using RRRset =
+-#ifdef  ENABLE_METALL
++#ifdef  ENABLE_METALL_RRRSETS
+     metall::container::vector<typename GraphTy::vertex_type,
+                               RRRsetAllocator<typename GraphTy::vertex_type>>;
+ #else
+diff --git a/include/ripples/graph.h b/include/ripples/graph.h
+index d34ecbe..2a027bb 100644
+--- a/include/ripples/graph.h
++++ b/include/ripples/graph.h
+@@ -51,6 +51,12 @@
+
+ #include <ripples/utility.h>
+
++#if defined ENABLE_METALL
++#include <boost/container/vector.hpp>
++#include <boost/container/map.hpp>
++#include "metall/metall.hpp"
++#endif
++
+ namespace ripples {
+
+ //! \brief Forward Direction Graph loading policy.
+@@ -195,7 +201,8 @@ struct WeightedDestination : public Destination<VertexTy> {
+ //!    of the original data.
+ template <typename VertexTy,
+           typename DestinationTy = WeightedDestination<VertexTy, float>,
+-          typename DirectionPolicy = ForwardDirection<VertexTy>>
++          typename DirectionPolicy = ForwardDirection<VertexTy>,
++          typename allocator_t = std::allocator<char>>
+ class Graph {
+  public:
+   //! The size type.
+@@ -226,22 +233,26 @@ class Graph {
+     edge_type *end_;
+   };
+
+-  //! Empty Graph Constructor.
+-  Graph()
++ //! Allocator Graph Constructor.
++  Graph(allocator_t allocator = allocator_t())
+       : numNodes(0),
+         numEdges(0),
+         index(nullptr),
+         edges(nullptr),
+-        idMap(),
+-        reverseMap() {}
++        graph_allocator(allocator),
++        idMap(allocator),
++        reverseMap(allocator) {}
+
+   Graph(const Graph &O)
+       : numNodes(O.numNodes),
+         numEdges(O.numEdges),
+         idMap(O.idMap),
+-        reverseMap(O.reverseMap) {
+-    edges = new edge_type[numEdges];
+-    index = new edge_type *[numNodes + 1];
++        reverseMap(O.reverseMap),
++        graph_allocator(O.graph_allocator) {
++    auto edge_allocator = edge_allocator_t(graph_allocator);
++    edges = edge_allocator.allocate(numEdges);
++    auto index_allocator = index_allocator_t(graph_allocator);
++    index = index_allocator.allocate(numNodes + 1);
+ #pragma omp parallel for
+     for (size_t i = 0; i < numEdges; ++i) {
+       edges[i] = O.edges[i];
+@@ -249,8 +260,8 @@ class Graph {
+
+ #pragma omp parallel for
+     for (size_t i = 0; i < numNodes + 1; ++i) {
+-      index[i] = edges + (reinterpret_cast<uint64_t>(O.index[i]) -
+-                          reinterpret_cast<uint64_t>(O.index));
++      index[i] = std::addressof(edges[0]) + (O.index[i] -
++                          O.index[0]);
+     }
+   }
+
+@@ -260,8 +271,10 @@ class Graph {
+     idMap = O.idMap;
+     reverseMap = O.reverseMap;
+
+-    edges = new edge_type[numEdges];
+-    index = new edge_type *[numNodes + 1];
++    auto edge_allocator = edge_allocator_t(graph_allocator);
++    edges = edge_allocator.allocate(numEdges);
++    auto index_allocator = index_allocator_t(graph_allocator);
++    index = index_allocator.allocate(numNodes + 1);
+ #pragma omp parallel for
+     for (size_t i = 0; i < numEdges; ++i) {
+       edges[i] = O.edges[i];
+@@ -269,8 +282,8 @@ class Graph {
+
+ #pragma omp parallel for
+     for (size_t i = 0; i < numNodes + 1; ++i) {
+-      index[i] = edges + (reinterpret_cast<uint64_t>(O.index[i]) -
+-                          reinterpret_cast<uint64_t>(O.index));
++      index[i] = std::addressof(edges[0]) + (O.index[i] -
++                          O.index[0]);
+     }
+   }
+
+@@ -281,6 +294,7 @@ class Graph {
+         numEdges(O.numEdges),
+         index(O.index),
+         edges(O.edges),
++        graph_allocator(O.graph_allocator),
+         idMap(std::move(O.idMap)),
+         reverseMap(std::move(O.reverseMap)) {
+     O.numNodes = 0;
+@@ -295,8 +309,17 @@ class Graph {
+   Graph &operator=(Graph &&O) {
+     if (this == &O) return *this;
+
+-    delete[] index;
+-    delete[] edges;
++    // delete[] index;
++    // delete[] edges;
++
++    if(index){
++        auto index_allocator = index_allocator_t(graph_allocator);
++        index_allocator.deallocate(index, numNodes + 1);
++    }
++    if(edges){
++        auto edge_allocator = edge_allocator_t(graph_allocator);
++        edge_allocator.deallocate(edges, numEdges);
++    }
+
+     numNodes = O.numNodes;
+     numEdges = O.numEdges;
+@@ -313,16 +336,6 @@ class Graph {
+     return *this;
+   }
+
+-  //! Reload from binary constructor.
+-  //!
+-  //! \tparam FStream The type of the input stream.
+-  //!
+-  //! \param FS The binary stream containing the graph dump.
+-  template <typename FStream>
+-  Graph(FStream &FS) {
+-    load_binary(FS);
+-  }
+-
+   //! \brief Constructor.
+   //!
+   //! Build a Graph from a sequence of edges.  The vertex identifiers are
+@@ -335,7 +348,10 @@ class Graph {
+   //! \param begin The start of the edge list.
+   //! \param end The end of the edge list.
+   template <typename EdgeIterator>
+-  Graph(EdgeIterator begin, EdgeIterator end, bool renumbering) {
++  Graph(EdgeIterator begin, EdgeIterator end, bool renumbering, allocator_t allocator = allocator_t())
++  : graph_allocator(allocator),
++    idMap(allocator),
++    reverseMap(allocator){
+     for (auto itr = begin; itr != end; ++itr) {
+       idMap[itr->source];
+       idMap[itr->destination];
+@@ -344,12 +360,14 @@ class Graph {
+     size_t num_nodes = renumbering ? idMap.size() : idMap.rbegin()->first + 1;
+     size_t num_edges = std::distance(begin, end);
+
+-    index = new edge_type *[num_nodes + 1];
+-    edges = new edge_type[num_edges];
++    auto index_allocator = index_allocator_t(graph_allocator);
++    index = index_allocator.allocate(num_nodes + 1);
++    auto edge_allocator = edge_allocator_t(graph_allocator);
++    edges = edge_allocator.allocate(num_edges);
+
+ #pragma omp parallel for
+     for (size_t i = 0; i < num_nodes + 1; ++i) {
+-      index[i] = edges;
++      index[i] = std::addressof(edges[0]);
+     }
+
+ #pragma omp parallel for
+@@ -379,10 +397,10 @@ class Graph {
+     }
+
+     for (size_t i = 1; i <= num_nodes; ++i) {
+-      index[i] += index[i - 1] - edges;
++      index[i] += index[i - 1] - std::addressof(edges[0]);
+     }
+
+-    std::vector<edge_type *> ptrEdge(index, index + num_nodes);
++    std::vector<edge_type *> ptrEdge(std::addressof(index[0]), std::addressof(index[0]) + num_nodes);
+     for (auto itr = begin; itr != end; ++itr) {
+       *ptrEdge[DirectionPolicy::Source(itr, idMap)] =
+           edge_type::template Create<DirectionPolicy>(itr, idMap);
+@@ -392,8 +410,26 @@ class Graph {
+
+   //! \brief Destuctor.
+   ~Graph() {
+-    if (index) delete[] index;
+-    if (edges) delete[] edges;
++    if(index){
++        auto index_allocator = index_allocator_t(graph_allocator);
++        index_allocator.deallocate(index, numNodes + 1);
++    }
++    if(edges){
++        auto edge_allocator = edge_allocator_t(graph_allocator);
++        edge_allocator.deallocate(edges, numEdges);
++    }
++    // if (index) delete[] index;
++    // if (edges) delete[] edges;
++  }
++
++  void recalculate_addresses() const {
++    if(index){
++        #pragma omp parallel for
++        for (size_t i = 0; i < numNodes + 1; ++i) {
++            index[i] = std::addressof(edges[0]) + (index[i] -
++                                index[0]);
++        }
++    }
+   }
+
+   //! Returns the out-degree of a vertex.
+@@ -496,45 +532,49 @@ class Graph {
+   using transposed_direction =
+       typename std::conditional<isForward, BackwardDirection<VertexTy>,
+                                 ForwardDirection<VertexTy>>::type;
+-  using transposed_type = Graph<vertex_type, edge_type, transposed_direction>;
++  using transposed_type = Graph<vertex_type, edge_type, transposed_direction, allocator_t>;
+
+   friend transposed_type;
+
+  public:
+   //! Get the transposed graph.
+   //! \return the transposed graph.
+-  transposed_type get_transpose() const {
++  transposed_type get_transpose(allocator_t allocator = allocator_t()) const {
+     using out_dest_type = typename transposed_type::edge_type;
+-    transposed_type G;
++    transposed_type G(allocator);
+     G.numEdges = numEdges;
+     G.numNodes = numNodes;
+     G.reverseMap = reverseMap;
+     G.idMap = idMap;
+-    G.index = new out_dest_type *[numNodes + 1];
+-    G.edges = new out_dest_type[numEdges];
++    using index_transposed_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<out_dest_type *>;
++    auto index_allocator = index_transposed_allocator_t(G.graph_allocator);
++    G.index = index_allocator.allocate(numNodes + 1);
++    using edge_transposed_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<out_dest_type>;
++    auto edge_allocator = edge_transposed_allocator_t(G.graph_allocator);
++    G.edges = edge_allocator.allocate(numEdges);
+
+ #pragma omp parallel for
+-    for (auto itr = G.index; itr < G.index + numNodes + 1; ++itr) {
++    for (auto itr = std::addressof(G.index[0]); itr < std::addressof(G.index[0]) + numNodes + 1; ++itr) {
+       *itr = nullptr;
+     }
+
+ #pragma omp parallel for
+-    for (auto itr = G.edges; itr < G.edges + numEdges; ++itr) {
++    for (auto itr = std::addressof(G.edges[0]); itr < std::addressof(G.edges[0]) + numEdges; ++itr) {
+       *itr = out_dest_type();
+     }
+
+-    std::for_each(edges, edges + numEdges,
++    std::for_each(std::addressof(edges[0]), std::addressof(edges[0]) + numEdges,
+                   [&](const edge_type &d) { ++G.index[d.vertex + 1]; });
+
+-    G.index[0] = G.edges;
+-    std::partial_sum(G.index, G.index + numNodes + 1, G.index,
++    G.index[0] = std::addressof(G.edges[0]);
++    std::partial_sum(std::addressof(G.index[0]), std::addressof(G.index[0]) + numNodes + 1, std::addressof(G.index[0]),
+                      [](out_dest_type *a, out_dest_type *b) -> out_dest_type * {
+                        size_t sum = reinterpret_cast<size_t>(a) +
+                                     reinterpret_cast<size_t>(b);
+                        return reinterpret_cast<out_dest_type *>(sum);
+                      });
+
+-    std::vector<out_dest_type *> destPointers(G.index, G.index + numNodes);
++    std::vector<out_dest_type *> destPointers(std::addressof(G.index[0]), std::addressof(G.index[0]) + numNodes);
+ 
+     for (vertex_type v = 0; v < numNodes; ++v) {
+       for (auto u : neighbors(v)) {
+@@ -546,11 +586,14 @@ class Graph {
+     return G;
+   }
+
+-  edge_type **csr_index() const { return index; }
++  edge_type **csr_index() const {
++    return std::addressof(index[0]);
++    }
+
+-  edge_type *csr_edges() const { return edges; }
++  edge_type *csr_edges() const {
++    return std::addressof(edges[0]);
++    }
+
+- private:
+   template <typename FStream>
+   void load_binary(FStream &FS) {
+     if (!FS.is_open()) throw "Bad things happened!!!";
+@@ -570,8 +613,10 @@ class Graph {
+
+     for (VertexTy i = 0; i < numNodes; ++i) idMap[reverseMap[i]] = i;
+
+-    index = new edge_type *[numNodes + 1];
+-    edges = new edge_type[numEdges];
++    auto index_allocator = index_allocator_t(graph_allocator);
++    index = index_allocator.allocate(numNodes + 1);
++    auto edge_allocator = edge_allocator_t(graph_allocator);
++    edges = edge_allocator.allocate(numEdges);
+
+     #pragma omp parallel for
+     for (size_t i = 0; i < numNodes + 1; ++i) {
+@@ -583,25 +628,51 @@ class Graph {
+       edges[i] = edge_type();
+     }
+
+-    FS.read(reinterpret_cast<char *>(index),
++    FS.read(reinterpret_cast<char *>(std::addressof(index[0])),
+             (numNodes + 1) * sizeof(ptrdiff_t));
+
+     sequence_of<edge_type *>::load(index, index + numNodes + 1, index);
+
+     std::transform(index, index + numNodes + 1, index,
+                    [=](edge_type *v) -> edge_type * {
+-                     return reinterpret_cast<ptrdiff_t>(v) + edges;
++                     return reinterpret_cast<ptrdiff_t>(v) + std::addressof(edges[0]);
+                    });
+
+-    FS.read(reinterpret_cast<char *>(edges), numEdges * sizeof(edge_type));
++    FS.read(reinterpret_cast<char *>(std::addressof(edges[0])), numEdges * sizeof(edge_type));
+     sequence_of<edge_type>::load(edges, edges + numEdges, edges);
+   }
+
+-  edge_type **index;
+-  edge_type *edges;
+-
+-  std::map<VertexTy, VertexTy> idMap;
+-  std::vector<VertexTy> reverseMap;
++  private:
++    // Allocator and pointer types for the indices array
++  using index_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<edge_type *>;
++  using index_pointer_t = typename std::allocator_traits<index_allocator_t>::pointer;
++  index_pointer_t index;
++
++
++  // Allocator and pointer types for the edges array
++  using edge_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<edge_type>;
++  using edge_pointer_t = typename std::allocator_traits<edge_allocator_t>::pointer;
++  edge_pointer_t edges;
++
++  allocator_t graph_allocator;
++
++    // Allocator and vector types for the indices array
++  using reverse_map_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<VertexTy>;
++  #if defined ENABLE_METALL
++  using reverse_map_vector_t = boost::container::vector<VertexTy, reverse_map_allocator_t>;
++  #else
++  using reverse_map_vector_t = std::vector<VertexTy, reverse_map_allocator_t>;
++  #endif
++
++ using idmap_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<std::pair<const VertexTy, VertexTy>>;
++ #if defined ENABLE_METALL
++ using idmap_t = boost::container::map<VertexTy, VertexTy, std::less<VertexTy>, idmap_allocator_t>;
++ #else
++ using idmap_t = std::map<VertexTy, VertexTy, std::less<VertexTy>, idmap_allocator_t>;
++ #endif
++
++  idmap_t idMap;
++  reverse_map_vector_t reverseMap;
+
+   size_t numNodes;
+   size_t numEdges;
+diff --git a/include/ripples/imm.h b/include/ripples/imm.h
+index 8030582..32c5e54 100644
+--- a/include/ripples/imm.h
++++ b/include/ripples/imm.h
+@@ -180,8 +180,8 @@ auto Sampling(const GraphTy &G, const ConfTy &CFG, double l,
+
+   double LB = 0;
+   #if defined ENABLE_MEMKIND
+-  RRRsetAllocator<vertex_type> allocator(libmemkind::kinds::DAX_KMEM_PREFERRED);
+-  #elif defined ENABLE_METALL
++  RRRsetAllocator<vertex_type> allocator("/mnt/bb/reeceneff/memkind_tmp", 0);
++  #elif defined ENABLE_METALL_RRRSETS
+   RRRsetAllocator<vertex_type> allocator =  metall_manager_instance().get_allocator();
+   #else
+   RRRsetAllocator<vertex_type> allocator;
+@@ -266,10 +266,10 @@ auto Sampling(const GraphTy &G, const ConfTy &CFG, double l,
+
+   double LB = 0;
+   #if defined ENABLE_MEMKIND
+-  RRRsetAllocator<vertex_type> allocator(libmemkind::kinds::DAX_KMEM_PREFERRED);
+-  #elif defined ENABLE_METALL
++  RRRsetAllocator<vertex_type> allocator("/mnt/bb/reeceneff/memkind_tmp", 0);
++  #elif defined ENABLE_METALL_RRRSETS
+   RRRsetAllocator<vertex_type> allocator =  metall_manager_instance().get_allocator();
+-#else
++  #else
+   RRRsetAllocator<vertex_type> allocator;
+   #endif
+   std::vector<RRRset<GraphTy>> RR;
+@@ -410,7 +410,6 @@ auto IMM(const GraphTy &G, const ConfTy &CFG, double l, GeneratorTy &gen,
+   auto R =
+       Sampling(G, CFG, l, gen, record, std::forward<diff_model_tag>(model_tag),
+                std::forward<omp_parallel_tag>(ex_tag));
+-
+ #if CUDA_PROFILE
+   auto logst = spdlog::stdout_color_st("IMM-profile");
+   std::vector<size_t> rrr_sizes;
+@@ -428,7 +427,6 @@ auto IMM(const GraphTy &G, const ConfTy &CFG, double l, GeneratorTy &gen,
+       FindMostInfluentialSet(G, CFG, R, record, gen.isGpuEnabled(),
+                              std::forward<omp_parallel_tag>(ex_tag));
+   auto end = std::chrono::high_resolution_clock::now();
+-
+   record.FindMostInfluentialSet = end - start;
+
+   start = std::chrono::high_resolution_clock::now();
+diff --git a/include/ripples/loaders.h b/include/ripples/loaders.h
+index 4f67661..a33cc55 100644
+--- a/include/ripples/loaders.h
++++ b/include/ripples/loaders.h
+@@ -232,21 +232,22 @@ std::vector<EdgeTy> loadEdgeList(const Configuration &CFG, PRNG &weightGen) {
+ }
+
+ namespace {
+-template <typename GraphTy, typename ConfTy, typename PrngTy>
+-GraphTy loadGraph_helper(ConfTy &CFG, PrngTy &PRNG) {
+-  GraphTy G;
++template <typename GraphTy, typename ConfTy, typename PrngTy, typename allocator_t = std::allocator<char>>
++GraphTy loadGraph_helper(ConfTy &CFG, PrngTy &PRNG, allocator_t allocator = allocator_t()) {
++  GraphTy G(allocator);
+
+   if (!CFG.reload) {
+     using vertex_type = typename GraphTy::vertex_type;
+     using weight_type = typename GraphTy::edge_type::edge_weight;
+     using edge_type = ripples::Edge<vertex_type, weight_type>;
+     auto edgeList = ripples::loadEdgeList<edge_type>(CFG, PRNG);
+-    GraphTy tmpG(edgeList.begin(), edgeList.end(), !CFG.disable_renumbering);
++    GraphTy tmpG(edgeList.begin(), edgeList.end(), !CFG.disable_renumbering, allocator);
+     G = std::move(tmpG);
+   } else {
+     std::ifstream binaryDump(CFG.IFileName, std::ios::binary);
+-    GraphTy tmpG(binaryDump);
+-    G = std::move(tmpG);
++    // GraphTy tmpG(binaryDump, allocator);
++    // G = std::move(tmpG);
++    G.load_binary(binaryDump);
+   }
+
+   return G;
+@@ -262,22 +263,22 @@ GraphTy loadGraph_helper(ConfTy &CFG, PrngTy &PRNG) {
+ //! \param CFG The configuration object.
+ //! \param PRNG The parallel random number generator.
+ //! \return The GraphTy graph loaded from the input file.
+-template <typename GraphTy, typename ConfTy, typename PrngTy>
+-GraphTy loadGraph(ConfTy &CFG, PrngTy &PRNG) {
+-  GraphTy G;
++template <typename GraphTy, typename ConfTy, typename PrngTy, typename allocator_t = std::allocator<char>>
++GraphTy loadGraph(ConfTy &CFG, PrngTy &PRNG, allocator_t allocator = allocator_t()) {
++  GraphTy G(allocator);
+   if (CFG.distribution == "uniform") {
+     WeightGenerator<trng::lcg64, trng::uniform01_dist<float>> gen(
+         PRNG, CFG.scale_factor);
+-    G = loadGraph_helper<GraphTy>(CFG, gen);
++    G = loadGraph_helper<GraphTy>(CFG, gen, allocator);
+   } else if (CFG.distribution == "normal") {
+     WeightGenerator<trng::lcg64, trng::truncated_normal_dist<float>> gen(
+         PRNG,
+         trng::truncated_normal_dist<float>(CFG.mean, CFG.variance, 0.0, 1.0),
+         CFG.scale_factor);
+-    G = loadGraph_helper<GraphTy>(CFG, gen);
++    G = loadGraph_helper<GraphTy>(CFG, gen, allocator);
+   } else if (CFG.distribution == "const") {
+     auto gen = [&]() -> float { return CFG.mean; };
+-    G = loadGraph_helper<GraphTy>(CFG, gen);
++    G = loadGraph_helper<GraphTy>(CFG, gen, allocator);
+   } else {
+     throw std::domain_error("Unsupported distribution");
+   }
+diff --git a/include/ripples/mpi/imm.h b/include/ripples/mpi/imm.h
+index 80bbe3a..b64b438 100644
+--- a/include/ripples/mpi/imm.h
++++ b/include/ripples/mpi/imm.h
+@@ -151,7 +151,7 @@ auto Sampling(const GraphTy &G, const ConfTy &CFG, double l,
+   double LB = 0;
+   #if defined ENABLE_MEMKIND
+   RRRsetAllocator<vertex_type> allocator("/pmem1", 0);
+-  #elif defined ENABLE_METALL
++  #elif defined ENABLE_METALL_RRRSETS
+   RRRsetAllocator<vertex_type> allocator =  metall_manager_instance().get_allocator();
+ #else
+   RRRsetAllocator<vertex_type> allocator;
+diff --git a/tools/imm.cc b/tools/imm.cc
+index e835c76..870821c 100644
+--- a/tools/imm.cc
++++ b/tools/imm.cc
+@@ -39,7 +39,6 @@
+ // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ //
+ //===----------------------------------------------------------------------===//
+-
+ #include <iostream>
+ #include <sstream>
+ #include <string>
+@@ -154,14 +153,45 @@ int main(int argc, char **argv) {
+   weightGen.split(2, 0);
+
+   using dest_type = ripples::WeightedDestination<uint32_t, float>;
++  #if defined ENABLE_METALL
++  using GraphFwd =
++      ripples::Graph<uint32_t, dest_type, ripples::ForwardDirection<uint32_t>, metall::manager::allocator_type<char>>;
++  using GraphBwd =
++      ripples::Graph<uint32_t, dest_type, ripples::BackwardDirection<uint32_t>, metall::manager::allocator_type<char>>;
++  #else
+   using GraphFwd =
+       ripples::Graph<uint32_t, dest_type, ripples::ForwardDirection<uint32_t>>;
+   using GraphBwd =
+       ripples::Graph<uint32_t, dest_type, ripples::BackwardDirection<uint32_t>>;
+-  console->info("Loading...");
++  #endif
++console->info("Loading...");
++auto loading_start = std::chrono::high_resolution_clock::now();
++#if defined ENABLE_METALL
++bool exists = metall::manager::consistent(CFG.metall_dir.c_str());
++metall::manager manager = (exists ?
++                         metall::manager(metall::open_only, CFG.metall_dir.c_str())
++                         : metall::manager(metall::create_only, CFG.metall_dir.c_str()));
++  GraphBwd *Gr;
++  if(exists){
++    console->info("Previously existing graph exists! Loading...");
++    Gr = manager.find<GraphBwd>("graph").first;
++    // Gr->recalculate_addresses();
++  }
++  else{
++    console->info("Creating new metall directory...");
++    GraphFwd Gf = ripples::loadGraph<GraphFwd>(CFG, weightGen, manager.get_allocator());
++    Gr = manager.construct<GraphBwd>("graph")(Gf.get_transpose(manager.get_allocator()));
++  }
++
++  GraphBwd &G(*Gr);
++  //GraphBwd G(Gr[0]);
++#else
+   GraphFwd Gf = ripples::loadGraph<GraphFwd>(CFG, weightGen);
+   GraphBwd G = Gf.get_transpose();
++#endif
++  auto loading_end = std::chrono::high_resolution_clock::now();
+   console->info("Loading Done!");
++  spdlog::get("console")->info("Loading took {} s", (double)std::chrono::duration_cast<std::chrono::milliseconds>(loading_end - loading_start).count() / 1000.0);
+   console->info("Number of Nodes : {}", G.num_nodes());
+   console->info("Number of Edges : {}", G.num_edges());
+
+@@ -182,8 +212,8 @@ int main(int argc, char **argv) {
+     decltype(R.Total) real_total;
+     if (CFG.diffusionModel == "IC") {
+       ripples::StreamingRRRGenerator<
+-          decltype(G), decltype(generator),
+-          typename ripples::RRRsets<decltype(G)>::iterator,
++          GraphBwd, decltype(generator),
++          typename ripples::RRRsets<GraphBwd>::iterator,
+           ripples::independent_cascade_tag>
+           se(G, generator, R, workers - gpu_workers, gpu_workers,
+              CFG.worker_to_gpu);
+@@ -195,8 +225,8 @@ int main(int argc, char **argv) {
+       real_total = end - start;
+     } else if (CFG.diffusionModel == "LT") {
+       ripples::StreamingRRRGenerator<
+-          decltype(G), decltype(generator),
+-          typename ripples::RRRsets<decltype(G)>::iterator,
++          GraphBwd, decltype(generator),
++          typename ripples::RRRsets<GraphBwd>::iterator,
+           ripples::linear_threshold_tag>
+           se(G, generator, R, workers - gpu_workers, gpu_workers,
+              CFG.worker_to_gpu);
+diff --git a/tools/mpi-imm.cc b/tools/mpi-imm.cc
+index 60091f8..0ddb121 100644
+--- a/tools/mpi-imm.cc
++++ b/tools/mpi-imm.cc
+@@ -134,13 +134,40 @@ int main(int argc, char *argv[]) {
+   weightGen.split(2, 0);
+
+   using edge_type = ripples::WeightedDestination<uint32_t, float>;
++  #if defined ENABLE_METALL
++  using GraphFwd =
++      ripples::Graph<uint32_t, edge_type, ripples::ForwardDirection<uint32_t>, metall::manager::allocator_type<char>>;
++  using GraphBwd =
++      ripples::Graph<uint32_t, edge_type, ripples::BackwardDirection<uint32_t>, metall::manager::allocator_type<char>>;
++  #else
+   using GraphFwd =
+       ripples::Graph<uint32_t, edge_type, ripples::ForwardDirection<uint32_t>>;
+   using GraphBwd =
+       ripples::Graph<uint32_t, edge_type, ripples::BackwardDirection<uint32_t>>;
+-  console->info("Loading...");
+-  GraphFwd Gf = ripples::loadGraph<GraphFwd>(CFG, weightGen);
++  #endif
++console->info("Loading...");
++#if defined ENABLE_METALL
++bool exists = metall::manager::consistent(CFG.metall_dir.c_str());
++metall::manager manager = (exists ?
++                         metall::manager(metall::open_only, CFG.metall_dir.c_str())
++                         : metall::manager(metall::create_only, CFG.metall_dir.c_str()));
++  GraphBwd *Gr;
++  if(exists){
++    console->info("Previously existing graph exists! Loading...");
++    Gr = manager.find<GraphBwd>("graph").first;
++    // Gr->recalculate_addresses();
++  }
++  else{
++    console->info("Creating new metall directory...");
++    GraphFwd Gf = ripples::loadGraph<GraphFwd>(CFG, weightGen, manager.get_allocator());
++    Gr = manager.construct<GraphBwd>("graph")(Gf.get_transpose(manager.get_allocator()));
++  }
++  GraphBwd G(Gr[0]);
++#else
++  std::allocator<char> = GraphAllocator;
++  GraphFwd Gf = ripples::loadGraph<GraphFwd>(CFG, weightGen, GraphAllocator);
+   GraphBwd G = Gf.get_transpose();
++#endif
+   console->info("Loading Done!");
+   console->info("Number of Nodes : {}", G.num_nodes());
+   console->info("Number of Edges : {}", G.num_edges());
+diff --git a/tools/wscript b/tools/wscript
+index 5be422d..862e61b 100644
+--- a/tools/wscript
++++ b/tools/wscript
+@@ -68,7 +68,7 @@ def build(bld):
+         cuda_acc_cxx_flags += ['-DENABLE_MEMKIND=1']
+
+     if bld.env.ENABLE_METALL:
+-        cuda_acc_tools_deps += ['metall', 'boost']
++        cuda_acc_tools_deps += ['metall', 'boost', 'libstdc++fs']
+         cuda_acc_cxx_flags += ['-DENABLE_METALL=1']
+
+     bld(features='cxx cxxprogram', source='imm.cc', target='imm',
