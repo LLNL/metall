@@ -1,3 +1,13 @@
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
+// See the top-level COPYRIGHT file for details.
+//
+// SPDX-License-Identifier: (Apache-2.0 OR MIT)
+
+/// \brief Benchmarks file mapping backends.
+/// Usage:
+/// ./run_mapping_bench
+/// # modify some values in the main function, if needed.
+
 #include <iostream>
 #include <random>
 #include <string>

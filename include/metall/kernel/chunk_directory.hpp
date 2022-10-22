@@ -43,7 +43,7 @@ class chunk_directory {
   // -------------------------------------------------------------------------------- //
   using chunk_no_type = _chunk_no_type;
   using bin_no_type = typename bin_no_mngr::bin_no_type;
-  using slot_no_type = typename mdtl::unsigned_variable_type<k_num_max_slots - 1>::type;
+  using slot_no_type = multilayer_bitset_type::bit_position_type;
   using slot_count_type = typename mdtl::unsigned_variable_type<k_num_max_slots>::type;
 
  private:
@@ -62,7 +62,7 @@ class chunk_directory {
     void init() {
       type = chunk_type::empty;
       num_occupied_slots = 0;
-      slot_occupancy.init();
+      slot_occupancy.reset();
     }
 
     bin_no_type bin_no; // 1 byte
@@ -158,6 +158,32 @@ class chunk_directory {
     ++m_table[chunk_no].num_occupied_slots;
 
     return empty_slot_no;
+  }
+
+  /// \brief Finds and marks multiple slots up to 'num_slots'.
+  /// \param chunk_no Chunk number.
+  /// \param num_slots Number of slots to find and mark.
+  /// \param slots_buf Buffer to store found slots.
+  /// \return Number of found slots.
+  /// This number can be less than 'num_slots' if there are not enough available slots in the chunk.
+  std::size_t find_and_mark_many_slots(const chunk_no_type chunk_no,
+                                       const std::size_t num_slots,
+                                       slot_no_type *const slots_buf) {
+    assert(chunk_no < size());
+    assert(m_table[chunk_no].type == chunk_type::small_chunk);
+
+    const slot_count_type num_holding_slots = slots(chunk_no);
+    assert(num_holding_slots >= 1);
+
+    assert(m_table[chunk_no].num_occupied_slots < num_holding_slots);
+    const auto num_slots_to_find = std::min(num_slots,
+                                            static_cast<std::size_t>(num_holding_slots
+                                                - m_table[chunk_no].num_occupied_slots));
+    m_table[chunk_no].slot_occupancy.find_and_set_many(num_holding_slots, num_slots_to_find, slots_buf);
+    m_table[chunk_no].num_occupied_slots += num_slots_to_find;
+    assert(m_table[chunk_no].num_occupied_slots <= num_holding_slots);
+
+    return num_slots_to_find;
   }
 
   /// \brief
@@ -416,7 +442,7 @@ class chunk_directory {
     return buf;
   }
 
-  const std::size_t num_used_large_chunks() const {
+  std::size_t num_used_large_chunks() const {
     std::size_t count = 0;
     for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
       if (m_table[chunk_no].type == chunk_type::large_chunk_head
@@ -486,6 +512,10 @@ class chunk_directory {
   chunk_no_type priv_insert_small_chunk(const bin_no_type bin_no) {
     const slot_count_type num_slots = calc_num_slots(bin_no_mngr::to_object_size(bin_no));
     assert(num_slots > 1);
+    if (num_slots > multilayer_bitset_type::max_size()) {
+      logger::out(logger::level::error, __FILE__, __LINE__, "Too many slots are requested.");
+      return m_max_num_chunks;
+    }
 
     for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
       if (chunk_no > m_last_used_chunk_no) {
