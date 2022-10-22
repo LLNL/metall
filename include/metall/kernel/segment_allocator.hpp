@@ -227,11 +227,11 @@ class segment_allocator {
 #endif
 
     if (!m_non_full_chunk_bin.serialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to serialize bin directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to serialize bin directory");
       return false;
     }
     if (!m_chunk_directory.serialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to serialize chunk directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to serialize chunk directory");
       return false;
     }
     return true;
@@ -242,11 +242,11 @@ class segment_allocator {
   /// \return
   bool deserialize(const std::string &base_path) {
     if (!m_non_full_chunk_bin.deserialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to deserialize bin directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to deserialize bin directory");
       return false;
     }
     if (!m_chunk_directory.deserialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to deserialize chunk directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to deserialize chunk directory");
       return false;
     }
     return true;

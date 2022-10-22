@@ -1116,7 +1116,7 @@ class basic_manager {
   /// \brief Checks the sanity.
   /// \return Returns true if there is no issue; otherwise, returns false.
   bool check_sanity() const noexcept {
-    return !!m_kernel; // TODO: also implement m_kernel->check_sanity();
+    return !!m_kernel && m_kernel->good();
   }
 
   // -------------------- For profiling and debug -------------------- //

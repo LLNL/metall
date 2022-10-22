@@ -157,13 +157,16 @@ class multilayer_bitset {
 
   /// \brief Allocates internal space.
   /// \param size The number of bits this bitset holds.
-  void allocate(const std::size_t size) {
+  bool allocate(const std::size_t size) {
     assert(mdtl::next_power_of_2(size) < max_size());
     if (size <= block_size()) {
       bs::erase(&m_data.block); // manage the bits without allocating layers.
+      return true;
     } else {
-      allocate_multilayer_bitset(size);
+      return allocate_multilayer_bitset(size);
     }
+    assert(false);
+    return false;
   }
 
   /// \brief Users have to explicitly free bitset table
@@ -272,14 +275,16 @@ class multilayer_bitset {
   // Private methods
   // -------------------------------------------------------------------------------- //
   // -------------------- Allocation and free -------------------- //
-  void allocate_multilayer_bitset(const std::size_t size) {
+  bool allocate_multilayer_bitset(const std::size_t size) {
     const std::size_t num_blocks = num_all_blocks(size);
     m_data.array = static_cast<block_type *>(std::malloc(num_blocks * sizeof(block_type)));
     if (!m_data.array) {
       logger::out(logger::level::error, __FILE__, __LINE__, "Cannot allocate multi-layer bitset");
-      return;
+      return false;
     }
     std::fill(&m_data.array[0], &m_data.array[num_blocks], 0);
+
+    return true;
   }
 
   void free_multilayer_bitset() {
