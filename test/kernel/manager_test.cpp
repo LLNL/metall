@@ -1220,5 +1220,21 @@ TEST(ManagerTest, Description) {
     ASSERT_STREQ(description.c_str(), "description2");
   }
 }
+
+TEST(ManagerTest, CheckSanity) {
+  // This test should be run at the end of this execution unless reset the values below:
+  metall::logger::set_log_level(metall::logger::level::silent);
+  metall::logger::abort_on_critical_error(false);
+
+  {
+    auto *manager = new manager_type(metall::create_only, dir_path().c_str());
+    ASSERT_TRUE(manager->check_sanity());
+  }
+
+  {
+    auto *bad_manager = new manager_type(metall::open_only, (dir_path() + "-invalid").c_str());
+    ASSERT_FALSE(bad_manager->check_sanity());
+  }
+}
 }
 

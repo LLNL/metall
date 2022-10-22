@@ -54,7 +54,7 @@ class mmap_segment_storage {
     }
 
     if (!ret) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to destruct");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to destruct");
     }
   }
 
