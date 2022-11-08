@@ -35,9 +35,9 @@ class stl_allocator {
   using const_void_pointer = typename std::pointer_traits<pointer>::template rebind<const void>;
   using difference_type = typename std::pointer_traits<pointer>::difference_type;
   using size_type = typename std::make_unsigned<difference_type>::type;
-  using propagate_on_container_copy_assignment = std::true_type;
-  using propagate_on_container_move_assignment = std::true_type;
-  using propagate_on_container_swap = std::true_type;
+  using propagate_on_container_copy_assignment = std::false_type;
+  using propagate_on_container_move_assignment = std::false_type;
+  using propagate_on_container_swap = std::false_type;
   using is_always_equal = std::false_type;
   using manager_kernel_type = metall_manager_kernel_type;
 
