@@ -10,6 +10,7 @@
 #include <utility>
 #include <string_view>
 #include <variant>
+#include <type_traits>
 
 #include <metall/container/experimental/json/json_fwd.hpp>
 
@@ -53,8 +54,8 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
     return value.is_array() && (value.as_array() == other_value.as_array());
   } else if (other_value.is_string()) {
     if (!value.is_string()) return false;
-    const auto& str = value.as_string();
-    const auto& other_srt = other_value.as_string();
+    const auto &str = value.as_string();
+    const auto &other_srt = other_value.as_string();
     return str.compare(other_srt.c_str()) == 0;
   }
 
@@ -81,15 +82,15 @@ class value {
 
  public:
   /// \brief Constructor.
-  value() {}
-
-  /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit value(const allocator_type &alloc)
-      : m_allocator(alloc) {}
+  explicit value(const allocator_type &alloc = allocator_type())
+      : m_allocator(alloc),
+        m_data(null_type()) {}
 
   /// \brief Copy constructor
-  value(const value &) = default;
+  value(const value &other)
+      : m_allocator(std::allocator_traits<allocator_type>::select_on_container_copy_construction(other.get_allocator())),
+        m_data(other.m_data) {}
 
   ~value() noexcept {
     priv_reset();
@@ -111,8 +112,8 @@ class value {
 
   /// \brief Move constructor
   value(value &&other) noexcept
-      : m_data(std::move(other.m_data)),
-        m_allocator(std::move(other.m_allocator)) {
+      : m_allocator(std::move(other.m_allocator)),
+        m_data(std::move(other.m_data)) {
     other.priv_reset();
   }
 
@@ -132,10 +133,22 @@ class value {
   }
 
   /// \brief Copy assignment operator
-  value &operator=(const value &) = default;
+  value &operator=(const value &other) {
+    if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment,
+                                 std::true_type>) {
+      m_allocator = other.m_allocator;
+    }
+    m_data = other.m_data;
+    return *this;
+  }
 
   /// \brief Move assignment operator
   value &operator=(value &&other) noexcept {
+    if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_move_assignment,
+                                 std::true_type>) {
+      m_allocator = std::move(other.m_allocator);
+    }
+
     if (other.is_object()) {
       emplace_object() = std::move(other.as_object());
     } else if (other.is_array()) {
@@ -145,8 +158,24 @@ class value {
     } else {
       m_data = std::move(other.m_data);
     }
+
     other.priv_reset();
+
     return *this;
+  }
+
+  /// \brief Swap contents.
+  void swap(value &other) noexcept {
+    using std::swap;
+    if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_swap,
+                                 std::true_type>) {
+      swap(m_allocator, other.m_allocator);
+    } else {
+      // This is an undefined behavior in the C++ standard.
+      assert(get_allocator() == other.m_allocator);
+    }
+
+    swap(m_data, other.m_data);
   }
 
   /// \brief Assign a bool value.
@@ -481,9 +510,15 @@ class value {
     return true;
   }
 
-  internal_data_type m_data{null_type{}};
   allocator_type m_allocator{allocator_type{}};
+  internal_data_type m_data{null_type{}};
 };
+
+/// \brief Swap value instances.
+template <typename allocator_type>
+inline void swap(value<allocator_type> &lhd, value<allocator_type> &rhd) noexcept {
+  lhd.swap(rhd);
+}
 
 } // namespace metall::container::experimental::json
 
