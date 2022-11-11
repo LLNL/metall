@@ -17,9 +17,15 @@
 
 namespace metall {
 
-/// \brief A STL compatible allocator
-/// \tparam T The type of the object
-/// \tparam metall_manager_kernel_type The type of the manager kernel
+/// \brief A STL compatible allocator.
+/// \tparam T A object type.
+/// \tparam metall_manager_kernel_type A manager kernel type.
+/// \warning
+/// This allocator is not propagated during containers' copy assignment, move assignment, or swap
+/// (propagate_on_* types are std::false_type), as same as Boost.Interprocess.
+/// Therefore, performing the move assignment between two objects allocated by different Metall managers invokes
+/// copy operations instead of move operations.
+/// Also, swapping objects allocated by different Metall managers will result in undefined behavior.
 template <typename T, typename metall_manager_kernel_type>
 class stl_allocator {
 
