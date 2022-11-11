@@ -21,11 +21,13 @@ namespace metall {
 /// \tparam T A object type.
 /// \tparam metall_manager_kernel_type A manager kernel type.
 /// \warning
-/// This allocator is not propagated during containers' copy assignment, move assignment, or swap
-/// (propagate_on_* types are std::false_type), as same as Boost.Interprocess.
-/// Therefore, performing the move assignment between two objects allocated by different Metall managers invokes
-/// copy operations instead of move operations.
-/// Also, swapping objects allocated by different Metall managers will result in undefined behavior.
+/// This allocator does not define propagate_on_* types, as same as Boost.Interprocess.
+/// Those types are going to be std::false_type in std::allocator_traits.
+/// Therefore, this allocator is not propagated during containers' copy assignment, move assignment, or swap.
+/// This configuration enables users to copy containers between different Metall managers easier.
+/// On the other hand, performing the move assignment between two containers allocated by different Metall managers
+/// invokes copy operations instead of move operations.
+/// Also, swapping containers allocated by different Metall managers will result in undefined behavior.
 template <typename T, typename metall_manager_kernel_type>
 class stl_allocator {
 
@@ -41,10 +43,6 @@ class stl_allocator {
   using const_void_pointer = typename std::pointer_traits<pointer>::template rebind<const void>;
   using difference_type = typename std::pointer_traits<pointer>::difference_type;
   using size_type = typename std::make_unsigned<difference_type>::type;
-  using propagate_on_container_copy_assignment = std::false_type;
-  using propagate_on_container_move_assignment = std::false_type;
-  using propagate_on_container_swap = std::false_type;
-  using is_always_equal = std::false_type;
   using manager_kernel_type = metall_manager_kernel_type;
 
   /// \brief Makes another allocator type for type T2
@@ -138,12 +136,6 @@ class stl_allocator {
   /// \param ptr A pointer to the object
   void destroy(const pointer &ptr) const {
     priv_destroy(ptr);
-  }
-  /// \brief Obtains the copy-constructed version of the allocator a.
-  /// \param a Allocator used by a standard container passed as an argument to a container copy constructor.
-  /// \return The allocator to use by the copy-constructed standard containers.
-  stl_allocator select_on_container_copy_construction(const stl_allocator &a) {
-    return stl_allocator(a);
   }
 
   // ----------------------------------- This class's unique public functions ----------------------------------- //
