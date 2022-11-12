@@ -51,21 +51,21 @@ TEST(StlAllocatorTest, Types) {
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::size_type), typeid(alloc_t::size_type));
 
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_copy_assignment),
-                    typeid(alloc_t::propagate_on_container_copy_assignment));
+                    typeid(std::false_type));
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_copy_assignment),
                     typeid(std::false_type));
 
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_move_assignment),
-                    typeid(alloc_t::propagate_on_container_move_assignment));
+                    typeid(std::false_type));
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_move_assignment),
                     typeid(std::false_type));
 
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_swap),
-                    typeid(alloc_t::propagate_on_container_swap));
+                    typeid(std::false_type));
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::propagate_on_container_swap), typeid(std::false_type));
 
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::is_always_equal),
-                    typeid(alloc_t::is_always_equal));
+                    typeid(std::false_type));
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<alloc_t>::is_always_equal), typeid(std::false_type));
 
     using otherT = int;
