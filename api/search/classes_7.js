@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['jgraph_386',['jgraph',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html',1,'metall::container::experimental::jgraph']]]
+  ['jgraph_387',['jgraph',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html',1,'metall::container::experimental::jgraph']]]
 ];

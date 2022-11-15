@@ -1,5 +1,11 @@
 var NAVTREEINDEX2 =
 {
+"classmetall_1_1unique__object__attr__accessor.html#ab979798a2fd483cc837ea299b963526b":[1,0,0,11,3],
+"classmetall_1_1unique__object__attr__accessor.html#aca2bf1d2d9ffd7959b65fbaa8e8820f7":[1,0,0,11,10],
+"classmetall_1_1unique__object__attr__accessor.html#acf257aecd23b3e7c75137204442954fb":[1,0,0,11,9],
+"classmetall_1_1unique__object__attr__accessor.html#ad4f42a08fcaa47d9e7880bb084695fd3":[1,0,0,11,14],
+"classmetall_1_1unique__object__attr__accessor.html#af00426ee3aafe33eee809e84f7c10702":[1,0,0,11,1],
+"classmetall_1_1unique__object__attr__accessor.html#af882be9e5c5f0ed370910309c6cf031b":[1,0,0,11,0],
 "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html":[1,0,0,2,0],
 "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html#a067243afaa9d8a6ec66b83ac08cafa50":[1,0,0,2,0,4],
 "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html#a1a62d11af7efd1ab94bdc52ec69af3e9":[1,0,0,2,0,0],
@@ -58,6 +64,7 @@ var NAVTREEINDEX2 =
 "classmetall_1_1utility_1_1metall__mpi__adaptor.html#adc03d0886854e42357495c73fad687f6":[1,0,0,2,2,5],
 "classmetall_1_1utility_1_1metall__mpi__adaptor.html#af97ebd454ad2a2623c668523156de4c6":[1,0,0,2,2,7],
 "compact__object_8hpp.html":[2,0,1,0,1,0,1,1],
+"compact__object_8hpp.html#aeea358ec1a41bf3dd6cfe6017b4e3e40":[2,0,1,0,1,0,1,1,2],
 "compact__object_8hpp.html#af7ceac87d1e2f3ca8bd6b2eb4551d2d2":[2,0,1,0,1,0,1,1,1],
 "compact__object_8hpp_source.html":[2,0,1,0,1,0,1,1],
 "complex_map_8cpp-example.html":[3,2],
@@ -190,6 +197,7 @@ var NAVTREEINDEX2 =
 "index.html":[],
 "indexed__object_8hpp.html":[2,0,1,0,1,0,1,3],
 "indexed__object_8hpp.html#a65db2cdffc0741100a1c2b971a5ae296":[2,0,1,0,1,0,1,3,1],
+"indexed__object_8hpp.html#a9ff096d0579a1248df6852c6aea5ebab":[2,0,1,0,1,0,1,3,2],
 "indexed__object_8hpp_source.html":[2,0,1,0,1,0,1,3],
 "jgraph_8cpp-example.html":[3,7],
 "jgraph_8cpp.html":[2,0,0,1,0],
@@ -216,6 +224,7 @@ var NAVTREEINDEX2 =
 "json_create_8cpp-example.html":[3,8],
 "json_open_8cpp-example.html":[3,9],
 "key__value__pair_8hpp.html":[2,0,1,0,1,0,1,6],
+"key__value__pair_8hpp.html#a3d74e0a9aa4189538100fc09c7d609da":[2,0,1,0,1,0,1,6,2],
 "key__value__pair_8hpp.html#adcd4238dce87eea35a29ca9205881477":[2,0,1,0,1,0,1,6,1],
 "key__value__pair_8hpp_source.html":[2,0,1,0,1,0,1,6],
 "list_8hpp.html":[2,0,1,0,1,3],
@@ -240,14 +249,5 @@ var NAVTREEINDEX2 =
 "metall_8h.html#aa5a03ac06563753cd30a61008d8db429":[2,0,1,0,0,0,0],
 "metall_8h.html#aa97cc63ec083101ec25b9b044f104722":[2,0,1,0,0,0,7],
 "metall_8h.html#ab652743ef9de6367bea41185ae0f8c2e":[2,0,1,0,0,0,5],
-"metall_8h.html#ac40330220b5845c2f55c0bf7b8a68ac8":[2,0,1,0,0,0,13],
-"metall_8h.html#af0016b1607d63ff8a989a2afa45ef14e":[2,0,1,0,0,0,2],
-"metall_8h_source.html":[2,0,1,0,0,0],
-"metall_8hpp.html":[2,0,1,0,5],
-"metall_8hpp.html#a0128ebca3d3d10b4d2db0525e8a74cf0":[2,0,1,0,5,0],
-"metall_8hpp_source.html":[2,0,1,0,5],
-"metall__mpi__adaptor_8hpp.html":[2,0,1,0,2,4],
-"metall__mpi__adaptor_8hpp_source.html":[2,0,1,0,2,4],
-"metall__mpi__datastore_8hpp.html":[2,0,1,0,2,5],
-"metall__mpi__datastore_8hpp.html#a84291fb340719b0733677f7a0fae887e":[2,0,1,0,2,5,0]
+"metall_8h.html#ac40330220b5845c2f55c0bf7b8a68ac8":[2,0,1,0,0,0,13]
 };
