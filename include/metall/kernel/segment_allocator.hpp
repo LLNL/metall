@@ -41,8 +41,8 @@ namespace mdtl = metall::mtlldetail;
 }
 
 template <typename _chunk_no_type,
-          typename size_type,
-          typename difference_type, std::size_t _chunk_size, std::size_t _max_size,
+          typename _size_type,
+          typename _difference_type, std::size_t _chunk_size, std::size_t _max_size,
           typename _segment_storage_type>
 class segment_allocator {
  public:
@@ -50,6 +50,8 @@ class segment_allocator {
   // Public types and static values
   // -------------------------------------------------------------------------------- //
   using chunk_no_type = _chunk_no_type;
+  using size_type = _size_type;
+  using difference_type = _difference_type;
   static constexpr size_type k_chunk_size = _chunk_size;
   static constexpr size_type k_max_size = _max_size;
   static constexpr difference_type k_null_offset = std::numeric_limits<difference_type>::max();
@@ -60,6 +62,13 @@ class segment_allocator {
   // Private types and static values
   // -------------------------------------------------------------------------------- //
   static_assert(k_max_size < std::numeric_limits<size_type>::max(), "Max allocation size is too big");
+
+  using myself = segment_allocator<_chunk_no_type,
+                                   size_type,
+                                   difference_type,
+                                   _chunk_size,
+                                   _max_size,
+                                   _segment_storage_type>;
 
   // For bin
   using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
@@ -78,13 +87,16 @@ class segment_allocator {
 
   // For object cache
 #ifndef METALL_DISABLE_OBJECT_CACHE
-  using small_object_cache_type = object_cache<k_num_small_bins, difference_type, bin_no_mngr>;
+  using small_object_cache_type = object_cache<k_num_small_bins, size_type, difference_type, bin_no_mngr, myself>;
 #endif
 
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
   using mutex_type = mdtl::mutex;
   using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
+
+  // Threshold to enable the many allocation feature internally
+  static constexpr std::size_t k_many_allocations_threshold = 4;
 
  public:
   // -------------------------------------------------------------------------------- //
@@ -215,11 +227,11 @@ class segment_allocator {
 #endif
 
     if (!m_non_full_chunk_bin.serialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to serialize bin directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to serialize bin directory");
       return false;
     }
     if (!m_chunk_directory.serialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to serialize chunk directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to serialize chunk directory");
       return false;
     }
     return true;
@@ -230,11 +242,11 @@ class segment_allocator {
   /// \return
   bool deserialize(const std::string &base_path) {
     if (!m_non_full_chunk_bin.deserialize(priv_make_file_name(base_path, k_non_full_chunk_bin_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to deserialize bin directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to deserialize bin directory");
       return false;
     }
     if (!m_chunk_directory.deserialize(priv_make_file_name(base_path, k_chunk_directory_file_name).c_str())) {
-      logger::out(logger::level::critical, __FILE__, __LINE__, "Failed to deserialize chunk directory");
+      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to deserialize chunk directory");
       return false;
     }
     return true;
@@ -311,13 +323,7 @@ class segment_allocator {
   difference_type priv_allocate_small_object(const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     if (bin_no <= small_object_cache_type::max_bin_no()) {
-      auto global_allocator = [this](const bin_no_type _bin_no,
-                                     const unsigned int _num_allocates,
-                                     difference_type *const _allocated_offsets) {
-        priv_allocate_small_objects_from_global(_bin_no, _num_allocates, _allocated_offsets);
-      };
-
-      const auto offset = m_object_cache.get(bin_no, global_allocator);
+      const auto offset = m_object_cache.pop(bin_no, this, &myself::priv_allocate_small_objects_from_global);
       assert(offset >= 0 || offset == k_null_offset);
       return offset;
     }
@@ -332,26 +338,21 @@ class segment_allocator {
 #if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
     lock_guard_type bin_guard(m_bin_mutex->at(bin_no));
 #endif
-    for (size_type i = 0; i < num_allocates; ++i) {
-      allocated_offsets[i] = priv_allocate_small_object_from_global_without_bin_lock(bin_no);
+
+    if (num_allocates >= k_many_allocations_threshold) {
+      priv_allocate_many_small_objects_from_global_without_bin_lock(bin_no, num_allocates, allocated_offsets);
+    } else {
+      for (size_type i = 0; i < num_allocates; ++i) {
+        allocated_offsets[i] = priv_allocate_small_object_from_global_without_bin_lock(bin_no);
+      }
     }
   }
 
   difference_type priv_allocate_small_object_from_global_without_bin_lock(const bin_no_type bin_no) {
     const size_type object_size = bin_no_mngr::to_object_size(bin_no);
 
-    if (m_non_full_chunk_bin.empty(bin_no)) {
-      chunk_no_type new_chunk_no;
-      {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
-        lock_guard_type chunk_guard(*m_chunk_mutex);
-#endif
-        new_chunk_no = m_chunk_directory.insert(bin_no);
-        if (!priv_extend_segment(new_chunk_no, 1)) {
-          return k_null_offset;
-        }
-        m_non_full_chunk_bin.insert(bin_no, new_chunk_no);
-      }
+    if (m_non_full_chunk_bin.empty(bin_no) && !priv_insert_new_small_object_chunk(bin_no)) {
+      return k_null_offset;
     }
 
     assert(!m_non_full_chunk_bin.empty(bin_no));
@@ -366,6 +367,58 @@ class segment_allocator {
     const difference_type offset = k_chunk_size * chunk_no + object_size * chunk_slot_no;
 
     return offset;
+  }
+
+  void priv_allocate_many_small_objects_from_global_without_bin_lock(const bin_no_type bin_no,
+                                                                     const size_type num_requested_allocates,
+                                                                     difference_type *const allocated_offsets) {
+    if (num_requested_allocates == 0) return; // Not error, just no work.
+    if (!allocated_offsets) return;
+
+    std::fill_n(allocated_offsets, num_requested_allocates, k_null_offset);
+
+    std::size_t cnt_allocations = 0;
+    while (cnt_allocations < num_requested_allocates) {
+      if (m_non_full_chunk_bin.empty(bin_no) && !priv_insert_new_small_object_chunk(bin_no)) {
+        return;
+      }
+
+      assert(!m_non_full_chunk_bin.empty(bin_no));
+      const chunk_no_type chunk_no = m_non_full_chunk_bin.front(bin_no);
+      assert(!m_chunk_directory.all_slots_marked(chunk_no));
+
+      const std::size_t num_to_allocate = num_requested_allocates - cnt_allocations;
+      chunk_slot_no_type slots[num_to_allocate];
+      const auto num_found_slots = m_chunk_directory.find_and_mark_many_slots(chunk_no, num_to_allocate, slots);
+      assert(num_found_slots <= num_to_allocate);
+      if (num_found_slots == 0) {
+        break;
+      }
+
+      if (m_chunk_directory.all_slots_marked(chunk_no)) {
+        m_non_full_chunk_bin.pop(bin_no);
+      }
+
+      const size_type object_size = bin_no_mngr::to_object_size(bin_no);
+      for (std::size_t i = 0; i < num_found_slots; ++i) {
+        allocated_offsets[cnt_allocations] = k_chunk_size * chunk_no + object_size * slots[i];
+        ++cnt_allocations;
+      }
+    }
+    assert(cnt_allocations == num_requested_allocates);
+  }
+
+  bool priv_insert_new_small_object_chunk(const bin_no_type bin_no) {
+    chunk_no_type new_chunk_no;
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+    lock_guard_type chunk_guard(*m_chunk_mutex);
+#endif
+    new_chunk_no = m_chunk_directory.insert(bin_no);
+    if (!priv_extend_segment(new_chunk_no, 1)) {
+      return false;
+    }
+    m_non_full_chunk_bin.insert(bin_no, new_chunk_no);
+    return true;
   }
 
   difference_type priv_allocate_large_object(const bin_no_type bin_no) {
@@ -402,12 +455,8 @@ class segment_allocator {
   void priv_deallocate_small_object(const difference_type offset, const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     if (bin_no <= small_object_cache_type::max_bin_no()) {
-      auto global_deallocator = [this](const bin_no_type _bin_no,
-                                       const unsigned int _num_deallocates,
-                                       const difference_type *const _offsets) {
-        priv_deallocate_small_objects_from_global(_bin_no, _num_deallocates, _offsets);
-      };
-      [[maybe_unused]] const bool ret = m_object_cache.insert(bin_no, offset, global_deallocator);
+      [[maybe_unused]] const bool
+          ret = m_object_cache.push(bin_no, offset, this, &myself::priv_deallocate_small_objects_from_global);
       assert(ret);
       return;
     }
@@ -546,7 +595,7 @@ class segment_allocator {
   bool priv_check_all_small_allocations_are_cached() const {
     const auto marked_slots = m_chunk_directory.get_all_marked_slots();
     std::set<difference_type> small_allocs;
-    for (const auto &item : marked_slots) {
+    for (const auto &item: marked_slots) {
       const auto chunk_no = std::get<0>(item);
       const auto bin_no = std::get<1>(item);
       const auto slot_no = std::get<2>(item);

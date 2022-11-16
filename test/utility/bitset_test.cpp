@@ -17,6 +17,11 @@ using metall::mtlldetail::bitset_detail::num_blocks;
 using metall::mtlldetail::bitset_detail::get;
 using metall::mtlldetail::bitset_detail::set;
 using metall::mtlldetail::bitset_detail::reset;
+using metall::mtlldetail::bitset_detail::empty_block;
+using metall::mtlldetail::bitset_detail::full_block;
+using metall::mtlldetail::bitset_detail::erase;
+using metall::mtlldetail::bitset_detail::fill;
+using metall::mtlldetail::bitset_detail::generate_mask;
 
 TEST(BitsetTest, BaseType) {
   ASSERT_LE(0, sizeof(block_type<0>) * 8);
@@ -32,8 +37,8 @@ TEST(BitsetTest, BaseType) {
   ASSERT_LE(33, sizeof(block_type<33>) * 8);
   ASSERT_LE(63, sizeof(block_type<63>) * 8);
   ASSERT_EQ(64, sizeof(block_type<64>) * 8);
-  ASSERT_TRUE(sizeof(block_type<65>) == sizeof(uint64_t));
-  ASSERT_TRUE(sizeof(block_type<128>) == sizeof(uint64_t));
+  ASSERT_EQ(sizeof(block_type<65>), sizeof(uint64_t));
+  ASSERT_EQ(sizeof(block_type<128>), sizeof(uint64_t));
 }
 
 TEST(BitsetTest, BitsetSize) {
@@ -59,13 +64,104 @@ TEST(BitsetTest, BitsetSize) {
   ASSERT_EQ(128, num_blocks<block_type<128>>(128) * sizeof(block_type<128>) * 8);
   ASSERT_LE(129, num_blocks<block_type<129>>(129) * sizeof(block_type<129>) * 8);
 
-  ASSERT_EQ(1ULL << 10ULL, num_blocks<block_type<1ULL << 10ULL>>(1ULL << 10ULL) * sizeof(block_type<1ULL << 10ULL>) * 8);
-  ASSERT_EQ(1ULL << 20ULL, num_blocks<block_type<1ULL << 20ULL>>(1ULL << 20ULL) * sizeof(block_type<1ULL << 20ULL>) * 8);
-  ASSERT_EQ(1ULL << 30ULL, num_blocks<block_type<1ULL << 30ULL>>(1ULL << 30ULL) * sizeof(block_type<1ULL << 30ULL>) * 8);
+  ASSERT_EQ(1ULL << 10ULL,
+            num_blocks<block_type<1ULL << 10ULL>>(1ULL << 10ULL) * sizeof(block_type<1ULL << 10ULL>) * 8);
+  ASSERT_EQ(1ULL << 20ULL,
+            num_blocks<block_type<1ULL << 20ULL>>(1ULL << 20ULL) * sizeof(block_type<1ULL << 20ULL>) * 8);
+  ASSERT_EQ(1ULL << 30ULL,
+            num_blocks<block_type<1ULL << 30ULL>>(1ULL << 30ULL) * sizeof(block_type<1ULL << 30ULL>) * 8);
+}
+
+TEST(BitsetTest, EraseAndEmpty) {
+  block_type<1> block1;
+  erase(&block1);
+  ASSERT_TRUE(empty_block(block1));
+  set(&block1, 0);
+  ASSERT_FALSE(empty_block(block1));
+
+  block_type<1> block8;
+  erase(&block8);
+  ASSERT_TRUE(empty_block(block8));
+  set(&block8, 0);
+  ASSERT_FALSE(empty_block(block8));
+
+  block_type<1> block16;
+  erase(&block16);
+  ASSERT_TRUE(empty_block(block16));
+  set(&block16, 0);
+  ASSERT_FALSE(empty_block(block16));
+
+  block_type<1> block32;
+  erase(&block32);
+  ASSERT_TRUE(empty_block(block32));
+  set(&block32, 0);
+  ASSERT_FALSE(empty_block(block32));
+
+  block_type<1> block64;
+  erase(&block64);
+  ASSERT_TRUE(empty_block(block64));
+  set(&block64, 0);
+  ASSERT_FALSE(empty_block(block64));
+}
+
+TEST(BitsetTest, FillAndFull) {
+  block_type<1> block1;
+  erase(&block1);
+  ASSERT_FALSE(full_block(block1));
+  fill(&block1);
+  ASSERT_TRUE(full_block(block1));
+  reset(&block1, 0);
+  ASSERT_FALSE(full_block(block1));
+
+  block_type<1> block8;
+  erase(&block8);
+  ASSERT_FALSE(full_block(block8));
+  fill(&block8);
+  ASSERT_TRUE(full_block(block8));
+  reset(&block8, 0);
+  ASSERT_FALSE(full_block(block8));
+
+  block_type<1> block16;
+  erase(&block16);
+  ASSERT_FALSE(full_block(block16));
+  fill(&block16);
+  ASSERT_TRUE(full_block(block16));
+  reset(&block16, 0);
+  ASSERT_FALSE(full_block(block16));
+
+  block_type<1> block32;
+  erase(&block32);
+  ASSERT_FALSE(full_block(block32));
+  fill(&block32);
+  ASSERT_TRUE(full_block(block32));
+  reset(&block32, 0);
+  ASSERT_FALSE(full_block(block32));
+
+  block_type<1> block64;
+  erase(&block64);
+  ASSERT_FALSE(full_block(block64));
+  fill(&block64);
+  ASSERT_TRUE(full_block(block64));
+  reset(&block64, 0);
+  ASSERT_FALSE(full_block(block64));
+}
+
+TEST(BitsetTest, GenerateMask) {
+  ASSERT_EQ(generate_mask<8>(0, 0), 0b00000000);
+  ASSERT_EQ(generate_mask<8>(0, 1), 0b10000000);
+  ASSERT_EQ(generate_mask<8>(0, 2), 0b11000000);
+  ASSERT_EQ(generate_mask<8>(0, 8), 0b11111111);
+
+  ASSERT_EQ(generate_mask<8>(1, 1), 0b01000000);
+  ASSERT_EQ(generate_mask<8>(1, 2), 0b01100000);
+  ASSERT_EQ(generate_mask<8>(1, 7), 0b01111111);
+
+  ASSERT_EQ(generate_mask<8>(7, 1), 0b00000001);
+  ASSERT_EQ(generate_mask<8>(6, 2), 0b00000011);
 }
 
 template <std::size_t num_bits>
-void RandomAccessHelper()  {
+void RandomAccessHelper() {
   std::bitset<num_bits> reference;
   auto bitset = new block_type<num_bits>[num_blocks<block_type<num_bits>>(num_bits)](); // () is for zero initialization
 

@@ -65,7 +65,9 @@ constexpr uint64_t k_num_sizes = k_num_class1_small_sizes + num_class2_small_siz
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
 inline constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> init_size_table() noexcept {
-  std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> table{0};
+  // MEMO: {} is needed to prevent the uninitialized error in constexpr contexts.
+  // This technique is not needed from C++20.
+  std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> table{};
 
   uint64_t index = 0;
 
