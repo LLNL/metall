@@ -55,21 +55,20 @@ void json_store_example() {
     const uint64_t hash_seed = 123;
     auto *store = manager.construct<json_store_type>("json-store")(unique, hash_seed, manager.get_allocator());
 
-    store->insert("a",
-                  mj::parse(R"({"name":"Alice"})", manager.get_allocator()));
+    store->insert("a"); // Insert with only key.
 
     store->insert("b",
                   mj::parse(R"({"name":"N/A"})", manager.get_allocator()));
     store->insert("b",
-                  mj::parse(R"({"name":"Bob"})", manager.get_allocator())); // Overwrite
+                  mj::parse(R"({"name":"Alice"})", manager.get_allocator())); // Overwrite
   }
 
   {
     metall::manager manager(metall::open_read_only, "./string_key_store_obj");
     auto *store = manager.find<json_store_type>("json-store").first;
 
-    // Use find() to locate elements.
+    // Use find() to locate an element.
     std::cout << "a : " << mj::serialize(store->value(store->find("a"))) << std::endl;
     std::cout << "b : " << mj::serialize(store->value(store->find("b"))) << std::endl;
-  }
+   }
 }

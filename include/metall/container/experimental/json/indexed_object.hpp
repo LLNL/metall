@@ -30,7 +30,7 @@ namespace jsndtl {
 /// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
 template <typename allocator_type, typename other_object_type>
 inline bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
-                                 const other_object_type &other_object) noexcept {
+                                         const other_object_type &other_object) noexcept {
   if (object.size() != other_object.size()) return false;
 
   for (const auto &key_value: object) {
@@ -81,8 +81,11 @@ class indexed_object {
   using const_iterator = typename value_storage_type::const_iterator;
 
   /// \brief Constructor.
+  indexed_object() {}
+
+  /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit indexed_object(const allocator_type &alloc = allocator_type())
+  explicit indexed_object(const allocator_type &alloc)
       : m_index_table(alloc),
         m_value_storage(alloc) {}
 

@@ -81,9 +81,13 @@ class value {
                                           object_type, array_type, string_type>;
 
  public:
+
+  /// \brief Constructor.
+  value() {}
+
   /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit value(const allocator_type &alloc = allocator_type())
+  explicit value(const allocator_type &alloc)
       : m_allocator(alloc),
         m_data(null_type()) {}
 
