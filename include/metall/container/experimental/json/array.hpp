@@ -50,9 +50,12 @@ class array {
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
 
+  /// \brief Constructor
+  array() = default;
+
   /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit array(const allocator_type &alloc = allocator_type())
+  explicit array(const allocator_type &alloc)
       : m_array(alloc) {}
 
   /// \brief Copy constructor
