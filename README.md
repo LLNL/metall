@@ -31,9 +31,11 @@ All core files exist under
 
 ## Required
 
-- GCC 8.1 or more (8.3 or more is recommended due to early implementation of the Filesystem library).
-- Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
+- Boost C++ Libraries 1.64 or more.
+  - Build is not required; needs only their header files.
   - To use JSON containers in Metall, Boost C++ Libraries 1.75 or more is required.
+- C++17 compiler
+  - Tested with GCC 8.1 or more; however, 8.3 or more is recommended due to early implementation of the C++ Filesystem library.
 
 ## Build
 
@@ -91,7 +93,7 @@ see example CMake files placed [here](./example/cmake).
 Metall repository contains some example programs under [example directory](./example).
 One can use CMake to build the examples.
 For more details, see a page
-[here](https://metall.readthedocs.io/en/latest/advanced_build/example_test_bench/).
+[here](https://metall.readthedocs.io/en/latest/advanced_build/cmake/).
 
 
 # Documentations

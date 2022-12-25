@@ -22,7 +22,7 @@ namespace jsndtl {
 /// \brief Provides 'equal' calculation for other key-value types that have the same interface as the object class.
 template <typename char_type, typename char_traits, typename allocator_type, typename other_key_value_pair_type>
 inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_traits, allocator_type> &key_value,
-                                     const other_key_value_pair_type &other_key_value) noexcept {
+                                         const other_key_value_pair_type &other_key_value) noexcept {
   if (std::strcmp(key_value.c_str(), other_key_value.c_str()) != 0) return false;
   return key_value.value() == other_key_value.value();
 }
@@ -92,13 +92,9 @@ class key_value_pair {
 
   /// \brief Move constructor
   key_value_pair(key_value_pair &&other) noexcept
-      : m_key_length(other.m_key_length),
+      : m_key_data(std::move(other.m_key_data)),
+        m_key_length(other.m_key_length),
         m_value(std::move(other.m_value)) {
-    if (other.m_key_length <= k_short_key_max_length) {
-      m_key_data = other.m_key_data;
-    } else {
-      m_long_key = std::move(other.m_long_key);
-    }
     other.m_key_length = 0;
   }
 
@@ -132,17 +128,31 @@ class key_value_pair {
   key_value_pair &operator=(key_value_pair &&other) noexcept {
     priv_deallocate_key(); // deallocate the key using the current allocator first
 
-    if (other.m_key_length <= k_short_key_max_length) {
-      m_key_data = other.m_key_data;
+    if (get_allocator() == other.get_allocator()) {
+      m_value = std::move(other.m_value);
+      m_key_data = std::move(other.m_key_data);
+      m_key_length = other.m_key_length;
+      other.m_key_length = 0;
     } else {
-      m_long_key = std::move(other.m_long_key);
+      priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
+      other.priv_deallocate_key();
+      m_value = std::move(other.m_value);
     }
-    m_key_length = other.m_key_length;
-    m_value = std::move(other.m_value);
-
-    other.m_key_length = 0;
 
     return *this;
+  }
+
+  /// \brief Swap contents.
+  void swap(key_value_pair &other) noexcept {
+    using std::swap;
+    if constexpr (!std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_swap,
+                                  std::true_type>) {
+      // This is an undefined behavior in the C++ standard.
+      assert(get_allocator() == other.m_allocator);
+    }
+    swap(m_key_data, other.m_key_data);
+    swap(m_key_length, other.m_key_length);
+    swap(m_value, other.m_value);
   }
 
   /// \brief Destructor
@@ -193,6 +203,11 @@ class key_value_pair {
     return !(lhs == rhs);
   }
 
+  /// \brief Return an allocator object.
+  allocator_type get_allocator() const noexcept {
+    return m_value.get_allocator();
+  }
+
  private:
   static constexpr uint32_t k_short_key_max_length = sizeof(char_pointer) - 1; // -1 for '0'
 
@@ -241,6 +256,12 @@ class key_value_pair {
   size_type m_key_length{0};
   value_type m_value;
 };
+
+/// \brief Swap value instances.
+template <typename allocator_type>
+inline void swap(key_value_pair<allocator_type> &lhd, key_value_pair<allocator_type> &rhd) noexcept {
+  lhd.swap(rhd);
+}
 
 } // namespace json
 

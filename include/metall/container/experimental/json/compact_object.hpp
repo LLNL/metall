@@ -28,7 +28,8 @@ namespace jsndtl {
 
 /// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
 template <typename allocator_type, typename other_object_type>
-inline bool general_compact_object_equal(const compact_object<allocator_type> &object, const other_object_type &other_object) noexcept {
+inline bool general_compact_object_equal(const compact_object<allocator_type> &object,
+                                         const other_object_type &other_object) noexcept {
   if (object.size() != other_object.size()) return false;
 
   for (const auto &key_value: object) {
@@ -95,6 +96,12 @@ class compact_object {
 
   /// \brief Move assignment operator
   compact_object &operator=(compact_object &&) noexcept = default;
+
+  /// \brief Swap contents.
+  void swap(compact_object &other) noexcept {
+    using std::swap;
+    swap(m_value_storage, other.m_value_storage);
+  }
 
   /// \brief Access a mapped value with a key.
   /// If there is no mapped value that is associated with 'key', allocates it first.
@@ -230,6 +237,11 @@ class compact_object {
     return !(lhs == rhs);
   }
 
+  /// \brief Return an allocator object.
+  allocator_type get_allocator() const noexcept {
+    return m_value_storage.get_allovator();
+  }
+
  private:
 
   value_postion_type priv_locate_value(const key_type &key) const {
@@ -255,8 +267,14 @@ class compact_object {
     return m_value_storage.erase(value_position);
   }
 
-  value_storage_type m_value_storage{_allocator_type{}};
+  value_storage_type m_value_storage{allocator_type{}};
 };
+
+/// \brief Swap value instances.
+template <typename allocator_type>
+inline void swap(compact_object<allocator_type> &lhd, compact_object<allocator_type> &rhd) noexcept {
+  lhd.swap(rhd);
+}
 
 } // namespace metall::container::experimental::json
 

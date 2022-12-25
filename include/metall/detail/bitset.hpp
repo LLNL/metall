@@ -56,6 +56,16 @@ inline constexpr uint64_t num_blocks(const uint64_t num_bits) noexcept {
 }
 
 template <typename block_type>
+inline bool full_block(const block_type bitset) noexcept {
+  return static_cast<block_type>(bitset + static_cast<block_type>(1)) == 0;
+}
+
+template <typename block_type>
+inline bool empty_block(const block_type bitset) noexcept {
+  return bitset == 0;
+}
+
+template <typename block_type>
 inline bool get(const block_type *const bitset, const uint64_t idx) noexcept {
   const block_type mask = (0x1ULL << (sizeof(block_type) * 8ULL - local_index<block_type>(idx) - 1));
   return (bitset[global_index<block_type>(idx)] & mask);
@@ -68,6 +78,16 @@ inline void set(block_type *const bitset, const uint64_t idx) noexcept {
 }
 
 template <typename block_type>
+inline void fill(block_type *const bitset) noexcept {
+  *bitset = ~static_cast<block_type>(0);
+}
+
+template <typename block_type>
+inline void erase(block_type *const bitset) noexcept {
+  *bitset = static_cast<block_type>(0);
+}
+
+template <typename block_type>
 inline void reset(block_type *const bitset, const uint64_t idx) noexcept {
   const block_type mask = (0x1ULL << (sizeof(block_type) * 8ULL - local_index<block_type>(idx) - 1));
   bitset[global_index<block_type>(idx)] &= ~mask;
@@ -75,7 +95,7 @@ inline void reset(block_type *const bitset, const uint64_t idx) noexcept {
 
 template <uint64_t local_num_bits>
 inline typename block_type<local_num_bits>::type
-fill_bits_local(const uint64_t start_idx, const uint64_t n) noexcept {
+generate_mask(const uint64_t start_idx, const uint64_t n) noexcept {
   using block_type = typename block_type<local_num_bits>::type;
   const auto x = (start_idx == 0) ? ~static_cast<block_type>(0)
                                   : (static_cast<block_type>(1) << (local_num_bits - start_idx))
@@ -95,7 +115,7 @@ inline void update_n_bits(block_type *const bitset,
 
   constexpr uint64_t block_type_num_bits = sizeof(block_type) * 8ULL;
   if (local_index<block_type>(start_idx) + n <= block_type_num_bits) { // update a single block
-    const auto mask = fill_bits_local<block_type_num_bits>(local_index<block_type>(start_idx), n);
+    const auto mask = generate_mask<block_type_num_bits>(local_index<block_type>(start_idx), n);
     if (set_mode)
       bitset[global_index<block_type>(start_idx)] |= mask;
     else
@@ -103,8 +123,8 @@ inline void update_n_bits(block_type *const bitset,
   } else { // update multiple blocks
     { // head block
       const auto local_idx = local_index<block_type>(start_idx);
-      const auto mask = fill_bits_local<block_type_num_bits>(local_idx,
-                                                             block_type_num_bits - local_idx);
+      const auto mask = generate_mask<block_type_num_bits>(local_idx,
+                                                           block_type_num_bits - local_idx);
       // std::cout << "head " << global_index<block_type>(start_idx) << " " << local_idx << " " << mask << std::endl;
       if (set_mode)
         bitset[global_index<block_type>(start_idx)] |= mask;
@@ -126,7 +146,7 @@ inline void update_n_bits(block_type *const bitset,
 
     { // update tail block
       const uint64_t num_bits_to_fill = local_index<block_type>(start_idx + n - 1) + 1;
-      const auto mask = fill_bits_local<block_type_num_bits>(0, num_bits_to_fill);
+      const auto mask = generate_mask<block_type_num_bits>(0, num_bits_to_fill);
       // std::cout << "tail " << global_index<block_type>(start_idx + n - 1) << " " << num_bits_to_fill << " " << mask << std::endl;
       if (set_mode)
         bitset[global_index<block_type>(start_idx + n - 1)] |= mask;

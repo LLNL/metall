@@ -8,7 +8,8 @@
 
 namespace metall::mtlldetail {
 
-inline int clzll(const unsigned long long x) {
+/// \brief Count Leading Zeros.
+inline int clzll(const unsigned long long x) noexcept {
 #if defined(__GNUG__) || defined(__clang__)
   return __builtin_clzll(x);
 #else
@@ -16,7 +17,8 @@ inline int clzll(const unsigned long long x) {
 #endif
 }
 
-inline int ctzll(const unsigned long long x) {
+/// \brief Count Trailing Zeros.
+inline int ctzll(const unsigned long long x) noexcept {
 #if defined(__GNUG__) || defined(__clang__)
   return __builtin_ctzll(x);
 #else
