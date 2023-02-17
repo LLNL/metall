@@ -1256,7 +1256,15 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(const std::string &s
   source = src_base_dir_path;
   destination = dst_base_dir_path;
   #endif
+
+  if (!consistent(source.data())) {
+    std::string s(
+        "Source directory is not consistnt (may not have closed properly or may still be open): " + src_base_dir_path);
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
   const std::string src_top_dir = priv_make_top_dir_path(source);
+
   if (!mdtl::directory_exist(src_top_dir)) {
     std::string s("Source directory does not exist: " + src_top_dir);
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
