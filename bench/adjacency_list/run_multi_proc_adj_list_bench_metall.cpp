@@ -47,11 +47,14 @@ int main(int argc, char *argv[]) {
     {
       const auto data_store_path = (option.staging_location.empty())
                                    ? option.datastore_path_list[0] : option.staging_location;
+
+      std::string data_store_path_rank = data_store_path + "_" + std::to_string(rank);
+
       global_manager = (option.append) ? std::make_unique<metall_mpi_adaptor>(metall::open_only,
-                                                                       data_store_path.c_str(),
+                                                                       data_store_path_rank.c_str(),
                                                                        MPI_COMM_WORLD)
                                 : std::make_unique<metall_mpi_adaptor>(metall::create_only,
-                                                                       data_store_path.c_str(),
+                                                                       data_store_path_rank.c_str(),
                                                                        MPI_COMM_WORLD);
       auto &local_manager = global_manager->get_local_manager();
       auto adj_list = (option.append) ? local_manager.find<adj_list_t>(option.adj_list_key_name.c_str()).first
