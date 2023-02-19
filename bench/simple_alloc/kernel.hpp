@@ -30,12 +30,13 @@ struct option_type {
   std::size_t num_allocations = 1 << 20;
   std::vector<std::size_t> size_list{8, 4096};
   std::string datastore_path{"/tmp/datastore"};
+  bool run_parallel_bench = false;
 };
 
 option_type parse_option(int argc, char **argv) {
   int p;
   option_type option;
-  while ((p = ::getopt(argc, argv, "o:n:")) != -1) {
+  while ((p = ::getopt(argc, argv, "o:n:p")) != -1) {
     switch (p) {
       case 'o':option.datastore_path = optarg;
         break;
@@ -43,8 +44,18 @@ option_type parse_option(int argc, char **argv) {
       case 'n':option.num_allocations = std::stold(optarg);
         break;
 
+      case 'p': option.run_parallel_bench = true;
+        break;
+
       default:std::cerr << "Invalid option" << std::endl;
         std::abort();
+    }
+  }
+
+  if (optind < argc) {
+    option.size_list.clear();
+    for (int index = optind; index < argc; index++) {
+      option.size_list.emplace_back(std::stoll(argv[index]));
     }
   }
 
@@ -213,6 +224,8 @@ void run_bench(const option_type &option, const allocator_type allocator) {
                        allocation_request_list,
                        allocated_addr_list);
                  });
+
+    if (!option.run_parallel_bench) continue;
 
     std::cout << "\n[Parallel with " << std::thread::hardware_concurrency() << " threads ]" << std::endl;
     measure_time(10,

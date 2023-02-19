@@ -18,7 +18,7 @@ compare() {
   num_elements=$(< ${file1} wc -l)
   if [[ ${num_elements} -eq 0 ]]; then
     echo "<< ${file1} is empty!! >>"
-    exit
+    exit 1
   fi
 
   echo "Sort the dumped edges"

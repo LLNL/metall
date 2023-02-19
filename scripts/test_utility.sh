@@ -55,3 +55,14 @@ setup_test_dir() {
   # mkdir -p ${METALL_TEST_DIR} # Metall creates automatically if the directory does not exist
   echo "Store test data to ${METALL_TEST_DIR}"
 }
+
+#######################################
+# Show some system information
+# Outputs: STDOUT and STDERR
+#######################################
+show_system_info() {
+  exec_cmd df -h
+  exec_cmd df -ih
+  exec_cmd free -g
+  exec_cmd uname -r
+}

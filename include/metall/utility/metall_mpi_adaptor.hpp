@@ -135,6 +135,7 @@ class metall_mpi_adaptor {
   }
 
   /// \brief Copies a Metall datastore to another location.
+  /// The behavior of copying a data store that is open without the read-only mode is undefined.
   /// \param source_dir_path A path to a source datastore.
   /// \param destination_dir_path A path to a destination datastore.
   /// \param comm A MPI communicator.
@@ -143,6 +144,15 @@ class metall_mpi_adaptor {
   static bool copy(const char *source_dir_path,
                    const char *destination_dir_path,
                    const MPI_Comm &comm = MPI_COMM_WORLD) {
+    if (!consistent(source_dir_path, comm)) {
+      if (priv_mpi_comm_rank(comm) == 0) {
+        std::stringstream ss;
+        ss << "Source directory is not consistnt (may not have closed properly or may still be open): "
+           << source_dir_path;
+        logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+      }
+      return false;
+    }
     priv_setup_root_dir(destination_dir_path, comm);
     const int rank = priv_mpi_comm_rank(comm);
     return priv_global_and(manager_type::copy(ds::make_local_dir_path(source_dir_path, rank).c_str(),

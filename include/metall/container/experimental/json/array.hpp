@@ -50,8 +50,8 @@ class array {
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
 
-  /// \brief Constructor.
-  array() {}
+  /// \brief Constructor
+  array() = default;
 
   /// \brief Constructor.
   /// \param alloc An allocator object.
@@ -77,6 +77,12 @@ class array {
 
   /// \brief Move assignment operator
   array &operator=(array &&) noexcept = default;
+
+  /// \brief Swap contents.
+  void swap(array &other) noexcept {
+    using std::swap;
+    swap(m_array, other.m_array);
+  }
 
   /// \brief Returns the number of values.
   /// \return The number of vertices.
@@ -162,10 +168,21 @@ class array {
     return !(lhs == rhs);
   }
 
+  /// \brief Return an allocator object.
+  allocator_type get_allocator() const noexcept {
+    return m_array.get_allovator();
+  }
+
  private:
 
-  array_type m_array{_allocator_type{}};
+  array_type m_array{allocator_type{}};
 };
+
+/// \brief Swap value instances.
+template <typename allocator_type>
+inline void swap(array<allocator_type> &lhd, array<allocator_type> &rhd) noexcept {
+  lhd.swap(rhd);
+}
 
 } // namespace metall::container::experimental::json
 

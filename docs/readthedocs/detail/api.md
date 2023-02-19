@@ -13,6 +13,8 @@ In multi-process environment, Metall assumes each process allocates its own Meta
 
 ## Main APIs in Metall
 
+Here, we list Metall's main APIs.
+
 ```C++
 // The main header file
 #include <metall/metall.hpp>
@@ -118,11 +120,11 @@ static bool metall::get_description(const char *dir_path, std::string *descripti
 
 Example programs are located in [example](https://github.com/LLNL/metall/tree/master/example).
 
-## Generate API document using Doxygen
+## FUll API document
 
-A Doxygen configuration file is [here](https://github.com/LLNL/metall/tree/master/docs/Doxyfile.in).
+The full API document is available [here](https://software.llnl.gov/metall/api/).
 
-To generate API document:
+To generate the full API document locally using Doxygen:
 
 ```bash
 cd metall

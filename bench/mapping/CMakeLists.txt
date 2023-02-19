@@ -1,0 +1,1 @@
+add_metall_executable(run_mapping_bench run_mapping_bench.cpp)

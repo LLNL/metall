@@ -22,6 +22,8 @@
 #include <iostream>
 #include <cassert>
 #include <filesystem>
+#include <thread>
+#include <mutex>
 #include <metall/detail/file.hpp>
 #include <metall/detail/mmap.hpp>
 #include <metall/detail/utilities.hpp>
@@ -55,11 +57,8 @@ class privateer_segment_storage {
   }
 
   ~privateer_segment_storage() {
-    // std::cout << "Destructor call" << std::endl;
     priv_sync_segment(true);
-    // std::cout << "Destructor call done sync" << std::endl;
     destroy();
-    // std::cout << "Destructor call done destroy" << std::endl;
   }
 
   privateer_segment_storage(const privateer_segment_storage &) = delete;
@@ -119,9 +118,6 @@ class privateer_segment_storage {
                    const std::string &destination_path,
                    const bool clone,
                    const int max_num_threads) {
-    // std::cout << "copy source_path: " << source_path << std::endl;
-    // std::cout << "copy destination_path: " << destination_path << std::endl;
-    // std::string destination_privateer_metadata_path = destination_path + "/version_metadata";
     if (!mdtl::directory_exist(destination_path)) {
       if (!mdtl::create_directory(destination_path)) {
         std::string s("Cannot create a directory: " + destination_path);
@@ -246,17 +242,15 @@ class privateer_segment_storage {
   }
 
   void init_privateer_datastore(std::string path){
+    const std::lock_guard<std::mutex> lock(create_mutex);
     std::pair<std::string, std::string> base_stash_pair = parse_path(path);
     std::string base_dir = base_stash_pair.first;
     std::string stash_dir = base_stash_pair.second;
     std::pair<std::string, std::string> parsed_path = priv_parse_path(base_dir);
     std::string privateer_base_path = parsed_path.first;
     std::string version_path = parsed_path.second;
-    // std::cout << "received path: " << base_dir << std::endl;
-    // std::cout << "privateer_base_path_test: " << privateer_base_path << " version_path_test: " << version_path << std::endl;
     privateer_version_name = version_path;
     int action = std::filesystem::exists(std::filesystem::path(privateer_base_path))? Privateer::OPEN : Privateer::CREATE;
-    // int action = create_new? Privateer::CREATE : Privateer::OPEN;
     if (!stash_dir.empty()){
       privateer = new Privateer(action, privateer_base_path.c_str(), stash_dir.c_str());
     }
@@ -272,25 +266,12 @@ class privateer_segment_storage {
     if ( stash_path_index != std::string::npos) {
       stash_dir = path.substr(0, stash_path_index);
       base_dir = path.substr((stash_path_index + 7), path.length() - (stash_path_index + 7));
-      // std::cout << "base_dir  = " << base_dir << std::endl;
-      // std::cout << "stash_dir = " << stash_dir << std::endl;
     }
     else{
       base_dir = path;
     }
     return std::pair<std::string, std::string>(base_dir, stash_dir);
   }
-  /* void init_privateer_datastore(std::string base_path, std::string stash_path){
-    std::pair<std::string, std::string> parsed_path = priv_parse_path(base_path);
-    std::string privateer_base_path = parsed_path.first;
-    std::string version_path = parsed_path.second;
-    std::cout << "received path: " << base_path << std::endl;
-    std::cout << "privateer_base_path_test: " << privateer_base_path << " version_path_test: " << version_path << std::endl;
-    privateer_version_name = version_path;
-    int action = std::filesystem::exists(std::filesystem::path(privateer_base_path))? Privateer::OPEN : Privateer::CREATE;
-    // int action = create_new? Privateer::CREATE : Privateer::OPEN;
-    privateer = new Privateer(action, privateer_base_path.c_str(), stash_path.c_str());
-  } */
 
   /// \brief Destroy (unmap) the segment.
   void destroy() {
@@ -373,22 +354,7 @@ class privateer_segment_storage {
     assert(!path.empty());
     assert(file_size > 0);
     assert(addr);
-    // std::cout << "priv_map_file_create() file_size: " << file_size << std::endl;
-    // std::cout << "priv_map_file_create() addr: " << (uint64_t) addr << std::endl;
-    /* std::pair<std::string, std::string> parsed_path = priv_parse_path(path);
-    std::string version_name = parsed_path.second;
-    std::cout << "path: " << path << std::endl;
-    std::cout << "version_name: " << version_name << std::endl; */
 
-    // create versions directory
-    /* if (!mdtl::create_directory(path)) {
-      std::string s("Failed to create directory: " + version_path);
-      logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
-      return false;
-    } */
-
-    // init Privateer object and get data
-    // privateer = new Privateer(Privateer::CREATE, privateer_path.c_str());
     void* data = privateer->create(addr, privateer_version_name.c_str(), file_size, true);
     if (data == nullptr){
       return false;
@@ -404,15 +370,8 @@ class privateer_segment_storage {
 
     // MEMO: one of the following options does not work on /tmp?
 
-    /* std::pair<std::string, std::string> parsed_path = priv_parse_path(path);
-    std::string version_path = parsed_path.second; */
-
-    // privateer = new Privateer(Privateer::OPEN, privateer_path.c_str());
-    // std::cout << "Before opening privateer version" << std::endl;
-    void *data = read_only? privateer->open(addr, privateer_version_name.c_str()) : privateer->open_read_only(addr, privateer_version_name.c_str());
-    // std::cout << "After opening" << std::endl;
+    void *data = read_only? privateer->open_read_only(addr, privateer_version_name.c_str()) : privateer->open(addr, privateer_version_name.c_str());
     m_current_segment_size = privateer->region_size();
-    // std::cout << "After region size" << std::endl;
     return true;
   }
 
@@ -435,14 +394,9 @@ class privateer_segment_storage {
     // priv_unmap_file();
     if (privateer != nullptr){
       delete privateer;
-      // std::cout << "done deleting privateer object" << std::endl;
       privateer = nullptr;
     }
-    // std::cout << "destroy done delete privateer" << std::endl;
     priv_reset();
-    // std::cout << "destroy done reset" << std::endl;
-
-    // std::cout << "Metall: Destroying segment" << std::endl;
   }
 
   void priv_sync_segment([[maybe_unused]] const bool sync) {
@@ -497,6 +451,7 @@ class privateer_segment_storage {
   bool m_free_file_space{true};
   mutable Privateer* privateer;
   std::string privateer_version_name;
+  std::mutex create_mutex;
 };
 
 } // namespace kernel
