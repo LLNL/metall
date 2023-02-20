@@ -30,7 +30,7 @@ namespace jsndtl {
 /// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
 template <typename allocator_type, typename other_object_type>
 inline bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
-                                 const other_object_type &other_object) noexcept {
+                                         const other_object_type &other_object) noexcept {
   if (object.size() != other_object.size()) return false;
 
   for (const auto &key_value: object) {
@@ -110,6 +110,13 @@ class indexed_object {
 
   /// \brief Move assignment operator
   indexed_object &operator=(indexed_object &&) noexcept = default;
+
+  /// \brief Swap contents.
+  void swap(indexed_object &other) noexcept {
+    using std::swap;
+    swap(m_index_table, other.m_index_table);
+    swap(m_value_storage, other.m_value_storage);
+  }
 
   /// \brief Access a mapped value with a key.
   /// If there is no mapped value that is associated with 'key', allocates it first.
@@ -245,6 +252,12 @@ class indexed_object {
     return !(lhs == rhs);
   }
 
+  /// \brief Return an allocator object.
+  allocator_type get_allocator() const noexcept {
+    assert(m_index_table.get_allovator() == m_value_storage.m_index_table());
+    return m_index_table.get_allovator();
+  }
+
  private:
 
   value_postion_type priv_locate_value(const key_type &key) const {
@@ -300,6 +313,12 @@ class indexed_object {
   index_table_type m_index_table{_allocator_type{}};
   value_storage_type m_value_storage{_allocator_type{}};
 };
+
+/// \brief Swap value instances.
+template <typename allocator_type>
+inline void swap(indexed_object<allocator_type> &lhd, indexed_object<allocator_type> &rhd) noexcept {
+  lhd.swap(rhd);
+}
 
 } // namespace metall::container::experimental::json
 

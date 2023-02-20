@@ -5,13 +5,19 @@ include(FetchContent)
 # -------------------------------------------------------------------------------- #
 # CMake policy
 # -------------------------------------------------------------------------------- #
-cmake_policy(SET CMP0077 NEW)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+    cmake_policy(SET CMP0077 NEW)
+endif()
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
+    cmake_policy(SET CMP0135 NEW)
+endif()
 
 # -------------------------------------------------------------------------------- #
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.21
+        VERSION 0.23.1
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 
@@ -85,7 +91,6 @@ option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
 option(BUILD_VERIFICATION "Build verification directory" OFF)
-option(LOGGING "Logging" OFF)
 option(USE_SORTED_BIN "Use VM space aware algorithm in the bin directory" OFF)
 
 set(DEFAULT_VM_RESERVE_SIZE "0" CACHE STRING
@@ -191,11 +196,6 @@ endif ()
 if (INITIAL_SEGMENT_SIZE GREATER 0)
     list(APPEND METALL_DEFS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
     message(STATUS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
-endif ()
-
-if (LOGGING)
-    list(APPEND METALL_DEFS "METALL_ENABLE_LOGGING")
-    message(STATUS "Enable logging")
 endif ()
 
 if (USE_SORTED_BIN)
@@ -352,6 +352,12 @@ function(common_setup_for_metall_executable name)
             target_link_libraries(${name} PRIVATE OpenSSL::SSL)
             target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
             target_link_libraries(${name} PRIVATE rt)
+            FIND_PACKAGE( OpenMP REQUIRED )
+            if(OPENMP_FOUND)
+                target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
+            else()
+                message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
+            endif()
             if (ZSTD_ROOT)
                 find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
                 target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)

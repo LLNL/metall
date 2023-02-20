@@ -1,6 +1,6 @@
-# List of Examples
+****# List of Examples
 
-To build examples see a [page](https://metall.readthedocs.io/en/latest/advanced_build/example_test_bench/) hosted on Read the Docs.
+To build examples see a [page](https://metall.readthedocs.io/en/latest/advanced_build/cmake/) hosted on Read the Docs.
 
 ### Basic examples
 
