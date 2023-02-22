@@ -174,9 +174,9 @@ class partitioned_multithread_adjacency_list<local_adj_list_type, global_allocat
     return !(*this == other);
   }
 
-  reference operator++() {
+  impl_key_iterator& operator++() {
     next();
-    return *m_local_iterator;
+    return *this;
   }
 
   impl_key_iterator operator++(int) {
