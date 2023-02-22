@@ -1,6 +1,45 @@
 var annotated_dup =
 [
-    [ "metall", "namespacemetall.html", "namespacemetall" ],
+    [ "metall", "namespacemetall.html", [
+      [ "attraccs_detail", "namespacemetall_1_1attraccs__detail.html", [
+        [ "general_named_object_attr_accessor", "classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor.html", "classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor" ]
+      ] ],
+      [ "container", "namespacemetall_1_1container.html", [
+        [ "experimental", "namespacemetall_1_1container_1_1experimental.html", [
+          [ "jgraph", "namespacemetall_1_1container_1_1experimental_1_1jgraph.html", [
+            [ "jgdtl", "namespacemetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl.html", [
+              [ "vertex_iterator_impl", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl" ],
+              [ "edge_iterator_impl", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl" ]
+            ] ],
+            [ "jgraph", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph" ]
+          ] ],
+          [ "json", "namespacemetall_1_1container_1_1experimental_1_1json.html", [
+            [ "array", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html", "classmetall_1_1container_1_1experimental_1_1json_1_1array" ],
+            [ "compact_object", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object" ],
+            [ "indexed_object", "classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object.html", "classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object" ],
+            [ "key_value_pair", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair" ],
+            [ "value", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html", "classmetall_1_1container_1_1experimental_1_1json_1_1value" ]
+          ] ]
+        ] ],
+        [ "concurrent_map", "classmetall_1_1container_1_1concurrent__map.html", "classmetall_1_1container_1_1concurrent__map" ],
+        [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html", "classmetall_1_1container_1_1string__key__store" ],
+        [ "string_key_store_locator", "classmetall_1_1container_1_1string__key__store__locator.html", "classmetall_1_1container_1_1string__key__store__locator" ]
+      ] ],
+      [ "utility", "namespacemetall_1_1utility.html", [
+        [ "container_of_containers_iterator_adaptor", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor" ],
+        [ "fallback_allocator_adaptor", "classmetall_1_1utility_1_1fallback__allocator__adaptor.html", "classmetall_1_1utility_1_1fallback__allocator__adaptor" ],
+        [ "metall_mpi_adaptor", "classmetall_1_1utility_1_1metall__mpi__adaptor.html", "classmetall_1_1utility_1_1metall__mpi__adaptor" ]
+      ] ],
+      [ "basic_manager", "classmetall_1_1basic__manager.html", "classmetall_1_1basic__manager" ],
+      [ "logger", "classmetall_1_1logger.html", "classmetall_1_1logger" ],
+      [ "named_object_attr_accessor", "classmetall_1_1named__object__attr__accessor.html", "classmetall_1_1named__object__attr__accessor" ],
+      [ "unique_object_attr_accessor", "classmetall_1_1unique__object__attr__accessor.html", "classmetall_1_1unique__object__attr__accessor" ],
+      [ "anonymous_object_attr_accessor", "classmetall_1_1anonymous__object__attr__accessor.html", "classmetall_1_1anonymous__object__attr__accessor" ],
+      [ "stl_allocator", "classmetall_1_1stl__allocator.html", "classmetall_1_1stl__allocator" ],
+      [ "create_only_t", "structmetall_1_1create__only__t.html", null ],
+      [ "open_only_t", "structmetall_1_1open__only__t.html", null ],
+      [ "open_read_only_t", "structmetall_1_1open__read__only__t.html", null ]
+    ] ],
     [ "adjacency_list", "classadjacency__list.html", "classadjacency__list" ],
     [ "csr", "classcsr.html", "classcsr" ],
     [ "csr_using_vector", "classcsr__using__vector.html", "classcsr__using__vector" ]
