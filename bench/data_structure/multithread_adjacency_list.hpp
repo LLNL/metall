@@ -193,9 +193,9 @@ class multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>::
     return !(*this == other);
   }
 
-  reference operator++() {
+  impl_const_key_iterator& operator++() {
     next();
-    return *m_local_iterator;
+    return *this;
   }
 
   impl_const_key_iterator operator++(int) {
