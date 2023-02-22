@@ -142,7 +142,20 @@ class value {
                                  std::true_type>) {
       m_allocator = other.m_allocator;
     }
-    m_data = other.m_data;
+
+    // Cannot do `m_data = other.m_data`
+    // because std::variant calls the allocator-extended copy constructor of the holding data,
+    // which ignores propagate_on_container_copy_assignment value.
+    if (other.is_object()) {
+      emplace_object() = other.as_object();
+    } else if (other.is_array()) {
+      emplace_array() = other.as_array();
+    } else if (other.is_string()) {
+      emplace_string() = other.as_string();
+    } else {
+      m_data = other.m_data;
+    }
+
     return *this;
   }
 
