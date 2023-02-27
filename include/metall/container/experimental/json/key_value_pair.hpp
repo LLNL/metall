@@ -95,6 +95,7 @@ class key_value_pair {
       : m_key_data(std::move(other.m_key_data)),
         m_key_length(other.m_key_length),
         m_value(std::move(other.m_value)) {
+    std::abort(); // for now
     other.m_key_length = 0;
   }
 
@@ -106,7 +107,6 @@ class key_value_pair {
     } else {
       priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
     }
-    other.m_key_length = 0;
   }
 
   /// \brief Copy assignment operator
@@ -129,15 +129,13 @@ class key_value_pair {
     priv_deallocate_key(); // deallocate the key using the current allocator first
 
     if (get_allocator() == other.get_allocator()) {
-      m_value = std::move(other.m_value);
       m_key_data = std::move(other.m_key_data);
       m_key_length = other.m_key_length;
-      other.m_key_length = 0;
     } else {
       priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
-      other.priv_deallocate_key();
-      m_value = std::move(other.m_value);
     }
+
+    m_value = std::move(other.m_value);
 
     return *this;
   }
@@ -238,8 +236,8 @@ class key_value_pair {
     if (m_key_length > k_short_key_max_length) {
       char_allocator_type alloc(m_value.get_allocator());
       std::allocator_traits<char_allocator_type>::deallocate(alloc, m_long_key, m_key_length + 1);
+      m_long_key = nullptr;
     }
-
     m_key_length = 0;
 
     return true;
