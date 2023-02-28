@@ -48,6 +48,7 @@ class key_value_pair {
   using value_type = metall::container::experimental::json::value<allocator_type>;
   using size_type = std::size_t;
 
+ public:
   /// \brief Constructor.
   /// \param key A key string.
   /// \param value A JSON value to hold.
@@ -56,7 +57,7 @@ class key_value_pair {
                  const value_type &value,
                  const allocator_type &alloc = allocator_type())
       : m_value(value, alloc) {
-    priv_allocate_key(key.data(), key.length());
+    priv_allocate_key(key.data(), key.length(), m_value.get_allocator());
   }
 
   /// \brief Constructor.
@@ -67,95 +68,110 @@ class key_value_pair {
                  value_type &&value,
                  const allocator_type &alloc = allocator_type())
       : m_value(std::move(value), alloc) {
-    priv_allocate_key(key.data(), key.length());
+    priv_allocate_key(key.data(), key.length(), m_value.get_allocator());
   }
 
   /// \brief Copy constructor
   key_value_pair(const key_value_pair &other)
       : m_value(other.m_value) {
-    if (other.m_key_length <= k_short_key_max_length) {
-      priv_allocate_key(other.m_short_key, other.m_key_length);
-    } else {
-      priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
-    }
+    priv_allocate_key(other.key_c_str(), other.m_key_length, m_value.get_allocator());
   }
 
   /// \brief Allocator-extended copy constructor
   key_value_pair(const key_value_pair &other, const allocator_type &alloc)
       : m_value(other.m_value, alloc) {
-    if (other.m_key_length <= k_short_key_max_length) {
-      priv_allocate_key(other.m_short_key, other.m_key_length);
-    } else {
-      priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
-    }
+    priv_allocate_key(other.key_c_str(), other.m_key_length, m_value.get_allocator());
   }
 
   /// \brief Move constructor
   key_value_pair(key_value_pair &&other) noexcept
-      : m_key_data(std::move(other.m_key_data)),
-        m_key_length(other.m_key_length),
-        m_value(std::move(other.m_value)) {
-    std::abort(); // for now
-    other.m_key_length = 0;
+      : m_value(std::move(other.m_value)) {
+    if (other.priv_short_key()) {
+      m_short_key_buf = other.m_short_key_buf;
+    } else {
+      m_long_key = std::move(other.m_long_key);
+    }
+    m_key_length = other.m_key_length;
   }
 
   /// \brief Allocator-extended move constructor
   key_value_pair(key_value_pair &&other, const allocator_type &alloc) noexcept
-      : m_value(std::move(other.m_value), alloc) {
-    if (other.m_key_length <= k_short_key_max_length) {
-      priv_allocate_key(other.m_short_key, other.m_key_length);
+      : m_value(alloc) {
+    if (alloc == other.get_allocator()) {
+      if (other.priv_short_key()) {
+        m_short_key_buf = other.m_short_key_buf;
+      } else {
+        m_long_key = std::move(other.m_long_key);
+      }
+      m_key_length = other.m_key_length;
+      other.m_key_length = 0;
     } else {
-      priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
+      priv_allocate_key(other.key_c_str(), other.m_key_length, get_allocator());
+      other.priv_deallocate_key(other.get_allocator());
     }
+    m_value = std::move(other.m_value);
   }
 
   /// \brief Copy assignment operator
   key_value_pair &operator=(const key_value_pair &other) {
-    priv_deallocate_key();  // deallocate the key using the current allocator first
+    if (this == &other) return *this;
 
-    m_value = other.m_value; // Assign value (new allocator is assigned)
-
-    if (other.m_key_length <= k_short_key_max_length) {
-      priv_allocate_key(other.m_short_key, other.m_key_length);
-    } else {
-      priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
-    }
+    priv_deallocate_key(get_allocator());  // deallocate the key using the current allocator first
+    m_value = other.m_value;
+    // This line has to come after copying m_value because m_value decides if allocator is needed to be propagated.
+    priv_allocate_key(other.key_c_str(), other.m_key_length, get_allocator());
 
     return *this;
   }
 
   /// \brief Move assignment operator
   key_value_pair &operator=(key_value_pair &&other) noexcept {
-    priv_deallocate_key(); // deallocate the key using the current allocator first
+    if (this == &other) return *this;
+
+    priv_deallocate_key(get_allocator()); // deallocate the key using the current allocator first
+
+    auto other_allocator = other.m_value.get_allocator();
+    m_value = std::move(other.m_value);
 
     if (get_allocator() == other.get_allocator()) {
-      m_key_data = std::move(other.m_key_data);
+      if (other.priv_short_key()) {
+        m_short_key_buf = other.m_short_key_buf;
+      } else {
+        m_long_key = std::move(other.m_long_key);
+      }
       m_key_length = other.m_key_length;
+      other.m_key_length = 0;
     } else {
-      priv_allocate_key(metall::to_raw_pointer(other.m_long_key), other.m_key_length);
+      priv_allocate_key(other.key_c_str(), other.m_key_length, get_allocator());
+      other.priv_deallocate_key(other_allocator);
     }
-
-    m_value = std::move(other.m_value);
 
     return *this;
   }
 
   /// \brief Swap contents.
   void swap(key_value_pair &other) noexcept {
-    using std::swap;
     if constexpr (!std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_swap,
                                   std::true_type>) {
       // This is an undefined behavior in the C++ standard.
       assert(get_allocator() == other.m_allocator);
     }
-    swap(m_key_data, other.m_key_data);
+
+    using std::swap;
+
+    if (priv_short_key()) {
+      swap(m_short_key, other.m_short_key);
+    } else {
+      swap(m_long_key, other.m_long_key);
+    }
     swap(m_key_length, other.m_key_length);
+
     swap(m_value, other.m_value);
   }
 
   /// \brief Destructor
   ~key_value_pair() noexcept {
-    priv_deallocate_key();
+    priv_deallocate_key(get_allocator());
   }
 
   /// \brief Returns the stored key.
@@ -167,10 +183,7 @@ class key_value_pair {
   /// \brief Returns the stored key as const char*.
   /// \return Returns the stored key as const char*.
   const char_type *key_c_str() const noexcept {
-    if (m_key_length <= k_short_key_max_length) {
-      return m_short_key;
-    }
-    return metall::to_raw_pointer(m_long_key);
+    return priv_key_c_str();
   }
 
   /// \brief References the stored JSON value.
@@ -209,15 +222,29 @@ class key_value_pair {
  private:
   static constexpr uint32_t k_short_key_max_length = sizeof(char_pointer) - 1; // -1 for '0'
 
-  bool priv_allocate_key(const char_type *const key, const size_type length) {
+  const char_type *priv_key_c_str() const noexcept {
+    if (priv_short_key()) {
+      return m_short_key;
+    }
+    return metall::to_raw_pointer(m_long_key);
+  }
+
+  bool priv_short_key() const noexcept {
+    return (m_key_length <= k_short_key_max_length);
+  }
+
+  bool priv_long_key() const noexcept {
+    return !priv_short_key();
+  }
+
+  bool priv_allocate_key(const char_type *const key, const size_type length, char_allocator_type alloc) {
     assert(m_key_length == 0);
     m_key_length = length;
 
-    if (m_key_length <= k_short_key_max_length) {
+    if (priv_short_key()) {
       std::char_traits<char_type>::copy(m_short_key, key, m_key_length);
       std::char_traits<char_type>::assign(m_short_key[m_key_length], '\0');
     } else {
-      char_allocator_type alloc(m_value.get_allocator());
       m_long_key = std::allocator_traits<char_allocator_type>::allocate(alloc, m_key_length + 1);
       if (!m_long_key) {
         m_key_length = 0;
@@ -232,26 +259,25 @@ class key_value_pair {
     return true;
   }
 
-  bool priv_deallocate_key() {
+  bool priv_deallocate_key(char_allocator_type alloc) {
     if (m_key_length > k_short_key_max_length) {
-      char_allocator_type alloc(m_value.get_allocator());
       std::allocator_traits<char_allocator_type>::deallocate(alloc, m_long_key, m_key_length + 1);
       m_long_key = nullptr;
     }
     m_key_length = 0;
-
     return true;
   }
 
   union {
-    char_pointer m_long_key{nullptr};
-    char m_short_key[k_short_key_max_length + 1]; // + 1 for '\0'
+    char_type m_short_key[k_short_key_max_length + 1]; // + 1 for '\0'
+    static_assert(sizeof(char_type) * (k_short_key_max_length + 1) <= sizeof(uint64_t),
+                  "sizeof(m_short_key) is bigger than sizeof(uint64_t)");
+    uint64_t m_short_key_buf;
 
-    static_assert(sizeof(char_pointer) == sizeof(uint64_t),
-                  "sizeof(char_pointer) is not equal to sizeof(uint64_t)");
-    uint64_t m_key_data;
+    char_pointer m_long_key{nullptr};
   };
   size_type m_key_length{0};
+
   value_type m_value;
 };
 

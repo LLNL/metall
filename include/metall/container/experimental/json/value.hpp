@@ -96,19 +96,15 @@ class value {
       : m_allocator(std::allocator_traits<allocator_type>::select_on_container_copy_construction(other.get_allocator())),
         m_data(other.m_data) {}
 
-  ~value() noexcept {
-    priv_reset();
-  }
-
   /// \brief Allocator-extended copy constructor
   value(const value &other, const allocator_type &alloc)
       : m_allocator(alloc) {
     if (other.is_object()) {
-      emplace_object() = other.as_object();
+      m_data.template emplace<object_type>(other.as_object(), m_allocator);
     } else if (other.is_array()) {
-      emplace_array() = other.as_array();
+      m_data.template emplace<array_type>(other.as_array(), m_allocator);
     } else if (other.is_string()) {
-      emplace_string() = other.as_string();
+      m_data.template emplace<string_type>(other.as_string(), m_allocator);
     } else {
       m_data = other.m_data;
     }
@@ -125,19 +121,26 @@ class value {
   value(value &&other, const allocator_type &alloc) noexcept
       : m_allocator(alloc) {
     if (other.is_object()) {
-      emplace_object() = std::move(other.as_object());
+      m_data.template emplace<object_type>(std::move(other.as_object()), m_allocator);
     } else if (other.is_array()) {
-      emplace_array() = std::move(other.as_array());
+      m_data.template emplace<array_type>(std::move(other.as_array()), m_allocator);
     } else if (other.is_string()) {
-      emplace_string() = std::move(other.as_string());
+      m_data.template emplace<string_type>(std::move(other.as_string()), m_allocator);
     } else {
       m_data = std::move(other.m_data);
     }
     other.priv_reset();
   }
 
+  /// \brief Destructor
+  ~value() noexcept {
+    priv_reset();
+  }
+
   /// \brief Copy assignment operator
   value &operator=(const value &other) {
+    if (this == &other) return *this;
+
     if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment,
                                  std::true_type>) {
       m_allocator = other.m_allocator;
@@ -161,6 +164,8 @@ class value {
 
   /// \brief Move assignment operator
   value &operator=(value &&other) noexcept {
+    if (this == &other) return *this;
+
     if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_move_assignment,
                                  std::true_type>) {
       m_allocator = std::move(other.m_allocator);
