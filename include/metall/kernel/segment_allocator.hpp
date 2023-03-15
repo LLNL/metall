@@ -388,8 +388,9 @@ class segment_allocator {
       assert(!m_chunk_directory.all_slots_marked(chunk_no));
 
       const std::size_t num_to_allocate = num_requested_allocates - cnt_allocations;
-      chunk_slot_no_type slots[num_to_allocate];
-      const auto num_found_slots = m_chunk_directory.find_and_mark_many_slots(chunk_no, num_to_allocate, slots);
+      //chunk_slot_no_type slots[num_to_allocate];
+      auto slots = std::make_unique<chunk_slot_no_type[]>(num_to_allocate);
+      const auto num_found_slots = m_chunk_directory.find_and_mark_many_slots(chunk_no, num_to_allocate, slots.get());
       assert(num_found_slots <= num_to_allocate);
       if (num_found_slots == 0) {
         break;

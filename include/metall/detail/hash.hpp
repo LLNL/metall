@@ -56,7 +56,7 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len, const ui
   h ^= h >> r;
 
   return h;
-};
+}
 
 /// \brief Hash a value of type T
 /// \tparam T The type of a value to hash
