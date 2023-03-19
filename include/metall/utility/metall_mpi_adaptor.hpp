@@ -177,49 +177,7 @@ class metall_mpi_adaptor {
   /// \return Returns true if all processes success;
   /// otherwise, returns false.
   static bool remove(const char *root_dir_prefix, const MPI_Comm &comm = MPI_COMM_WORLD) {
-    const int rank = priv_mpi_comm_rank(comm);
-    const int size = priv_mpi_comm_size(comm);
-
-    // ----- Check if this is a Metall datastore ----- //
-    bool corrent_dir = true;
-    if (!metall::mtlldetail::file_exist(
-        ds::make_root_dir_path(root_dir_prefix) + "/" + k_datastore_mark_file_name)) {
-      corrent_dir = false;
-    }
-    if (!priv_global_and(corrent_dir, comm)) {
-      return false;
-    }
-
-    // ----- Check if #of MPI processes matches ----- //
-    bool correct_mpi_size = true;
-    if (rank == 0) {
-      const int read_size = priv_read_num_partitions(root_dir_prefix, comm);
-      if (read_size != size) {
-        correct_mpi_size = false;
-        std::stringstream ss;
-        ss << " Invalid number of MPI processes (provided " << size << ", " << "expected " << correct_mpi_size << ")";
-        logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
-      }
-    }
-    if (!priv_global_and(correct_mpi_size, comm)) {
-      return false;
-    }
-
-    // ----- Remove directories ----- //
-    bool ret = true;
-    for (int i = 0; i < size; ++i) {
-      if (i == rank) {
-        if (metall::mtlldetail::file_exist(ds::make_root_dir_path(root_dir_prefix))
-            && !metall::mtlldetail::remove_file(ds::make_root_dir_path(root_dir_prefix))) {
-          std::string s("Failed to remove directory: " + ds::make_root_dir_path(root_dir_prefix));
-          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-          ret = false;
-        }
-      }
-      priv_mpi_barrier(comm);
-    }
-
-    return priv_global_and(ret, comm);
+    return priv_remove(root_dir_prefix, comm);
   }
 
   /// \brief Returns the number of partition of a Metall datastore.
@@ -249,60 +207,110 @@ class metall_mpi_adaptor {
   // -------------------------------------------------------------------------------- //
   // Private methods
   // -------------------------------------------------------------------------------- //
+  // This function is designed to minimize the number of MPI_Barrier.
   static void priv_setup_root_dir(const std::string &root_dir_prefix, const MPI_Comm &comm) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
     const std::string root_dir_path = ds::make_root_dir_path(root_dir_prefix);
 
     // Make sure the root directory and a file with the same name do not exist
-    const auto local_ret = metall::mtlldetail::file_exist(root_dir_path);
-    if (priv_global_or(local_ret, comm)) {
+    {
+      const auto local_ret = metall::mtlldetail::file_exist(root_dir_path);
+      if (priv_global_or(local_ret, comm)) {
+        if (rank == 0) {
+          std::string s("Root directory (or a file with the same name) already exists: " + root_dir_path);
+          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+          ::MPI_Abort(comm, -1);
+        }
+      }
+      priv_mpi_barrier(comm);
+    }
+
+    // Have all rank create the same one
+    metall::mtlldetail::create_directory(root_dir_path);
+    const std::string mark_file_path = root_dir_path + "/" + k_datastore_mark_file_name;
+    metall::mtlldetail::create_file(mark_file_path);
+
+    // Create a file locally first, then copy to the global space
+    const std::string
+        partition_size_file_path = ds::make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
+    {
+      const std::string local_partition_size_file_path = partition_size_file_path + std::to_string(rank);
+      std::ofstream ofs(local_partition_size_file_path);
+      if (!ofs) {
+        std::string s("Failed to create a file: " + local_partition_size_file_path);
+        logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+        ::MPI_Abort(comm, -1);
+      }
+      ofs << size;
+      if (!ofs) {
+        std::string s("Failed to write data to a file: " + local_partition_size_file_path);
+        logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+        ::MPI_Abort(comm, -1);
+      }
+      ofs.close();
+
+      // copy to the global space.
+      metall::mtlldetail::copy_file(local_partition_size_file_path, partition_size_file_path, false);
+      metall::mtlldetail::remove_file(local_partition_size_file_path);
+    }
+    priv_mpi_barrier(comm);
+
+    // Make sure everyone can see the directory and file.
+    const auto local_ret = metall::mtlldetail::file_exist(mark_file_path)
+        && metall::mtlldetail::file_exist(partition_size_file_path);
+    if (!priv_global_and(local_ret, comm)) {
       if (rank == 0) {
-        std::string s("Root directory (or a file with the same name) already exists: " + root_dir_path);
+        std::string s("Failed to set up root directory: " + root_dir_path);
         logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
         ::MPI_Abort(comm, -1);
       }
     }
     priv_mpi_barrier(comm);
-
-    for (int i = 0; i < size; ++i) {
-      if (i == rank && !metall::mtlldetail::directory_exist(root_dir_path)) {
-        if (!metall::mtlldetail::create_directory(root_dir_path)) {
-          std::string s("Failed to create directory: " + root_dir_path);
-          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-          ::MPI_Abort(comm, -1);
-        }
-
-        const std::string mark_file = root_dir_path + "/" + k_datastore_mark_file_name;
-        if (!metall::mtlldetail::create_file(mark_file)) {
-          std::string s("Failed to create file: " + mark_file);
-          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-          ::MPI_Abort(comm, -1);
-        }
-
-        priv_store_partition_size(root_dir_prefix, comm);
-      }
-      priv_mpi_barrier(comm);
-    }
   }
 
-  static void priv_store_partition_size(const std::string &root_dir_prefix, const MPI_Comm &comm) {
+  // This function is designed to minimize the number of MPI_Barrier.
+  static bool priv_remove(const char *root_dir_prefix, const MPI_Comm &comm) {
+    const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
-    const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
 
-    std::ofstream ofs(path);
-    if (!ofs) {
-      std::string s("Failed to create a file: " + path);
-      logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-      ::MPI_Abort(comm, -1);
+    // ----- Check if this is a Metall datastore ----- //
+    bool correct_dir = true;
+    if (!metall::mtlldetail::file_exist(
+        ds::make_root_dir_path(root_dir_prefix) + "/" + k_datastore_mark_file_name)) {
+      correct_dir = false;
     }
-    ofs << size;
-    if (!ofs) {
-      std::string s("Failed to write data to a file: " + path);
-      logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-      ::MPI_Abort(comm, -1);
+    if (!priv_global_and(correct_dir, comm)) {
+      return false;
     }
-    ofs.close();
+
+    // ----- Check if #of MPI processes matches ----- //
+    bool correct_mpi_size = true;
+    if (rank == 0) {
+      const int read_size = priv_read_num_partitions(root_dir_prefix, comm);
+      if (read_size != size) {
+        correct_mpi_size = false;
+        std::stringstream ss;
+        ss << " Invalid number of MPI processes (provided " << size << ", " << "expected " << correct_mpi_size << ")";
+        logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+      }
+    }
+    if (!priv_global_and(correct_mpi_size, comm)) {
+      return false;
+    }
+
+    metall::mtlldetail::remove_file(ds::make_root_dir_path(root_dir_prefix));
+    priv_mpi_barrier(comm);
+    const auto removed = !metall::mtlldetail::file_exist(ds::make_root_dir_path(root_dir_prefix));
+    if (!priv_global_and(removed, comm)) {
+      if (rank == 0) {
+        std::string s("Failed to remove directory: " + ds::make_root_dir_path(root_dir_prefix));
+        logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+      }
+      return false;
+    }
+
+    return true;
   }
 
   static int priv_read_num_partitions(const std::string &root_dir_prefix, const MPI_Comm &comm) {
