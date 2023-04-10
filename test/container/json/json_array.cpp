@@ -28,6 +28,15 @@ TEST (JSONArrayTest, Size) {
   GTEST_ASSERT_EQ(array.size(), 0);
 }
 
+TEST (JSONArrayTest, Capacity) {
+  array_type array;
+  GTEST_ASSERT_EQ(array.capacity(), 0);
+  array.resize(10);
+  GTEST_ASSERT_GE(array.capacity(), 10);
+  array.resize(0);
+  GTEST_ASSERT_GE(array.capacity(), 10);
+}
+
 TEST (JSONArrayTest, Bracket) {
   array_type array;
   array.resize(2);
@@ -87,8 +96,50 @@ TEST (JSONArrayTest, EqualOperator) {
 
   GTEST_ASSERT_TRUE(array0 == array1);
   GTEST_ASSERT_FALSE(array0 != array1);
-  array0[1]= 2;
+  array0[1] = 2;
   GTEST_ASSERT_TRUE(array0 != array1);
   GTEST_ASSERT_FALSE(array0 == array1);
 }
+
+TEST(JSONArrayTest, Swap) {
+  array_type array0;
+  array0.resize(2);
+  array_type array1;
+  array1.resize(2);
+
+  array0[0] = 0;
+  array0[1] = 1;
+  array1[0] = 2;
+  array1[1] = 3;
+
+  array0.swap(array1);
+
+  GTEST_ASSERT_EQ(array0[0], 2);
+  GTEST_ASSERT_EQ(array0[1], 3);
+  GTEST_ASSERT_EQ(array1[0], 0);
+  GTEST_ASSERT_EQ(array1[1], 1);
+}
+
+TEST (JSONArrayTest, Clear) {
+  array_type array;
+  array.resize(2);
+  array.clear();
+  GTEST_ASSERT_EQ(array.size(), 0);
+}
+
+TEST (JSONArrayTest, PushBack) {
+  array_type array;
+
+  array_type::value_type value0(array.get_allocator());
+  value0.emplace_int64() = 0;
+  array.push_back(value0);
+
+  array_type::value_type value1(array.get_allocator());
+  value1.emplace_string() = "1";
+  array.push_back(std::move(value1));
+
+  GTEST_ASSERT_EQ(array[0].as_int64(), 0);
+  GTEST_ASSERT_EQ(array[1].as_string(), "1");
+}
+
 }
