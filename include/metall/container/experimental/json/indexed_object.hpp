@@ -15,7 +15,6 @@
 #include <metall/container/scoped_allocator.hpp>
 #include <metall/container/vector.hpp>
 #include <metall/container/unordered_map.hpp>
-
 #include <metall/utility/hash.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
 

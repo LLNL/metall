@@ -6,8 +6,6 @@
 #ifndef METALL_CONTAINER_EXPERIMENTAL_JSON_VALUE_TO_HPP
 #define METALL_CONTAINER_EXPERIMENTAL_JSON_VALUE_TO_HPP
 
-#include <boost/json/src.hpp>
-
 #include <metall/container/experimental/json/json_fwd.hpp>
 
 namespace metall::container::experimental::json::jsndtl {

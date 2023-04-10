@@ -10,8 +10,6 @@
 #include <string_view>
 #include <memory>
 
-#include <boost/json/src.hpp>
-
 #include <metall/container/experimental/json/json_fwd.hpp>
 
 namespace metall::container::experimental::json {
