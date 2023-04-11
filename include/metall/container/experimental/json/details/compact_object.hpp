@@ -24,7 +24,7 @@ namespace mc = metall::container;
 }
 
 // Forward declarations
-template <typename _allocator_type = std::allocator<std::byte>>
+template <typename Alloc = std::allocator<std::byte>>
 class compact_object;
 
 template <typename allocator_type, typename other_object_type>
@@ -33,10 +33,10 @@ bool general_compact_object_equal(const compact_object<allocator_type> &object,
 
 /// \brief JSON object implementation.
 /// This class is designed to use a small amount of memory even sacrificing the look-up performance.
-template <typename _allocator_type>
+template <typename Alloc>
 class compact_object {
  public:
-  using allocator_type = _allocator_type;
+  using allocator_type = Alloc;
   using value_type = key_value_pair<char, std::char_traits<char>, allocator_type>;
   using key_type = std::basic_string_view<char, std::char_traits<char>>; //typename value_type::key_type;
   using mapped_type = value<allocator_type>; //typename value_type::value_type;

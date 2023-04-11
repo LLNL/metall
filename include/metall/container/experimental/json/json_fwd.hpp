@@ -171,7 +171,7 @@ template <typename allocator_type>
 std::ostream &operator<<(std::ostream &, const array<allocator_type> &);
 
 template <typename allocator_type = std::allocator<std::byte>>
-value<allocator_type> parse(std::string_view input_json_string,
+value<allocator_type> parse(std::string_view,
                             const allocator_type &allocator = allocator_type());
 
 template <typename T, typename allocator_type = std::allocator<std::byte>>

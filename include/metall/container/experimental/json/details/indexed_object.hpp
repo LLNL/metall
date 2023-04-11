@@ -25,7 +25,7 @@ namespace mc = metall::container;
 }
 
 // Foward declarations
-template <typename _allocator_type = std::allocator<std::byte>>
+template <typename Alloc = std::allocator<std::byte>>
 class indexed_object;
 
 template <typename allocator_type, typename other_object_type>
@@ -34,10 +34,10 @@ bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
 
 /// \brief JSON object implementation.
 /// An object is an unordered map of key and value pairs.
-template <typename _allocator_type>
+template <typename Alloc>
 class indexed_object {
  public:
-  using allocator_type = _allocator_type;
+  using allocator_type = Alloc;
   using value_type = key_value_pair<char, std::char_traits<char>, allocator_type>;
   using key_type = std::basic_string_view<char, std::char_traits<char>>; //typename value_type::key_type;
   using mapped_type = value<allocator_type>; //typename value_type::value_type;
@@ -298,8 +298,8 @@ class indexed_object {
     return m_value_storage.erase(value_position);
   }
 
-  index_table_type m_index_table{_allocator_type{}};
-  value_storage_type m_value_storage{_allocator_type{}};
+  index_table_type m_index_table{allocator_type{}};
+  value_storage_type m_value_storage{allocator_type{}};
 };
 
 /// \brief Swap value instances.

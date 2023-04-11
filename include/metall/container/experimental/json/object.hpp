@@ -14,7 +14,11 @@ namespace metall::container::experimental::json {
 /// \brief JSON object.
 /// An object is a table key and value pairs.
 /// The order of key-value pairs depends on the implementation.
+#ifdef DOXYGEN_SKIP
+template <typename allocator_type = std::allocator<std::byte>>
+#else
 template <typename allocator_type>
+#endif
 class object : public jsndtl::compact_object<allocator_type> {
   using jsndtl::compact_object<allocator_type>::compact_object;
 };

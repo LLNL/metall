@@ -32,16 +32,20 @@ inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_tr
 /// \tparam char_type A char type to store.
 /// \tparam char_traits A chart traits.
 /// \tparam _allocator_type An allocator type.
-template <typename _char_type, typename _char_traits, typename _allocator_type>
+#ifdef DOXYGEN_SKIP
+template <typename char_type = char, typename char_traits = std::char_traits<char_type>, typename Alloc = std::allocator<char_type>>
+#else
+template <typename _char_type, typename _char_traits, typename Alloc>
+#endif
 class key_value_pair {
  private:
-  using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<_char_type>;
+  using char_allocator_type = typename std::allocator_traits<Alloc>::template rebind_alloc<_char_type>;
   using char_pointer = typename std::allocator_traits<char_allocator_type>::pointer;
 
  public:
   using char_type = _char_type;
   using char_traits = _char_traits;
-  using allocator_type = _allocator_type;
+  using allocator_type = Alloc;
   using key_type = std::basic_string_view<char_type, char_traits>;
   using value_type = metall::container::experimental::json::value<allocator_type>;
   using size_type = std::size_t;
