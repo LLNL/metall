@@ -65,7 +65,7 @@ namespace metall::container::experimental::json {
 /// \tparam indent_size The size of the indent when going to a lower layer.
 /// \param os An output stream object.
 /// \param json_value A JSON value to print.
-template <typename allocator_type, int indent_size = 2>
+template <typename allocator_type, int indent_size>
 inline void pretty_print(std::ostream &os, const value<allocator_type> &json_value) {
   std::string indent;
   jsndtl::pretty_print_impl<allocator_type, indent_size>(os, json_value, indent);

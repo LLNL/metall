@@ -23,9 +23,9 @@ namespace bj = boost::json;
 /// \param input_json_string An input JSON string.
 /// \param allocator An allocator object.
 /// \return Returns a constructed value.
-template <typename allocator_type = std::allocator<std::byte>>
+template <typename allocator_type>
 inline value<allocator_type> parse(std::string_view input_json_string,
-                                   const allocator_type &allocator = allocator_type()) {
+                                   const allocator_type &allocator) {
   bj::error_code ec;
   auto bj_value = bj::parse(input_json_string.data(), ec);
   if (ec) {

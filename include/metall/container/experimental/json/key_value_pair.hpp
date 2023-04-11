@@ -32,9 +32,7 @@ inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_tr
 /// \tparam char_type A char type to store.
 /// \tparam char_traits A chart traits.
 /// \tparam _allocator_type An allocator type.
-template <typename _char_type = char,
-          typename _char_traits = std::char_traits<_char_type>,
-          typename _allocator_type = std::allocator<_char_type>>
+template <typename _char_type, typename _char_traits, typename _allocator_type>
 class key_value_pair {
  private:
   using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<_char_type>;
@@ -282,8 +280,8 @@ class key_value_pair {
 };
 
 /// \brief Swap value instances.
-template <typename allocator_type>
-inline void swap(key_value_pair<allocator_type> &lhd, key_value_pair<allocator_type> &rhd) noexcept {
+template <typename char_type, typename char_traits, typename allocator_type>
+inline void swap(key_value_pair<char_type, char_traits, allocator_type> &rhd, key_value_pair<char_type, char_traits, allocator_type> &lhd) noexcept {
   lhd.swap(rhd);
 }
 

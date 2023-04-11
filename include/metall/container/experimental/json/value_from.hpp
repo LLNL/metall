@@ -62,8 +62,8 @@ namespace metall::container::experimental::json {
 /// \param input_data Input data.
 /// \param allocator An allocator object.
 /// \return Returns a constructed JSON value.
-template <typename T, typename allocator_type = std::allocator<std::byte>>
-value<allocator_type> value_from(T &&input_data, const allocator_type& allocator) {
+template <typename T, typename allocator_type>
+inline value<allocator_type> value_from(T &&input_data, const allocator_type& allocator) {
   return jsndtl::value_from_impl(std::forward<T>(input_data), allocator);
 }
 

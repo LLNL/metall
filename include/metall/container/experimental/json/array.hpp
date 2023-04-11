@@ -33,7 +33,7 @@ inline bool general_array_equal(const array<allocator_type> &array, const other_
 
 /// \brief JSON array.
 /// An array is an ordered collection of values.
-template <typename _allocator_type = std::allocator<std::byte>>
+template <typename _allocator_type>
 class array {
  private:
   template <typename alloc, typename T>

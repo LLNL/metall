@@ -66,11 +66,11 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
 
 /// \brief JSON value.
 /// A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.
-template <typename _allocator_type = std::allocator<std::byte>>
+template <typename _allocator_type>
 class value {
  public:
   using allocator_type = _allocator_type;
-  using string_type = string<char,
+  using string_type = basic_string<char,
                              std::char_traits<char>,
                              typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
   using object_type = object<_allocator_type>;
@@ -83,13 +83,12 @@ class value {
  public:
 
   /// \brief Constructor.
-  value() {}
+  value() { priv_reset(); }
 
   /// \brief Constructor.
   /// \param alloc An allocator object.
   explicit value(const allocator_type &alloc)
-      : m_allocator(alloc),
-        m_data(null_type()) {}
+      : m_allocator(alloc) { priv_reset(); }
 
   /// \brief Copy constructor
   value(const value &other)
