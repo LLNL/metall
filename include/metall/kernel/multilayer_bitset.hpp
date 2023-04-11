@@ -260,7 +260,7 @@ class multilayer_bitset {
   // -------------------- //
   // Private methods
   // -------------------- //
-  // -------------------- Allocation and free -------------------- //
+  // ---------- Allocation and free ---------- //
   bool allocate_multilayer_bitset(const std::size_t size) {
     const std::size_t num_blocks = num_all_blocks(size);
     m_data.array =
@@ -280,7 +280,7 @@ class multilayer_bitset {
     m_data.reset();
   }
 
-  // -------------------- Find, set, and reset bits -------------------- //
+  // ---------- Find, set, and reset bits ---------- //
   bit_position_type find_and_set_in_single_block() {
     assert(!bs::full_block(m_data.block));
     const auto pos = find_first_false_bit_in_block(m_data.block);
@@ -461,7 +461,7 @@ class multilayer_bitset {
                    static_cast<std::size_t>(bit_pos));
   }
 
-  // -------------------- Utilities -------------------- //
+  // ---------- Utilities ---------- //
   /// \brief Returns the index of the first false bit in the block from the most
   /// significant bit position. \warning If the block is full, the result is
   /// undefined.

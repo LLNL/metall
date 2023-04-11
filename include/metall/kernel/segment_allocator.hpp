@@ -361,8 +361,7 @@ class segment_allocator {
     return base_name + "_" + item_name;
   }
 
-  // ---------------------------------------- For allocation
-  // ---------------------------------------- //
+  // ---------- For allocation ---------- //
   difference_type priv_allocate_small_object(const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     if (bin_no <= small_object_cache_type::max_bin_no()) {
@@ -511,8 +510,7 @@ class segment_allocator {
     return true;
   }
 
-  // ---------------------------------------- For deallocation
-  // ---------------------------------------- //
+  // ---------- For deallocation ---------- //
   void priv_deallocate_small_object(const difference_type offset,
                                     const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
@@ -650,8 +648,7 @@ class segment_allocator {
     m_segment_storage->free_region(offset, length);
   }
 
-  // ---------------------------------------- For object cache
-  // ---------------------------------------- //
+  // ---------- For object cache ---------- //
 #ifndef METALL_DISABLE_OBJECT_CACHE
   void priv_clear_object_cache() {
     for (unsigned int c = 0; c < m_object_cache.num_caches(); ++c) {

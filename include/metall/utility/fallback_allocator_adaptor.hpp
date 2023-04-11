@@ -214,8 +214,7 @@ class fallback_allocator_adaptor {
     return fallback_allocator_adaptor(a);
   }
 
-  // ----------------------------------- This class's unique public functions
-  // ----------------------------------- //
+  // ---------- This class's unique public functions ---------- //
   primary_allocator_type &primary_allocator() { return m_primary_allocator; }
 
   const primary_allocator_type &primary_allocator() const {

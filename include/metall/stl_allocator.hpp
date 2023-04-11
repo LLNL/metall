@@ -143,8 +143,7 @@ class stl_allocator {
   /// \param ptr A pointer to the object
   void destroy(const pointer &ptr) const { priv_destroy(ptr); }
 
-  // ----------------------------------- This class's unique public functions
-  // ----------------------------------- //
+  // ---------- This class's unique public functions ---------- //
   /// \brief Returns a pointer that points to manager kernel
   /// \return A pointer that points to manager kernel
   manager_kernel_type *const *get_pointer_to_manager_kernel() const {

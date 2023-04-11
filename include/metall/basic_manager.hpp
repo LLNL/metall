@@ -774,7 +774,7 @@ class basic_manager {
   // TODO: implement
   // bool belongs_to_segment (const void *ptr) const;
 
-  // -------------------- Allocate memory by size -------------------- //
+  // ---------- Allocate memory by size ---------- //
   /// \brief Allocates nbytes bytes.
   /// \param nbytes Number of bytes to allocate.
   /// \return Returns a pointer to the allocated memory.
@@ -848,7 +848,7 @@ class basic_manager {
     return false;
   }
 
-  // -------------------- Flush -------------------- //
+  // ---------- Flush ---------- //
   /// \brief Flush data to persistent memory.
   /// \param synchronous If true, performs synchronous operation;
   /// otherwise, performs asynchronous operation.
@@ -865,8 +865,7 @@ class basic_manager {
     }
   }
 
-  // -------------------- Snapshot, copy, data store management
-  // -------------------- //
+  // -------- Snapshot, copy, data store management -------- //
   /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
   /// \param destination_dir_path Path to store a snapshot.
   /// \param clone Use the file clone mechanism (reflink) instead of normal copy
@@ -1031,7 +1030,7 @@ class basic_manager {
     }
   }
 
-  // -------------------- Data store description -------------------- //
+  // ---------- Data store description ---------- //
 
   /// \brief Sets a description to a Metall data store.
   /// An existing description is overwritten (only one description per data
@@ -1106,7 +1105,7 @@ class basic_manager {
     return false;
   }
 
-  // -------------------- Object attribute -------------------- //
+  // ---------- Object attribute ---------- //
   /// \brief Returns an instance that provides access to the attribute of named
   /// objects. \param dir_path Path to a data store. \return Returns an instance
   /// of named_object_attribute_accessor_type.
@@ -1149,7 +1148,7 @@ class basic_manager {
     return anonymous_object_attribute_accessor_type();
   }
 
-  // -------------------- etc -------------------- //
+  // ---------- etc ---------- //
   /// \brief Returns a STL compatible allocator object.
   /// \tparam T Type of the object.
   /// \return Returns a STL compatible allocator object.
@@ -1210,7 +1209,7 @@ class basic_manager {
   /// \return Returns true if there is no issue; otherwise, returns false.
   bool check_sanity() const noexcept { return !!m_kernel && m_kernel->good(); }
 
-  // -------------------- For profiling and debug -------------------- //
+  // ---------- For profiling and debug ---------- //
 #if !defined(DOXYGEN_SKIP)
   /// \brief Prints out profiling information.
   /// \tparam out_stream_type A type of out stream.

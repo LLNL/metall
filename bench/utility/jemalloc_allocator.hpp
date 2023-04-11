@@ -15,23 +15,23 @@ namespace bench_utility {
 template <typename T>
 class jemalloc_allocator {
  public:
-  // -------------------- Types -------------------- //
+  // ---------- Types ---------- //
   using value_type = T;
   using pointer = T *;
   using size_type = std::size_t;
 
-  // -------------------- Constructor -------------------- //
+  // ---------- Constructor ---------- //
   jemalloc_allocator() = default;
 
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
   jemalloc_allocator(const jemalloc_allocator<T2> &allocator_instance){};
 
-  // -------------------- Copy and move constructor -------------------- //
+  // ---------- Copy and move constructor ---------- //
   jemalloc_allocator(const jemalloc_allocator &other) = default;
   jemalloc_allocator(jemalloc_allocator &&other) noexcept = default;
 
-  // -------------------- Copy and move assignments -------------------- //
+  // ---------- Copy and move assignments ---------- //
   jemalloc_allocator &operator=(const jemalloc_allocator &) = default;
   jemalloc_allocator &operator=(jemalloc_allocator &&other) noexcept = default;
 

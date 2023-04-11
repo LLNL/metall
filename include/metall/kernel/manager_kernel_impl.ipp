@@ -1073,8 +1073,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_create(
   return true;
 }
 
-// ---------------------------------------- For serializing/deserializing
-// ---------------------------------------- //
+// ---------- For serializing/deserializing ---------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_serialize_management_data() {
   assert(priv_initialized());
@@ -1153,8 +1152,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_deserialize_management_data() {
   return true;
 }
 
-// ---------------------------------------- snapshot
-// ---------------------------------------- //
+// ---------- snapshot ---------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(
     const char *destination_base_dir_path, const bool clone,
@@ -1226,8 +1224,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(
   return true;
 }
 
-// ---------------------------------------- File operations
-// ---------------------------------------- //
+// ---------- File operations ---------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_copy_data_store(
     const std::string &src_base_dir_path, const std::string &dst_base_dir_path,
@@ -1304,8 +1301,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_remove_data_store(
   return mdtl::remove_file(priv_make_top_dir_path(base_dir_path));
 }
 
-// ---------------------------------------- Management metadata
-// ---------------------------------------- //
+// ---------- Management metadata ---------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_write_management_metadata(
     const std::string &base_dir_path, const json_store &json_root) {
@@ -1398,8 +1394,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_set_uuid(
   return true;
 }
 
-// ---------------------------------------- Description
-// ---------------------------------------- //
+// ---------- Description ---------- //
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_read_description(

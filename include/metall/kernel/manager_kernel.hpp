@@ -491,8 +491,8 @@ class manager_kernel {
   difference_type priv_to_offset(const void *const ptr) const;
   void *priv_to_address(difference_type offset) const;
 
-  // ---------------------------------------- For data store structure
-  // ---------------------------------------- // Directory structure:
+  // ---------- For data store structure  ---------- //
+  // Directory structure:
   // base_dir_path/ <- this path is given by user
   //  top_dir/
   //    some top-level files
@@ -511,16 +511,14 @@ class manager_kernel {
       const std::string &base_dir_path);
   static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
-  // ---------------------------------------- For consistence support
-  // ---------------------------------------- //
+  // ---------- For consistence support  ---------- //
   static bool priv_consistent(const std::string &base_dir_path);
   static bool priv_check_version(const json_store &metadata_json);
   static bool priv_properly_closed(const std::string &base_dir_path);
   static bool priv_mark_properly_closed(const std::string &base_dir_path);
   static bool priv_unmark_properly_closed(const std::string &base_dir_path);
 
-  // ---------------------------------------- For constructed objects
-  // ---------------------------------------- //
+  // ---------- For constructed objects  ---------- //
   template <typename T>
   T *priv_generic_construct(char_ptr_holder_type name, size_type length,
                             bool try2find, mdtl::in_place_interface &table);
@@ -536,8 +534,7 @@ class manager_kernel {
   void priv_destruct_and_free_memory(const difference_type offset,
                                      const size_type length);
 
-  // ---------------------------------------- For segment
-  // ---------------------------------------- //
+  // ---------- For segment  ---------- //
   bool priv_reserve_vm_region(size_type nbytes);
   bool priv_release_vm_region();
   bool priv_allocate_segment_header(void *addr);
@@ -547,19 +544,16 @@ class manager_kernel {
                  size_type vm_reserve_size_request = 0);
   bool priv_create(const char *base_dir_path, size_type vm_reserve_size);
 
-  // ---------------------------------------- For serializing/deserializing
-  // ---------------------------------------- //
+  // ---------- For serializing/deserializing  ---------- //
   bool priv_serialize_management_data();
   bool priv_deserialize_management_data();
 
-  // ---------------------------------------- snapshot
-  // ---------------------------------------- //
+  // ---------- snapshot  ---------- //
   /// \brief Takes a snapshot. The snapshot has a different UUID.
   bool priv_snapshot(const char *destination_base_dir_path, const bool clone,
                      const int num_max_copy_threads);
 
-  // ---------------------------------------- File operations
-  // ---------------------------------------- //
+  // ---------- File operations  ---------- //
   /// \brief Copies all backing files using reflink if possible
   static bool priv_copy_data_store(const std::string &src_base_dir_path,
                                    const std::string &dst_base_dir_path,
@@ -569,8 +563,7 @@ class manager_kernel {
   /// \brief Removes all backing files
   static bool priv_remove_data_store(const std::string &dir_path);
 
-  // ---------------------------------------- Management metadata
-  // ---------------------------------------- //
+  // ---------- Management metadata  ---------- //
   static bool priv_read_management_metadata(const std::string &base_dir_path,
                                             json_store *json_root);
   static bool priv_write_management_metadata(const std::string &base_dir_path,
@@ -582,8 +575,7 @@ class manager_kernel {
   static bool priv_set_uuid(json_store *metadata_json);
   static std::string priv_get_uuid(const json_store &metadata_json);
 
-  // ---------------------------------------- Description
-  // ---------------------------------------- //
+  // ---------- Description  ---------- //
   static bool priv_read_description(const std::string &base_dir_path,
                                     std::string *description);
   static bool priv_write_description(const std::string &base_dir_path,

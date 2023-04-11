@@ -88,8 +88,7 @@ class concurrent_map {
   /// \return The number of elements in the container.
   size_type size() const { return m_num_items; }
 
-  // ---------------------------------------- Modifier
-  // ---------------------------------------- //
+  // ---------- Modifier ---------- //
   /// \brief Inserts element into the container
   /// if the container doesn't already contain an element with an equivalent
   /// key. \param value An element value to insert. \return A bool denoting
@@ -136,8 +135,7 @@ class concurrent_map {
     editor(m_banked_map[bank_no].at(key));
   }
 
-  // ---------------------------------------- Iterator
-  // ---------------------------------------- //
+  // ---------- Iterator ---------- //
   /// \brief Returns an iterator to the first element of the map.
   /// If the container is empty, the returned iterator will be equal to end().
   /// \return A const iterator to the first element.
@@ -153,8 +151,7 @@ class concurrent_map {
     return const_iterator(m_banked_map.cend(), m_banked_map.cend());
   }
 
-  // ---------------------------------------- Look up
-  // ---------------------------------------- //
+  // ---------- Look up ---------- //
   /// \brief Finds an element with an equivalent key.
   /// \param key A key value of the element to search for
   /// \return An iterator to an element with an equivalent key.
@@ -168,8 +165,7 @@ class concurrent_map {
     return cend();
   }
 
-  // ---------------------------------------- Allocator
-  // ---------------------------------------- //
+  // ---------- Allocator ---------- //
   /// \brief Returns the allocator associated with the container.
   /// \return An object of the associated allocator.
   allocator_type get_allocator() const {

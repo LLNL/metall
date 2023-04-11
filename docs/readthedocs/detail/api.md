@@ -22,7 +22,7 @@ Here, we list Metall's main APIs.
 // The main class of Metall
 class metall::manager;
 
-// -------------------- Constructors -------------------- //
+// ---------- Constructors ---------- //
 // Opens an existing data store.
 manager(open_only_t, const char *base_path,
         const kernel_allocator_type &allocator = kernel_allocator_type())
@@ -38,18 +38,18 @@ manager(open_read_only_t, const char *base_path,
 manager(create_only_t, const char *base_path,
         const kernel_allocator_type &allocator = kernel_allocator_type())
 
-// -------------------- Allocation -------------------- //
+// ---------- Allocation ---------- //
 //  Allocates n bytes
 void* manager.allocate(size_t n);
 
 //  Deallocates the allocated memory
 void manager.deallocate(void *addr)
 
-// -------------------- STL allocator -------------------- //
+// ---------- STL allocator ---------- //
 // Returns an STL allocator object for type T
 allocator_type<T> manager.get_allocator<T>()
 
-// -------------------- Attributed Object -------------------- //
+// ---------- Attributed Object ---------- //
 // Allocates and constructs an object of T with arguments args.
 // Also stores the allocated memory address with key name
 T* manager.construct<T, Args>(char* name)(Args... args)
@@ -65,7 +65,7 @@ bool manager.destroy(char* name)
 // Calls the destructor and frees the memory.
 bool manager.destroy_ptr<T>(T* ptr)
 
-// -------------------- Attributed Object (Metall original) -------------------- //
+// ---------- Attributed Object (Metall original) ---------- //
 // Returns the name of an attributed object
 const char_type *manager.get_instance_name<T>(const T *ptr)
 
@@ -87,11 +87,11 @@ bool manager.get_instance_description(const T *ptr, std::string *description)
 // Sets a description to an object
 bool manager.set_instance_description(const T *ptr, const std::string& description)
 
-// -------------------- Snapshot (Metall original) -------------------- //      
+// ---------- Snapshot (Metall original) ---------- //
 // Takes a snapshot of the current datastore.
 bool manager.snapshot(const char *destination_dir_path)
 
-// -------------------- Utilities (Metall original) -------------------- //
+// ---------- Utilities (Metall original) ---------- //
 // Check if a datastore exists and is consistent
 // (i.e., it was closed properly in the previous run).
 static bool metall::manager::consistent(const char *dir_path)
@@ -108,7 +108,7 @@ version_type manager.get_version()
 // Gets the version of the Metall that created a datastore
 static version_type metall::get_version(const char_type *dir_path)
 
-// -------------------- Data store description -------------------- //
+// ---------- Data store description ---------- //
 // Sets a description
 bool set_description(const std::string &description)
 static bool metall::set_description(const char *dir_path, const std::string &description)

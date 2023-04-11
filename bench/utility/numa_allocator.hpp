@@ -14,23 +14,23 @@ namespace bench_utility::numa {
 template <typename T>
 class numa_allocator {
  public:
-  // -------------------- Types -------------------- //
+  // ---------- Types ---------- //
   using value_type = T;
   using pointer = T *;
   using size_type = std::size_t;
 
-  // -------------------- Constructor -------------------- //
+  // ---------- Constructor ---------- //
   numa_allocator() = default;
 
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
   numa_allocator(const numa_allocator<T2> &){};
 
-  // -------------------- Copy and move constructor -------------------- //
+  // ---------- Copy and move constructor ---------- //
   numa_allocator(const numa_allocator &other) = default;
   numa_allocator(numa_allocator &&other) noexcept = default;
 
-  // -------------------- Copy and move assignments -------------------- //
+  // ---------- Copy and move assignments ---------- //
   numa_allocator &operator=(const numa_allocator &) = default;
   numa_allocator &operator=(numa_allocator &&other) noexcept = default;
 
