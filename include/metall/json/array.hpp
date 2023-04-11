@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_ARRAY_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_ARRAY_HPP
+#ifndef METALL_JSON_ARRAY_HPP
+#define METALL_JSON_ARRAY_HPP
 
 #include <iostream>
 #include <memory>
@@ -12,9 +12,9 @@
 
 #include <metall/container/vector.hpp>
 #include <metall/container/scoped_allocator.hpp>
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace mc = metall::container;
@@ -33,20 +33,24 @@ inline bool general_array_equal(const array<allocator_type> &array, const other_
 
 /// \brief JSON array.
 /// An array is an ordered collection of values.
-template <typename _allocator_type>
+#ifdef DOXYGEN_SKIP
+template <typename Alloc = std::allocator<std::byte>>
+#else
+template <typename Alloc>
+#endif
 class array {
  public:
-  using value_type = value<_allocator_type>;
+  using value_type = value<Alloc>;
 
  private:
   template <typename alloc, typename T>
   using other_scoped_allocator = mc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<
       T>>;
-  using aray_allocator_type = other_scoped_allocator<_allocator_type, value_type>;
+  using aray_allocator_type = other_scoped_allocator<Alloc, value_type>;
   using array_type = mc::vector<value_type, aray_allocator_type>;
 
  public:
-  using allocator_type = _allocator_type;
+  using allocator_type = Alloc;
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
   using reference = value_type &;
@@ -211,6 +215,6 @@ inline void swap(array<allocator_type> &lhd, array<allocator_type> &rhd) noexcep
   lhd.swap(rhd);
 }
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_ARRAY_HPP
+#endif //METALL_JSON_ARRAY_HPP

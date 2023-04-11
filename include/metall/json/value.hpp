@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
+#ifndef METALL_JSON_VALUE_HPP
+#define METALL_JSON_VALUE_HPP
 
 #include <memory>
 #include <utility>
@@ -12,9 +12,9 @@
 #include <variant>
 #include <type_traits>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace mc = metall::container;
@@ -62,19 +62,23 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
   assert(false);
   return false;
 }
-} // namespace metall::container::experimental::json::jsndtl
+} // namespace metall::json::jsndtl
 
 /// \brief JSON value.
 /// A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.
-template <typename _allocator_type>
+#ifdef DOXYGEN_SKIP
+template <typename Alloc = std::allocator<std::byte>>
+#else
+template <typename Alloc>
+#endif
 class value {
  public:
-  using allocator_type = _allocator_type;
+  using allocator_type = Alloc;
   using string_type = basic_string<char,
                              std::char_traits<char>,
                              typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
-  using object_type = object<_allocator_type>;
-  using array_type = array<_allocator_type>;
+  using object_type = object<Alloc>;
+  using array_type = array<Alloc>;
 
  private:
   using internal_data_type = std::variant<null_type, bool, std::int64_t, std::uint64_t, double,
@@ -541,6 +545,6 @@ inline void swap(value<allocator_type> &lhd, value<allocator_type> &rhd) noexcep
   lhd.swap(rhd);
 }
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
+#endif //METALL_JSON_VALUE_HPP

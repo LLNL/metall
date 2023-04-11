@@ -3,15 +3,15 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENTAL_JSON_VALUE_TO_HPP
-#define METALL_CONTAINER_EXPERIMENTAL_JSON_VALUE_TO_HPP
+#ifndef METALLAL_JSON_VALUE_TO_HPP
+#define METALLAL_JSON_VALUE_TO_HPP
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json::jsndtl {
+namespace metall::json::jsndtl {
 
 namespace {
-namespace mj = metall::container::experimental::json;
+namespace mj = metall::json;
 namespace bj = boost::json;
 }
 
@@ -54,12 +54,12 @@ inline bj::value value_to_impl(const mj::value<allocator_type> &input_value) {
   return out_value;
 }
 
-} // namespace metall::container::experimental::json::jsndtl
+} // namespace metall::json::jsndtl
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
-namespace mj = metall::container::experimental::json;
+namespace mj = metall::json;
 }
 
 /// \brief Convert a JSON value to another data type.
@@ -72,6 +72,6 @@ T value_to(const mj::value<allocator_type> &value) {
   return jsndtl::value_to_impl(value);
 }
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENTAL_JSON_VALUE_TO_HPP
+#endif //METALLAL_JSON_VALUE_TO_HPP

@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_EQUAL_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_EQUAL_HPP
+#ifndef METALL_JSON_EQUAL_HPP
+#define METALL_JSON_EQUAL_HPP
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace bj = boost::json;
@@ -117,5 +117,5 @@ template <typename char_t, typename traits, typename allocator>
 inline bool operator!=(const bj::string &bj_string, const basic_string<char_t, traits, allocator> &string) {
   return string != bj_string;
 }
-} // namespace metall::container::experimental::json
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_EQUAL_HPP
+} // namespace metall::json
+#endif //METALL_JSON_EQUAL_HPP

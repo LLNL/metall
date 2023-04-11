@@ -3,15 +3,15 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_SERIALIZE_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_SERIALIZE_HPP
+#ifndef METALL_JSON_SERIALIZE_HPP
+#define METALL_JSON_SERIALIZE_HPP
 
 #include <iostream>
 
 #include <metall/container/string.hpp>
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace mc = metall::container;
@@ -64,6 +64,6 @@ std::ostream &operator<<(std::ostream &os, const array<allocator_type> &arr) {
   return os;
 }
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_SERIALIZE_HPP
+#endif //METALL_JSON_SERIALIZE_HPP

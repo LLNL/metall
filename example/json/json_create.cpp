@@ -5,9 +5,7 @@
 
 #include <iostream>
 #include <metall/metall.hpp>
-#include <metall/container/experimental/json/json.hpp>
-
-using namespace metall::container::experimental;
+#include <metall/json/json.hpp>
 
 int main() {
 
@@ -30,12 +28,12 @@ int main() {
 
   std::cout << "Create" << std::endl;
 
-  using metall_value_type = json::value<metall::manager::allocator_type<std::byte>>;
+  using metall_value_type = metall::json::value<metall::manager::allocator_type<std::byte>>;
   metall::manager manager(metall::create_only, "./test");
 
   auto *value = manager.construct<metall_value_type>(metall::unique_instance)
-      (json::parse(json_string, manager.get_allocator()));
-  json::pretty_print(std::cout, *value);
+      (metall::json::parse(json_string, manager.get_allocator()));
+  metall::json::pretty_print(std::cout, *value);
 
   value->as_object()["name"].as_string() = "Alice"; // Change a string value
 
@@ -47,7 +45,7 @@ int main() {
   auto pos = value->as_object().find("happy");
   std::cout << "Happy? : " << pos->value() << std::endl;
 
-  json::pretty_print(std::cout, *value);
+  metall::json::pretty_print(std::cout, *value);
 
   const auto clone(*value);
   std::cout << (clone == *value) << std::endl;

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_COMPACT_OBJECT_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_COMPACT_OBJECT_HPP
+#ifndef METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_INDEXED_OBJECT_HPP
+#define METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_INDEXED_OBJECT_HPP
 
 #include <iostream>
 #include <memory>
@@ -12,8 +12,9 @@
 #include <string_view>
 #include <algorithm>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 #include <metall/container/scoped_allocator.hpp>
+#include <metall/container/unordered_map.hpp>
 #include <metall/container/vector.hpp>
 #include <metall/utility/hash.hpp>
 
@@ -23,20 +24,20 @@ namespace {
 namespace mc = metall::container;
 }
 
-// Forward declarations
-template <typename _allocator_type = std::allocator<std::byte>>
-class compact_object;
+// Foward declarations
+template <typename Alloc = std::allocator<std::byte>>
+class indexed_object;
 
 template <typename allocator_type, typename other_object_type>
-bool general_compact_object_equal(const compact_object<allocator_type> &object,
+bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
                                   const other_object_type &other_object) noexcept;
 
 /// \brief JSON object implementation.
-/// This class is designed to use a small amount of memory even sacrificing the look-up performance.
-template <typename _allocator_type>
-class compact_object {
+/// An object is an unordered map of key and value pairs.
+template <typename Alloc>
+class indexed_object {
  public:
-  using allocator_type = _allocator_type;
+  using allocator_type = Alloc;
   using value_type = key_value_pair<char, std::char_traits<char>, allocator_type>;
   using key_type = std::basic_string_view<char, std::char_traits<char>>; //typename value_type::key_type;
   using mapped_type = value<allocator_type>; //typename value_type::value_type;
@@ -49,8 +50,18 @@ class compact_object {
   using value_storage_alloc_type = other_scoped_allocator<allocator_type, value_type>;
   using value_storage_type = mc::vector<value_type, value_storage_alloc_type>;
 
+  // Key: the hash value of the corresponding key in the value_storage
+  using index_key_type = uint64_t;
   // Value: the position of the corresponding item in the value_storage
   using value_postion_type = typename value_storage_type::size_type;
+  using index_table_allocator_type = other_scoped_allocator<allocator_type,
+                                                            std::pair<const index_key_type,
+                                                                      value_postion_type>>;
+  using index_table_type = mc::unordered_multimap<index_key_type,
+                                                  typename value_storage_type::size_type,
+                                                  metall::utility::hash<index_key_type>,
+                                                  std::equal_to<>,
+                                                  index_table_allocator_type>;
 
  public:
 
@@ -58,36 +69,40 @@ class compact_object {
   using const_iterator = typename value_storage_type::const_iterator;
 
   /// \brief Constructor.
-  compact_object() {}
+  indexed_object() {}
 
   /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit compact_object(const allocator_type &alloc)
-      : m_value_storage(alloc) {}
+  explicit indexed_object(const allocator_type &alloc)
+      : m_index_table(alloc),
+        m_value_storage(alloc) {}
 
   /// \brief Copy constructor
-  compact_object(const compact_object &) = default;
+  indexed_object(const indexed_object &) = default;
 
   /// \brief Allocator-extended copy constructor
-  compact_object(const compact_object &other, const allocator_type &alloc)
-      : m_value_storage(other.m_value_storage, alloc) {}
+  indexed_object(const indexed_object &other, const allocator_type &alloc)
+      : m_index_table(other.m_value_storage, alloc),
+        m_value_storage(other.m_value_storage, alloc) {}
 
   /// \brief Move constructor
-  compact_object(compact_object &&) noexcept = default;
+  indexed_object(indexed_object &&) noexcept = default;
 
   /// \brief Allocator-extended move constructor
-  compact_object(compact_object &&other, const allocator_type &alloc) noexcept
-      : m_value_storage(std::move(other.m_value_storage), alloc) {}
+  indexed_object(indexed_object &&other, const allocator_type &alloc) noexcept
+      : m_index_table(std::move(other.m_index_table), alloc),
+        m_value_storage(std::move(other.m_value_storage), alloc) {}
 
   /// \brief Copy assignment operator
-  compact_object &operator=(const compact_object &) = default;
+  indexed_object &operator=(const indexed_object &) = default;
 
   /// \brief Move assignment operator
-  compact_object &operator=(compact_object &&) noexcept = default;
+  indexed_object &operator=(indexed_object &&) noexcept = default;
 
   /// \brief Swap contents.
-  void swap(compact_object &other) noexcept {
+  void swap(indexed_object &other) noexcept {
     using std::swap;
+    swap(m_index_table, other.m_index_table);
     swap(m_value_storage, other.m_value_storage);
   }
 
@@ -206,44 +221,52 @@ class compact_object {
   /// \return Iterator following the removed element.
   /// If 'position' refers to the last element, then the end() iterator is returned.
   iterator erase(const key_type &key) {
-    return priv_erase(find(key));
+    return erase(find(key));
   }
 
   /// \brief Return `true` if two objects are equal.
   /// \param lhs An object to compare.
   /// \param rhs An object to compare.
   /// \return True if two objects are equal. Otherwise, false.
-  friend bool operator==(const compact_object &lhs, const compact_object &rhs) noexcept {
-    return jsndtl::general_compact_object_equal(lhs, rhs);
+  friend bool operator==(const indexed_object &lhs, const indexed_object &rhs) noexcept {
+    return jsndtl::general_indexed_object_equal(lhs, rhs);
   }
 
   /// \brief Return `true` if two objects are not equal.
   /// \param lhs An object to compare.
   /// \param rhs An object to compare.
   /// \return True if two objects are not equal. Otherwise, false.
-  friend bool operator!=(const compact_object &lhs, const compact_object &rhs) noexcept {
+  friend bool operator!=(const indexed_object &lhs, const indexed_object &rhs) noexcept {
     return !(lhs == rhs);
   }
 
   /// \brief Return an allocator object.
   allocator_type get_allocator() const noexcept {
-    return m_value_storage.get_allovator();
+    assert(m_index_table.get_allovator() == m_value_storage.m_index_table());
+    return m_index_table.get_allovator();
   }
 
  private:
 
   value_postion_type priv_locate_value(const key_type &key) const {
-    for (value_postion_type i = 0; i < m_value_storage.size(); ++i) {
-      if (m_value_storage[i].key() == key) {
-        return i; // Found the key
+    auto range = m_index_table.equal_range(hash_key(key));
+    for (auto itr = range.first, end = range.second; itr != end; ++itr) {
+      const auto value_pos = itr->second;
+      if (m_value_storage[value_pos].key() == key) {
+        return value_pos; // Found the key
       }
     }
     return m_value_storage.max_size(); // Couldn't find
   }
 
-  value_postion_type priv_emplace_value(const key_type &key, mapped_type &&mapped_value) {
+  value_postion_type priv_emplace_value(const key_type &key, mapped_type mapped_value) {
     m_value_storage.emplace_back(key, std::move(mapped_value));
+    m_index_table.emplace(hash_key(key), m_value_storage.size() - 1);
     return m_value_storage.size() - 1;
+  }
+
+  static auto hash_key(const key_type &key) {
+    return metall::mtlldetail::MurmurHash64A(key.data(), key.length(), 123);
   }
 
   auto priv_erase(const_iterator value_position) {
@@ -251,22 +274,43 @@ class compact_object {
       return m_value_storage.end();
     }
 
+    const auto value_position_raw = std::distance(m_value_storage.cbegin(), value_position);
+    [[maybe_unused]] bool erased = false;
+    auto range = m_index_table.equal_range(hash_key(value_position->key()));
+    for (auto itr = range.first, end = range.second; itr != end; ++itr) {
+      const auto value_pos = itr->second;
+      if ((ssize_t)value_pos == value_position_raw) {
+        m_index_table.erase(itr);
+        erased = true;
+        break;
+      }
+    }
+    assert(erased);
+
+    // Update the positions of the values that will be moved forward.
+    for (auto &elem: m_index_table) {
+      if ((ssize_t)elem.second > value_position_raw) {
+        --elem.second;
+      }
+    }
+
     // Finally, erase the value.
     return m_value_storage.erase(value_position);
   }
 
+  index_table_type m_index_table{allocator_type{}};
   value_storage_type m_value_storage{allocator_type{}};
 };
 
 /// \brief Swap value instances.
 template <typename allocator_type>
-inline void swap(compact_object<allocator_type> &lhd, compact_object<allocator_type> &rhd) noexcept {
+inline void swap(indexed_object<allocator_type> &lhd, indexed_object<allocator_type> &rhd) noexcept {
   lhd.swap(rhd);
 }
 
 /// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
 template <typename allocator_type, typename other_object_type>
-inline bool general_compact_object_equal(const compact_object<allocator_type> &object,
+inline bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
                                          const other_object_type &other_object) noexcept {
   if (object.size() != other_object.size()) return false;
 
@@ -281,4 +325,4 @@ inline bool general_compact_object_equal(const compact_object<allocator_type> &o
 
 } // namespace metall::container::experimental::json::jsndtl
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_COMPACT_OBJECT_HPP
+#endif //METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_INDEXED_OBJECT_HPP
