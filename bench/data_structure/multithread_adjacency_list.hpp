@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -30,7 +30,8 @@ namespace container = metall::container;
 
 namespace data_structure {
 
-template <typename _key_type, typename _value_type, typename _base_allocator_type = std::allocator<std::byte>>
+template <typename _key_type, typename _value_type,
+          typename _base_allocator_type = std::allocator<std::byte>>
 class multithread_adjacency_list {
  public:
   using key_type = _key_type;
@@ -39,20 +40,22 @@ class multithread_adjacency_list {
 
  private:
   template <typename T>
-  using other_allocator_type = typename std::allocator_traits<_base_allocator_type>::template rebind_alloc<T>;
+  using other_allocator_type = typename std::allocator_traits<
+      _base_allocator_type>::template rebind_alloc<T>;
 
   using list_allocator_type = other_allocator_type<value_type>;
   using list_type = container::vector<value_type, list_allocator_type>;
 
-  using key_table_allocator_type = container::scoped_allocator_adaptor<other_allocator_type<std::pair<const key_type,
-                                                                                                      list_type>>>;
-  using key_table_type = container::unordered_map<key_type, list_type,
-                                                  metall::utility::hash<key_type>,
-                                                  std::equal_to<key_type>,
-                                                  key_table_allocator_type>;
+  using key_table_allocator_type = container::scoped_allocator_adaptor<
+      other_allocator_type<std::pair<const key_type, list_type>>>;
+  using key_table_type = container::unordered_map<
+      key_type, list_type, metall::utility::hash<key_type>,
+      std::equal_to<key_type>, key_table_allocator_type>;
 
-  using bank_table_allocator_type = container::scoped_allocator_adaptor<other_allocator_type<key_table_type>>;
-  using bank_table_t = container::vector<key_table_type, bank_table_allocator_type>;
+  using bank_table_allocator_type =
+      container::scoped_allocator_adaptor<other_allocator_type<key_table_type>>;
+  using bank_table_t =
+      container::vector<key_table_type, bank_table_allocator_type>;
 
   // Forward declaration
   class impl_const_key_iterator;
@@ -64,23 +67,27 @@ class multithread_adjacency_list {
   using local_key_iterator = typename key_table_type::iterator;
   using const_local_key_iterator = typename key_table_type::const_iterator;
 
-  explicit multithread_adjacency_list(const _base_allocator_type &allocator = _base_allocator_type())
+  explicit multithread_adjacency_list(
+      const _base_allocator_type &allocator = _base_allocator_type())
       : m_bank_table(k_num_banks, allocator) {}
 
   ~multithread_adjacency_list() = default;
 
   bool add(key_type key, value_type value) {
-    auto guard = metall::utility::mutex::mutex_lock<k_num_banks>(bank_index(key));
+    auto guard =
+        metall::utility::mutex::mutex_lock<k_num_banks>(bank_index(key));
 #ifdef __clang__
 #if METALL_USE_STL_CONTAINERS_IN_ADJLIST
     m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
 #else
     m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
-//    m_bank_table[bank_index(key)].try_emplace(key, list_allocator_type(m_bank_table.get_allocator()));
+//    m_bank_table[bank_index(key)].try_emplace(key,
+//    list_allocator_type(m_bank_table.get_allocator()));
 //    m_bank_table[bank_index(key)].at(key).emplace_back(std::move(value));
 #endif
 #else
-    // MEMO: GCC does not work with STL Containers (tested with GCC 10.2.0 on MacOS)
+    // MEMO: GCC does not work with STL Containers (tested with GCC 10.2.0 on
+    // MacOS)
     m_bank_table[bank_index(key)][key].emplace_back(std::move(value));
 #endif
     return true;
@@ -137,9 +144,7 @@ class multithread_adjacency_list {
     return m_bank_table[bank_index].end();
   }
 
-  std::size_t num_banks() const {
-    return m_bank_table.size();
-  }
+  std::size_t num_banks() const { return m_bank_table.size(); }
 
  private:
   std::size_t bank_index(const std::size_t i) const {
@@ -149,11 +154,15 @@ class multithread_adjacency_list {
   bank_table_t m_bank_table;
 };
 
-template <typename _key_type, typename _value_type, typename _base_allocator_type>
-class multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>::impl_const_key_iterator {
+template <typename _key_type, typename _value_type,
+          typename _base_allocator_type>
+class multithread_adjacency_list<
+    _key_type, _value_type, _base_allocator_type>::impl_const_key_iterator {
  private:
-  using adjacency_list_type = multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>;
-  using local_iterator_type = typename adjacency_list_type::key_table_type::const_iterator;
+  using adjacency_list_type =
+      multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>;
+  using local_iterator_type =
+      typename adjacency_list_type::key_table_type::const_iterator;
 
  public:
   using difference_type = typename local_iterator_type::difference_type;
@@ -161,16 +170,19 @@ class multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>::
   using pointer = typename local_iterator_type::pointer;
   using reference = typename local_iterator_type::reference;
 
-  explicit impl_const_key_iterator(const adjacency_list_type *const adjacency_list)
+  explicit impl_const_key_iterator(
+      const adjacency_list_type *const adjacency_list)
       : m_ptr_adjacency_list(adjacency_list),
         m_current_bank_index(0),
         m_local_iterator(m_ptr_adjacency_list->m_bank_table[0].begin()) {
-    while (m_local_iterator == m_ptr_adjacency_list->m_bank_table[m_current_bank_index].end()) {
-      ++m_current_bank_index; // move to the next bank
+    while (m_local_iterator ==
+           m_ptr_adjacency_list->m_bank_table[m_current_bank_index].end()) {
+      ++m_current_bank_index;  // move to the next bank
       if (m_current_bank_index == m_ptr_adjacency_list->m_bank_table.size()) {
         return;  // reach the end
       }
-      m_local_iterator = m_ptr_adjacency_list->m_bank_table[m_current_bank_index].begin();
+      m_local_iterator =
+          m_ptr_adjacency_list->m_bank_table[m_current_bank_index].begin();
     }
   }
 
@@ -182,18 +194,22 @@ class multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>::
 
   void move_to_end() {
     m_current_bank_index = m_ptr_adjacency_list->m_bank_table.size();
-    m_local_iterator = m_ptr_adjacency_list->m_bank_table[m_ptr_adjacency_list->m_bank_table.size() - 1].end();
+    m_local_iterator =
+        m_ptr_adjacency_list
+            ->m_bank_table[m_ptr_adjacency_list->m_bank_table.size() - 1]
+            .end();
   }
 
   bool operator==(const impl_const_key_iterator &other) {
-    return (m_current_bank_index == other.m_current_bank_index && m_local_iterator == other.m_local_iterator);
+    return (m_current_bank_index == other.m_current_bank_index &&
+            m_local_iterator == other.m_local_iterator);
   }
 
   bool operator!=(const impl_const_key_iterator &other) {
     return !(*this == other);
   }
 
-  impl_const_key_iterator& operator++() {
+  impl_const_key_iterator &operator++() {
     next();
     return *this;
   }
@@ -204,38 +220,40 @@ class multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>::
     return tmp;
   }
 
-  pointer operator->() {
-    return &(*m_local_iterator);
-  }
+  pointer operator->() { return &(*m_local_iterator); }
 
-  reference operator*() {
-    return (*m_local_iterator);
-  }
+  reference operator*() { return (*m_local_iterator); }
 
  private:
-
   void next() {
     if (m_current_bank_index == m_ptr_adjacency_list->m_bank_table.size()) {
-      assert(
-          m_local_iterator == m_ptr_adjacency_list->m_bank_table[m_ptr_adjacency_list->m_bank_table.size() - 1].end());
-      return; // already at the end
+      assert(m_local_iterator ==
+             m_ptr_adjacency_list
+                 ->m_bank_table[m_ptr_adjacency_list->m_bank_table.size() - 1]
+                 .end());
+      return;  // already at the end
     }
 
     ++m_local_iterator;
-    if (m_local_iterator != m_ptr_adjacency_list->m_bank_table[m_current_bank_index].end())
-      return; // found the next one
+    if (m_local_iterator !=
+        m_ptr_adjacency_list->m_bank_table[m_current_bank_index].end())
+      return;  // found the next one
 
     // iterate until find the next valid element
     while (true) {
-      ++m_current_bank_index; // move to next bank
+      ++m_current_bank_index;  // move to next bank
       if (m_current_bank_index == m_ptr_adjacency_list->m_bank_table.size()) {
-        assert(m_local_iterator
-                   == m_ptr_adjacency_list->m_bank_table[m_ptr_adjacency_list->m_bank_table.size() - 1].end());
+        assert(m_local_iterator ==
+               m_ptr_adjacency_list
+                   ->m_bank_table[m_ptr_adjacency_list->m_bank_table.size() - 1]
+                   .end());
         return;  // reach the end
       }
-      m_local_iterator = m_ptr_adjacency_list->m_bank_table[m_current_bank_index].begin();
-      if (m_local_iterator != m_ptr_adjacency_list->m_bank_table[m_current_bank_index].end())
-        return; // found the next one
+      m_local_iterator =
+          m_ptr_adjacency_list->m_bank_table[m_current_bank_index].begin();
+      if (m_local_iterator !=
+          m_ptr_adjacency_list->m_bank_table[m_current_bank_index].end())
+        return;  // found the next one
     }
   }
 
@@ -244,6 +262,6 @@ class multithread_adjacency_list<_key_type, _value_type, _base_allocator_type>::
   local_iterator_type m_local_iterator;
 };
 
-} // namespace data_structure
+}  // namespace data_structure
 
-#endif //METALL_BENCH_DATA_STRUCTURE_MULTITHREAD_ADJACENCY_LIST_HPP
+#endif  // METALL_BENCH_DATA_STRUCTURE_MULTITHREAD_ADJACENCY_LIST_HPP

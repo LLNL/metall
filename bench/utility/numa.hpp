@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -42,7 +42,7 @@ int get_node([[maybe_unused]] const int thread_id) noexcept {
 
 int set_node([[maybe_unused]] const int thread_id) noexcept {
 #ifdef METALL_USE_NUMA_LIB
-  struct bitmask * mask = numa_bitmask_alloc(numa_num_possible_nodes());
+  struct bitmask *mask = numa_bitmask_alloc(numa_num_possible_nodes());
   assert(mask);
   const int node = get_node(thread_id);
   numa_bitmask_setbit(mask, node);
@@ -54,9 +54,11 @@ int set_node([[maybe_unused]] const int thread_id) noexcept {
 #endif
 }
 
-int get_local_num_threads([[maybe_unused]] const int thread_id, const int num_threads) noexcept {
+int get_local_num_threads([[maybe_unused]] const int thread_id,
+                          const int num_threads) noexcept {
 #ifdef METALL_USE_NUMA_LIB
-  const auto range = metall::mtlldetail::partial_range(num_threads, get_node(thread_id), get_avail_nodes());
+  const auto range = metall::mtlldetail::partial_range(
+      num_threads, get_node(thread_id), get_avail_nodes());
   return range.second - range.first;
 #else
   return num_threads;
@@ -86,5 +88,5 @@ void free(void *start, [[maybe_unused]] const std::size_t size) noexcept {
   ::free(start);
 #endif
 }
-} // namespace bench_utility::numa
-#endif //METALL_BENCH_UTILITY_NUMA_HPP
+}  // namespace bench_utility::numa
+#endif  // METALL_BENCH_UTILITY_NUMA_HPP

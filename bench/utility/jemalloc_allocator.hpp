@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -14,11 +14,10 @@ namespace bench_utility {
 /// \tparam T The type of the object
 template <typename T>
 class jemalloc_allocator {
-
  public:
   // -------------------- Types -------------------- //
   using value_type = T;
-  using pointer = T*;
+  using pointer = T *;
   using size_type = std::size_t;
 
   // -------------------- Constructor -------------------- //
@@ -26,7 +25,7 @@ class jemalloc_allocator {
 
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
-  jemalloc_allocator(const jemalloc_allocator<T2> &allocator_instance) {};
+  jemalloc_allocator(const jemalloc_allocator<T2> &allocator_instance){};
 
   // -------------------- Copy and move constructor -------------------- //
   jemalloc_allocator(const jemalloc_allocator &other) = default;
@@ -76,8 +75,8 @@ class jemalloc_allocator {
   /// \param ptr A pointer to allocated storage
   /// \param args The constructor arguments to use
   template <class... Args>
-  void construct(const pointer &ptr, Args &&... args) const {
-    ::new((void *)(ptr)) value_type(std::forward<Args>(args)...);
+  void construct(const pointer &ptr, Args &&...args) const {
+    ::new ((void *)(ptr)) value_type(std::forward<Args>(args)...);
   }
 
   /// \brief Deconstruct an object of T
@@ -99,21 +98,21 @@ class jemalloc_allocator {
     return std::true_type();
   }
 
-  bool propagate_on_container_swap() const noexcept {
-    return std::true_type();
-  }
+  bool propagate_on_container_swap() const noexcept { return std::true_type(); }
 };
 
 template <typename T>
-inline bool operator==(const jemalloc_allocator<T> &rhd, const jemalloc_allocator<T> &lhd) {
+inline bool operator==(const jemalloc_allocator<T> &rhd,
+                       const jemalloc_allocator<T> &lhd) {
   return true;
 }
 
 template <typename T>
-inline bool operator!=(const jemalloc_allocator<T> &rhd, const jemalloc_allocator<T> &lhd) {
+inline bool operator!=(const jemalloc_allocator<T> &rhd,
+                       const jemalloc_allocator<T> &lhd) {
   return !(rhd == lhd);
 }
 
-} // namespace bench_utility
+}  // namespace bench_utility
 
-#endif //METALL_BENCH_UTILITY_JEMALLOC_STL_ALLOCATOR_HPP
+#endif  // METALL_BENCH_UTILITY_JEMALLOC_STL_ALLOCATOR_HPP

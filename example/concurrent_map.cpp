@@ -8,11 +8,9 @@
 #include <metall/metall.hpp>
 #include <metall/container/concurrent_map.hpp>
 
-using map_type = metall::container::concurrent_map<char,
-                                                   int,
-                                                   std::less<char>,
-                                                   std::hash<char>,
-                                                   metall::manager::allocator_type<std::pair<const char, int>>>;
+using map_type = metall::container::concurrent_map<
+    char, int, std::less<char>, std::hash<char>,
+    metall::manager::allocator_type<std::pair<const char, int>>>;
 
 bool insert_func1(const char key, const int value, map_type *pmap) {
   return pmap->insert(std::make_pair(key, value));
@@ -37,12 +35,11 @@ void scoped_edit(const char key, const int value, map_type *pmap) {
 // Function style value update
 void edit(const char key, const int value, map_type *pmap) {
   pmap->edit(key, [&value](int &mapped_value) {
-    mapped_value = value; // Key 'b' has value '20' now.
+    mapped_value = value;  // Key 'b' has value '20' now.
   });
 }
 
 int main() {
-
   {
     metall::manager manager(metall::create_only, "/tmp/datastore");
     auto pmap = manager.construct<map_type>("map")(manager.get_allocator<>());

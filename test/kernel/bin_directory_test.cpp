@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -11,11 +11,13 @@
 #include "../test_utility.hpp"
 
 namespace {
-using bin_no_mngr = metall::kernel::bin_number_manager<metall::manager::chunk_size(), 1ULL << 48>;
-constexpr int num_small_bins = bin_no_mngr::to_bin_no(metall::manager::chunk_size() / 2) + 1;
-using directory_type = metall::kernel::bin_directory<num_small_bins,
-                                                         metall::manager::chunk_number_type,
-                                                         std::allocator<char>>;
+using bin_no_mngr =
+    metall::kernel::bin_number_manager<metall::manager::chunk_size(),
+                                       1ULL << 48>;
+constexpr int num_small_bins =
+    bin_no_mngr::to_bin_no(metall::manager::chunk_size() / 2) + 1;
+using directory_type = metall::kernel::bin_directory<
+    num_small_bins, metall::manager::chunk_number_type, std::allocator<char>>;
 
 TEST(BinDirectoryTest, Front) {
   std::allocator<char> allocator;
@@ -83,7 +85,6 @@ TEST(BinDirectoryTest, Erase) {
   obj.insert(num_small_bins - 1, 1);
   ASSERT_TRUE(obj.erase(num_small_bins - 1, 1));
   ASSERT_FALSE(obj.erase(num_small_bins - 1, 1));
-
 }
 
 TEST(BinDirectoryTest, Serialize) {
@@ -140,8 +141,7 @@ TEST(BinDirectoryTest, Deserialize) {
     obj.pop(num_small_bins - 1);
     ASSERT_EQ(obj.front(num_small_bins - 1), 3);
 #endif
-
   }
 }
 
-}
+}  // namespace

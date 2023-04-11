@@ -1,9 +1,10 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-// This program shows how to store pointers in persistent memory using the offset pointer
+// This program shows how to store pointers in persistent memory using the
+// offset pointer
 
 #include <iostream>
 #include <metall/metall.hpp>
@@ -22,7 +23,7 @@ int main() {
 
     auto* data = manager.construct<my_data>("data")();
     data->len = 10;
-    data->array = static_cast<int *>(manager.allocate(data->len * sizeof(int)));
+    data->array = static_cast<int*>(manager.allocate(data->len * sizeof(int)));
     for (int i = 0; i < data->len; ++i) data->array[i] = i;
   }
 

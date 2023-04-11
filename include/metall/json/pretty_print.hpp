@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -12,7 +12,8 @@
 
 namespace metall::json::jsndtl {
 template <typename allocator_type, int indent_size>
-inline void pretty_print_impl(std::ostream &os, const value<allocator_type> &jv, const std::string &indent) {
+inline void pretty_print_impl(std::ostream &os, const value<allocator_type> &jv,
+                              const std::string &indent) {
   if (jv.is_bool()) {
     os << std::boolalpha << jv.as_bool();
   } else if (jv.is_int64()) {
@@ -43,7 +44,8 @@ inline void pretty_print_impl(std::ostream &os, const value<allocator_type> &jv,
     new_indent.append(indent_size, ' ');
     for (auto it = obj.begin();;) {
       os << new_indent << it->key() << " : ";
-      pretty_print_impl<allocator_type, indent_size>(os, it->value(), new_indent);
+      pretty_print_impl<allocator_type, indent_size>(os, it->value(),
+                                                     new_indent);
       if (++it == obj.end()) {
         break;
       }
@@ -56,7 +58,7 @@ inline void pretty_print_impl(std::ostream &os, const value<allocator_type> &jv,
   }
 }
 
-} // namespace metall::json::jsndtl
+}  // namespace metall::json::jsndtl
 
 namespace metall::json {
 
@@ -70,12 +72,14 @@ template <typename allocator_type, int indent_size = 2>
 #else
 template <typename allocator_type, int indent_size>
 #endif
-inline void pretty_print(std::ostream &os, const value<allocator_type> &json_value) {
+inline void pretty_print(std::ostream &os,
+                         const value<allocator_type> &json_value) {
   std::string indent;
-  jsndtl::pretty_print_impl<allocator_type, indent_size>(os, json_value, indent);
+  jsndtl::pretty_print_impl<allocator_type, indent_size>(os, json_value,
+                                                         indent);
   os << std::endl;
 }
 
-} // namespace metall::json
+}  // namespace metall::json
 
-#endif //METALL_JSON_PRETTY_PRINT_HPP
+#endif  // METALL_JSON_PRETTY_PRINT_HPP

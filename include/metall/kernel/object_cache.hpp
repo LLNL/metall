@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -30,9 +30,8 @@ namespace mdtl = metall::mtlldetail;
 }
 
 template <std::size_t _k_num_bins, typename _size_type,
-                                   typename _difference_type,
-                                   typename _bin_no_manager,
-                                   typename _object_allocator_type>
+          typename _difference_type, typename _bin_no_manager,
+          typename _object_allocator_type>
 class object_cache {
  public:
   // -------------------- //
@@ -44,12 +43,10 @@ class object_cache {
   using bin_no_manager = _bin_no_manager;
   using bin_no_type = typename bin_no_manager::bin_no_type;
   using object_allocator_type = _object_allocator_type;
-  using object_allocate_func_type = void (object_allocator_type::* const)(const bin_no_type,
-                                                                          const size_type,
-                                                                          difference_type *const);
-  using object_deallocate_func_type = void (object_allocator_type::* const)(const bin_no_type,
-                                                                            const size_type,
-                                                                            const difference_type *const);
+  using object_allocate_func_type = void (object_allocator_type::*const)(
+      const bin_no_type, const size_type, difference_type *const);
+  using object_deallocate_func_type = void (object_allocator_type::*const)(
+      const bin_no_type, const size_type, const difference_type *const);
 
  private:
   // -------------------- //
@@ -58,12 +55,17 @@ class object_cache {
 
   static constexpr std::size_t k_num_cache_per_core = 4;
   static constexpr std::size_t k_cache_bin_size = 1ULL << 20ULL;
-  static constexpr std::size_t k_max_cache_block_size = 64; // Add and remove caches by up to this size
-  static constexpr std::size_t k_max_cache_object_size = k_cache_bin_size / k_max_cache_block_size / 2;
-  static constexpr bin_no_type k_max_bin_no = bin_no_manager::to_bin_no(k_max_cache_object_size);
+  static constexpr std::size_t k_max_cache_block_size =
+      64;  // Add and remove caches by up to this size
+  static constexpr std::size_t k_max_cache_object_size =
+      k_cache_bin_size / k_max_cache_block_size / 2;
+  static constexpr bin_no_type k_max_bin_no =
+      bin_no_manager::to_bin_no(k_max_cache_object_size);
   static constexpr std::size_t k_cpu_core_no_cache_duration = 4;
 
-  using single_cache_type = object_cache_container<k_cache_bin_size, k_max_bin_no + 1, difference_type, bin_no_manager>;
+  using single_cache_type =
+      object_cache_container<k_cache_bin_size, k_max_bin_no + 1,
+                             difference_type, bin_no_manager>;
   using cache_table_type = std::vector<single_cache_type>;
 
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
@@ -83,9 +85,11 @@ class object_cache {
   object_cache()
       : m_cache_table(get_num_cores() * k_num_cache_per_core)
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
-      , m_mutex(m_cache_table.size())
+        ,
+        m_mutex(m_cache_table.size())
 #endif
-  {}
+  {
+  }
 
   ~object_cache() noexcept = default;
   object_cache(const object_cache &) = default;
@@ -112,7 +116,8 @@ class object_cache {
     if (m_cache_table[cache_no].empty(bin_no)) {
       difference_type allocated_offsets[k_max_cache_block_size];
       const auto block_size = priv_get_cache_block_size(bin_no);
-      (allocator_instance->*allocator_function)(bin_no, block_size, allocated_offsets);
+      (allocator_instance->*allocator_function)(bin_no, block_size,
+                                                allocated_offsets);
       for (std::size_t i = 0; i < block_size; ++i) {
         m_cache_table[cache_no].push(bin_no, allocated_offsets[i]);
       }
@@ -130,7 +135,7 @@ class object_cache {
             object_allocator_type *const allocator_instance,
             object_deallocate_func_type deallocator_function) {
     assert(object_offset >= 0);
-    if (bin_no > max_bin_no()) return false; // Error
+    if (bin_no > max_bin_no()) return false;  // Error
 
     const auto cache_no = priv_comp_cache_no();
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
@@ -153,25 +158,23 @@ class object_cache {
   }
 
   void clear() {
-    for (auto &table: m_cache_table) {
+    for (auto &table : m_cache_table) {
       table.clear();
     }
   }
 
-  std::size_t num_caches() const {
-    return m_cache_table.size();
-  }
+  std::size_t num_caches() const { return m_cache_table.size(); }
 
   /// \brief The max bin number this cache manages.
-  static constexpr bin_no_type max_bin_no() {
-    return k_max_bin_no;
-  }
+  static constexpr bin_no_type max_bin_no() { return k_max_bin_no; }
 
-  const_bin_iterator begin(const std::size_t cache_no, const bin_no_type bin_no) const {
+  const_bin_iterator begin(const std::size_t cache_no,
+                           const bin_no_type bin_no) const {
     return m_cache_table[cache_no].begin(bin_no);
   }
 
-  const_bin_iterator end(const std::size_t cache_no, const bin_no_type bin_no) const {
+  const_bin_iterator end(const std::size_t cache_no,
+                         const bin_no_type bin_no) const {
     return m_cache_table[cache_no].end(bin_no);
   }
 
@@ -183,20 +186,26 @@ class object_cache {
   // -------------------- //
   // Private methods
   // -------------------- //
-  static constexpr std::size_t priv_get_cache_block_size(const bin_no_type bin_no) noexcept {
+  static constexpr std::size_t priv_get_cache_block_size(
+      const bin_no_type bin_no) noexcept {
     const auto object_size = bin_no_manager::to_object_size(bin_no);
     // Returns a value on the interval [8, k_max_cache_block_size].
-    return std::max(std::min(4096 / object_size, k_max_cache_block_size), static_cast<std::size_t>(8));
+    return std::max(std::min(4096 / object_size, k_max_cache_block_size),
+                    static_cast<std::size_t>(8));
   }
 
   std::size_t priv_comp_cache_no() const {
 #if SUPPORT_GET_CPU_CORE_NO
-    thread_local static const auto sub_cache_no = std::hash<std::thread::id>{}(std::this_thread::get_id()) % k_num_cache_per_core;
+    thread_local static const auto sub_cache_no =
+        std::hash<std::thread::id>{}(std::this_thread::get_id()) %
+        k_num_cache_per_core;
     const std::size_t core_num = priv_get_core_no();
-    return mdtl::hash<std::size_t>{}(core_num * k_num_cache_per_core + sub_cache_no) % m_cache_table.size();
+    return mdtl::hash<std::size_t>{}(core_num * k_num_cache_per_core +
+                                     sub_cache_no) %
+           m_cache_table.size();
 #else
-    thread_local static const auto hashed_thread_id
-        = mdtl::hash<std::size_t>{}(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+    thread_local static const auto hashed_thread_id = mdtl::hash<std::size_t>{}(
+        std::hash<std::thread::id>{}(std::this_thread::get_id()));
     return hashed_thread_id % m_cache_table.size();
 #endif
   }
@@ -226,5 +235,5 @@ class object_cache {
 #endif
 };
 
-} // namespace metall
-#endif //METALL_DETAIL_OBJECT_CACHE_HPP
+}  // namespace metall::kernel
+#endif  // METALL_DETAIL_OBJECT_CACHE_HPP

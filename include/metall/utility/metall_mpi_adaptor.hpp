@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -35,14 +35,16 @@ class metall_mpi_adaptor {
   /// \brief Opens an existing Metall datastore.
   /// \param root_dir_prefix A root directory path of a Metall datastore.
   /// \param comm A MPI communicator.
-  metall_mpi_adaptor(metall::open_only_t, const std::string &root_dir_prefix, const MPI_Comm &comm = MPI_COMM_WORLD)
+  metall_mpi_adaptor(metall::open_only_t, const std::string &root_dir_prefix,
+                     const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
     priv_verify_num_partitions(root_dir_prefix, comm);
-    m_local_metall_manager = std::make_unique<manager_type>(metall::open_only,
-                                                            ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                    priv_mpi_comm_rank(comm)).c_str());
+    m_local_metall_manager = std::make_unique<manager_type>(
+        metall::open_only,
+        ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
+            .c_str());
   }
 
   /// \brief Opens an existing Metall datastore with the read-only mode.
@@ -55,9 +57,10 @@ class metall_mpi_adaptor {
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
     priv_verify_num_partitions(root_dir_prefix, comm);
-    m_local_metall_manager = std::make_unique<manager_type>(metall::open_read_only,
-                                                            ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                    priv_mpi_comm_rank(comm)).c_str());
+    m_local_metall_manager = std::make_unique<manager_type>(
+        metall::open_read_only,
+        ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
+            .c_str());
   }
 
   /// \brief Creates a new Metall datastore.
@@ -70,9 +73,10 @@ class metall_mpi_adaptor {
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
     priv_setup_root_dir(root_dir_prefix, comm);
-    m_local_metall_manager = std::make_unique<manager_type>(metall::create_only,
-                                                            ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                    priv_mpi_comm_rank(comm)).c_str());
+    m_local_metall_manager = std::make_unique<manager_type>(
+        metall::create_only,
+        ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
+            .c_str());
   }
 
   /// \brief Creates a new Metall datastore.
@@ -80,19 +84,22 @@ class metall_mpi_adaptor {
   /// The same name of file or directory must not exist.
   /// \param capacity The max capacity of the datastore.
   /// \param comm A MPI communicator.
-  metall_mpi_adaptor(metall::create_only_t, const std::string &root_dir_prefix, const std::size_t capacity,
+  metall_mpi_adaptor(metall::create_only_t, const std::string &root_dir_prefix,
+                     const std::size_t capacity,
                      const MPI_Comm &comm = MPI_COMM_WORLD)
       : m_mpi_comm(comm),
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
     priv_setup_root_dir(root_dir_prefix, comm);
-    m_local_metall_manager = std::make_unique<manager_type>(metall::create_only,
-                                                            ds::make_local_dir_path(m_root_dir_prefix,
-                                                                                    priv_mpi_comm_rank(comm)).c_str(),
-                                                            capacity);
+    m_local_metall_manager = std::make_unique<manager_type>(
+        metall::create_only,
+        ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
+            .c_str(),
+        capacity);
   }
 
-  /// \brief Destructor that globally synchronizes the close operations of all sub-Metall datastores.
+  /// \brief Destructor that globally synchronizes the close operations of all
+  /// sub-Metall datastores.
   ~metall_mpi_adaptor() {
     m_local_metall_manager.reset(nullptr);
     priv_mpi_barrier(m_mpi_comm);
@@ -104,9 +111,7 @@ class metall_mpi_adaptor {
 
   /// \brief Returns the Metall manager object of the process.
   /// \return A reference to a Metall manager object.
-  manager_type &get_local_manager() {
-    return *m_local_metall_manager;
-  }
+  manager_type &get_local_manager() { return *m_local_metall_manager; }
 
   /// \brief Returns the Metall manager object of the process.
   /// \return A reference to a Metall manager object.
@@ -123,20 +128,22 @@ class metall_mpi_adaptor {
   /// \brief Returns the path of the sub-Metall datastore of the process.
   /// \return A path of a sub-Metall datastore.
   std::string local_dir_path() const {
-    return ds::make_local_dir_path(ds::make_root_dir_path(m_root_dir_prefix), priv_mpi_comm_rank(m_mpi_comm));
+    return ds::make_local_dir_path(ds::make_root_dir_path(m_root_dir_prefix),
+                                   priv_mpi_comm_rank(m_mpi_comm));
   }
 
   /// \brief Returns the path of a Metall datastore of a MPI rank.
   /// \param root_dir_prefix A root directory path.
   /// \param mpi_rank A MPI rank.
   /// \return A path of a Metall datastore.
-  static std::string local_dir_path(const std::string &root_dir_prefix, const int mpi_rank) {
+  static std::string local_dir_path(const std::string &root_dir_prefix,
+                                    const int mpi_rank) {
     return ds::make_local_dir_path(root_dir_prefix, mpi_rank);
   }
 
   /// \brief Copies a Metall datastore to another location.
-  /// The behavior of copying a data store that is open without the read-only mode is undefined.
-  /// \param source_dir_path A path to a source datastore.
+  /// The behavior of copying a data store that is open without the read-only
+  /// mode is undefined. \param source_dir_path A path to a source datastore.
   /// \param destination_dir_path A path to a destination datastore.
   /// \param comm A MPI communicator.
   /// \return Returns true if all processes success;
@@ -147,7 +154,8 @@ class metall_mpi_adaptor {
     if (!consistent(source_dir_path, comm)) {
       if (priv_mpi_comm_rank(comm) == 0) {
         std::stringstream ss;
-        ss << "Source directory is not consistnt (may not have closed properly or may still be open): "
+        ss << "Source directory is not consistnt (may not have closed properly "
+              "or may still be open): "
            << source_dir_path;
         logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       }
@@ -155,20 +163,24 @@ class metall_mpi_adaptor {
     }
     priv_setup_root_dir(destination_dir_path, comm);
     const int rank = priv_mpi_comm_rank(comm);
-    return priv_global_and(manager_type::copy(ds::make_local_dir_path(source_dir_path, rank).c_str(),
-                                              ds::make_local_dir_path(destination_dir_path, rank).c_str()), comm);
+    return priv_global_and(
+        manager_type::copy(
+            ds::make_local_dir_path(source_dir_path, rank).c_str(),
+            ds::make_local_dir_path(destination_dir_path, rank).c_str()),
+        comm);
   }
 
-  /// \brief Take a snapshot of the current Metall datastore to another location.
-  /// \param destination_dir_path A path to a destination datastore.
+  /// \brief Take a snapshot of the current Metall datastore to another
+  /// location. \param destination_dir_path A path to a destination datastore.
   /// \return Returns true if all processes success;
   /// otherwise, returns false.
   bool snapshot(const char *destination_dir_path) {
     priv_setup_root_dir(destination_dir_path, m_mpi_comm);
     const int rank = priv_mpi_comm_rank(m_mpi_comm);
-    return priv_global_and(m_local_metall_manager->snapshot(ds::make_local_dir_path(destination_dir_path,
-                                                                                    rank).c_str()),
-                           m_mpi_comm);
+    return priv_global_and(
+        m_local_metall_manager->snapshot(
+            ds::make_local_dir_path(destination_dir_path, rank).c_str()),
+        m_mpi_comm);
   }
 
   /// \brief Removes Metall datastore.
@@ -176,14 +188,16 @@ class metall_mpi_adaptor {
   /// \param comm A MPI communicator.
   /// \return Returns true if all processes success;
   /// otherwise, returns false.
-  static bool remove(const char *root_dir_prefix, const MPI_Comm &comm = MPI_COMM_WORLD) {
+  static bool remove(const char *root_dir_prefix,
+                     const MPI_Comm &comm = MPI_COMM_WORLD) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
 
     // ----- Check if this is a Metall datastore ----- //
     bool corrent_dir = true;
     if (!metall::mtlldetail::file_exist(
-        ds::make_root_dir_path(root_dir_prefix) + "/" + k_datastore_mark_file_name)) {
+            ds::make_root_dir_path(root_dir_prefix) + "/" +
+            k_datastore_mark_file_name)) {
       corrent_dir = false;
     }
     if (!priv_global_and(corrent_dir, comm)) {
@@ -197,7 +211,8 @@ class metall_mpi_adaptor {
       if (read_size != size) {
         correct_mpi_size = false;
         std::stringstream ss;
-        ss << " Invalid number of MPI processes (provided " << size << ", " << "expected " << correct_mpi_size << ")";
+        ss << " Invalid number of MPI processes (provided " << size << ", "
+           << "expected " << correct_mpi_size << ")";
         logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       }
     }
@@ -209,9 +224,12 @@ class metall_mpi_adaptor {
     bool ret = true;
     for (int i = 0; i < size; ++i) {
       if (i == rank) {
-        if (metall::mtlldetail::file_exist(ds::make_root_dir_path(root_dir_prefix))
-            && !metall::mtlldetail::remove_file(ds::make_root_dir_path(root_dir_prefix))) {
-          std::string s("Failed to remove directory: " + ds::make_root_dir_path(root_dir_prefix));
+        if (metall::mtlldetail::file_exist(
+                ds::make_root_dir_path(root_dir_prefix)) &&
+            !metall::mtlldetail::remove_file(
+                ds::make_root_dir_path(root_dir_prefix))) {
+          std::string s("Failed to remove directory: " +
+                        ds::make_root_dir_path(root_dir_prefix));
           logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
           ret = false;
         }
@@ -226,7 +244,8 @@ class metall_mpi_adaptor {
   /// \param root_dir_prefix A root directory path of datastore.
   /// \param comm A MPI communicator.
   /// \return The number of partitions of a Metall datastore.
-  static int partitions(const char *root_dir_prefix, const MPI_Comm &comm = MPI_COMM_WORLD) {
+  static int partitions(const char *root_dir_prefix,
+                        const MPI_Comm &comm = MPI_COMM_WORLD) {
     return priv_read_num_partitions(root_dir_prefix, comm);
   }
 
@@ -235,7 +254,8 @@ class metall_mpi_adaptor {
   /// \param comm A MPI communicator.
   /// \return Returns true if all datastores are consistent;
   /// otherwise, returns false.
-  static bool consistent(const char *root_dir_prefix, const MPI_Comm &comm = MPI_COMM_WORLD) {
+  static bool consistent(const char *root_dir_prefix,
+                         const MPI_Comm &comm = MPI_COMM_WORLD) {
     const int rank = priv_mpi_comm_rank(comm);
     const auto local_path = ds::make_local_dir_path(root_dir_prefix, rank);
     const auto ret = manager_type::consistent(local_path.c_str());
@@ -243,13 +263,16 @@ class metall_mpi_adaptor {
   }
 
  private:
-  static constexpr const char *k_datastore_mark_file_name = "metall_mpi_datastore";
-  static constexpr const char *k_partition_size_file_name = "metall_mpi_adaptor_partition_size";
+  static constexpr const char *k_datastore_mark_file_name =
+      "metall_mpi_datastore";
+  static constexpr const char *k_partition_size_file_name =
+      "metall_mpi_adaptor_partition_size";
 
   // -------------------- //
   // Private methods
   // -------------------- //
-  static void priv_setup_root_dir(const std::string &root_dir_prefix, const MPI_Comm &comm) {
+  static void priv_setup_root_dir(const std::string &root_dir_prefix,
+                                  const MPI_Comm &comm) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
     const std::string root_dir_path = ds::make_root_dir_path(root_dir_prefix);
@@ -258,7 +281,9 @@ class metall_mpi_adaptor {
     const auto local_ret = metall::mtlldetail::file_exist(root_dir_path);
     if (priv_global_or(local_ret, comm)) {
       if (rank == 0) {
-        std::string s("Root directory (or a file with the same name) already exists: " + root_dir_path);
+        std::string s(
+            "Root directory (or a file with the same name) already exists: " +
+            root_dir_path);
         logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
         ::MPI_Abort(comm, -1);
       }
@@ -273,7 +298,8 @@ class metall_mpi_adaptor {
           ::MPI_Abort(comm, -1);
         }
 
-        const std::string mark_file = root_dir_path + "/" + k_datastore_mark_file_name;
+        const std::string mark_file =
+            root_dir_path + "/" + k_datastore_mark_file_name;
         if (!metall::mtlldetail::create_file(mark_file)) {
           std::string s("Failed to create file: " + mark_file);
           logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
@@ -286,9 +312,11 @@ class metall_mpi_adaptor {
     }
   }
 
-  static void priv_store_partition_size(const std::string &root_dir_prefix, const MPI_Comm &comm) {
+  static void priv_store_partition_size(const std::string &root_dir_prefix,
+                                        const MPI_Comm &comm) {
     const int size = priv_mpi_comm_size(comm);
-    const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
+    const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" +
+                             k_partition_size_file_name;
 
     std::ofstream ofs(path);
     if (!ofs) {
@@ -305,8 +333,10 @@ class metall_mpi_adaptor {
     ofs.close();
   }
 
-  static int priv_read_num_partitions(const std::string &root_dir_prefix, const MPI_Comm &comm) {
-    const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" + k_partition_size_file_name;
+  static int priv_read_num_partitions(const std::string &root_dir_prefix,
+                                      const MPI_Comm &comm) {
+    const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" +
+                             k_partition_size_file_name;
     std::ifstream ifs(path);
     if (!ifs) {
       std::string s("Failed to open a file: " + path);
@@ -323,13 +353,15 @@ class metall_mpi_adaptor {
     return read_size;
   }
 
-  static void priv_verify_num_partitions(const std::string &root_dir_prefix, const MPI_Comm &comm) {
+  static void priv_verify_num_partitions(const std::string &root_dir_prefix,
+                                         const MPI_Comm &comm) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
 
     if (rank == 0) {
       if (priv_read_num_partitions(root_dir_prefix, comm) != size) {
-        logger::out(logger::level::error, __FILE__, __LINE__, "Invalid number of MPI processes");
+        logger::out(logger::level::error, __FILE__, __LINE__,
+                    "Invalid number of MPI processes");
         ::MPI_Abort(comm, -1);
       }
     }
@@ -377,7 +409,8 @@ class metall_mpi_adaptor {
   static int priv_determine_local_root_rank(const MPI_Comm &comm) {
     const int rank = mpi::determine_local_root(comm);
     if (rank == -1) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed at determining a local root rank");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Failed at determining a local root rank");
       ::MPI_Abort(comm, -1);
     }
     return rank;
@@ -388,6 +421,6 @@ class metall_mpi_adaptor {
   std::unique_ptr<manager_type> m_local_metall_manager;
 };
 
-} // namespace metall::utility
+}  // namespace metall::utility
 
-#endif //METALL_UTILITY_METALL_MPI_ADAPTOR_HPP
+#endif  // METALL_UTILITY_METALL_MPI_ADAPTOR_HPP

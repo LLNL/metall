@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,8 +15,8 @@ namespace metall::mtlldetail {
 #define SUPPORT_GET_CPU_CORE_NO false
 #endif
 
-/// \brief Returns the number of the CPU core on which the calling thread is currently executing
-/// \return Returns a non-negative CPU core number
+/// \brief Returns the number of the CPU core on which the calling thread is
+/// currently executing \return Returns a non-negative CPU core number
 inline int get_cpu_core_no() {
 #if SUPPORT_GET_CPU_CORE_NO
 
@@ -36,5 +36,5 @@ inline int get_cpu_core_no() {
 #endif
 }
 
-} // namespace metall::mtlldetail
-#endif //METALL_DETAIL_UTILITY_PROC_HPP
+}  // namespace metall::mtlldetail
+#endif  // METALL_DETAIL_UTILITY_PROC_HPP

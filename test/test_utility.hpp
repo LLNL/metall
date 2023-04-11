@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -25,7 +25,7 @@ inline std::string get_test_dir() {
   }
   return std::string(k_default_test_dir);
 }
-}
+}  // namespace detail
 
 inline bool create_test_dir() {
   if (!metall::mtlldetail::directory_exist(detail::get_test_dir()))
@@ -34,11 +34,11 @@ inline bool create_test_dir() {
 }
 
 inline std::string make_test_path(const std::string &name = std::string()) {
-  return detail::get_test_dir() + "/metalltest"
-    + "-" + ::testing::UnitTest::GetInstance()->current_test_case()->name()
-    + "-" + ::testing::UnitTest::GetInstance()->current_test_info()->name()
-    + "-" + name;
+  return detail::get_test_dir() + "/metalltest" + "-" +
+         ::testing::UnitTest::GetInstance()->current_test_case()->name() + "-" +
+         ::testing::UnitTest::GetInstance()->current_test_info()->name() + "-" +
+         name;
 }
 
-}
-#endif //METALL_TEST_UTILITY_HPP
+}  // namespace test_utility
+#endif  // METALL_TEST_UTILITY_HPP

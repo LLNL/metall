@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -31,7 +31,7 @@ int main() {
   if (metall::manager::consistent(snapshot_name0.c_str())) {
     metall::manager manager(metall::open_read_only, snapshot_name0.c_str());
     int *a = manager.find<int>(metall::unique_instance).first;
-    std::cout << *a << std::endl; // Print 0
+    std::cout << *a << std::endl;  // Print 0
   } else {
     std::cerr << snapshot_name0 << " is inconsistent" << std::endl;
   }
@@ -40,7 +40,7 @@ int main() {
   if (metall::manager::consistent(snapshot_name1.c_str())) {
     metall::manager manager(metall::open_read_only, snapshot_name1.c_str());
     int *a = manager.find<int>(metall::unique_instance).first;
-    std::cout << *a << std::endl; // Print 1
+    std::cout << *a << std::endl;  // Print 1
   } else {
     std::cerr << snapshot_name1 << " is inconsistent" << std::endl;
   }
@@ -49,7 +49,7 @@ int main() {
   if (metall::manager::consistent(master_path.c_str())) {
     metall::manager manager(metall::open_read_only, master_path.c_str());
     int *a = manager.find<int>(metall::unique_instance).first;
-    std::cout << *a << std::endl; // Print 2
+    std::cout << *a << std::endl;  // Print 2
   } else {
     std::cerr << master_path << " is inconsistent" << std::endl;
   }

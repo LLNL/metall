@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -57,13 +57,12 @@ namespace mdtl = metall::mtlldetail;
 
 template <typename _chunk_no_type, std::size_t _chunk_size>
 class manager_kernel {
-
  public:
   // -------------------- //
   // Public types and static values
   // -------------------- //
   using void_pointer = offset_ptr<void>;
-  using char_type = char; // required by boost's named proxy
+  using char_type = char;  // required by boost's named proxy
   using char_ptr_holder_type = mdtl::char_ptr_holder<char_type>;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
@@ -84,44 +83,56 @@ class manager_kernel {
   static constexpr const char *k_datastore_segment_dir_name = "segment";
 
   // For segment
-  static constexpr size_type k_default_vm_reserve_size = METALL_DEFAULT_VM_RESERVE_SIZE;
-  static_assert(k_chunk_size <= k_default_vm_reserve_size, "Chunk size must be <= k_default_vm_reserve_size");
+  static constexpr size_type k_default_vm_reserve_size =
+      METALL_DEFAULT_VM_RESERVE_SIZE;
+  static_assert(k_chunk_size <= k_default_vm_reserve_size,
+                "Chunk size must be <= k_default_vm_reserve_size");
 
   static constexpr size_type k_max_segment_size = METALL_MAX_SEGMENT_SIZE;
   static_assert(k_default_vm_reserve_size <= k_max_segment_size,
                 "k_default_vm_reserve_size must be <= k_max_segment_size");
 
-  static constexpr size_type k_initial_segment_size = METALL_INITIAL_SEGMENT_SIZE;
+  static constexpr size_type k_initial_segment_size =
+      METALL_INITIAL_SEGMENT_SIZE;
   static_assert(k_initial_segment_size <= k_default_vm_reserve_size,
                 "k_initial_segment_size must be <= k_default_vm_reserve_size");
-  static_assert(k_chunk_size <= k_initial_segment_size, "Chunk size must be <= k_initial_segment_size");
+  static_assert(k_chunk_size <= k_initial_segment_size,
+                "Chunk size must be <= k_initial_segment_size");
 
   using segment_header_type = segment_header;
-  static constexpr size_type k_segment_header_size = mdtl::round_up(sizeof(segment_header_type), k_chunk_size);
+  static constexpr size_type k_segment_header_size =
+      mdtl::round_up(sizeof(segment_header_type), k_chunk_size);
 
   using segment_storage_type =
 #ifdef METALL_USE_UMAP
-  umap_sparse_segment_storage<difference_type, size_type>;
+      umap_sparse_segment_storage<difference_type, size_type>;
 #else
-  mmap_segment_storage<difference_type, size_type>;
+      mmap_segment_storage<difference_type, size_type>;
 #endif
 
   // For actual memory allocation layer
-  static constexpr const char *k_segment_memory_allocator_prefix = "segment_memory_allocator";
-  using segment_memory_allocator = segment_allocator<chunk_no_type, size_type, difference_type,
-                                                     k_chunk_size, k_max_segment_size,
-                                                     segment_storage_type>;
+  static constexpr const char *k_segment_memory_allocator_prefix =
+      "segment_memory_allocator";
+  using segment_memory_allocator =
+      segment_allocator<chunk_no_type, size_type, difference_type, k_chunk_size,
+                        k_max_segment_size, segment_storage_type>;
 
   // For attributed object directory
-  using attributed_object_directory_type = attributed_object_directory<difference_type, size_type>;
-  static constexpr const char *k_named_object_directory_prefix = "named_object_directory";
-  static constexpr const char *k_unique_object_directory_prefix = "unique_object_directory";
-  static constexpr const char *k_anonymous_object_directory_prefix = "anonymous_object_directory";
+  using attributed_object_directory_type =
+      attributed_object_directory<difference_type, size_type>;
+  static constexpr const char *k_named_object_directory_prefix =
+      "named_object_directory";
+  static constexpr const char *k_unique_object_directory_prefix =
+      "unique_object_directory";
+  static constexpr const char *k_anonymous_object_directory_prefix =
+      "anonymous_object_directory";
 
-  static constexpr const char *k_properly_closed_mark_file_name = "properly_closed_mark";
+  static constexpr const char *k_properly_closed_mark_file_name =
+      "properly_closed_mark";
 
   // For manager metadata data
-  static constexpr const char *k_manager_metadata_file_name = "manager_metadata";
+  static constexpr const char *k_manager_metadata_file_name =
+      "manager_metadata";
   static constexpr const char *k_manager_metadata_key_for_version = "version";
   static constexpr const char *k_manager_metadata_key_for_uuid = "uuid";
 
@@ -139,14 +150,19 @@ class manager_kernel {
   // Public types and static values
   // -------------------- //
   using const_named_iterator = attributed_object_directory_type::const_iterator;
-  using const_unique_iterator = attributed_object_directory_type::const_iterator;
-  using const_anonymous_iterator = attributed_object_directory_type::const_iterator;
-  using named_object_attr_accessor_type = named_object_attr_accessor<attributed_object_directory_type::offset_type,
-                                                                     attributed_object_directory_type::size_type>;
-  using unique_object_attr_accessor_type = unique_object_attr_accessor<attributed_object_directory_type::offset_type,
-                                                                       attributed_object_directory_type::size_type>;
-  using anonymous_object_attr_accessor_type = anonymous_object_attr_accessor<attributed_object_directory_type::offset_type,
-                                                                             attributed_object_directory_type::size_type>;
+  using const_unique_iterator =
+      attributed_object_directory_type::const_iterator;
+  using const_anonymous_iterator =
+      attributed_object_directory_type::const_iterator;
+  using named_object_attr_accessor_type =
+      named_object_attr_accessor<attributed_object_directory_type::offset_type,
+                                 attributed_object_directory_type::size_type>;
+  using unique_object_attr_accessor_type =
+      unique_object_attr_accessor<attributed_object_directory_type::offset_type,
+                                  attributed_object_directory_type::size_type>;
+  using anonymous_object_attr_accessor_type = anonymous_object_attr_accessor<
+      attributed_object_directory_type::offset_type,
+      attributed_object_directory_type::size_type>;
 
   // -------------------- //
   // Constructor & assign operator
@@ -169,14 +185,16 @@ class manager_kernel {
   /// \param base_dir_path
   /// \param vm_reserve_size
   /// \return Returns true if success; otherwise, returns false
-  bool create(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
+  bool create(const char *base_dir_path,
+              size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Opens an existing datastore
   /// Expect to be called by a single thread
   /// \param base_dir_path
   /// \param vm_reserve_size
   /// \return Returns true if success; otherwise, returns false
-  bool open(const char *base_dir_path, size_type vm_reserve_size = k_default_vm_reserve_size);
+  bool open(const char *base_dir_path,
+            size_type vm_reserve_size = k_default_vm_reserve_size);
 
   /// \brief Opens an existing datastore with read only
   /// Expect to be called by a single thread
@@ -197,12 +215,13 @@ class manager_kernel {
   /// \return
   void *allocate(size_type nbytes);
 
-  /// \brief Allocate nbytes bytes of uninitialized storage whose alignment is specified by alignment.
-  /// \param nbytes A size to allocate. Must be a multiple of alignment.
-  /// \param alignment An alignment requirement.
-  /// Alignment must be a power of two and satisfy [min allocation size, chunk size].
-  /// \return On success, returns the pointer to the beginning of newly allocated memory.
-  /// Returns nullptr, if the given arguments do not satisfy the requirements above.
+  /// \brief Allocate nbytes bytes of uninitialized storage whose alignment is
+  /// specified by alignment. \param nbytes A size to allocate. Must be a
+  /// multiple of alignment. \param alignment An alignment requirement.
+  /// Alignment must be a power of two and satisfy [min allocation size, chunk
+  /// size]. \return On success, returns the pointer to the beginning of newly
+  /// allocated memory. Returns nullptr, if the given arguments do not satisfy
+  /// the requirements above.
   void *allocate_aligned(size_type nbytes, size_type alignment);
 
   /// \brief Deallocates
@@ -230,84 +249,71 @@ class manager_kernel {
   bool destroy(char_ptr_holder_type name);
 
   /// \brief Destroy a constructed object (named, unique, or anonymous).
-  /// Cannot destroy an object not allocated by construct/find_or_construct functions.
-  /// \tparam T
-  /// \param ptr
-  /// \return
+  /// Cannot destroy an object not allocated by construct/find_or_construct
+  /// functions. \tparam T \param ptr \return
   template <typename T>
   bool destroy_ptr(const T *ptr);
 
-  /// \brief Returns the name of an object created with construct/find_or_construct functions.
-  /// If ptr points to an unique instance, typeid(T).name() is returned.
-  /// If ptr points to an anonymous instance or a memory not allocated by construct/find_or_construct functions,
-  /// 0 is returned.
-  /// \tparam T
-  /// \param ptr
-  /// \return
+  /// \brief Returns the name of an object created with
+  /// construct/find_or_construct functions. If ptr points to an unique
+  /// instance, typeid(T).name() is returned. If ptr points to an anonymous
+  /// instance or a memory not allocated by construct/find_or_construct
+  /// functions, 0 is returned. \tparam T \param ptr \return
   template <class T>
   const char_type *get_instance_name(const T *ptr) const;
 
-  /// \brief Returns is the kind of an object created with construct/find_or_construct functions.
-  /// \tparam T
-  /// \param ptr
-  /// \return
+  /// \brief Returns is the kind of an object created with
+  /// construct/find_or_construct functions. \tparam T \param ptr \return
   template <class T>
   instance_kind get_instance_kind(const T *ptr) const;
 
-  /// \brief Returns the length of an object created with construct/find_or_construct
-  /// functions (1 if is a single element, >=1 if it's an array).
-  /// \tparam T
-  /// \param ptr
-  /// \return
+  /// \brief Returns the length of an object created with
+  /// construct/find_or_construct functions (1 if is a single element, >=1 if
+  /// it's an array). \tparam T \param ptr \return
   template <class T>
   size_type get_instance_length(const T *ptr) const;
 
-  /// \brief Checks if the type of an object, which was created with construct/find_or_construct
-  /// functions (1 if is a single element, >=1 if it's an array), is T.
-  /// \tparam T
-  /// \param ptr
-  /// \return
+  /// \brief Checks if the type of an object, which was created with
+  /// construct/find_or_construct functions (1 if is a single element, >=1 if
+  /// it's an array), is T. \tparam T \param ptr \return
   template <class T>
   bool is_instance_type(const void *const ptr) const;
 
-  /// \brief Gets the description of an object created with construct/find_or_construct.
-  /// \tparam T The type of the object.
-  /// \param ptr A pointer to the object.
-  /// \param description A pointer to a string buffer.
+  /// \brief Gets the description of an object created with
+  /// construct/find_or_construct. \tparam T The type of the object. \param ptr
+  /// A pointer to the object. \param description A pointer to a string buffer.
   /// \return
   template <class T>
   bool get_instance_description(const T *ptr, std::string *description) const;
 
-  /// \brief Sets a description to an object created with construct/find_or_construct.
-  /// \tparam T The type of the object.
-  /// \param ptr A pointer to the object.
-  /// \param description A description to set.
-  /// \return
+  /// \brief Sets a description to an object created with
+  /// construct/find_or_construct. \tparam T The type of the object. \param ptr
+  /// A pointer to the object. \param description A description to set. \return
   template <class T>
   bool set_instance_description(const T *ptr, const std::string &description);
 
-  /// \brief Returns Returns the number of named objects stored in the managed segment.
-  /// \return
+  /// \brief Returns Returns the number of named objects stored in the managed
+  /// segment. \return
   size_type get_num_named_objects() const;
 
-  /// \brief Returns Returns the number of unique objects stored in the managed segment.
-  /// \return
+  /// \brief Returns Returns the number of unique objects stored in the managed
+  /// segment. \return
   size_type get_num_unique_objects() const;
 
-  /// \brief Returns Returns the number of anonymous objects stored in the managed segment.
-  /// \return
+  /// \brief Returns Returns the number of anonymous objects stored in the
+  /// managed segment. \return
   size_type get_num_anonymous_objects() const;
 
   /// \brief Returns a constant iterator to the index storing the named objects.
   /// \return
   const_named_iterator named_begin() const;
 
-  /// \brief Returns a constant iterator to the end of the index storing the named allocations.
-  /// \return
+  /// \brief Returns a constant iterator to the end of the index storing the
+  /// named allocations. \return
   const_named_iterator named_end() const;
 
-  /// \brief Returns a constant iterator to the index storing the unique objects.
-  /// \return
+  /// \brief Returns a constant iterator to the index storing the unique
+  /// objects. \return
   const_unique_iterator unique_begin() const;
 
   /// \brief Returns a constant iterator to the end of the index
@@ -315,8 +321,8 @@ class manager_kernel {
   /// \return
   const_unique_iterator unique_end() const;
 
-  /// \brief Returns a constant iterator to the index storing the anonymous objects.
-  /// \return
+  /// \brief Returns a constant iterator to the index storing the anonymous
+  /// objects. \return
   const_anonymous_iterator anonymous_begin() const;
 
   /// \brief Returns a constant iterator to the end of the index
@@ -324,22 +330,19 @@ class manager_kernel {
   /// \return
   const_anonymous_iterator anonymous_end() const;
 
-  /// \brief Generic named/anonymous new function. This method is required by construct_proxy and construct_iter_proxy.
-  /// \tparam T Type of the object(s).
+  /// \brief Generic named/anonymous new function. This method is required by
+  /// construct_proxy and construct_iter_proxy. \tparam T Type of the object(s).
   /// \param name Name of the object(s).
   /// \param num Number of objects to be constructed.
-  /// \param try2find If true, tries to find already constructed object(s) with the same name.
-  /// \param do_throw Ignored. This method does not throw its own exception ---
-  /// this function throws an exception thrown by the constructor of the object.
-  /// This is how Boost.Interprocess treats this parameter.
+  /// \param try2find If true, tries to find already constructed object(s) with
+  /// the same name. \param do_throw Ignored. This method does not throw its own
+  /// exception --- this function throws an exception thrown by the constructor
+  /// of the object. This is how Boost.Interprocess treats this parameter.
   /// \param table Reference to an in_place_interface object.
   /// \return Returns a pointer to the constructed object(s).
   template <typename T>
-  T *generic_construct(char_ptr_holder_type name,
-                       size_type num,
-                       bool try2find,
-                       bool do_throw,
-                       mdtl::in_place_interface &table);
+  T *generic_construct(char_ptr_holder_type name, size_type num, bool try2find,
+                       bool do_throw, mdtl::in_place_interface &table);
 
   /// \brief Get the address of the segment header.
   /// \return Returns the address of the segment header.
@@ -359,8 +362,7 @@ class manager_kernel {
   /// \param num_max_copy_threads The maximum number of copy threads to use.
   /// If <= 0 is given, the value is automatically determined.
   /// \return If succeeded, returns True; other false
-  bool snapshot(const char *destination_dir_path,
-                const bool clone,
+  bool snapshot(const char *destination_dir_path, const bool clone,
                 const int num_max_copy_threads);
 
   /// \brief Copies a data store synchronously, keeping the same UUID.
@@ -371,8 +373,7 @@ class manager_kernel {
   /// If <= 0 is given, the value is automatically determined.
   /// \return If succeeded, returns True; other false.
   static bool copy(const char *source_dir_path,
-                   const char *destination_dir_path,
-                   const bool clone,
+                   const char *destination_dir_path, const bool clone,
                    const int num_max_copy_threads);
 
   /// \brief Copies a data store asynchronously, keeping the same UUID.
@@ -432,7 +433,8 @@ class manager_kernel {
   /// \param base_dir_path  Path to a data store.
   /// \param description A pointer to a string buffer.
   /// \return Returns false on error.
-  static bool get_description(const std::string &base_dir_path, std::string *description);
+  static bool get_description(const std::string &base_dir_path,
+                              std::string *description);
 
   /// \brief Sets a description to a file.
   /// \param description A description to write.
@@ -443,23 +445,26 @@ class manager_kernel {
   /// \param base_dir_path Path to a data store.
   /// \param description A description to write.
   /// \return Returns false on error.
-  static bool set_description(const std::string &base_dir_path, const std::string &description);
+  static bool set_description(const std::string &base_dir_path,
+                              const std::string &description);
 
-  /// \brief Returns an instance that provides access to the attribute of named objects.
-  /// \param base_dir_path Path to a data store.
-  /// \return Returns an instance of named_object_attr_accessor_type.
-  static named_object_attr_accessor_type access_named_object_attribute(const std::string &base_dir_path);
+  /// \brief Returns an instance that provides access to the attribute of named
+  /// objects. \param base_dir_path Path to a data store. \return Returns an
+  /// instance of named_object_attr_accessor_type.
+  static named_object_attr_accessor_type access_named_object_attribute(
+      const std::string &base_dir_path);
 
-  /// \brief Returns an instance that provides access to the attribute of unique object.
-  /// \param base_dir_path Path to a data store.
-  /// \return Returns an instance of unique_object_attr_accessor_type.
-  static unique_object_attr_accessor_type access_unique_object_attribute(const std::string &base_dir_path);
+  /// \brief Returns an instance that provides access to the attribute of unique
+  /// object. \param base_dir_path Path to a data store. \return Returns an
+  /// instance of unique_object_attr_accessor_type.
+  static unique_object_attr_accessor_type access_unique_object_attribute(
+      const std::string &base_dir_path);
 
-  /// \brief Returns an instance that provides access to the attribute of anonymous object.
-  /// \param base_dir_path Path to a data store.
-  /// \return Returns an instance of anonymous_object_attr_accessor_type.
-  static anonymous_object_attr_accessor_type access_anonymous_object_attribute(const std::string &base_dir_path);
-
+  /// \brief Returns an instance that provides access to the attribute of
+  /// anonymous object. \param base_dir_path Path to a data store. \return
+  /// Returns an instance of anonymous_object_attr_accessor_type.
+  static anonymous_object_attr_accessor_type access_anonymous_object_attribute(
+      const std::string &base_dir_path);
 
   /// \brief Checks if this kernel is open.
   /// \return Returns true if it is open; otherwise, returns false.
@@ -486,8 +491,8 @@ class manager_kernel {
   difference_type priv_to_offset(const void *const ptr) const;
   void *priv_to_address(difference_type offset) const;
 
-  // ---------------------------------------- For data store structure ---------------------------------------- //
-  // Directory structure:
+  // ---------------------------------------- For data store structure
+  // ---------------------------------------- // Directory structure:
   // base_dir_path/ <- this path is given by user
   //  top_dir/
   //    some top-level files
@@ -496,52 +501,65 @@ class manager_kernel {
   //    segment_dir/
   //      directories and files for application data segment
   static std::string priv_make_top_dir_path(const std::string &base_dir_path);
-  static std::string priv_make_top_level_file_name(const std::string &base_dir_path, const std::string &item_name);
-  static std::string priv_make_management_dir_path(const std::string &base_dir_path);
-  static std::string priv_make_management_file_name(const std::string &base_dir_path, const std::string &item_name);
-  static std::string priv_make_segment_dir_path(const std::string &base_dir_path);
+  static std::string priv_make_top_level_file_name(
+      const std::string &base_dir_path, const std::string &item_name);
+  static std::string priv_make_management_dir_path(
+      const std::string &base_dir_path);
+  static std::string priv_make_management_file_name(
+      const std::string &base_dir_path, const std::string &item_name);
+  static std::string priv_make_segment_dir_path(
+      const std::string &base_dir_path);
   static bool priv_init_datastore_directory(const std::string &base_dir_path);
 
-  // ---------------------------------------- For consistence support ---------------------------------------- //
+  // ---------------------------------------- For consistence support
+  // ---------------------------------------- //
   static bool priv_consistent(const std::string &base_dir_path);
   static bool priv_check_version(const json_store &metadata_json);
   static bool priv_properly_closed(const std::string &base_dir_path);
   static bool priv_mark_properly_closed(const std::string &base_dir_path);
   static bool priv_unmark_properly_closed(const std::string &base_dir_path);
 
-  // ---------------------------------------- For constructed objects ---------------------------------------- //
+  // ---------------------------------------- For constructed objects
+  // ---------------------------------------- //
   template <typename T>
-  T *priv_generic_construct(char_ptr_holder_type name,
-                            size_type length,
-                            bool try2find,
-                            mdtl::in_place_interface &table);
-
-  template <typename T>
-  bool priv_register_attr_object_no_mutex(char_ptr_holder_type name, difference_type offset, size_type length);
-
-  bool  priv_remove_attr_object_no_mutex(const difference_type offset);
+  T *priv_generic_construct(char_ptr_holder_type name, size_type length,
+                            bool try2find, mdtl::in_place_interface &table);
 
   template <typename T>
-  void priv_destruct_and_free_memory(const difference_type offset, const size_type length);
+  bool priv_register_attr_object_no_mutex(char_ptr_holder_type name,
+                                          difference_type offset,
+                                          size_type length);
 
-  // ---------------------------------------- For segment ---------------------------------------- //
+  bool priv_remove_attr_object_no_mutex(const difference_type offset);
+
+  template <typename T>
+  void priv_destruct_and_free_memory(const difference_type offset,
+                                     const size_type length);
+
+  // ---------------------------------------- For segment
+  // ---------------------------------------- //
   bool priv_reserve_vm_region(size_type nbytes);
   bool priv_release_vm_region();
   bool priv_allocate_segment_header(void *addr);
   bool priv_deallocate_segment_header();
 
-  bool priv_open(const char *base_dir_path, bool read_only, size_type vm_reserve_size_request = 0);
+  bool priv_open(const char *base_dir_path, bool read_only,
+                 size_type vm_reserve_size_request = 0);
   bool priv_create(const char *base_dir_path, size_type vm_reserve_size);
 
-  // ---------------------------------------- For serializing/deserializing ---------------------------------------- //
+  // ---------------------------------------- For serializing/deserializing
+  // ---------------------------------------- //
   bool priv_serialize_management_data();
   bool priv_deserialize_management_data();
 
-  // ---------------------------------------- snapshot ---------------------------------------- //
+  // ---------------------------------------- snapshot
+  // ---------------------------------------- //
   /// \brief Takes a snapshot. The snapshot has a different UUID.
-  bool priv_snapshot(const char *destination_base_dir_path, const bool clone, const int num_max_copy_threads);
+  bool priv_snapshot(const char *destination_base_dir_path, const bool clone,
+                     const int num_max_copy_threads);
 
-  // ---------------------------------------- File operations ---------------------------------------- //
+  // ---------------------------------------- File operations
+  // ---------------------------------------- //
   /// \brief Copies all backing files using reflink if possible
   static bool priv_copy_data_store(const std::string &src_base_dir_path,
                                    const std::string &dst_base_dir_path,
@@ -551,9 +569,12 @@ class manager_kernel {
   /// \brief Removes all backing files
   static bool priv_remove_data_store(const std::string &dir_path);
 
-  // ---------------------------------------- Management metadata ---------------------------------------- //
-  static bool priv_read_management_metadata(const std::string &base_dir_path, json_store *json_root);
-  static bool priv_write_management_metadata(const std::string &base_dir_path, const json_store &json_root);
+  // ---------------------------------------- Management metadata
+  // ---------------------------------------- //
+  static bool priv_read_management_metadata(const std::string &base_dir_path,
+                                            json_store *json_root);
+  static bool priv_write_management_metadata(const std::string &base_dir_path,
+                                             const json_store &json_root);
 
   static version_type priv_get_version(const json_store &metadata_json);
   static bool priv_set_version(json_store *metadata_json);
@@ -561,9 +582,12 @@ class manager_kernel {
   static bool priv_set_uuid(json_store *metadata_json);
   static std::string priv_get_uuid(const json_store &metadata_json);
 
-  // ---------------------------------------- Description ---------------------------------------- //
-  static bool priv_read_description(const std::string &base_dir_path, std::string *description);
-  static bool priv_write_description(const std::string &base_dir_path, const std::string &description);
+  // ---------------------------------------- Description
+  // ---------------------------------------- //
+  static bool priv_read_description(const std::string &base_dir_path,
+                                    std::string *description);
+  static bool priv_write_description(const std::string &base_dir_path,
+                                     const std::string &description);
 
   // -------------------- //
   // Private fields
@@ -586,10 +610,10 @@ class manager_kernel {
 #endif
 };
 
-} // namespace kernel
-} // namespace metall
+}  // namespace kernel
+}  // namespace metall
 
-#endif //METALL_KERNEL_MANAGER_KERNEL_HPP
+#endif  // METALL_KERNEL_MANAGER_KERNEL_HPP
 
 #include <metall/kernel/manager_kernel_impl.ipp>
 #include <metall/kernel/manager_kernel_profile_impl.ipp>

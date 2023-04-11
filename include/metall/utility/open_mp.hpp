@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -36,23 +36,28 @@ namespace omp {
 
 using omp_sched_type =
 #ifdef _OPENMP
-omp_sched_t;
+    omp_sched_t;
 #else
-int;
+    int;
 #endif
 
-inline std::string schedule_kind_name([[maybe_unused]] const omp_sched_type kind) {
+inline std::string schedule_kind_name(
+    [[maybe_unused]] const omp_sched_type kind) {
   std::string name;
 
 #ifdef _OPENMP
-#if _OPENMP >= 201811 // OpenMP 5.0
-  if (kind == omp_sched_static || kind == (omp_sched_static | omp_sched_monotonic)) {
+#if _OPENMP >= 201811  // OpenMP 5.0
+  if (kind == omp_sched_static ||
+      kind == (omp_sched_static | omp_sched_monotonic)) {
     name = "omp_sched_static";
-  } else if (kind == omp_sched_dynamic || kind == (omp_sched_dynamic | omp_sched_monotonic)) {
+  } else if (kind == omp_sched_dynamic ||
+             kind == (omp_sched_dynamic | omp_sched_monotonic)) {
     name = "omp_sched_dynamic";
-  } else if (kind == omp_sched_guided || kind == (omp_sched_guided | omp_sched_monotonic)) {
+  } else if (kind == omp_sched_guided ||
+             kind == (omp_sched_guided | omp_sched_monotonic)) {
     name = "omp_sched_guided";
-  } else if (kind == omp_sched_auto || kind == (omp_sched_auto | omp_sched_monotonic)) {
+  } else if (kind == omp_sched_auto ||
+             kind == (omp_sched_auto | omp_sched_monotonic)) {
     name = "omp_sched_auto";
   } else {
     name = "Unknown kind (" + std::to_string((uint64_t)kind) + ")";
@@ -108,13 +113,13 @@ inline int get_thread_num() noexcept {
 #endif
 }
 
-inline void set_num_threads([[maybe_unused]]const int n) noexcept {
+inline void set_num_threads([[maybe_unused]] const int n) noexcept {
 #ifdef _OPENMP
   ::omp_set_num_threads(n);
 #endif
 }
 
-} // namespace omp
-} // namespace metall::utility
+}  // namespace omp
+}  // namespace metall::utility
 
-#endif //METALL_UTILITY_OPEN_MP_HPP
+#endif  // METALL_UTILITY_OPEN_MP_HPP

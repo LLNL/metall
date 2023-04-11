@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -34,14 +34,14 @@ namespace {
 namespace mdtl = metall::mtlldetail;
 }
 
-/// \brief A simple key-value store designed to store values related to memory address,
-/// such as free chunk numbers or free objects.
-/// Values are sorted with ascending order if METALL_USE_SORTED_BIN is defined;
-/// otherwise, values are stored in the LIFO order.
-/// \tparam _k_num_bins The number of bins
-/// \tparam _value_type The value type to store
-/// \tparam _allocator_type The allocator type to allocate internal data
-template <std::size_t _k_num_bins, typename _value_type, typename _allocator_type = std::allocator<std::byte>>
+/// \brief A simple key-value store designed to store values related to memory
+/// address, such as free chunk numbers or free objects. Values are sorted with
+/// ascending order if METALL_USE_SORTED_BIN is defined; otherwise, values are
+/// stored in the LIFO order. \tparam _k_num_bins The number of bins \tparam
+/// _value_type The value type to store \tparam _allocator_type The allocator
+/// type to allocate internal data
+template <std::size_t _k_num_bins, typename _value_type,
+          typename _allocator_type = std::allocator<std::byte>>
 class bin_directory {
  public:
   // -------------------- //
@@ -57,16 +57,20 @@ class bin_directory {
   // Private types and static values
   // -------------------- //
   template <typename T>
-  using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
+  using other_allocator_type =
+      typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
 #ifdef METALL_USE_SORTED_BIN
   using bin_allocator_type = other_allocator_type<value_type>;
   // Sort values with descending order internally to simplify implementation
-  using bin_type = boost::container::flat_set<value_type, std::greater<value_type>, bin_allocator_type>;
+  using bin_type =
+      boost::container::flat_set<value_type, std::greater<value_type>,
+                                 bin_allocator_type>;
 #else
   using bin_allocator_type = other_allocator_type<value_type>;
   using bin_type = boost::container::deque<value_type, bin_allocator_type>;
 #endif
-  using table_allocator = boost::container::scoped_allocator_adaptor<other_allocator_type<bin_type>>;
+  using table_allocator = boost::container::scoped_allocator_adaptor<
+      other_allocator_type<bin_type>>;
   using table_type = boost::container::vector<bin_type, table_allocator>;
 
  public:
@@ -155,7 +159,8 @@ class bin_directory {
       return true;
     }
 #else
-    for (auto itr = m_table[bin_no].begin(), end = m_table[bin_no].end(); itr != end; ++itr) {
+    for (auto itr = m_table[bin_no].begin(), end = m_table[bin_no].end();
+         itr != end; ++itr) {
       if (*itr == value) {
         m_table[bin_no].erase(itr);
         return true;
@@ -201,11 +206,13 @@ class bin_directory {
 
     for (uint64_t i = 0; i < m_table.size(); ++i) {
       for (const auto value : m_table[i]) {
-        ofs << static_cast<uint64_t>(i) << " " << static_cast<uint64_t>(value) << "\n";
+        ofs << static_cast<uint64_t>(i) << " " << static_cast<uint64_t>(value)
+            << "\n";
         if (!ofs) {
           std::stringstream ss;
           ss << "Something happened in the ofstream: " << path;
-          logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+          logger::out(logger::level::error, __FILE__, __LINE__,
+                      ss.str().c_str());
           return false;
         }
       }
@@ -272,7 +279,7 @@ class bin_directory {
   table_type m_table;
 };
 
-} // namespace kernel
-} // namespace metall
+}  // namespace kernel
+}  // namespace metall
 
-#endif //METALL_DETAIL_BIN_DIRECTORY_HPP
+#endif  // METALL_DETAIL_BIN_DIRECTORY_HPP

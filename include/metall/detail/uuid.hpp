@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,6 +15,6 @@ namespace metall::mtlldetail {
 using uuid = boost::uuids::uuid;
 using uuid_random_generator = boost::uuids::random_generator;
 
-} // namespace metall::mtlldetail
+}  // namespace metall::mtlldetail
 
-#endif // METALL_DETAIL_UTILITY_UUID_HPP
+#endif  // METALL_DETAIL_UTILITY_UUID_HPP

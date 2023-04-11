@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,19 +15,20 @@ namespace {
 using chunk_no_type = metall::manager::chunk_number_type;
 constexpr std::size_t k_chunk_size = metall::manager::chunk_size();
 
-using bin_no_mngr = metall::kernel::bin_number_manager<k_chunk_size, 1ULL << 48>;
+using bin_no_mngr =
+    metall::kernel::bin_number_manager<k_chunk_size, 1ULL << 48>;
 constexpr int k_num_small_bins = bin_no_mngr::num_small_bins();
 
-using chunk_directory_type = metall::kernel::chunk_directory<chunk_no_type,
-                                                             k_chunk_size,
-                                                             1ULL << 48>;
+using chunk_directory_type =
+    metall::kernel::chunk_directory<chunk_no_type, k_chunk_size, 1ULL << 48>;
 
 TEST(ChunkDirectoryTest, InsertSmallChunk) {
   chunk_directory_type directory(k_num_small_bins);
 
   for (uint32_t i = 0; i < k_num_small_bins - 1; ++i) {
     auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
-    ASSERT_EQ(directory.insert(bin_no), i); // It should be inserted at i-th point
+    ASSERT_EQ(directory.insert(bin_no),
+              i);  // It should be inserted at i-th point
   }
 }
 
@@ -37,7 +38,8 @@ TEST(ChunkDirectoryTest, InsertLargeChunk) {
   std::size_t offset = 0;
   for (uint32_t i = k_num_small_bins; i < k_num_small_bins + 10; ++i) {
     ASSERT_EQ(directory.insert(i), offset);
-    const std::size_t num_chunks = (bin_no_mngr::to_object_size(i) + k_chunk_size - 1) / k_chunk_size;
+    const std::size_t num_chunks =
+        (bin_no_mngr::to_object_size(i) + k_chunk_size - 1) / k_chunk_size;
     offset += num_chunks;
   }
 }
@@ -63,7 +65,6 @@ TEST(ChunkDirectoryTest, EraseChunk) {
   ASSERT_TRUE(directory.empty_chunk(chno3));
   ASSERT_EQ(directory.size(), 0);
 }
-
 
 TEST(ChunkDirectoryTest, MarkSlot) {
   chunk_directory_type directory(bin_no_mngr::num_small_bins() + 1);
@@ -118,8 +119,8 @@ TEST(ChunkDirectoryTest, Serialize) {
     auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
     directory.insert(bin_no);
   }
-  directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
-  directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
+  directory.insert(bin_no_mngr::num_small_bins());      // 1 chunk
+  directory.insert(bin_no_mngr::num_small_bins() + 1);  // 2 chunks
 
   test_utility::create_test_dir();
   const auto file(test_utility::make_test_path());
@@ -133,15 +134,17 @@ TEST(ChunkDirectoryTest, Deserialize) {
   {
     chunk_directory_type directory(bin_no_mngr::num_small_bins() + 5);
 
-    for (typename bin_no_mngr::bin_no_type bin_no = 0; bin_no < bin_no_mngr::num_small_bins(); ++bin_no) {
+    for (typename bin_no_mngr::bin_no_type bin_no = 0;
+         bin_no < bin_no_mngr::num_small_bins(); ++bin_no) {
       chunk_no_type new_chunk_no = directory.insert(bin_no);
-      const uint64_t num_slots = k_chunk_size / bin_no_mngr::to_object_size(bin_no);
+      const uint64_t num_slots =
+          k_chunk_size / bin_no_mngr::to_object_size(bin_no);
       for (uint64_t s = 0; s < num_slots - 1; ++s) {
         directory.find_and_mark_slot(new_chunk_no);
       }
     }
-    directory.insert(bin_no_mngr::num_small_bins()); // 1 chunk
-    directory.insert(bin_no_mngr::num_small_bins() + 1); // 2 chunks
+    directory.insert(bin_no_mngr::num_small_bins());      // 1 chunk
+    directory.insert(bin_no_mngr::num_small_bins() + 1);  // 2 chunks
 
     directory.serialize(file.c_str());
   }
@@ -156,17 +159,21 @@ TEST(ChunkDirectoryTest, Deserialize) {
 
       ASSERT_EQ(directory.bin_no(chunk_no), bin_no);
 
-      const uint64_t num_slots = k_chunk_size / bin_no_mngr::to_object_size(bin_no);
+      const uint64_t num_slots =
+          k_chunk_size / bin_no_mngr::to_object_size(bin_no);
       ASSERT_EQ(directory.find_and_mark_slot(chunk_no), num_slots - 1);
     }
 
-    const auto large_chunk1_no = static_cast<chunk_no_type>(bin_no_mngr::num_small_bins());  // use 1 chunk
+    const auto large_chunk1_no = static_cast<chunk_no_type>(
+        bin_no_mngr::num_small_bins());  // use 1 chunk
     ASSERT_EQ(directory.bin_no(large_chunk1_no), bin_no_mngr::num_small_bins());
-    const auto large_chunk2_no = static_cast<chunk_no_type>(bin_no_mngr::num_small_bins() + 1);
-    ASSERT_EQ(directory.bin_no(large_chunk2_no), bin_no_mngr::num_small_bins() + 1); // use 2 chunks
+    const auto large_chunk2_no =
+        static_cast<chunk_no_type>(bin_no_mngr::num_small_bins() + 1);
+    ASSERT_EQ(directory.bin_no(large_chunk2_no),
+              bin_no_mngr::num_small_bins() + 1);  // use 2 chunks
 
-
-    ASSERT_EQ(directory.insert(bin_no_mngr::num_small_bins()), large_chunk2_no + 2);
+    ASSERT_EQ(directory.insert(bin_no_mngr::num_small_bins()),
+              large_chunk2_no + 2);
   }
 }
-}
+}  // namespace

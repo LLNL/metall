@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -29,9 +29,7 @@ namespace detail {
 // -----------------------------------------------------------------------------
 class SplitMix64 {
  public:
-
-  explicit SplitMix64(const uint64_t seed)
-      : m_x(seed) {}
+  explicit SplitMix64(const uint64_t seed) : m_x(seed) {}
 
   // This is a fixed-increment version of Java 8's SplittableRandom generator
   // See http://dx.doi.org/10.1145/2714064.2660195 and
@@ -116,9 +114,10 @@ class xoshiro512pp {
   // to 2^256 calls to next(); it can be used to generate 2^256
   // non-overlapping subsequences for parallel computations.
   void jump() {
-    static const uint64_t
-        JUMP[] = {0x33ed89b6e7a353f9, 0x760083d7955323be, 0x2837f2fbb5f22fae, 0x4b8c5674d309511c, 0xb11ac47a7ba28c25,
-                  0xf1be7667092bcc1c, 0x53851efdb6df0aaf, 0x1ebbc8b23eaf25db};
+    static const uint64_t JUMP[] = {0x33ed89b6e7a353f9, 0x760083d7955323be,
+                                    0x2837f2fbb5f22fae, 0x4b8c5674d309511c,
+                                    0xb11ac47a7ba28c25, 0xf1be7667092bcc1c,
+                                    0x53851efdb6df0aaf, 0x1ebbc8b23eaf25db};
 
     uint64_t t[sizeof m_s / sizeof *m_s];
     memset(t, 0, sizeof t);
@@ -138,9 +137,10 @@ class xoshiro512pp {
   // from each of which jump() will generate 2^128 non-overlapping
   //  subsequences for parallel distributed computations.
   void long_jump() {
-    static const uint64_t LONG_JUMP[] = {0x11467fef8f921d28, 0xa2a819f2e79c8ea8, 0xa8299fc284b3959a, 0xb4d347340ca63ee1,
-                                         0x1cb0940bedbff6ce, 0xd956c5c4fa1f8e17, 0x915e38fd4eda93bc,
-                                         0x5b3ccdfa5d7daca5};
+    static const uint64_t LONG_JUMP[] = {
+        0x11467fef8f921d28, 0xa2a819f2e79c8ea8, 0xa8299fc284b3959a,
+        0xb4d347340ca63ee1, 0x1cb0940bedbff6ce, 0xd956c5c4fa1f8e17,
+        0x915e38fd4eda93bc, 0x5b3ccdfa5d7daca5};
 
     uint64_t t[sizeof m_s / sizeof *m_s];
     memset(t, 0, sizeof t);
@@ -222,12 +222,13 @@ class xoshiro1024pp {
   // to 2^512 calls to next(); it can be used to generate 2^512
   // non-overlapping subsequences for parallel computations.
   void jump() {
-    static const uint64_t JUMP[] = {0x931197d8e3177f17,
-                                    0xb59422e0b9138c5f, 0xf06a6afb49d668bb, 0xacb8a6412c8a1401,
-                                    0x12304ec85f0b3468, 0xb7dfe7079209891e, 0x405b7eec77d9eb14,
-                                    0x34ead68280c44e4a, 0xe0e4ba3e0ac9e366, 0x8f46eda8348905b7,
-                                    0x328bf4dbad90d6ff, 0xc8fd6fb31c9effc3, 0xe899d452d4b67652,
-                                    0x45f387286ade3205, 0x03864f454a8920bd, 0xa68fa28725b1b384};
+    static const uint64_t JUMP[] = {
+        0x931197d8e3177f17, 0xb59422e0b9138c5f, 0xf06a6afb49d668bb,
+        0xacb8a6412c8a1401, 0x12304ec85f0b3468, 0xb7dfe7079209891e,
+        0x405b7eec77d9eb14, 0x34ead68280c44e4a, 0xe0e4ba3e0ac9e366,
+        0x8f46eda8348905b7, 0x328bf4dbad90d6ff, 0xc8fd6fb31c9effc3,
+        0xe899d452d4b67652, 0x45f387286ade3205, 0x03864f454a8920bd,
+        0xa68fa28725b1b384};
 
     uint64_t t[sizeof m_s / sizeof *m_s];
     memset(t, 0, sizeof t);
@@ -249,12 +250,13 @@ class xoshiro1024pp {
   // from each of which jump() will generate 2^256 non-overlapping
   // subsequences for parallel distributed computations.
   void long_jump() {
-    static const uint64_t LONG_JUMP[] = {0x7374156360bbf00f,
-                                         0x4630c2efa3b3c1f6, 0x6654183a892786b1, 0x94f7bfcbfb0f1661,
-                                         0x27d8243d3d13eb2d, 0x9701730f3dfb300f, 0x2f293baae6f604ad,
-                                         0xa661831cb60cd8b6, 0x68280c77d9fe008c, 0x50554160f5ba9459,
-                                         0x2fc20b17ec7b2a9a, 0x49189bbdc8ec9f8f, 0x92a65bca41852cc1,
-                                         0xf46820dd0509c12a, 0x52b00c35fbf92185, 0x1e5b3b7f589e03c1};
+    static const uint64_t LONG_JUMP[] = {
+        0x7374156360bbf00f, 0x4630c2efa3b3c1f6, 0x6654183a892786b1,
+        0x94f7bfcbfb0f1661, 0x27d8243d3d13eb2d, 0x9701730f3dfb300f,
+        0x2f293baae6f604ad, 0xa661831cb60cd8b6, 0x68280c77d9fe008c,
+        0x50554160f5ba9459, 0x2fc20b17ec7b2a9a, 0x49189bbdc8ec9f8f,
+        0x92a65bca41852cc1, 0xf46820dd0509c12a, 0x52b00c35fbf92185,
+        0x1e5b3b7f589e03c1};
 
     uint64_t t[sizeof m_s / sizeof *m_s];
     memset(t, 0, sizeof t);
@@ -324,25 +326,29 @@ class base_rand_xoshiro {
 };
 
 template <typename xoshiro_type>
-inline bool operator==(const base_rand_xoshiro<xoshiro_type> &lhs, const base_rand_xoshiro<xoshiro_type> &rhs) {
+inline bool operator==(const base_rand_xoshiro<xoshiro_type> &lhs,
+                       const base_rand_xoshiro<xoshiro_type> &rhs) {
   return lhs.equal(rhs);
 }
 
 template <typename xoshiro_type>
-inline bool operator!=(const base_rand_xoshiro<xoshiro_type> &lhs, const base_rand_xoshiro<xoshiro_type> &rhs) {
+inline bool operator!=(const base_rand_xoshiro<xoshiro_type> &lhs,
+                       const base_rand_xoshiro<xoshiro_type> &rhs) {
   return !(lhs == rhs);
 }
-} // namespace detail
+}  // namespace detail
 
-#endif // DOXYGEN_SKIP
+#endif  // DOXYGEN_SKIP
 
-/// \brief pseudo-random number generator that has a similar interface as the ones in STL
-/// The actual algorithm is uses xoshiro512++ whose period is 2^(512-1)
+/// \brief pseudo-random number generator that has a similar interface as the
+/// ones in STL The actual algorithm is uses xoshiro512++ whose period is
+/// 2^(512-1)
 using rand_512 = detail::base_rand_xoshiro<detail::xoshiro512pp>;
 
-/// \brief pseudo-random number generator that has a similar interface as the ones in STL
-/// The actual algorithm is uses xoshiro1024++ whose period is 2^(1024-1)
+/// \brief pseudo-random number generator that has a similar interface as the
+/// ones in STL The actual algorithm is uses xoshiro1024++ whose period is
+/// 2^(1024-1)
 using rand_1024 = detail::base_rand_xoshiro<detail::xoshiro1024pp>;
-}
+}  // namespace metall::utility
 
-#endif //METALL_UTILITY_RANDOM_HPP
+#endif  // METALL_UTILITY_RANDOM_HPP
