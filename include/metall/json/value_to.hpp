@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,10 +13,11 @@ namespace metall::json::jsndtl {
 namespace {
 namespace mj = metall::json;
 namespace bj = boost::json;
-}
+}  // namespace
 
 template <typename allocator_type>
-inline void value_to_impl_helper(const mj::value<allocator_type> &input_value, bj::value *out_bj_value) {
+inline void value_to_impl_helper(const mj::value<allocator_type> &input_value,
+                                 bj::value *out_bj_value) {
   if (input_value.is_bool()) {
     *out_bj_value = input_value.as_bool();
   } else if (input_value.is_int64()) {
@@ -54,7 +55,7 @@ inline bj::value value_to_impl(const mj::value<allocator_type> &input_value) {
   return out_value;
 }
 
-} // namespace metall::json::jsndtl
+}  // namespace metall::json::jsndtl
 
 namespace metall::json {
 
@@ -72,6 +73,6 @@ T value_to(const mj::value<allocator_type> &value) {
   return jsndtl::value_to_impl(value);
 }
 
-} // namespace metall::json
+}  // namespace metall::json
 
-#endif //METALLAL_JSON_VALUE_TO_HPP
+#endif  // METALLAL_JSON_VALUE_TO_HPP

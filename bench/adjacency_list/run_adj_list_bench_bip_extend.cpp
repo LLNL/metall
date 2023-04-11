@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -26,16 +26,18 @@ using value_type = uint64_t;
 
 namespace bip = boost::interprocess;
 using manager_type = bip::managed_external_buffer;
-using allocator_type = bip::allocator<void, typename manager_type::segment_manager>;
-using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
+using allocator_type =
+    bip::allocator<void, typename manager_type::segment_manager>;
+using adjacency_list_type =
+    data_structure::multithread_adjacency_list<key_type, value_type,
+                                               allocator_type>;
 
 void *map_file(const std::string &backing_file_name, const size_t file_size) {
   metall::mtlldetail::create_file(backing_file_name);
   metall::mtlldetail::extend_file_size(backing_file_name, file_size);
 
-  auto ret = metall::mtlldetail::map_file_write_mode(backing_file_name,
-                                                          nullptr,
-                                                          file_size, 0);
+  auto ret = metall::mtlldetail::map_file_write_mode(backing_file_name, nullptr,
+                                                     file_size, 0);
   if (ret.first == -1) {
     std::cerr << "Failed to map a file" << std::endl;
     std::abort();
@@ -50,11 +52,9 @@ void *map_file(const std::string &backing_file_name, const size_t file_size) {
 }
 
 void *map_anonymous(const size_t file_size) {
-  void *ret = metall::mtlldetail::os_mmap(nullptr,
-                                               file_size,
-                                               PROT_READ | PROT_WRITE,
-                                               MAP_PRIVATE | MAP_ANONYMOUS,
-                                               -1, 0);
+  void *ret =
+      metall::mtlldetail::os_mmap(nullptr, file_size, PROT_READ | PROT_WRITE,
+                                  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   if (!ret) {
     std::cerr << "Failed to map an anonymous region" << std::endl;
     std::abort();
@@ -85,8 +85,8 @@ int main(int argc, char *argv[]) {
 
   {
     manager_type manager(bip::create_only, addr, option.segment_size);
-    auto adj_list = manager.construct<adjacency_list_type>(option.adj_list_key_name.c_str())
-                                                          (manager.get_allocator<std::byte>());
+    auto adj_list = manager.construct<adjacency_list_type>(
+        option.adj_list_key_name.c_str())(manager.get_allocator<std::byte>());
 
     run_bench(option, adj_list);
 
@@ -96,8 +96,12 @@ int main(int argc, char *argv[]) {
     std::cout << "sync_time (s)\t" << elapsed_time << std::endl;
 
     std::cout << "Segment usage (GB) "
-              << static_cast<double>(manager.get_size() - manager.get_free_memory()) / (1ULL << 30) << std::endl;
-    metall::mtlldetail::munmap(addr, option.segment_size, !option.datastore_path_list.empty());
+              << static_cast<double>(manager.get_size() -
+                                     manager.get_free_memory()) /
+                     (1ULL << 30)
+              << std::endl;
+    metall::mtlldetail::munmap(addr, option.segment_size,
+                               !option.datastore_path_list.empty());
   }
 
   return 0;

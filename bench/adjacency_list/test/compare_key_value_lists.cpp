@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -17,7 +17,8 @@
 using key_type = uint64_t;
 using value_type = uint64_t;
 using item_type = std::pair<key_type, value_type>;
-using table_type = std::unordered_map<item_type, std::size_t, metall::utility::hash<item_type>>;
+using table_type = std::unordered_map<item_type, std::size_t,
+                                      metall::utility::hash<item_type>>;
 
 void ingest_item(const std::string& file_name, table_type* table) {
   std::ifstream ifs(file_name);
@@ -37,9 +38,8 @@ void ingest_item(const std::string& file_name, table_type* table) {
   }
 }
 
-int main(int argc, char *argv[]) {
-
-  if (argc !=  3) {
+int main(int argc, char* argv[]) {
+  if (argc != 3) {
     std::cerr << "Wrong number of arguments" << std::endl;
     std::abort();
   }

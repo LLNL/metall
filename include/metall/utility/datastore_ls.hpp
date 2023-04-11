@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -59,19 +59,21 @@ inline void aligned_show(const std::vector<std::vector<std::string>> &buf) {
     std::cout << std::endl;
   }
 }
-} // namespace datastore_ls_detail
-#endif // DOXYGEN_SKIP
+}  // namespace datastore_ls_detail
+#endif  // DOXYGEN_SKIP
 
 inline void ls_named_object(const std::string &datastore_path) {
   std::cout << "[Named Object]" << std::endl;
-  auto accessor = metall::manager::access_named_object_attribute(datastore_path.c_str());
+  auto accessor =
+      metall::manager::access_named_object_attribute(datastore_path.c_str());
   if (!accessor.good()) {
     std::cerr << "Failed to open datastore" << std::endl;
     std::abort();
   }
 
   std::vector<std::vector<std::string>> buf;
-  buf.emplace_back(std::vector<std::string>{"Name", "Length", "Offset", "Type-ID", "Description"});
+  buf.emplace_back(std::vector<std::string>{"Name", "Length", "Offset",
+                                            "Type-ID", "Description"});
   for (const auto &object : accessor) {
     std::vector<std::string> row;
     row.push_back(object.name());
@@ -86,14 +88,16 @@ inline void ls_named_object(const std::string &datastore_path) {
 
 inline void ls_unique_object(const std::string &datastore_path) {
   std::cout << "[Unique Object]" << std::endl;
-  auto accessor = metall::manager::access_unique_object_attribute(datastore_path.c_str());
+  auto accessor =
+      metall::manager::access_unique_object_attribute(datastore_path.c_str());
   if (!accessor.good()) {
     std::cerr << "Failed to open datastore" << std::endl;
     std::abort();
   }
 
   std::vector<std::vector<std::string>> buf;
-  buf.emplace_back(std::vector<std::string>{"Name: typeid(T).name()", "Length", "Offset", "Type-ID", "Description"});
+  buf.emplace_back(std::vector<std::string>{
+      "Name: typeid(T).name()", "Length", "Offset", "Type-ID", "Description"});
   for (const auto &object : accessor) {
     std::vector<std::string> row;
     row.push_back(object.name());
@@ -108,14 +112,16 @@ inline void ls_unique_object(const std::string &datastore_path) {
 
 inline void ls_anonymous_object(const std::string &datastore_path) {
   std::cout << "[Anonymous Object]" << std::endl;
-  auto accessor = metall::manager::access_anonymous_object_attribute(datastore_path.c_str());
+  auto accessor = metall::manager::access_anonymous_object_attribute(
+      datastore_path.c_str());
   if (!accessor.good()) {
     std::cerr << "Failed to open datastore" << std::endl;
     std::abort();
   }
 
   std::vector<std::vector<std::string>> buf;
-  buf.emplace_back(std::vector<std::string>{"Length", "Offset", "Type-ID", "Description"});
+  buf.emplace_back(
+      std::vector<std::string>{"Length", "Offset", "Type-ID", "Description"});
   for (const auto &object : accessor) {
     std::vector<std::string> row;
     row.push_back(std::to_string(object.length()));
@@ -127,6 +133,6 @@ inline void ls_anonymous_object(const std::string &datastore_path) {
   datastore_ls_detail::aligned_show(buf);
 }
 
-} // namespace metall::utility
+}  // namespace metall::utility
 
-#endif //METALL_UTILITY_DATASTORE_LS_HPP
+#endif  // METALL_UTILITY_DATASTORE_LS_HPP

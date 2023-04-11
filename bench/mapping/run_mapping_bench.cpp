@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -41,7 +41,8 @@ auto random_write_by_page(const std::size_t size, unsigned char *const map) {
   return t;
 }
 
-auto random_read_by_page(const std::size_t size, const unsigned char *const map) {
+auto random_read_by_page(const std::size_t size,
+                         const unsigned char *const map) {
   const auto num_pages = size / k_page_size;
   rand_engine rand_engine(1234);
   std::uniform_int_distribution<> dist(0, num_pages - 1);
@@ -58,7 +59,8 @@ auto random_read_by_page(const std::size_t size, const unsigned char *const map)
 }
 
 int create_normal_file(std::string_view path) {
-  const int fd = ::open(path.data(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  const int fd =
+      ::open(path.data(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     std::cerr << "Failed to create a file" << std::endl;
     std::abort();
@@ -84,7 +86,8 @@ int create_tmpfile(std::string_view path) {
   return fd;
 }
 
-void extend_file(const int fd, const std::size_t size, const bool fill_with_zero) {
+void extend_file(const int fd, const std::size_t size,
+                 const bool fill_with_zero) {
   if (!mdtl::extend_file_size(fd, size, fill_with_zero)) {
     std::cerr << "Failed to extend file" << std::endl;
     std::abort();
@@ -100,7 +103,8 @@ auto map_file(const int fd, const std::size_t size) {
 #warning "MAP_NOSYNC is not defined"
 #endif
 
-  auto *const map = mdtl::os_mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | k_map_nosync, fd, 0);
+  auto *const map = mdtl::os_mmap(NULL, size, PROT_READ | PROT_WRITE,
+                                  MAP_SHARED | k_map_nosync, fd, 0);
   if (!map) {
     std::cerr << " Failed mapping" << std::endl;
     std::abort();
@@ -124,14 +128,16 @@ void unmap(void *const addr, const std::size_t size) {
 }
 
 /// \brief Run benchmark to evaluate different mapping methods
-void run_bench_one_time(std::string_view dir_path,
-                        const std::size_t length,
-                        const bool init_file_writing_zero,
-                        std::map<std::string, std::vector<double>> &time_table) {
-
-  const auto bench_core = [&time_table, length](std::string_view mode, unsigned char *const map) {
-    time_table[std::string(mode) + " write"].push_back(random_write_by_page(length, map));
-    time_table[std::string(mode) + " read"].push_back(random_read_by_page(length, map));
+void run_bench_one_time(
+    std::string_view dir_path, const std::size_t length,
+    const bool init_file_writing_zero,
+    std::map<std::string, std::vector<double>> &time_table) {
+  const auto bench_core = [&time_table, length](std::string_view mode,
+                                                unsigned char *const map) {
+    time_table[std::string(mode) + " write"].push_back(
+        random_write_by_page(length, map));
+    time_table[std::string(mode) + " read"].push_back(
+        random_read_by_page(length, map));
   };
 
   // Use 'new'
@@ -170,19 +176,15 @@ void run_bench_one_time(std::string_view dir_path,
     manager.deallocate(map);
   }
   metall::manager::remove(dir_path.data());
-
 }
 
-void run_bench(std::string_view dir_path,
-               const std::size_t num_repeats,
-               const std::size_t length,
-               const bool init_file_writing_zero) {
+void run_bench(std::string_view dir_path, const std::size_t num_repeats,
+               const std::size_t length, const bool init_file_writing_zero) {
   std::cout << "\n----------" << std::endl;
-  std::cout << "Directory Path:\t" << dir_path
-            << "\nRepeats:\t" << num_repeats
-            << "\nLength:\t" << length
-            << "\nInit w/ writing:\t" << init_file_writing_zero
-            << "\n" << std::endl;
+  std::cout << "Directory Path:\t" << dir_path << "\nRepeats:\t" << num_repeats
+            << "\nLength:\t" << length << "\nInit w/ writing:\t"
+            << init_file_writing_zero << "\n"
+            << std::endl;
 
   // Run bench
   std::map<std::string, std::vector<double>> time_table;
@@ -191,13 +193,15 @@ void run_bench(std::string_view dir_path,
   }
 
   // Show results
-  for (const auto &entry: time_table) {
+  for (const auto &entry : time_table) {
     const auto &mode = entry.first;
     const auto &times = entry.second;
     std::cout << std::fixed;
     std::cout << std::setprecision(2);
     std::cout << mode << " took (s)\t"
-              << std::accumulate(times.begin(), times.end(), 0.0f) / times.size() << std::endl;
+              << std::accumulate(times.begin(), times.end(), 0.0f) /
+                     times.size()
+              << std::endl;
   }
 }
 

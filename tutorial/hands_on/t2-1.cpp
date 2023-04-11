@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -8,16 +8,17 @@
 #include <iostream>
 #include <metall/metall.hpp>
 
-// Metall contains basic STL containers that use metall as their default allocators.
+// Metall contains basic STL containers that use metall as their default
+// allocators.
 #include <metall/container/vector.hpp>
 
 int main() {
-
   {
     metall::manager manager(metall::create_only, "/tmp/dir");
 
     // Allocate a vector object, passing an allocator object
-    auto *vec = manager.construct<metall::container::vector<int>>("vec")(manager.get_allocator<int>());
+    auto* vec = manager.construct<metall::container::vector<int>>("vec")(
+        manager.get_allocator<int>());
     vec->resize(1);
     (*vec)[0] = 10;
     vec->push_back(20);

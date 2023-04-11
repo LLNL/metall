@@ -1,5 +1,5 @@
-// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -33,15 +33,15 @@ int main() {
 
   {
     std::cout << "Boost vector (push_back)" << std::endl;
-    boost::container::vector<std::pair < uint64_t, uint64_t>>
-    vec;
+    boost::container::vector<std::pair<uint64_t, uint64_t>> vec;
     run_bench(inputs, [&vec](const auto &kv) { vec.push_back(kv); });
   }
 
   {
     std::cout << "Boost vector (push_back) with Metall" << std::endl;
     metall::manager mngr(metall::create_only, "/tmp/metall");
-    metall::container::vector<std::pair<uint64_t, uint64_t>> vec(mngr.get_allocator());
+    metall::container::vector<std::pair<uint64_t, uint64_t>> vec(
+        mngr.get_allocator());
     run_bench(inputs, [&vec](const auto &kv) { vec.push_back(kv); });
   }
   std::cout << std::endl;
@@ -50,29 +50,29 @@ int main() {
     std::cout << "vector ([])" << std::endl;
     std::vector<std::pair<uint64_t, uint64_t>> vec;
     std::size_t index = 0;
-    run_bench(inputs,
-              [&vec, &inputs]() { vec.resize(inputs.size()); },
-              [&vec, &index](const auto &kv) { vec[index++] = kv; });
+    run_bench(
+        inputs, [&vec, &inputs]() { vec.resize(inputs.size()); },
+        [&vec, &index](const auto &kv) { vec[index++] = kv; });
   }
 
   {
     std::cout << "Boost ([]) vector" << std::endl;
-    boost::container::vector<std::pair < uint64_t, uint64_t>>
-    vec;
+    boost::container::vector<std::pair<uint64_t, uint64_t>> vec;
     std::size_t index = 0;
-    run_bench(inputs,
-              [&vec, &inputs]() { vec.resize(inputs.size()); },
-              [&vec, &index](const auto &kv) { vec[index++] = kv; });
+    run_bench(
+        inputs, [&vec, &inputs]() { vec.resize(inputs.size()); },
+        [&vec, &index](const auto &kv) { vec[index++] = kv; });
   }
 
   {
     std::cout << "Boost vector ([]) with Metall" << std::endl;
     metall::manager mngr(metall::create_only, "/tmp/metall");
-    metall::container::vector<std::pair<uint64_t, uint64_t>> vec(mngr.get_allocator());
+    metall::container::vector<std::pair<uint64_t, uint64_t>> vec(
+        mngr.get_allocator());
     std::size_t index = 0;
-    run_bench(inputs,
-              [&vec, &inputs]() { vec.resize(inputs.size()); },
-              [&vec, &index](const auto &kv) { vec[index++] = kv; });
+    run_bench(
+        inputs, [&vec, &inputs]() { vec.resize(inputs.size()); },
+        [&vec, &index](const auto &kv) { vec[index++] = kv; });
   }
   return 0;
 }

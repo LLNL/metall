@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,7 +15,6 @@ namespace metall {
 
 class logger {
  public:
-
   /// \brief Log message level
   enum struct level {
     /// \brief Silent logger message — never show logger message
@@ -44,29 +43,38 @@ class logger {
     abort_on_critical = enable;
   }
 
-  /// \brief Log a message to std::cerr if the specified logger level is equal to or higher than the pre-set logger level.
-  static void out(const level lvl, const char* const file_name, const int line_no, const char* const message) noexcept {
-    if (log_message_out_level == level::silent || lvl == level::silent || lvl < log_message_out_level)
+  /// \brief Log a message to std::cerr if the specified logger level is equal
+  /// to or higher than the pre-set logger level.
+  static void out(const level lvl, const char* const file_name,
+                  const int line_no, const char* const message) noexcept {
+    if (log_message_out_level == level::silent || lvl == level::silent ||
+        lvl < log_message_out_level)
       return;
 
     try {
-      std::cerr << file_name << " at line " << line_no << " --- " << message << std::endl;
-    } catch (...) {}
+      std::cerr << file_name << " at line " << line_no << " --- " << message
+                << std::endl;
+    } catch (...) {
+    }
 
     if (lvl == level::critical && abort_on_critical) {
       std::abort();
     }
   }
 
-  /// \brief Log a message about errno if the specified logger level is equal to or higher than the pre-set logger level.
-  static void perror(const level lvl, const char* const file_name, const int line_no, const char* const message) noexcept {
-    if (log_message_out_level == level::silent || lvl == level::silent || lvl < log_message_out_level)
+  /// \brief Log a message about errno if the specified logger level is equal to
+  /// or higher than the pre-set logger level.
+  static void perror(const level lvl, const char* const file_name,
+                     const int line_no, const char* const message) noexcept {
+    if (log_message_out_level == level::silent || lvl == level::silent ||
+        lvl < log_message_out_level)
       return;
 
     try {
       std::cerr << file_name << " at line " << line_no << " --- ";
       std::perror(message);
-    } catch (...) {}
+    } catch (...) {
+    }
 
     // std::out << "errno is " << errno << std::endl;
 
@@ -90,6 +98,6 @@ class logger {
 inline logger::level logger::log_message_out_level = logger::level::error;
 inline bool logger::abort_on_critical = true;
 
-} // namespace metall
+}  // namespace metall
 
-#endif //METALL_LOGGER_HPP
+#endif  // METALL_LOGGER_HPP

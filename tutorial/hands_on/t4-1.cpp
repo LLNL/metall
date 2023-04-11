@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -12,11 +12,11 @@
 using persit_array = dynamic_array<int, metall::manager::allocator_type<int>>;
 
 int main() {
-
   // Creating data into persistent memory
   {
     metall::manager manager(metall::create_only, "/tmp/dir");
-    auto *array = manager.construct<persit_array>("array")(manager.get_allocator());
+    auto* array =
+        manager.construct<persit_array>("array")(manager.get_allocator());
     init(*array);
   }
 
@@ -29,7 +29,8 @@ int main() {
   }
 
   // This is how to use dynamic_array using the normal allocator
-  // As you can see, the same data structure works with Metall and the normal allocator.
+  // As you can see, the same data structure works with Metall and the normal
+  // allocator.
   {
     auto* array = new dynamic_array<int>();
     init(*array);

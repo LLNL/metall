@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -10,7 +10,8 @@
 
 namespace {
 
-using directory_type = metall::kernel::attributed_object_directory<ssize_t, std::size_t>;
+using directory_type =
+    metall::kernel::attributed_object_directory<ssize_t, std::size_t>;
 
 TEST(AttributedObjectDirectoryTest, Insert) {
   directory_type obj;
@@ -55,11 +56,11 @@ TEST(AttributedObjectDirectoryTest, CountByName) {
 TEST(AttributedObjectDirectoryTest, CountByOffset) {
   directory_type obj;
 
-  ASSERT_EQ(obj.count(1), 0); // count by offset
+  ASSERT_EQ(obj.count(1), 0);  // count by offset
   obj.insert("item1", 1, 2, 5);
   ASSERT_EQ(obj.count(1), 1);
 
-  ASSERT_EQ(obj.count(3), 0); // count by offset
+  ASSERT_EQ(obj.count(3), 0);  // count by offset
   obj.insert("item2", 3, 4, 6);
   ASSERT_EQ(obj.count(3), 1);
 }
@@ -79,11 +80,11 @@ TEST(AttributedObjectDirectoryTest, FindByName) {
 TEST(AttributedObjectDirectoryTest, FindByOffset) {
   directory_type obj;
 
-  ASSERT_EQ(obj.find(1), obj.end()); // find by offset
+  ASSERT_EQ(obj.find(1), obj.end());  // find by offset
   obj.insert("item1", 1, 2, 5);
   ASSERT_EQ(obj.find(1)->name(), "item1");
 
-  ASSERT_EQ(obj.find(3), obj.end()); // find by offset
+  ASSERT_EQ(obj.find(3), obj.end());  // find by offset
   obj.insert("item2", 3, 4, 6);
   ASSERT_EQ(obj.find(3)->name(), "item2");
 }
@@ -200,7 +201,6 @@ TEST(AttributedObjectDirectoryTest, Deserialize) {
     ASSERT_EQ(itr1->length(), 2);
     ASSERT_TRUE(itr1->description().empty());
 
-
     // Get values correctly
     const auto itr2 = obj.find("item2");
     ASSERT_EQ(itr2->name(), "item2");
@@ -220,4 +220,4 @@ TEST(AttributedObjectDirectoryTest, Clear) {
   ASSERT_TRUE(obj.clear());
   ASSERT_EQ(obj.size(), 0);
 }
-}
+}  // namespace

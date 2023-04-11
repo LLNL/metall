@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,14 +13,14 @@ namespace {
 
 using object_type = mj::object<std::allocator<std::byte>>;
 
-TEST (JSONObjectTest, Constructor) {
+TEST(JSONObjectTest, Constructor) {
   object_type obj;
   object_type obj_with_alloc(std::allocator<std::byte>{});
   object_type cp(obj);
   object_type mv(std::move(obj));
 }
 
-TEST (JSONObjectTest, Brackets) {
+TEST(JSONObjectTest, Brackets) {
   object_type obj;
 
   obj["0"].emplace_bool() = true;
@@ -37,7 +37,7 @@ TEST (JSONObjectTest, Brackets) {
   GTEST_ASSERT_EQ(cnt_obj["0123456789"].as_double(), 20.5);
 }
 
-TEST (JSONObjectTest, ContainsAndCount) {
+TEST(JSONObjectTest, ContainsAndCount) {
   object_type obj;
 
   GTEST_ASSERT_FALSE(obj.contains("0"));
@@ -57,7 +57,7 @@ TEST (JSONObjectTest, ContainsAndCount) {
   GTEST_ASSERT_EQ(obj.count("0"), 1);
 }
 
-TEST (JSONObjectTest, At) {
+TEST(JSONObjectTest, At) {
   object_type obj;
 
   obj["0"].emplace_bool() = true;
@@ -70,7 +70,7 @@ TEST (JSONObjectTest, At) {
   GTEST_ASSERT_EQ(cnt_obj.at("0123456789").as_uint64(), 10);
 }
 
-TEST (JSONObjectTest, Find) {
+TEST(JSONObjectTest, Find) {
   object_type obj;
 
   GTEST_ASSERT_EQ(obj.find("0"), obj.end());
@@ -94,7 +94,7 @@ TEST (JSONObjectTest, Find) {
   GTEST_ASSERT_EQ(cnt_obj.find("0123456789")->value().as_uint64(), 10);
 }
 
-TEST (JSONObjectTest, BeginAndEnd) {
+TEST(JSONObjectTest, BeginAndEnd) {
   object_type obj;
 
   GTEST_ASSERT_EQ(obj.begin(), obj.end());
@@ -105,7 +105,7 @@ TEST (JSONObjectTest, BeginAndEnd) {
   obj["0123456789"].emplace_uint64() = 10;
 
   std::size_t count = 0;
-  for (auto &elem: obj) {
+  for (auto &elem : obj) {
     GTEST_ASSERT_TRUE(elem.key() == "0" || elem.key() == "0123456789");
     if (elem.key() == "0123456789") elem.value().emplace_double() = 20.5;
     ++count;
@@ -115,14 +115,14 @@ TEST (JSONObjectTest, BeginAndEnd) {
 
   count = 0;
   const auto cnt_obj(obj);
-  for (const auto &elem: cnt_obj) {
+  for (const auto &elem : cnt_obj) {
     GTEST_ASSERT_TRUE(elem.key() == "0" || elem.key() == "0123456789");
     ++count;
   }
   GTEST_ASSERT_EQ(count, 2);
 }
 
-TEST (JSONObjectTest, Size) {
+TEST(JSONObjectTest, Size) {
   object_type obj;
 
   GTEST_ASSERT_EQ(obj.size(), 0);
@@ -137,7 +137,7 @@ TEST (JSONObjectTest, Size) {
   GTEST_ASSERT_EQ(cnt_obj.size(), 2);
 }
 
-TEST (JSONObjectTest, Erase) {
+TEST(JSONObjectTest, Erase) {
   object_type obj;
 
   obj["0"].emplace_bool() = true;
@@ -153,7 +153,7 @@ TEST (JSONObjectTest, Erase) {
   GTEST_ASSERT_FALSE(obj.contains("0123456789"));
   GTEST_ASSERT_EQ(obj.size(), 1);
 
-  const auto& const_ref = obj;
+  const auto &const_ref = obj;
   auto const_itr = const_ref.find("2");
   auto next_pos = obj.erase(const_itr);
   GTEST_ASSERT_EQ(next_pos, obj.end());
@@ -161,7 +161,7 @@ TEST (JSONObjectTest, Erase) {
   GTEST_ASSERT_EQ(obj.size(), 0);
 }
 
-TEST (JSONObjectTest, Equal) {
+TEST(JSONObjectTest, Equal) {
   object_type obj;
   obj["0"].emplace_bool() = true;
   obj["0123456789"].emplace_uint64() = 10;
@@ -173,4 +173,4 @@ TEST (JSONObjectTest, Equal) {
   GTEST_ASSERT_FALSE(obj == obj_cpy);
   GTEST_ASSERT_TRUE(obj != obj_cpy);
 }
-}
+}  // namespace

@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -27,23 +27,23 @@ static_assert(std::numeric_limits<version_type>::max() >= METALL_VERSION,
 /// \brief Namespace for the details of Metall version
 namespace ver_detail {
 static constexpr version_type k_error_version = 0;
-static_assert(k_error_version != METALL_VERSION, "The current version is equal to a error number");
-}
-#endif // DOXYGEN_SKIP
+static_assert(k_error_version != METALL_VERSION,
+              "The current version is equal to a error number");
+}  // namespace ver_detail
+#endif  // DOXYGEN_SKIP
 
-/// \brief Converts a raw version number to a std::string with format 'MAJOR.MINOR.PATCH'.
-/// \details
-/// \code
+/// \brief Converts a raw version number to a std::string with format
+/// 'MAJOR.MINOR.PATCH'. \details \code
 /// // Example usage
 /// std::string ver_string = to_version_string(METALL_VERSION);
 /// \endcode
 /// \param version A version number.
 /// \return A version string.
 inline std::string to_version_string(const version_type version) {
-  return std::to_string(version / 100000)
-      + "." + std::to_string(version / 100 % 1000)
-      + "." + std::to_string(version % 100);
+  return std::to_string(version / 100000) + "." +
+         std::to_string(version / 100 % 1000) + "." +
+         std::to_string(version % 100);
 }
-} // namespace metall
+}  // namespace metall
 
-#endif //METALL_VERSION_HPP
+#endif  // METALL_VERSION_HPP

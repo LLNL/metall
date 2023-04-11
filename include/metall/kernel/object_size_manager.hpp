@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -24,10 +24,12 @@ namespace object_size_manager_detail {
 
 // Sizes are coming from SuperMalloc
 constexpr std::size_t k_class1_small_size_table[] = {
-    8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256,
+    8,  10, 12, 14, 16,  20,  24,  28,  32,  40,  48,
+    56, 64, 80, 96, 112, 128, 160, 192, 224, 256,
 };
 
-constexpr uint64_t k_num_class1_small_sizes = (uint64_t)std::extent<decltype(k_class1_small_size_table)>::value;
+constexpr uint64_t k_num_class1_small_sizes =
+    (uint64_t)std::extent<decltype(k_class1_small_size_table)>::value;
 constexpr std::size_t k_min_class2_offset = 64;
 template <std::size_t k_chunk_size>
 constexpr std::size_t k_max_small_size = k_chunk_size / 2;
@@ -61,13 +63,15 @@ inline constexpr uint64_t num_large_sizes() noexcept {
 }
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-constexpr uint64_t k_num_sizes = k_num_class1_small_sizes + num_class2_small_sizes<k_chunk_size>()
-    + num_large_sizes<k_chunk_size, k_max_size>();
+constexpr uint64_t k_num_sizes =
+    k_num_class1_small_sizes + num_class2_small_sizes<k_chunk_size>() +
+    num_large_sizes<k_chunk_size, k_max_size>();
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-inline constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> init_size_table() noexcept {
-  // MEMO: {} is needed to prevent the uninitialized error in constexpr contexts.
-  // This technique is not needed from C++20.
+inline constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>>
+init_size_table() noexcept {
+  // MEMO: {} is needed to prevent the uninitialized error in constexpr
+  // contexts. This technique is not needed from C++20.
   std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>> table{};
 
   uint64_t index = 0;
@@ -107,30 +111,34 @@ constexpr std::array<std::size_t, k_num_sizes<k_chunk_size, k_max_size>>
     k_size_table = init_size_table<k_chunk_size, k_max_size>();
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
-inline constexpr int64_t find_in_size_table(const std::size_t size, const uint64_t offset = 0) noexcept {
-  for (uint64_t i = offset; i < k_size_table<k_chunk_size, k_max_size>.size(); ++i) {
-    if (size <= k_size_table<k_chunk_size, k_max_size>[i]) return static_cast<int64_t>(i);
+inline constexpr int64_t find_in_size_table(
+    const std::size_t size, const uint64_t offset = 0) noexcept {
+  for (uint64_t i = offset; i < k_size_table<k_chunk_size, k_max_size>.size();
+       ++i) {
+    if (size <= k_size_table<k_chunk_size, k_max_size>[i])
+      return static_cast<int64_t>(i);
   }
-  return -1; // Error
+  return -1;  // Error
 }
 
 template <std::size_t k_chunk_size, std::size_t k_max_size>
 inline constexpr int64_t object_size_index(const std::size_t size) noexcept {
-
   if (size <= k_size_table<k_chunk_size, k_max_size>[0]) return 0;
 
   if (size <= k_class1_small_size_table[k_num_class1_small_sizes - 1]) {
     const int z = mdtl::clzll(size);
     const std::size_t r = size + (1ULL << (61ULL - z)) - 1;
     const int y = mdtl::clzll(r);
-    const int index = static_cast<int>(4 * (60 - y) + ((r >> (61ULL - y)) & 3ULL));
+    const int index =
+        static_cast<int>(4 * (60 - y) + ((r >> (61ULL - y)) & 3ULL));
     return static_cast<int64_t>(index);
   }
 
-  return find_in_size_table<k_chunk_size, k_max_size>(size, k_num_class1_small_sizes);
+  return find_in_size_table<k_chunk_size, k_max_size>(size,
+                                                      k_num_class1_small_sizes);
 }
 
-} // namespace object_size_manager_detail
+}  // namespace object_size_manager_detail
 
 namespace {
 namespace dtl = object_size_manager_detail;
@@ -159,7 +167,8 @@ class object_size_manager {
   }
 
   static constexpr size_type num_small_sizes() noexcept {
-    return dtl::k_num_class1_small_sizes + dtl::num_class2_small_sizes<k_chunk_size>();
+    return dtl::k_num_class1_small_sizes +
+           dtl::num_class2_small_sizes<k_chunk_size>();
   }
 
   static constexpr size_type num_large_sizes() noexcept {
@@ -171,6 +180,6 @@ class object_size_manager {
   }
 };
 
-} // namespace kernel
-} // namespace metall
-#endif //METALL_DETAIL_KERNEL_OBJECT_SIZE_MANAGER_HPP
+}  // namespace kernel
+}  // namespace metall
+#endif  // METALL_DETAIL_KERNEL_OBJECT_SIZE_MANAGER_HPP

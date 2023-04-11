@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -19,28 +19,35 @@
 namespace metall::json {
 
 namespace jsndtl {
-/// \brief Provides 'equal' calculation for other key-value types that have the same interface as the object class.
-template <typename char_type, typename char_traits, typename allocator_type, typename other_key_value_pair_type>
-inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_traits, allocator_type> &key_value,
-                                         const other_key_value_pair_type &other_key_value) noexcept {
-  if (std::strcmp(key_value.c_str(), other_key_value.c_str()) != 0) return false;
+/// \brief Provides 'equal' calculation for other key-value types that have the
+/// same interface as the object class.
+template <typename char_type, typename char_traits, typename allocator_type,
+          typename other_key_value_pair_type>
+inline bool general_key_value_pair_equal(
+    const key_value_pair<char_type, char_traits, allocator_type> &key_value,
+    const other_key_value_pair_type &other_key_value) noexcept {
+  if (std::strcmp(key_value.c_str(), other_key_value.c_str()) != 0)
+    return false;
   return key_value.value() == other_key_value.value();
 }
-} // namespace jsndtl
+}  // namespace jsndtl
 
-/// \brief A class for holding a pair of JSON string (as its key) and JSON value (as its value).
-/// \tparam char_type A char type to store.
-/// \tparam char_traits A chart traits.
-/// \tparam _allocator_type An allocator type.
+/// \brief A class for holding a pair of JSON string (as its key) and JSON value
+/// (as its value). \tparam char_type A char type to store. \tparam char_traits
+/// A chart traits. \tparam _allocator_type An allocator type.
 #ifdef DOXYGEN_SKIP
-template <typename char_type = char, typename char_traits = std::char_traits<char_type>, typename Alloc = std::allocator<char_type>>
+template <typename char_type = char,
+          typename char_traits = std::char_traits<char_type>,
+          typename Alloc = std::allocator<char_type>>
 #else
 template <typename _char_type, typename _char_traits, typename Alloc>
 #endif
 class key_value_pair {
  private:
-  using char_allocator_type = typename std::allocator_traits<Alloc>::template rebind_alloc<_char_type>;
-  using char_pointer = typename std::allocator_traits<char_allocator_type>::pointer;
+  using char_allocator_type =
+      typename std::allocator_traits<Alloc>::template rebind_alloc<_char_type>;
+  using char_pointer =
+      typename std::allocator_traits<char_allocator_type>::pointer;
 
  public:
   using char_type = _char_type;
@@ -54,9 +61,9 @@ class key_value_pair {
   /// \brief Constructor.
   /// \param key A key string.
   /// \param value A JSON value to hold.
-  /// \param alloc An allocator object to allocate the key and the contents of the JSON value.
-  key_value_pair(key_type key,
-                 const value_type &value,
+  /// \param alloc An allocator object to allocate the key and the contents of
+  /// the JSON value.
+  key_value_pair(key_type key, const value_type &value,
                  const allocator_type &alloc = allocator_type())
       : m_value(value, alloc) {
     priv_allocate_key(key.data(), key.length(), m_value.get_allocator());
@@ -65,24 +72,25 @@ class key_value_pair {
   /// \brief Constructor.
   /// \param key A key string.
   /// \param value A JSON value to hold.
-  /// \param alloc An allocator object to allocate the key and the contents of the JSON value.
-  key_value_pair(key_type key,
-                 value_type &&value,
+  /// \param alloc An allocator object to allocate the key and the contents of
+  /// the JSON value.
+  key_value_pair(key_type key, value_type &&value,
                  const allocator_type &alloc = allocator_type())
       : m_value(std::move(value), alloc) {
     priv_allocate_key(key.data(), key.length(), m_value.get_allocator());
   }
 
   /// \brief Copy constructor
-  key_value_pair(const key_value_pair &other)
-      : m_value(other.m_value) {
-    priv_allocate_key(other.key_c_str(), other.m_key_length, m_value.get_allocator());
+  key_value_pair(const key_value_pair &other) : m_value(other.m_value) {
+    priv_allocate_key(other.key_c_str(), other.m_key_length,
+                      m_value.get_allocator());
   }
 
   /// \brief Allocator-extended copy constructor
   key_value_pair(const key_value_pair &other, const allocator_type &alloc)
       : m_value(other.m_value, alloc) {
-    priv_allocate_key(other.key_c_str(), other.m_key_length, m_value.get_allocator());
+    priv_allocate_key(other.key_c_str(), other.m_key_length,
+                      m_value.get_allocator());
   }
 
   /// \brief Move constructor
@@ -118,9 +126,11 @@ class key_value_pair {
   key_value_pair &operator=(const key_value_pair &other) {
     if (this == &other) return *this;
 
-    priv_deallocate_key(get_allocator());  // deallocate the key using the current allocator first
+    priv_deallocate_key(get_allocator());  // deallocate the key using the
+                                           // current allocator first
     m_value = other.m_value;
-    // This line has to come after copying m_value because m_value decides if allocator is needed to be propagated.
+    // This line has to come after copying m_value because m_value decides if
+    // allocator is needed to be propagated.
     priv_allocate_key(other.key_c_str(), other.m_key_length, get_allocator());
 
     return *this;
@@ -130,7 +140,8 @@ class key_value_pair {
   key_value_pair &operator=(key_value_pair &&other) noexcept {
     if (this == &other) return *this;
 
-    priv_deallocate_key(get_allocator()); // deallocate the key using the current allocator first
+    priv_deallocate_key(get_allocator());  // deallocate the key using the
+                                           // current allocator first
 
     auto other_allocator = other.m_value.get_allocator();
     m_value = std::move(other.m_value);
@@ -153,8 +164,10 @@ class key_value_pair {
 
   /// \brief Swap contents.
   void swap(key_value_pair &other) noexcept {
-    if constexpr (!std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_swap,
-                                  std::true_type>) {
+    if constexpr (!std::is_same_v<
+                      typename std::allocator_traits<
+                          allocator_type>::propagate_on_container_swap,
+                      std::true_type>) {
       // This is an undefined behavior in the C++ standard.
       assert(get_allocator() == other.get_allocator());
     }
@@ -172,9 +185,7 @@ class key_value_pair {
   }
 
   /// \brief Destructor
-  ~key_value_pair() noexcept {
-    priv_deallocate_key(get_allocator());
-  }
+  ~key_value_pair() noexcept { priv_deallocate_key(get_allocator()); }
 
   /// \brief Returns the stored key.
   /// \return Returns the stored key.
@@ -184,27 +195,22 @@ class key_value_pair {
 
   /// \brief Returns the stored key as const char*.
   /// \return Returns the stored key as const char*.
-  const char_type *key_c_str() const noexcept {
-    return priv_key_c_str();
-  }
+  const char_type *key_c_str() const noexcept { return priv_key_c_str(); }
 
   /// \brief References the stored JSON value.
   /// \return Returns a reference to the stored JSON value.
-  value_type &value() noexcept {
-    return m_value;
-  }
+  value_type &value() noexcept { return m_value; }
 
   /// \brief References the stored JSON value.
   /// \return Returns a reference to the stored JSON value.
-  const value_type &value() const noexcept {
-    return m_value;
-  }
+  const value_type &value() const noexcept { return m_value; }
 
   /// \brief Return `true` if two key-value pairs are equal.
   /// \param lhs A key-value pair to compare.
   /// \param rhs A key-value pair to compare.
   /// \return True if two key-value pairs are equal. Otherwise, false.
-  friend bool operator==(const key_value_pair &lhs, const key_value_pair &rhs) noexcept {
+  friend bool operator==(const key_value_pair &lhs,
+                         const key_value_pair &rhs) noexcept {
     return jsndtl::general_key_value_pair_equal(lhs, rhs);
   }
 
@@ -212,7 +218,8 @@ class key_value_pair {
   /// \param lhs A key-value pair to compare.
   /// \param rhs A key-value pair to compare.
   /// \return True if two key-value pairs are not equal. Otherwise, false.
-  friend bool operator!=(const key_value_pair &lhs, const key_value_pair &rhs) noexcept {
+  friend bool operator!=(const key_value_pair &lhs,
+                         const key_value_pair &rhs) noexcept {
     return !(lhs == rhs);
   }
 
@@ -222,7 +229,8 @@ class key_value_pair {
   }
 
  private:
-  static constexpr uint32_t k_short_key_max_length = sizeof(char_pointer) - 1; // -1 for '0'
+  static constexpr uint32_t k_short_key_max_length =
+      sizeof(char_pointer) - 1;  // -1 for '0'
 
   const char_type *priv_key_c_str() const noexcept {
     if (priv_short_key()) {
@@ -235,11 +243,10 @@ class key_value_pair {
     return (m_key_length <= k_short_key_max_length);
   }
 
-  bool priv_long_key() const noexcept {
-    return !priv_short_key();
-  }
+  bool priv_long_key() const noexcept { return !priv_short_key(); }
 
-  bool priv_allocate_key(const char_type *const key, const size_type length, char_allocator_type alloc) {
+  bool priv_allocate_key(const char_type *const key, const size_type length,
+                         char_allocator_type alloc) {
     assert(m_key_length == 0);
     m_key_length = length;
 
@@ -247,14 +254,16 @@ class key_value_pair {
       std::char_traits<char_type>::copy(m_short_key, key, m_key_length);
       std::char_traits<char_type>::assign(m_short_key[m_key_length], '\0');
     } else {
-      m_long_key = std::allocator_traits<char_allocator_type>::allocate(alloc, m_key_length + 1);
+      m_long_key = std::allocator_traits<char_allocator_type>::allocate(
+          alloc, m_key_length + 1);
       if (!m_long_key) {
         m_key_length = 0;
-        std::abort(); // TODO: change
+        std::abort();  // TODO: change
         return false;
       }
 
-      std::char_traits<char_type>::copy(metall::to_raw_pointer(m_long_key), key, m_key_length);
+      std::char_traits<char_type>::copy(metall::to_raw_pointer(m_long_key), key,
+                                        m_key_length);
       std::char_traits<char_type>::assign(m_long_key[m_key_length], '\0');
     }
 
@@ -263,7 +272,8 @@ class key_value_pair {
 
   bool priv_deallocate_key(char_allocator_type alloc) {
     if (m_key_length > k_short_key_max_length) {
-      std::allocator_traits<char_allocator_type>::deallocate(alloc, m_long_key, m_key_length + 1);
+      std::allocator_traits<char_allocator_type>::deallocate(alloc, m_long_key,
+                                                             m_key_length + 1);
       m_long_key = nullptr;
     }
     m_key_length = 0;
@@ -271,8 +281,9 @@ class key_value_pair {
   }
 
   union {
-    char_type m_short_key[k_short_key_max_length + 1]; // + 1 for '\0'
-    static_assert(sizeof(char_type) * (k_short_key_max_length + 1) <= sizeof(uint64_t),
+    char_type m_short_key[k_short_key_max_length + 1];  // + 1 for '\0'
+    static_assert(sizeof(char_type) * (k_short_key_max_length + 1) <=
+                      sizeof(uint64_t),
                   "sizeof(m_short_key) is bigger than sizeof(uint64_t)");
     uint64_t m_short_key_buf;
 
@@ -285,10 +296,12 @@ class key_value_pair {
 
 /// \brief Swap value instances.
 template <typename char_type, typename char_traits, typename allocator_type>
-inline void swap(key_value_pair<char_type, char_traits, allocator_type> &rhd, key_value_pair<char_type, char_traits, allocator_type> &lhd) noexcept {
+inline void swap(
+    key_value_pair<char_type, char_traits, allocator_type> &rhd,
+    key_value_pair<char_type, char_traits, allocator_type> &lhd) noexcept {
   lhd.swap(rhd);
 }
 
-} // namespace json
+}  // namespace metall::json
 
-#endif //METALL_JSON_KEY_VALUE_PAIR_HPP
+#endif  // METALL_JSON_KEY_VALUE_PAIR_HPP
