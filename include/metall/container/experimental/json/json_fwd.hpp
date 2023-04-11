@@ -23,16 +23,16 @@ namespace metall::container::experimental {}
 /// \namespace metall::container::experimental::json
 /// \brief Namespace for Metall JSON container, which is in an experimental phase.
 namespace metall::container::experimental::json {
-  /// \brief JSON null type.
-  using null_type = std::monostate;
+/// \brief JSON null type.
+using null_type = std::monostate;
 
-  /// \brief JSON basic string type.
-  template <typename char_t, typename traits, typename allocator_type>
-  using basic_string = metall::container::basic_string<char_t, traits, allocator_type>;
+/// \brief JSON basic string type.
+template <typename char_t, typename traits, typename allocator_type>
+using basic_string = metall::container::basic_string<char_t, traits, allocator_type>;
 
-  /// \brief JSON string.
-  template <typename allocator_type = std::allocator<std::byte>>
-  using string = basic_string<char, std::char_traits<char>, allocator_type>;
+/// \brief JSON string.
+template <typename allocator_type = std::allocator<std::byte>>
+using string = basic_string<char, std::char_traits<char>, allocator_type>;
 } // namespace metall::container::experimental::json
 
 // Forward declaration
@@ -40,16 +40,35 @@ namespace metall::container::experimental::json {
 
 namespace metall::container::experimental::json {
 
-template <typename allocator_type = std::allocator<std::byte>> class value;
+template <typename allocator_type = std::allocator<std::byte>>
+class value;
 
-template <typename allocator_type = std::allocator<std::byte>> class array;
+template <typename allocator_type = std::allocator<std::byte>>
+class array;
 
 template <typename char_type = char,
           typename char_traits = std::char_traits<char_type>,
           typename allocator_type = std::allocator<char_type>>
 class key_value_pair;
 
-template <typename allocator_type = std::allocator<std::byte>> class object;
+template <typename allocator_type = std::allocator<std::byte>>
+class object;
+
+template <typename allocator_type>
+void swap(value<allocator_type> &, value<allocator_type> &) noexcept;
+
+template <typename allocator_type>
+void swap(string<allocator_type> &, string<allocator_type> &) noexcept;
+
+template <typename allocator_type>
+void swap(array<allocator_type> &, array<allocator_type> &) noexcept;
+
+template <typename allocator_type>
+void swap(object<allocator_type> &, object<allocator_type> &) noexcept;
+
+template <typename char_type, typename char_traits, typename allocator_type>
+void swap(key_value_pair<char_type, char_traits, allocator_type> &,
+          key_value_pair<char_type, char_traits, allocator_type> &) noexcept;
 
 template <typename char_type, typename char_traits, typename allocator_type>
 bool operator==(const key_value_pair<char_type, char_traits, allocator_type> &,
@@ -174,29 +193,13 @@ bool general_array_equal(const array<allocator_type> &,
 
 template <typename allocator_type, typename other_object_type>
 bool general_object_equal(const object<allocator_type> &,
-                                  const other_object_type &) noexcept;
+                          const other_object_type &) noexcept;
 
 template <typename char_type, typename char_traits, typename allocator_type,
           typename other_key_value_pair_type>
 bool general_key_value_pair_equal(
     const key_value_pair<char_type, char_traits, allocator_type> &,
     const other_key_value_pair_type &) noexcept;
-
-template <typename allocator_type>
-void swap(value<allocator_type> &, value<allocator_type> &) noexcept;
-
-template <typename allocator_type>
-void swap(string<allocator_type> &, string<allocator_type> &) noexcept;
-
-template <typename allocator_type>
-void swap(array<allocator_type> &, array<allocator_type> &) noexcept;
-
-template <typename allocator_type>
-void swap(object<allocator_type> &, object<allocator_type> &) noexcept;
-
-template <typename char_type, typename char_traits, typename allocator_type>
-void swap(key_value_pair<char_type, char_traits, allocator_type> &, key_value_pair<char_type, char_traits, allocator_type> &) noexcept;
-
 } // namespace jsndtl
 
 #endif // DOXYGEN_SKIP
