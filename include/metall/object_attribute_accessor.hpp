@@ -8,6 +8,8 @@
 
 #include <type_traits>
 #include <memory>
+
+#include <metall/tags.hpp>
 #include <metall/kernel/attributed_object_directory.hpp>
 
 namespace metall {

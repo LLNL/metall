@@ -10,15 +10,14 @@
 #include <memory>
 #include <algorithm>
 
-#include <boost/container/vector.hpp>
-#include <boost/container/scoped_allocator.hpp>
-
+#include <metall/container/vector.hpp>
+#include <metall/container/scoped_allocator.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
 
 namespace metall::container::experimental::json {
 
 namespace {
-namespace bc = boost::container;
+namespace mc = metall::container;
 }
 
 namespace jsndtl {
@@ -34,17 +33,17 @@ inline bool general_array_equal(const array<allocator_type> &array, const other_
 
 /// \brief JSON array.
 /// An array is an ordered collection of values.
-template <typename _allocator_type = std::allocator<std::byte>>
+template <typename _allocator_type>
 class array {
  public:
   using value_type = value<_allocator_type>;
 
  private:
   template <typename alloc, typename T>
-  using other_scoped_allocator = bc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<
+  using other_scoped_allocator = mc::scoped_allocator_adaptor<typename std::allocator_traits<alloc>::template rebind_alloc<
       T>>;
   using aray_allocator_type = other_scoped_allocator<_allocator_type, value_type>;
-  using array_type = bc::vector<value_type, aray_allocator_type>;
+  using array_type = mc::vector<value_type, aray_allocator_type>;
 
  public:
   using allocator_type = _allocator_type;

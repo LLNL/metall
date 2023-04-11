@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_INDEXED_OBJECT_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_INDEXED_OBJECT_HPP
+#ifndef METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_INDEXED_OBJECT_HPP
+#define METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_INDEXED_OBJECT_HPP
 
 #include <iostream>
 #include <memory>
@@ -12,41 +12,29 @@
 #include <string_view>
 #include <algorithm>
 
-#include <metall/container/scoped_allocator.hpp>
-#include <metall/container/vector.hpp>
-#include <metall/container/unordered_map.hpp>
-
-#include <metall/utility/hash.hpp>
 #include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/container/scoped_allocator.hpp>
+#include <metall/container/unordered_map.hpp>
+#include <metall/container/vector.hpp>
+#include <metall/utility/hash.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::container::experimental::json::jsndtl {
 
 namespace {
 namespace mc = metall::container;
 }
 
-namespace jsndtl {
-
-/// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
-template <typename allocator_type, typename other_object_type>
-inline bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
-                                         const other_object_type &other_object) noexcept {
-  if (object.size() != other_object.size()) return false;
-
-  for (const auto &key_value: object) {
-    auto itr = other_object.find(key_value.key_c_str());
-    if (itr == other_object.end()) return false;
-    if (key_value.value() != itr->value()) return false;
-  }
-
-  return true;
-}
-
-} // namespace jsndtl
-
-/// \brief JSON object.
-/// An object is an unordered map of key and value pairs.
+// Foward declarations
 template <typename _allocator_type = std::allocator<std::byte>>
+class indexed_object;
+
+template <typename allocator_type, typename other_object_type>
+bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
+                                  const other_object_type &other_object) noexcept;
+
+/// \brief JSON object implementation.
+/// An object is an unordered map of key and value pairs.
+template <typename _allocator_type>
 class indexed_object {
  public:
   using allocator_type = _allocator_type;
@@ -320,6 +308,21 @@ inline void swap(indexed_object<allocator_type> &lhd, indexed_object<allocator_t
   lhd.swap(rhd);
 }
 
-} // namespace metall::container::experimental::json
+/// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
+template <typename allocator_type, typename other_object_type>
+inline bool general_indexed_object_equal(const indexed_object<allocator_type> &object,
+                                         const other_object_type &other_object) noexcept {
+  if (object.size() != other_object.size()) return false;
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_INDEXED_OBJECT_HPP
+  for (const auto &key_value: object) {
+    auto itr = other_object.find(key_value.key_c_str());
+    if (itr == other_object.end()) return false;
+    if (key_value.value() != itr->value()) return false;
+  }
+
+  return true;
+}
+
+} // namespace metall::container::experimental::json::jsndtl
+
+#endif //METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_INDEXED_OBJECT_HPP

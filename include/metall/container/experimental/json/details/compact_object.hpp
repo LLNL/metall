@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_COMPACT_OBJECT_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_COMPACT_OBJECT_HPP
+#ifndef METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_COMPACT_OBJECT_HPP
+#define METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_COMPACT_OBJECT_HPP
 
 #include <iostream>
 #include <memory>
@@ -12,40 +12,28 @@
 #include <string_view>
 #include <algorithm>
 
+#include <metall/container/experimental/json/json_fwd.hpp>
 #include <metall/container/scoped_allocator.hpp>
 #include <metall/container/vector.hpp>
-
 #include <metall/utility/hash.hpp>
-#include <metall/container/experimental/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::container::experimental::json::jsndtl {
 
 namespace {
 namespace mc = metall::container;
 }
 
-namespace jsndtl {
+// Forward declarations
+template <typename _allocator_type = std::allocator<std::byte>>
+class compact_object;
 
-/// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
 template <typename allocator_type, typename other_object_type>
-inline bool general_compact_object_equal(const compact_object<allocator_type> &object,
-                                         const other_object_type &other_object) noexcept {
-  if (object.size() != other_object.size()) return false;
-
-  for (const auto &key_value: object) {
-    auto itr = other_object.find(key_value.key_c_str());
-    if (itr == other_object.end()) return false;
-    if (key_value.value() != itr->value()) return false;
-  }
-
-  return true;
-}
-
-} // namespace jsndtl
+bool general_compact_object_equal(const compact_object<allocator_type> &object,
+                                  const other_object_type &other_object) noexcept;
 
 /// \brief JSON object implementation.
 /// This class is designed to use a small amount of memory even sacrificing the look-up performance.
-template <typename _allocator_type = std::allocator<std::byte>>
+template <typename _allocator_type>
 class compact_object {
  public:
   using allocator_type = _allocator_type;
@@ -276,6 +264,21 @@ inline void swap(compact_object<allocator_type> &lhd, compact_object<allocator_t
   lhd.swap(rhd);
 }
 
-} // namespace metall::container::experimental::json
+/// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
+template <typename allocator_type, typename other_object_type>
+inline bool general_compact_object_equal(const compact_object<allocator_type> &object,
+                                         const other_object_type &other_object) noexcept {
+  if (object.size() != other_object.size()) return false;
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_COMPACT_OBJECT_HPP
+  for (const auto &key_value: object) {
+    auto itr = other_object.find(key_value.key_c_str());
+    if (itr == other_object.end()) return false;
+    if (key_value.value() != itr->value()) return false;
+  }
+
+  return true;
+}
+
+} // namespace metall::container::experimental::json::jsndtl
+
+#endif //METALL_CONTAINER_EXPERIMENT_JSON_DETAILS_COMPACT_OBJECT_HPP

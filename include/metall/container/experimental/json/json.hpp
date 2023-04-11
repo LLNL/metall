@@ -7,6 +7,7 @@
 #define METALL_CONTAINER_EXPERIMENT_JSON_JSON_HPP
 
 #include <metall/container/experimental/json/json_fwd.hpp>
+
 #include <metall/container/experimental/json/array.hpp>
 #include <metall/container/experimental/json/key_value_pair.hpp>
 #include <metall/container/experimental/json/value.hpp>
@@ -16,8 +17,7 @@
 #include <metall/container/experimental/json/pretty_print.hpp>
 #include <metall/container/experimental/json/value_from.hpp>
 #include <metall/container/experimental/json/value_to.hpp>
-#include <metall/container/experimental/json/indexed_object.hpp>
-#include <metall/container/experimental/json/compact_object.hpp>
+#include <metall/container/experimental/json/object.hpp>
 #include <metall/container/experimental/json/equal.hpp>
 
 /// \example json_create.cpp

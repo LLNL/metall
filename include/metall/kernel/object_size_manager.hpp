@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <array>
 
 #include <metall/detail/utilities.hpp>
 #include <metall/detail/builtin_functions.hpp>
