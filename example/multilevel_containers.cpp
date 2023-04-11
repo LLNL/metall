@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 // Example of container of containers (or multi-level containers) with Metall
 // Use the following multi-level containers with Metall
 // unordered_map<unsigned int,
@@ -13,7 +13,7 @@
 // >;
 // As Metall has a STL compatible allocator (metall::manager::allocator_type),
 // all you have to do is just following the standard way to use custom allocator in containers
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 
 #include <iostream>
 #include <functional>

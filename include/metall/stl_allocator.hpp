@@ -32,9 +32,9 @@ template <typename T, typename metall_manager_kernel_type>
 class stl_allocator {
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using value_type = T;
   using pointer = typename std::pointer_traits<typename metall_manager_kernel_type::void_pointer>::template rebind<
       value_type>;
@@ -53,9 +53,9 @@ class stl_allocator {
   };
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Following manager.hpp in Boost.interprocess, 'explicit' keyword is not used on purpose
   // although this allocator won't work correctly w/o a valid manager_kernel_address.
   // The following code will work:
@@ -146,9 +146,9 @@ class stl_allocator {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   pointer priv_allocate(const size_type n) const {
     if (priv_max_size() < n) {
@@ -202,9 +202,9 @@ class stl_allocator {
     (*ptr).~value_type();
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
  private:
   // (offset)pointer to a raw pointer that points a manager kernel object allocated in DRAM
   // i.e., offset_ptr<manager_kernel_type *const>

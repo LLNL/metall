@@ -31,9 +31,9 @@ namespace mdtl = metall::mtlldetail;
 template <typename different_type, typename size_type>
 class mmap_segment_storage {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   mmap_segment_storage() {
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
     logger::out(logger::level::info, __FILE__, __LINE__, "METALL_USE_ANONYMOUS_NEW_MAP is defined");
@@ -98,9 +98,9 @@ class mmap_segment_storage {
   }
 
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief Gets the size of an existing segment.
   /// This is a static version of size() method.
@@ -232,13 +232,13 @@ class mmap_segment_storage {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static std::string priv_make_block_file_name(const std::string &base_path, const size_type n) {
     return base_path + "/block-" + std::to_string(n);
   }
@@ -785,9 +785,9 @@ class mmap_segment_storage {
     return true;
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   ssize_t m_system_page_size{0};
   size_type m_num_blocks{0};
   size_type m_vm_region_size{0};

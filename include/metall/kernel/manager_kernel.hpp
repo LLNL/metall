@@ -59,9 +59,9 @@ template <typename _chunk_no_type, std::size_t _chunk_size>
 class manager_kernel {
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using void_pointer = offset_ptr<void>;
   using char_type = char; // required by boost's named proxy
   using char_ptr_holder_type = mdtl::char_ptr_holder<char_type>;
@@ -75,9 +75,9 @@ class manager_kernel {
   static constexpr size_type k_chunk_size = _chunk_size;
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using self_type = manager_kernel<_chunk_no_type, _chunk_size>;
   static constexpr const char *k_datastore_top_dir_name = "metall_datastore";
   static constexpr const char *k_datastore_management_dir_name = "management";
@@ -135,9 +135,9 @@ class manager_kernel {
 #endif
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using const_named_iterator = attributed_object_directory_type::const_iterator;
   using const_unique_iterator = attributed_object_directory_type::const_iterator;
   using const_anonymous_iterator = attributed_object_directory_type::const_iterator;
@@ -148,9 +148,9 @@ class manager_kernel {
   using anonymous_object_attr_accessor_type = anonymous_object_attr_accessor<attributed_object_directory_type::offset_type,
                                                                              attributed_object_directory_type::size_type>;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   manager_kernel();
   ~manager_kernel() noexcept;
 
@@ -161,9 +161,9 @@ class manager_kernel {
   manager_kernel &operator=(manager_kernel &&) noexcept = default;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief Creates a new datastore
   /// Expect to be called by a single thread
   /// \param base_dir_path
@@ -477,9 +477,9 @@ class manager_kernel {
   void profile(out_stream_type *log_out);
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   bool priv_initialized() const;
   bool priv_validate_runtime_configuration() const;
@@ -565,9 +565,9 @@ class manager_kernel {
   static bool priv_read_description(const std::string &base_dir_path, std::string *description);
   static bool priv_write_description(const std::string &base_dir_path, const std::string &description);
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   bool m_good{false};
   bool m_open{false};
   std::string m_base_dir_path{};

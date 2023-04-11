@@ -46,9 +46,9 @@ template <typename _chunk_no_type,
           typename _segment_storage_type>
 class segment_allocator {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using chunk_no_type = _chunk_no_type;
   using size_type = _size_type;
   using difference_type = _difference_type;
@@ -58,9 +58,9 @@ class segment_allocator {
   using segment_storage_type = _segment_storage_type;
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static_assert(k_max_size < std::numeric_limits<size_type>::max(), "Max allocation size is too big");
 
   using myself = segment_allocator<_chunk_no_type,
@@ -99,9 +99,9 @@ class segment_allocator {
   static constexpr std::size_t k_many_allocations_threshold = 4;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   explicit segment_allocator(segment_storage_type *segment_storage)
       : m_non_full_chunk_bin(),
         m_chunk_directory(k_max_size / k_chunk_size),
@@ -129,9 +129,9 @@ class segment_allocator {
   segment_allocator &operator=(segment_allocator &&) noexcept = default;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief Allocates memory space
   /// \param nbytes
@@ -308,9 +308,9 @@ class segment_allocator {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods (not designed to be used by the base class)
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   bool priv_small_object_bin(const bin_no_type bin_no) const {
     return bin_no < k_num_small_bins;
   }
@@ -621,9 +621,9 @@ class segment_allocator {
   }
 #endif
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   non_full_chunk_bin_type m_non_full_chunk_bin;
   chunk_directory_type m_chunk_directory;
   segment_storage_type *m_segment_storage{nullptr};

@@ -11,9 +11,9 @@
 namespace metall {
 namespace kernel {
 
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 // Constructor
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 template <typename chnk_no, std::size_t chnk_sz>
 manager_kernel<chnk_no, chnk_sz>::manager_kernel()
     : m_segment_memory_allocator(&m_segment_storage) {
@@ -35,9 +35,9 @@ manager_kernel<chnk_no, chnk_sz>::~manager_kernel() noexcept {
   close();
 }
 
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 // Public methods
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::create(const char *base_dir_path, const size_type vm_reserve_size) {
   return m_good = priv_create(base_dir_path, vm_reserve_size);
@@ -562,9 +562,9 @@ bool manager_kernel<chnk_no, chnk_sz>::good() const noexcept {
   return m_good;
 }
 
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 // Private methods
-// -------------------------------------------------------------------------------- //
+// -------------------- //
 template <typename chnk_no, std::size_t chnk_sz>
 typename manager_kernel<chnk_no, chnk_sz>::difference_type
 manager_kernel<chnk_no, chnk_sz>::priv_to_offset(const void *const ptr) const {

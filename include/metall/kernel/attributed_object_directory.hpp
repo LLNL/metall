@@ -48,9 +48,9 @@ inline auto gen_type_id() {
 template <typename _offset_type, typename _size_type>
 class attributed_object_directory {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using size_type = _size_type;
   using name_type = std::string;
   using offset_type = _offset_type;
@@ -115,9 +115,9 @@ class attributed_object_directory {
   };
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using entry_table_type = boost::container::list<entry_type>;
 
   // Following tables hold the index of the corresponding entry of each key
@@ -129,14 +129,14 @@ class attributed_object_directory {
                                                      mdtl::string_hash<name_type>>;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using const_iterator = typename entry_table_type::const_iterator;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   attributed_object_directory() noexcept {
     priv_allocate_core_data();
   }
@@ -158,9 +158,9 @@ class attributed_object_directory {
 
   attributed_object_directory &operator=(attributed_object_directory &&) noexcept = default;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   bool good() const noexcept {
     return m_entry_table && m_offset_index_table && m_name_index_table;
   }
@@ -450,9 +450,9 @@ class attributed_object_directory {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   // JSON structure
   // {
@@ -470,9 +470,9 @@ class attributed_object_directory {
     static constexpr const char *description = "description";
   };
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   bool priv_allocate_core_data() noexcept {
     try {
       m_entry_table = std::make_unique<entry_table_type>();
@@ -579,9 +579,9 @@ class attributed_object_directory {
     return true;
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   std::unique_ptr<entry_table_type> m_entry_table;
   std::unique_ptr<offset_index_table_type> m_offset_index_table;
   std::unique_ptr<name_index_table_type> m_name_index_table;

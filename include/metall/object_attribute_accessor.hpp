@@ -32,9 +32,9 @@ class general_named_object_attr_accessor {
   };
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using size_type = typename object_directory_type::size_type;
   using name_type = typename object_directory_type::name_type;
   using offset_type = typename object_directory_type::offset_type;
@@ -304,9 +304,9 @@ class anonymous_object_attr_accessor {
   };
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using size_type = typename object_directory_type::size_type;
   using name_type = typename object_directory_type::name_type;
   using offset_type = typename object_directory_type::offset_type;

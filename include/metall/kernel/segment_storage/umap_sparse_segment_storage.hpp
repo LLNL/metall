@@ -40,9 +40,9 @@ template <typename different_type, typename size_type>
 class umap_sparse_segment_storage {
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   umap_sparse_segment_storage()
       : m_umap_page_size(0),
         m_vm_region_size(0),
@@ -89,9 +89,9 @@ class umap_sparse_segment_storage {
     return (*this);
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief Check if there is a file that can be opened
   static bool openable(const std::string &base_path) {
     return mdtl::file_exist(priv_make_file_name(base_path));
@@ -263,13 +263,13 @@ class umap_sparse_segment_storage {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods (not designed to be used by the base class)
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static std::string priv_make_file_name(const std::string &base_path) {
     return base_path + "_umap_sparse_segment_file";
   }
@@ -431,9 +431,9 @@ class umap_sparse_segment_storage {
     m_free_file_space = false;
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   ssize_t m_umap_page_size{0};
   size_type m_vm_region_size{0};
   size_type m_segment_size{0};

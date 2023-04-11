@@ -117,14 +117,14 @@ class multilayer_bitset {
   static constexpr std::size_t k_num_bits_in_block = sizeof(block_type) * 8;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using bit_position_type = std::size_t;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   multilayer_bitset() = default;
   ~multilayer_bitset() = default;
   multilayer_bitset(const multilayer_bitset &) = default;
@@ -132,9 +132,9 @@ class multilayer_bitset {
   multilayer_bitset &operator=(const multilayer_bitset &) = default;
   multilayer_bitset &operator=(multilayer_bitset &&other) noexcept = default;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief Returns the maximum number of bits in a block.
   /// \return  The maximum number of bits in a block.
   static constexpr std::size_t block_size() noexcept {
@@ -271,9 +271,9 @@ class multilayer_bitset {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // -------------------- Allocation and free -------------------- //
   bool allocate_multilayer_bitset(const std::size_t size) {
     const std::size_t num_blocks = num_all_blocks(size);
@@ -468,9 +468,9 @@ class multilayer_bitset {
     return num_blocks;
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   block_holder m_data;
 };
 

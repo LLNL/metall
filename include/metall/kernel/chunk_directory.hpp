@@ -28,9 +28,9 @@ namespace mdtl = metall::mtlldetail;
 template <typename _chunk_no_type, std::size_t _k_chunk_size, std::size_t _k_max_size>
 class chunk_directory {
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static constexpr std::size_t k_chunk_size = _k_chunk_size;
   static constexpr std::size_t k_max_size = _k_max_size;
   using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
@@ -38,18 +38,18 @@ class chunk_directory {
   using multilayer_bitset_type = multilayer_bitset;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using chunk_no_type = _chunk_no_type;
   using bin_no_type = typename bin_no_mngr::bin_no_type;
   using slot_no_type = multilayer_bitset_type::bit_position_type;
   using slot_count_type = typename mdtl::unsigned_variable_type<k_num_max_slots>::type;
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   enum chunk_type : uint8_t {
     empty = 0,
     small_chunk = 1,
@@ -72,9 +72,9 @@ class chunk_directory {
   };
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   explicit chunk_directory(const std::size_t max_num_chunks)
       : m_table(nullptr),
         m_max_num_chunks(0),
@@ -92,9 +92,9 @@ class chunk_directory {
   chunk_directory(chunk_directory &&) noexcept = default;
   chunk_directory &operator=(chunk_directory &&) noexcept = default;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief
   /// \param bin_no
   /// \return
@@ -455,13 +455,13 @@ class chunk_directory {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   constexpr slot_count_type calc_num_slots(const std::size_t object_size) const {
     assert(k_chunk_size >= object_size);
     return k_chunk_size / object_size;
@@ -591,9 +591,9 @@ class chunk_directory {
     return -1;
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   entry_type *m_table;
   std::size_t m_max_num_chunks;
   ssize_t m_last_used_chunk_no;

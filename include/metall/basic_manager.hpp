@@ -29,9 +29,9 @@ class basic_manager;
 template <typename chunk_no_type = uint32_t, std::size_t k_chunk_size = (1ULL << 21ULL)>
 class basic_manager {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief Manager kernel type
   using manager_kernel_type = kernel::manager_kernel<chunk_no_type, k_chunk_size>;
@@ -89,16 +89,16 @@ class basic_manager {
   using chunk_number_type = chunk_no_type;
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using char_ptr_holder_type = typename manager_kernel_type::char_ptr_holder_type;
   using self_type = basic_manager<chunk_no_type, k_chunk_size>;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief Opens an existing data store.
   /// \param base_path Path to a data store.
@@ -170,11 +170,11 @@ class basic_manager {
   /// \return An reference to the object.
   basic_manager &operator=(basic_manager &&) noexcept = default;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
-  // -------------------- Attributed object construction function family -------------------- //
+  // Attributed object construction function family
   // Each function also works with '[ ]' operator to generate an array, leveraging the proxy class (construct_proxy)
 
   /// \private
@@ -1139,9 +1139,9 @@ class basic_manager {
 #endif
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   std::unique_ptr<manager_kernel_type> m_kernel{nullptr};
 };
 } // namespace metall

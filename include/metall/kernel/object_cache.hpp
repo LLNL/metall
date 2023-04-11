@@ -35,9 +35,9 @@ template <std::size_t _k_num_bins, typename _size_type,
                                    typename _object_allocator_type>
 class object_cache {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static constexpr unsigned int k_num_bins = _k_num_bins;
   using size_type = _size_type;
   using difference_type = _difference_type;
@@ -52,9 +52,9 @@ class object_cache {
                                                                             const difference_type *const);
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   static constexpr std::size_t k_num_cache_per_core = 4;
   static constexpr std::size_t k_cache_bin_size = 1ULL << 20ULL;
@@ -72,14 +72,14 @@ class object_cache {
 #endif
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using const_bin_iterator = typename single_cache_type::const_iterator;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   object_cache()
       : m_cache_table(get_num_cores() * k_num_cache_per_core)
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
@@ -93,9 +93,9 @@ class object_cache {
   object_cache &operator=(const object_cache &) = default;
   object_cache &operator=(object_cache &&) noexcept = default;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief
   /// \param bin_no
@@ -176,13 +176,13 @@ class object_cache {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static constexpr std::size_t priv_get_cache_block_size(const bin_no_type bin_no) noexcept {
     const auto object_size = bin_no_manager::to_object_size(bin_no);
     // Returns a value on the interval [8, k_max_cache_block_size].
@@ -217,9 +217,9 @@ class object_cache {
     return std::thread::hardware_concurrency();
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   cache_table_type m_cache_table;
 #if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
   std::vector<mutex_type> m_mutex;

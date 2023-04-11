@@ -23,15 +23,15 @@ namespace ds = metall::utility::mpi_datastore;
 /// This is an experimental implementation
 class metall_mpi_adaptor {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief Metall manager type
   using manager_type = metall::manager;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief Opens an existing Metall datastore.
   /// \param root_dir_prefix A root directory path of a Metall datastore.
   /// \param comm A MPI communicator.
@@ -98,9 +98,9 @@ class metall_mpi_adaptor {
     priv_mpi_barrier(m_mpi_comm);
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief Returns the Metall manager object of the process.
   /// \return A reference to a Metall manager object.
@@ -246,9 +246,9 @@ class metall_mpi_adaptor {
   static constexpr const char *k_datastore_mark_file_name = "metall_mpi_datastore";
   static constexpr const char *k_partition_size_file_name = "metall_mpi_adaptor_partition_size";
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static void priv_setup_root_dir(const std::string &root_dir_prefix, const MPI_Comm &comm) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);

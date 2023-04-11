@@ -45,9 +45,9 @@ class concurrent_map {
                                       boost::container::scoped_allocator_adaptor<banked_map_allocator_type>>;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief A key type.
   using key_type = typename internal_map_type::key_type;
   /// \brief A mapped type.
@@ -63,16 +63,16 @@ class concurrent_map {
   using const_iterator = metall::utility::container_of_containers_iterator_adaptor<typename banked_map_type::const_iterator,
                                                                                    typename internal_map_type::const_iterator>;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   explicit concurrent_map(const _allocator &allocator = _allocator())
       : m_banked_map(k_num_banks, allocator),
         m_num_items(0) {}
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief Returns the number of elements matching specific key.
   /// \param key A key value of the elements to count.
   /// \return The number of elements with key that compares equivalent to key, which is either 1 or 0.

@@ -44,18 +44,18 @@ namespace mdtl = metall::mtlldetail;
 template <std::size_t _k_num_bins, typename _value_type, typename _allocator_type = std::allocator<std::byte>>
 class bin_directory {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   static constexpr std::size_t k_num_bins = _k_num_bins;
   using value_type = _value_type;
   using allocator_type = _allocator_type;
   using bin_no_type = typename mdtl::unsigned_variable_type<k_num_bins>::type;
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   template <typename T>
   using other_allocator_type = typename std::allocator_traits<allocator_type>::template rebind_alloc<T>;
 #ifdef METALL_USE_SORTED_BIN
@@ -70,14 +70,14 @@ class bin_directory {
   using table_type = boost::container::vector<bin_type, table_allocator>;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using const_bin_iterator = typename bin_type::const_iterator;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   explicit bin_directory(const allocator_type &allocator = allocator_type())
       : m_table(k_num_bins, bin_type(allocator), allocator) {}
 
@@ -87,9 +87,9 @@ class bin_directory {
   bin_directory &operator=(const bin_directory &) = default;
   bin_directory &operator=(bin_directory &&) noexcept = default;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   /// \brief
   /// \param bin_no
   /// \return
@@ -258,17 +258,17 @@ class bin_directory {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   table_type m_table;
 };
 

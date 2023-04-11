@@ -37,9 +37,9 @@ class fallback_allocator_adaptor {
   using other_primary_allocator_type = typename std::allocator_traits<primary_alloc>::template rebind_alloc<T>;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using primary_allocator_type = typename std::remove_const<typename std::remove_reference<primary_alloc>::type>::type;
 
   using value_type = typename primary_allocator_type::value_type;
@@ -61,9 +61,9 @@ class fallback_allocator_adaptor {
   };
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief Default constructor which falls back on a heap allocator.
   fallback_allocator_adaptor() noexcept
@@ -193,9 +193,9 @@ class fallback_allocator_adaptor {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   auto priv_primary_allocator_available() const {
     return !!(m_primary_allocator.get_pointer_to_manager_kernel());
   }
@@ -226,9 +226,9 @@ class fallback_allocator_adaptor {
     ::new((void *)to_raw_pointer(ptr)) value_type(std::forward<arg_types>(args)...);
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   primary_allocator_type m_primary_allocator;
 };
 
