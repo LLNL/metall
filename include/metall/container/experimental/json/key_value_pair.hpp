@@ -152,7 +152,7 @@ class key_value_pair {
     if constexpr (!std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_swap,
                                   std::true_type>) {
       // This is an undefined behavior in the C++ standard.
-      assert(get_allocator() == other.m_allocator);
+      assert(get_allocator() == other.get_allocator());
     }
 
     using std::swap;
