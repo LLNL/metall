@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_ARRAY_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_ARRAY_HPP
+#ifndef METALL_JSON_ARRAY_HPP
+#define METALL_JSON_ARRAY_HPP
 
 #include <iostream>
 #include <memory>
@@ -12,9 +12,9 @@
 
 #include <metall/container/vector.hpp>
 #include <metall/container/scoped_allocator.hpp>
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace mc = metall::container;
@@ -215,6 +215,6 @@ inline void swap(array<allocator_type> &lhd, array<allocator_type> &rhd) noexcep
   lhd.swap(rhd);
 }
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_ARRAY_HPP
+#endif //METALL_JSON_ARRAY_HPP

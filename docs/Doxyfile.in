@@ -832,7 +832,7 @@ WARN_LOGFILE           =
 INPUT                  = ../include/metall \
                          ../include/metall/c_api \
                          ../include/metall/container \
-                         ../include/metall/container/experimental/json \
+                         ../include/metall/json \
                          ../include/metall/container/experimental/jgraph \
                          ../include/metall/utility \
                          ../include/metall/detail/base_stl_allocator.hpp \

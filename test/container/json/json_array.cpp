@@ -5,12 +5,12 @@
 
 #include "gtest/gtest.h"
 #include <memory>
-#include <metall/container/experimental/json/json.hpp>
+#include <metall/json/json.hpp>
 
-using namespace metall::container::experimental;
+namespace mj = metall::json;
 
 namespace {
-using array_type = json::array<std::allocator<std::byte>>;
+using array_type = mj::array<std::allocator<std::byte>>;
 
 TEST (JSONArrayTest, Constructor) {
   array_type array;

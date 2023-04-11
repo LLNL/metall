@@ -5,23 +5,23 @@
 
 #include "gtest/gtest.h"
 #include <memory>
-#include <metall/container/experimental/json/json.hpp>
+#include <metall/json/json.hpp>
 #include <metall/metall.hpp>
 #include "../../test_utility.hpp"
 
-using namespace metall::container::experimental;
+namespace mj = metall::json;
 
 namespace {
 
 TEST (JSONValueTest, Constructor) {
-  json::value val;
-  json::value val_with_alloc(std::allocator<std::byte>{});
-  json::value cp(val);
-  json::value mv(std::move(val));
+  mj::value val;
+  mj::value val_with_alloc(std::allocator<std::byte>{});
+  mj::value cp(val);
+  mj::value mv(std::move(val));
 }
 
 TEST (JSONValueTest, Assign) {
-  json::value val;
+  mj::value val;
   {
     val = nullptr;
     GTEST_ASSERT_TRUE(val.is_null());
@@ -107,14 +107,14 @@ TEST (JSONValueTest, Assign) {
   }
 
   {
-    json::value<>::string_type s("string3");
+    mj::value<>::string_type s("string3");
     val = s;
     GTEST_ASSERT_TRUE(val.is_string());
     GTEST_ASSERT_EQ(val.as_string(), "string3");
   }
 
   {
-    json::array ar;
+    mj::array ar;
     ar.resize(2);
     ar[0] = 1;
     ar[1] = 2;
@@ -126,7 +126,7 @@ TEST (JSONValueTest, Assign) {
   }
 
   {
-    json::array ar;
+    mj::array ar;
     ar.resize(2);
     ar[0] = 3;
     ar[1] = 4;
@@ -138,7 +138,7 @@ TEST (JSONValueTest, Assign) {
   }
 
   {
-    json::value<>::object_type oj;
+    mj::value<>::object_type oj;
     oj["val"] = 1.5;
 
     val = oj;
@@ -148,7 +148,7 @@ TEST (JSONValueTest, Assign) {
   }
 
   {
-    json::value<>::object_type oj;
+    mj::value<>::object_type oj;
     oj["val"] = 2.5;
 
     val = std::move(oj);
@@ -159,7 +159,7 @@ TEST (JSONValueTest, Assign) {
 }
 
 TEST (JSONValueTest, Emplace) {
-  json::value val;
+  mj::value val;
   {
     val.emplace_null();
     GTEST_ASSERT_TRUE(val.is_null());
@@ -190,14 +190,14 @@ TEST (JSONValueTest, Emplace) {
   }
 
   {
-    json::value<>::string_type s("string3");
+    mj::value<>::string_type s("string3");
     val.emplace_string() = s;
     GTEST_ASSERT_TRUE(val.is_string());
     GTEST_ASSERT_EQ(val.as_string(), "string3");
   }
 
   {
-    json::array ar;
+    mj::array ar;
     ar.resize(2);
     ar[0] = 1;
     ar[1] = 2;
@@ -209,7 +209,7 @@ TEST (JSONValueTest, Emplace) {
   }
 
   {
-    json::array ar;
+    mj::array ar;
     ar.resize(2);
     ar[0] = 3;
     ar[1] = 4;
@@ -221,7 +221,7 @@ TEST (JSONValueTest, Emplace) {
   }
 
   {
-    json::value<>::object_type oj;
+    mj::value<>::object_type oj;
     oj["val"] = 1.5;
 
     val.emplace_object() = oj;
@@ -231,7 +231,7 @@ TEST (JSONValueTest, Emplace) {
   }
 
   {
-    json::value<>::object_type oj;
+    mj::value<>::object_type oj;
     oj["val"] = 2.5;
 
     val.emplace_object() = std::move(oj);
@@ -273,13 +273,13 @@ void check_json_string(T &jv) {
 }
 
 TEST (JSONValueTest, Parse) {
-  auto jv = json::parse(json_string);
+  auto jv = mj::parse(json_string);
   check_json_string(jv);
 }
 
 TEST (JSONValueTest, Equal) {
-  auto jv1 = json::parse(json_string);
-  auto jv2 = json::parse(json_string);
+  auto jv1 = mj::parse(json_string);
+  auto jv2 = mj::parse(json_string);
   GTEST_ASSERT_EQ(jv1, jv2);
 
   jv1.as_object()["object"].as_object()["currency"].as_string() = "JPY";
@@ -287,7 +287,7 @@ TEST (JSONValueTest, Equal) {
 }
 
 TEST (JSONValueTest, EqualBool) {
-  auto jv = json::value();
+  auto jv = mj::value();
   jv.emplace_bool() = true;
   GTEST_ASSERT_EQ(jv, true);
   GTEST_ASSERT_NE(jv, -10);
@@ -296,7 +296,7 @@ TEST (JSONValueTest, EqualBool) {
 }
 
 TEST (JSONValueTest, EqualInt64) {
-  auto jv = json::value();
+  auto jv = mj::value();
   jv.emplace_int64() = -10;
   GTEST_ASSERT_NE(jv, true);
   GTEST_ASSERT_EQ(jv, -10);
@@ -305,7 +305,7 @@ TEST (JSONValueTest, EqualInt64) {
 }
 
 TEST (JSONValueTest, EqualUint64) {
-  auto jv = json::value();
+  auto jv = mj::value();
   jv.emplace_uint64() = 10;
   GTEST_ASSERT_NE(jv, true);
   GTEST_ASSERT_NE(jv, -10);
@@ -314,7 +314,7 @@ TEST (JSONValueTest, EqualUint64) {
 }
 
 TEST (JSONValueTest, EqualDouble) {
-  auto jv = json::value();
+  auto jv = mj::value();
   jv.emplace_double() = 10.0;
   GTEST_ASSERT_NE(jv, true);
   GTEST_ASSERT_NE(jv, -10);
@@ -323,7 +323,7 @@ TEST (JSONValueTest, EqualDouble) {
 }
 
 TEST (JSONValueTest, Copy) {
-  auto jv = json::parse(json_string);
+  auto jv = mj::parse(json_string);
 
   {
     SCOPED_TRACE("Copy Construct");
@@ -340,14 +340,14 @@ TEST (JSONValueTest, Copy) {
 
 TEST (JSONValueTest, Move) {
   {
-    auto jv = json::parse(json_string);
+    auto jv = mj::parse(json_string);
     SCOPED_TRACE("Move Construct");
     auto jv_copy(std::move(jv));
     check_json_string(jv_copy);
   }
 
   {
-    auto jv = json::parse(json_string);
+    auto jv = mj::parse(json_string);
     SCOPED_TRACE("Move Assignment");
     auto jv_copy = std::move(jv);
     check_json_string(jv_copy);
@@ -355,7 +355,7 @@ TEST (JSONValueTest, Move) {
 }
 
 TEST (JSONValueTest, CopyDifferentMetallAllocator) {
-  using valut_t = json::value<metall::manager::allocator_type<std::byte>>;
+  using valut_t = mj::value<metall::manager::allocator_type<std::byte>>;
   {
     SCOPED_TRACE("Copy Assignment");
     {
@@ -363,7 +363,7 @@ TEST (JSONValueTest, CopyDifferentMetallAllocator) {
       metall::manager manager_src(metall::create_only, (test_utility::make_test_path() + "_src").c_str());
 
       auto *jv_copy = manager_copy.construct<valut_t>("jv")(manager_copy.get_allocator());
-      auto json_src = json::parse(json_string, manager_src.get_allocator());
+      auto json_src = mj::parse(json_string, manager_src.get_allocator());
       // copy to an instance allocated by a different allocators
       *jv_copy = json_src;
     }
@@ -380,7 +380,7 @@ TEST (JSONValueTest, CopyDifferentMetallAllocator) {
     {
       metall::manager manager_src(metall::create_only, (test_utility::make_test_path() + "_src").c_str());
       metall::manager manager_copy(metall::create_only, (test_utility::make_test_path() + "_copy").c_str());
-      auto json_src = json::parse(json_string, manager_src.get_allocator());
+      auto json_src = mj::parse(json_string, manager_src.get_allocator());
       // Construct a new one from another instance that was allocated by another allocator
       auto *jv_copy = manager_copy.construct<valut_t>("jv")(json_src,
                                                             manager_copy.get_allocator());
@@ -396,7 +396,7 @@ TEST (JSONValueTest, CopyDifferentMetallAllocator) {
 }
 
 TEST (JSONValueTest, MoveDifferentMetallAllocator) {
-  using valut_t = json::value<metall::manager::allocator_type<std::byte>>;
+  using valut_t = mj::value<metall::manager::allocator_type<std::byte>>;
   {
     SCOPED_TRACE("Move Assignment");
     {
@@ -405,7 +405,7 @@ TEST (JSONValueTest, MoveDifferentMetallAllocator) {
 
       auto *jv_move = manager_move.construct<valut_t>("jv")(manager_move.get_allocator());
       // Move to an instance allocated by a different allocators
-      *jv_move = json::parse(json_string, manager_src.get_allocator());
+      *jv_move = mj::parse(json_string, manager_src.get_allocator());
     }
 
     {
@@ -421,7 +421,7 @@ TEST (JSONValueTest, MoveDifferentMetallAllocator) {
       metall::manager manager_src(metall::create_only, (test_utility::make_test_path() + "_src").c_str());
       metall::manager manager_move(metall::create_only, (test_utility::make_test_path() + "_move").c_str());
       // Construct a new one from another instance that was allocated by another allocator
-      auto *jv_move = manager_move.construct<valut_t>("jv")(json::parse(json_string, manager_src.get_allocator()),
+      auto *jv_move = manager_move.construct<valut_t>("jv")(mj::parse(json_string, manager_src.get_allocator()),
                                                             manager_move.get_allocator());
       check_json_string(*jv_move);
     }

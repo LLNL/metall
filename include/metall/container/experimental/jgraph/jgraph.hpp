@@ -16,7 +16,11 @@
 #include <metall/container/vector.hpp>
 #include <metall/container/scoped_allocator.hpp>
 #include <metall/utility/hash.hpp>
-#include <metall/container/experimental/json/json.hpp>
+#include <metall/json/json.hpp>
+
+/// \namespace metall::container::experimental
+/// \brief Namespace for Metall containers in an experimental phase.
+namespace metall::container::experimental {}
 
 /// \namespace metall::container::experimental::jgraph
 /// \brief Namespace for Metall JSON graph container, which is in an experimental phase.
@@ -24,7 +28,7 @@ namespace metall::container::experimental::jgraph {
 
 namespace {
 namespace mc = metall::container;
-namespace mj = metall::container::experimental::json;
+namespace mj = metall::json;
 }
 
 // --- Forward declarations --- //

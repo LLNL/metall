@@ -6,8 +6,8 @@
 /// \brief Contains forward declarations and type alias of Metall JSON
 /// container.
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
+#ifndef METALL_JSON_JSON_FWD_HPP
+#define METALL_JSON_JSON_FWD_HPP
 
 #include <string>
 #include <variant>
@@ -20,13 +20,9 @@
 
 #include <metall/container/string.hpp>
 
-/// \namespace metall::container::experimental
-/// \brief Namespace for Metall containers in an experimental phase.
-namespace metall::container::experimental {}
-
-/// \namespace metall::container::experimental::json
+/// \namespace metall::json
 /// \brief Namespace for Metall JSON container, which is in an experimental phase.
-namespace metall::container::experimental::json {
+namespace metall::json {
 /// \brief JSON null type.
 using null_type = std::monostate;
 
@@ -37,12 +33,12 @@ using basic_string = metall::container::basic_string<char_t, traits, allocator_t
 /// \brief JSON string.
 template <typename allocator_type = std::allocator<std::byte>>
 using string = basic_string<char, std::char_traits<char>, allocator_type>;
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
 // Forward declaration
 #if !defined(DOXYGEN_SKIP)
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 template <typename allocator_type = std::allocator<std::byte>>
 class value;
@@ -208,6 +204,6 @@ bool general_key_value_pair_equal(
 
 #endif // DOXYGEN_SKIP
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif // METALL_CONTAINER_EXPERIMENT_JSON_JSON_FWD_HPP
+#endif // METALL_JSON_JSON_FWD_HPP

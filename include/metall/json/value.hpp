@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
+#ifndef METALL_JSON_VALUE_HPP
+#define METALL_JSON_VALUE_HPP
 
 #include <memory>
 #include <utility>
@@ -12,9 +12,9 @@
 #include <variant>
 #include <type_traits>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace mc = metall::container;
@@ -62,7 +62,7 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
   assert(false);
   return false;
 }
-} // namespace metall::container::experimental::json::jsndtl
+} // namespace metall::json::jsndtl
 
 /// \brief JSON value.
 /// A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.
@@ -545,6 +545,6 @@ inline void swap(value<allocator_type> &lhd, value<allocator_type> &rhd) noexcep
   lhd.swap(rhd);
 }
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
+#endif //METALL_JSON_VALUE_HPP

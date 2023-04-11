@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_KEY_VALUE_PAIR_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_KEY_VALUE_PAIR_HPP
+#ifndef METALL_JSON_KEY_VALUE_PAIR_HPP
+#define METALL_JSON_KEY_VALUE_PAIR_HPP
 
 #include <string_view>
 #include <memory>
@@ -14,9 +14,9 @@
 
 #include <metall/offset_ptr.hpp>
 #include <metall/detail/utilities.hpp>
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace jsndtl {
 /// \brief Provides 'equal' calculation for other key-value types that have the same interface as the object class.
@@ -47,7 +47,7 @@ class key_value_pair {
   using char_traits = _char_traits;
   using allocator_type = Alloc;
   using key_type = std::basic_string_view<char_type, char_traits>;
-  using value_type = metall::container::experimental::json::value<allocator_type>;
+  using value_type = metall::json::value<allocator_type>;
   using size_type = std::size_t;
 
  public:
@@ -291,4 +291,4 @@ inline void swap(key_value_pair<char_type, char_traits, allocator_type> &rhd, ke
 
 } // namespace json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_KEY_VALUE_PAIR_HPP
+#endif //METALL_JSON_KEY_VALUE_PAIR_HPP

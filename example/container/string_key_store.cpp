@@ -5,10 +5,10 @@
 
 #include <metall/metall.hpp>
 #include <metall/container/string_key_store.hpp>
-#include <metall/container/experimental/json/json.hpp>
+#include <metall/json/json.hpp>
 
 namespace mc = metall::container;
-namespace mj = mc::experimental::json;
+namespace mj = metall::json;
 
 // Example of a string-key-store with int value.
 void int_store_example();

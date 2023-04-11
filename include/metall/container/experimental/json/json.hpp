@@ -6,24 +6,13 @@
 #ifndef METALL_CONTAINER_EXPERIMENT_JSON_JSON_HPP
 #define METALL_CONTAINER_EXPERIMENT_JSON_JSON_HPP
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#warning "metall/container/experimental/json/json.hpp is deprecated. Please use include/metall/json/json.hpp instead."
 
-#include <metall/container/experimental/json/array.hpp>
-#include <metall/container/experimental/json/key_value_pair.hpp>
-#include <metall/container/experimental/json/value.hpp>
-#include <metall/container/experimental/json/string.hpp>
-#include <metall/container/experimental/json/parse.hpp>
-#include <metall/container/experimental/json/serialize.hpp>
-#include <metall/container/experimental/json/pretty_print.hpp>
-#include <metall/container/experimental/json/value_from.hpp>
-#include <metall/container/experimental/json/value_to.hpp>
-#include <metall/container/experimental/json/object.hpp>
-#include <metall/container/experimental/json/equal.hpp>
+#include <metall/json/json.hpp>
 
-/// \example json_create.cpp
-/// This is an example of how to create a JSON object with Metall.
-
-/// \example json_open.cpp
-/// This is an example of how to open an already created JSON object.
+#warning "Namespace metall::container::experimental::json is deprecated. Please use metall::json instead."
+namespace metall::container::experimental::json {
+using namespace metall::json;
+}
 
 #endif //METALL_CONTAINER_EXPERIMENT_JSON_JSON_HPP

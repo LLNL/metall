@@ -3,16 +3,16 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_PARSE_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_PARSE_HPP
+#ifndef METALL_JSON_PARSE_HPP
+#define METALL_JSON_PARSE_HPP
 
 #include <iostream>
 #include <string_view>
 #include <memory>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace bj = boost::json;
@@ -40,9 +40,9 @@ inline value<allocator_type> parse(std::string_view input_json_string,
     return value<allocator_type>{allocator};
   }
 
-  return metall::container::experimental::json::value_from(std::move(bj_value), allocator);
+  return metall::json::value_from(std::move(bj_value), allocator);
 }
 
 }
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_PARSE_HPP
+#endif //METALL_JSON_PARSE_HPP

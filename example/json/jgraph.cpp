@@ -30,7 +30,7 @@ int main() {
 
     auto *graph = manager.construct<graph_type>(metall::unique_instance)(manager.get_allocator());
     for (const auto &json_string : input_json_string_list) {
-      auto value = json::parse(json_string, manager.get_allocator());
+      auto value = metall::json::parse(json_string, manager.get_allocator());
 
       if (value.as_object()["type"].as_string() == "node") {
         const auto &vertex_id = value.as_object()["id"].as_string();
@@ -52,10 +52,10 @@ int main() {
     const auto *const graph = manager.find<graph_type>(metall::unique_instance).first;
 
     std::cout << "<Vertices>" << std::endl;
-     json::pretty_print(std::cout, graph->find_vertex("0")->value());
-     json::pretty_print(std::cout, graph->find_vertex("1")->value());
-     json::pretty_print(std::cout, graph->find_vertex("2")->value());
-     json::pretty_print(std::cout, graph->find_vertex("3")->value());
+     metall::json::pretty_print(std::cout, graph->find_vertex("0")->value());
+     metall::json::pretty_print(std::cout, graph->find_vertex("1")->value());
+     metall::json::pretty_print(std::cout, graph->find_vertex("2")->value());
+     metall::json::pretty_print(std::cout, graph->find_vertex("3")->value());
 
     // Access edge values and edge values using the iterators
     std::cout << "\n<Edges>" << std::endl;
@@ -68,7 +68,7 @@ int main() {
           std::cout << "Source vertex ID = " << eitr->destination_id() << std::endl;
           std::cout << "Destination vertex ID = " << eitr->source_id() << std::endl;
         }
-        json::pretty_print(std::cout, eitr->value());
+        metall::json::pretty_print(std::cout, eitr->value());
       }
       std::cout << std::endl;
     }

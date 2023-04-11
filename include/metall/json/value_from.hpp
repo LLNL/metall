@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_VALUE_FROM_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_VALUE_FROM_HPP
+#ifndef METALL_JSON_VALUE_FROM_HPP
+#define METALL_JSON_VALUE_FROM_HPP
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json::jsndtl {
+namespace metall::json::jsndtl {
 
 namespace {
 namespace bj = boost::json;
@@ -52,9 +52,9 @@ inline value<allocator_type> value_from_impl(bj::value &&input_bj_value, allocat
   return value_from_impl(tmp_input_bj_value, allocator);
 }
 
-} // namespace metall::container::experimental::json::jsndtl
+} // namespace metall::json::jsndtl
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 /// \brief Convert an input data and construct a JSON value.
 /// \tparam T The type of an input data.
@@ -75,4 +75,4 @@ inline value<allocator_type> value_from(T &&input_data, const allocator_type& al
 
 }
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_VALUE_FROM_HPP
+#endif //METALL_JSON_VALUE_FROM_HPP

@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_PRETTY_PRINT_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_PRETTY_PRINT_HPP
+#ifndef METALL_JSON_PRETTY_PRINT_HPP
+#define METALL_JSON_PRETTY_PRINT_HPP
 
 #include <iostream>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json::jsndtl {
+namespace metall::json::jsndtl {
 template <typename allocator_type, int indent_size>
 inline void pretty_print_impl(std::ostream &os, const value<allocator_type> &jv, const std::string &indent) {
   if (jv.is_bool()) {
@@ -56,9 +56,9 @@ inline void pretty_print_impl(std::ostream &os, const value<allocator_type> &jv,
   }
 }
 
-} // namespace metall::container::experimental::json::jsndtl
+} // namespace metall::json::jsndtl
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 /// \brief Pretty-prints a JSON value.
 /// \tparam allocator_type An allocator type used in the value.
@@ -76,6 +76,6 @@ inline void pretty_print(std::ostream &os, const value<allocator_type> &json_val
   os << std::endl;
 }
 
-} // namespace metall::container::experimental::json
+} // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_PRETTY_PRINT_HPP
+#endif //METALL_JSON_PRETTY_PRINT_HPP
