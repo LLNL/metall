@@ -12,7 +12,7 @@ var dir_b076435bd9cb7fc857f2c822f589f071 =
     [ "scoped_allocator.hpp", "scoped__allocator_8hpp.html", "scoped__allocator_8hpp" ],
     [ "set.hpp", "set_8hpp.html", "set_8hpp" ],
     [ "stack.hpp", "stack_8hpp.html", "stack_8hpp" ],
-    [ "string.hpp", "string_8hpp.html", "string_8hpp" ],
+    [ "string.hpp", "container_2string_8hpp.html", "container_2string_8hpp" ],
     [ "string_key_store.hpp", "string__key__store_8hpp.html", [
       [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html", "classmetall_1_1container_1_1string__key__store" ]
     ] ],

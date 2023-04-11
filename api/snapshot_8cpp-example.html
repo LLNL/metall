@@ -98,8 +98,8 @@ $(document).ready(function(){initNavTree('snapshot_8cpp-example.html',''); initR
 </div><!--header-->
 <div class="contents">
 <p>This is an example of how to use the snapshot capabilities in Metall.</p>
-<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><span class="comment">//</span></div>
 <div class="line"><span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"> </div>
@@ -131,7 +131,7 @@ $(document).ready(function(){initNavTree('snapshot_8cpp-example.html',''); initR
 <div class="line">  <span class="keywordflow">if</span> (<a name="a4"></a><a class="code" href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">metall::manager::consistent</a>(snapshot_name0.c_str())) {</div>
 <div class="line">    <a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::open_read_only, snapshot_name0.c_str());</div>
 <div class="line">    <span class="keywordtype">int</span> *a = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.find&lt;<span class="keywordtype">int</span>&gt;(metall::unique_instance).first;</div>
-<div class="line">    std::cout &lt;&lt; *a &lt;&lt; std::endl; <span class="comment">// Print 0</span></div>
+<div class="line">    std::cout &lt;&lt; *a &lt;&lt; std::endl;  <span class="comment">// Print 0</span></div>
 <div class="line">  } <span class="keywordflow">else</span> {</div>
 <div class="line">    std::cerr &lt;&lt; snapshot_name0 &lt;&lt; <span class="stringliteral">&quot; is inconsistent&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line">  }</div>
@@ -140,7 +140,7 @@ $(document).ready(function(){initNavTree('snapshot_8cpp-example.html',''); initR
 <div class="line">  <span class="keywordflow">if</span> (<a class="code" href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">metall::manager::consistent</a>(snapshot_name1.c_str())) {</div>
 <div class="line">    <a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::open_read_only, snapshot_name1.c_str());</div>
 <div class="line">    <span class="keywordtype">int</span> *a = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.find&lt;<span class="keywordtype">int</span>&gt;(metall::unique_instance).first;</div>
-<div class="line">    std::cout &lt;&lt; *a &lt;&lt; std::endl; <span class="comment">// Print 1</span></div>
+<div class="line">    std::cout &lt;&lt; *a &lt;&lt; std::endl;  <span class="comment">// Print 1</span></div>
 <div class="line">  } <span class="keywordflow">else</span> {</div>
 <div class="line">    std::cerr &lt;&lt; snapshot_name1 &lt;&lt; <span class="stringliteral">&quot; is inconsistent&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line">  }</div>
@@ -149,19 +149,19 @@ $(document).ready(function(){initNavTree('snapshot_8cpp-example.html',''); initR
 <div class="line">  <span class="keywordflow">if</span> (<a class="code" href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">metall::manager::consistent</a>(master_path.c_str())) {</div>
 <div class="line">    <a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::open_read_only, master_path.c_str());</div>
 <div class="line">    <span class="keywordtype">int</span> *a = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.find&lt;<span class="keywordtype">int</span>&gt;(metall::unique_instance).first;</div>
-<div class="line">    std::cout &lt;&lt; *a &lt;&lt; std::endl; <span class="comment">// Print 2</span></div>
+<div class="line">    std::cout &lt;&lt; *a &lt;&lt; std::endl;  <span class="comment">// Print 2</span></div>
 <div class="line">  } <span class="keywordflow">else</span> {</div>
 <div class="line">    std::cerr &lt;&lt; master_path &lt;&lt; <span class="stringliteral">&quot; is inconsistent&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:30</div></div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html_acf7c87f6f553405e86eb4221e1972b44"><div class="ttname"><a href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">metall::basic_manager::consistent</a></div><div class="ttdeci">static bool consistent(const char_type *dir_path) noexcept</div><div class="ttdoc">Check if a data store exists and is consistent (i.e., it was closed properly in the previous run).</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:896</div></div>
-<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:25</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:31</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html_acf7c87f6f553405e86eb4221e1972b44"><div class="ttname"><a href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">metall::basic_manager::consistent</a></div><div class="ttdeci">static bool consistent(const char_type *dir_path) noexcept</div><div class="ttdoc">Check if a data store exists and is consistent (i.e., it was closed properly in the previous run).</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:968</div></div>
+<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:24</div></div>
 <div class="ttc" id="ametall_8hpp_html"><div class="ttname"><a href="metall_8hpp.html">metall.hpp</a></div></div>
 <div class="ttc" id="anamespacemetall_1_1container_html_a5fe499903b179ed596cd8c2bd6892009"><div class="ttname"><a href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">metall::container::string</a></div><div class="ttdeci">basic_string&lt; char &gt; string</div><div class="ttdoc">A string container that uses char as its character type and Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:23</div></div>
-<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:18</div></div>
+<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:19</div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

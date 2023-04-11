@@ -2,7 +2,7 @@ var classmetall_1_1stl__allocator =
 [
     [ "rebind", "structmetall_1_1stl__allocator_1_1rebind.html", "structmetall_1_1stl__allocator_1_1rebind" ],
     [ "value_type", "classmetall_1_1stl__allocator.html#a923213c36315bcde1a38794b633a0d80", null ],
-    [ "pointer", "classmetall_1_1stl__allocator.html#a36a512ee42790f1a2f7bab092024280e", null ],
+    [ "pointer", "classmetall_1_1stl__allocator.html#abe859c8ac0f5ca0995f21b28d68d1354", null ],
     [ "const_pointer", "classmetall_1_1stl__allocator.html#aea5ded3bdad49036d46ba787cdd6af26", null ],
     [ "void_pointer", "classmetall_1_1stl__allocator.html#aa9878ba076eb5151bbcbd5ff6bcac37c", null ],
     [ "const_void_pointer", "classmetall_1_1stl__allocator.html#a065da16c6ef843f47b0d745c71effb88", null ],
@@ -21,7 +21,7 @@ var classmetall_1_1stl__allocator =
     [ "allocate", "classmetall_1_1stl__allocator.html#a71341834b55ce31e88cea26ee963c817", null ],
     [ "deallocate", "classmetall_1_1stl__allocator.html#a1c82cc22467583a55e729908cd0fa89f", null ],
     [ "max_size", "classmetall_1_1stl__allocator.html#aec430748ad05b77f5578fe1da6cf9f41", null ],
-    [ "construct", "classmetall_1_1stl__allocator.html#ab684896e898bd1a423a9bb0c88b114ef", null ],
+    [ "construct", "classmetall_1_1stl__allocator.html#acc87ddb892546cef46f3634dabc004b8", null ],
     [ "destroy", "classmetall_1_1stl__allocator.html#a21c3acd9666ed79f2390cbb8028e3a81", null ],
     [ "get_pointer_to_manager_kernel", "classmetall_1_1stl__allocator.html#afff83b9fcd813a3f2030df2f9d5cdc34", null ]
 ];

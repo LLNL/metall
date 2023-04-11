@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['stl_5fallocator_396',['stl_allocator',['../classmetall_1_1stl__allocator.html',1,'metall']]],
-  ['string_5fkey_5fstore_397',['string_key_store',['../classmetall_1_1container_1_1string__key__store.html',1,'metall::container']]],
-  ['string_5fkey_5fstore_5flocator_398',['string_key_store_locator',['../classmetall_1_1container_1_1string__key__store__locator.html',1,'metall::container']]]
+  ['unique_5fobject_5fattr_5faccessor_396',['unique_object_attr_accessor',['../classmetall_1_1unique__object__attr__accessor.html',1,'metall']]]
 ];

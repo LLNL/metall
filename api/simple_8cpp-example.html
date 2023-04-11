@@ -98,61 +98,65 @@ $(document).ready(function(){initNavTree('simple_8cpp-example.html',''); initRes
 </div><!--header-->
 <div class="contents">
 <p>This is a simple example of how to use Metall.</p>
-<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><span class="comment">//</span></div>
 <div class="line"><span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"> </div>
 <div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"> </div>
 <div class="line"><span class="preprocessor">#include &lt;boost/container/vector.hpp&gt;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="metall_8hpp.html">metall/metall.hpp</a>&gt;</span> <span class="comment">// Only one header file is required to be included</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="metall_8hpp.html">metall/metall.hpp</a>&gt;</span>  <span class="comment">// Only one header file is required to be included</span></div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Type alias</span></div>
-<div class="line"><span class="comment">// This is a standard way to give a custom allocator to a container</span></div>
-<div class="line"><span class="keyword">using</span> vector_t = boost::container::vector&lt;int, metall::manager::allocator_type&lt;int&gt;&gt;;</div>
+<div class="line"><span class="comment">// This is the standard way to give a custom allocator to a container</span></div>
+<div class="line"><span class="keyword">using</span> vector_t =</div>
+<div class="line">    boost::container::vector&lt;int, metall::manager::allocator_type&lt;int&gt;&gt;;</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> <a name="a0"></a><a class="code" href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>() {</div>
-<div class="line"> </div>
 <div class="line">  {</div>
-<div class="line">    <span class="comment">// Construct a manager object</span></div>
-<div class="line">    <span class="comment">// A process can allocate multiple manager objects</span></div>
-<div class="line">    <a name="_a1"></a><a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a name="a2"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::create_only,  <span class="comment">// Create a new one</span></div>
-<div class="line">                            <span class="stringliteral">&quot;/tmp/dir&quot;</span>);          <span class="comment">// The directory to store backing datastore</span></div>
+<div class="line">    <span class="comment">// Construct a manager instance</span></div>
+<div class="line">    <span class="comment">// A process can allocate multiple manager instances</span></div>
+<div class="line">    <a name="_a1"></a><a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a name="a2"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(</div>
+<div class="line">        metall::create_only,  <span class="comment">// Create a new one</span></div>
+<div class="line">        <span class="stringliteral">&quot;/tmp/dir&quot;</span>);          <span class="comment">// The directory to store backing datastore</span></div>
 <div class="line"> </div>
-<div class="line">    <span class="comment">// Allocate and construct a vector object in the persistent memory with a name &quot;vec&quot;</span></div>
-<div class="line">    <span class="keyword">auto</span> pvec = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;vector_t&gt;                    <span class="comment">// Allocate and construct an object of vector_t</span></div>
-<div class="line">                                    (<span class="stringliteral">&quot;vec&quot;</span>)              <span class="comment">// Name of the allocated object</span></div>
-<div class="line">                                    (<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator()); <span class="comment">// Arguments passed to vector_t&#39;s constructor</span></div>
+<div class="line">    <span class="comment">// Allocate and construct a vector instance of vector_t.</span></div>
+<div class="line">    <span class="comment">// The name &quot;vec&quot; is saved inside Metall datastore</span></div>
+<div class="line">    <span class="comment">// and used to find the instance later.</span></div>
+<div class="line">    <span class="comment">// The arguments in the last () are passed to the constructor of vector_t.</span></div>
+<div class="line">    <span class="keyword">auto</span> pvec = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;vector_t&gt;(<span class="stringliteral">&quot;vec&quot;</span>)(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator());</div>
 <div class="line"> </div>
-<div class="line">    pvec-&gt;push_back(5); <span class="comment">// Can use containers normally</span></div>
-<div class="line"> </div>
-<div class="line">  } <span class="comment">// Implicitly sync with backing files, i.e., sync() is called in metall::manager&#39;s destructor</span></div>
+<div class="line">    <span class="comment">// From now on, the vector instance can be used normally.</span></div>
+<div class="line">    pvec-&gt;push_back(5);</div>
+<div class="line">  }  <span class="comment">// Implicitly sync with backing files, i.e., sync() is called in</span></div>
+<div class="line">     <span class="comment">// metall::manager&#39;s destructor</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// ---------- Assume exit and restart the program at this point ---------- //</span></div>
 <div class="line"> </div>
 <div class="line">  {</div>
-<div class="line">    <span class="comment">// Reattach the manager object</span></div>
+<div class="line">    <span class="comment">// Reattach the manager instance</span></div>
 <div class="line">    <a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::open_only, <span class="stringliteral">&quot;/tmp/dir&quot;</span>);</div>
 <div class="line"> </div>
-<div class="line">    <span class="comment">// Find the previously constructed object</span></div>
+<div class="line">    <span class="comment">// Find the previously constructed instance</span></div>
 <div class="line">    <span class="comment">// Please do not forget to use &quot;.first&quot; at the end</span></div>
 <div class="line">    <span class="keyword">auto</span> pvec = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.find&lt;vector_t&gt;(<span class="stringliteral">&quot;vec&quot;</span>).first;</div>
 <div class="line"> </div>
-<div class="line">    pvec-&gt;push_back(10); <span class="comment">// Can restart to use containers normally</span></div>
+<div class="line">    pvec-&gt;push_back(10);  <span class="comment">// Can restart to use containers normally</span></div>
 <div class="line"> </div>
-<div class="line">    std::cout &lt;&lt; (*pvec)[0] &lt;&lt; std::endl; <span class="comment">// Will print &quot;5&quot;</span></div>
-<div class="line">    std::cout &lt;&lt; (*pvec)[1] &lt;&lt; std::endl; <span class="comment">// Will print &quot;10&quot;</span></div>
+<div class="line">    std::cout &lt;&lt; (*pvec)[0] &lt;&lt; std::endl;  <span class="comment">// Will print &quot;5&quot;</span></div>
+<div class="line">    std::cout &lt;&lt; (*pvec)[1] &lt;&lt; std::endl;  <span class="comment">// Will print &quot;10&quot;</span></div>
 <div class="line"> </div>
-<div class="line">    <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.destroy&lt;vector_t&gt;(<span class="stringliteral">&quot;vec&quot;</span>); <span class="comment">// Destroy the object</span></div>
+<div class="line">    <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.destroy&lt;vector_t&gt;(<span class="stringliteral">&quot;vec&quot;</span>);  <span class="comment">// Destroy the instance</span></div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:30</div></div>
-<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:25</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:31</div></div>
+<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:24</div></div>
 <div class="ttc" id="ametall_8hpp_html"><div class="ttname"><a href="metall_8hpp.html">metall.hpp</a></div></div>
-<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:18</div></div>
+<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:19</div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

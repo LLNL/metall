@@ -379,7 +379,7 @@ class metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</h3>
   </table>
   </dd>
 </dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="adjacency_list_graph_8cpp-example.html#_a2">adjacency_list_graph.cpp</a>, <a class="el" href="complex_map_8cpp-example.html#_a2">complex_map.cpp</a>, <a class="el" href="concurrent_map_8cpp-example.html#_a3">concurrent_map.cpp</a>, <a class="el" href="csr_graph_8cpp-example.html#_a3">csr_graph.cpp</a>, <a class="el" href="datastore_description_8cpp-example.html#_a1">datastore_description.cpp</a>, <a class="el" href="fallback_allocator_adaptor_8cpp-example.html#_a2">fallback_allocator_adaptor.cpp</a>, <a class="el" href="jgraph_8cpp-example.html#_a2">jgraph.cpp</a>, <a class="el" href="json_create_8cpp-example.html#_a2">json_create.cpp</a>, <a class="el" href="json_open_8cpp-example.html#_a1">json_open.cpp</a>, <a class="el" href="multilevel_containers_8cpp-example.html#_a6">multilevel_containers.cpp</a>, <a class="el" href="object_attribute_8cpp-example.html#_a1">object_attribute.cpp</a>, <a class="el" href="object_attribute_api_list_8cpp-example.html#_a2">object_attribute_api_list.cpp</a>, <a class="el" href="offset_pointer_8cpp-example.html#_a1">offset_pointer.cpp</a>, <a class="el" href="simple_8cpp-example.html#_a1">simple.cpp</a>, <a class="el" href="snapshot_8cpp-example.html#_a2">snapshot.cpp</a>, <a class="el" href="string_8cpp-example.html#_a3">string.cpp</a>, <a class="el" href="string_map_8cpp-example.html#_a3">string_map.cpp</a>, and <a class="el" href="vector_of_vectors_8cpp-example.html#_a2">vector_of_vectors.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="adjacency_list_graph_8cpp-example.html#_a2">adjacency_list_graph.cpp</a>, <a class="el" href="complex_map_8cpp-example.html#_a2">complex_map.cpp</a>, <a class="el" href="concurrent_map_8cpp-example.html#_a3">concurrent_map.cpp</a>, <a class="el" href="csr_graph_8cpp-example.html#_a3">csr_graph.cpp</a>, <a class="el" href="datastore_description_8cpp-example.html#_a1">datastore_description.cpp</a>, <a class="el" href="fallback_allocator_adaptor_8cpp-example.html#_a3">fallback_allocator_adaptor.cpp</a>, <a class="el" href="jgraph_8cpp-example.html#_a2">jgraph.cpp</a>, <a class="el" href="json_create_8cpp-example.html#_a3">json_create.cpp</a>, <a class="el" href="json_open_8cpp-example.html#_a2">json_open.cpp</a>, <a class="el" href="multilevel_containers_8cpp-example.html#_a6">multilevel_containers.cpp</a>, <a class="el" href="object_attribute_8cpp-example.html#_a1">object_attribute.cpp</a>, <a class="el" href="object_attribute_api_list_8cpp-example.html#_a2">object_attribute_api_list.cpp</a>, <a class="el" href="offset_pointer_8cpp-example.html#_a1">offset_pointer.cpp</a>, <a class="el" href="simple_8cpp-example.html#_a1">simple.cpp</a>, <a class="el" href="snapshot_8cpp-example.html#_a2">snapshot.cpp</a>, <a class="el" href="string_8cpp-example.html#_a2">string.cpp</a>, <a class="el" href="string_map_8cpp-example.html#_a2">string_map.cpp</a>, and <a class="el" href="vector_of_vectors_8cpp-example.html#_a3">vector_of_vectors.cpp</a>.</dd>
 </dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a4ceacfb2028bae1618533062ebe02ed5"></a>
@@ -882,7 +882,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 <p>Creates a new data store (an existing data store will be overwritten). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">base_path</td><td>Path to create a data store. </td></tr>
+    <tr><td class="paramname">base_path</td><td>Path to create a data store.</td></tr>
     <tr><td class="paramname">capacity</td><td>Maximum total allocation size. </td></tr>
   </table>
   </dd>
@@ -1252,7 +1252,8 @@ template&lt;typename T &gt; </div>
 <p>Tries to find an already constructed object. If not exist, constructs an array of objects of type T, receiving arguments from iterators. </p>
 <p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
 <p>If T's constructor throws, the function throws that exception. Memory is freed automatically if T's constructor throws and if an array was being constructed, destructors of created objects are called before freeing the memory.</p>
-<p>Example: </p><div class="fragment"><div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.find_or_construct_it&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)[count](it1, it2...);</div>
+<p>Example: </p><div class="fragment"><div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.find_or_construct_it&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)[count](it1,</div>
+<div class="line">it2...); </div>
 </div><!-- fragment --><p> Each object receives parameters returned with the expression (*it1++, *it2++,... ).</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
@@ -1485,7 +1486,7 @@ template&lt;class T &gt; </div>
 
 <p>Returns the name of an object created with construct/find_or_construct functions. </p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="classmetall_1_1basic__manager.html#a6a734b956eabae70adae4a1432f599cf">char_type</a> name = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.get_instance_name&lt;T&gt;(ptr);</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html_a6a734b956eabae70adae4a1432f599cf"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a6a734b956eabae70adae4a1432f599cf">metall::basic_manager::char_type</a></div><div class="ttdeci">typename manager_kernel_type::char_type char_type</div><div class="ttdoc">Char type.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:43</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html_a6a734b956eabae70adae4a1432f599cf"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a6a734b956eabae70adae4a1432f599cf">metall::basic_manager::char_type</a></div><div class="ttdeci">typename manager_kernel_type::char_type char_type</div><div class="ttdoc">Char type.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:45</div></div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>The type of the object. </td></tr>
@@ -1532,7 +1533,7 @@ template&lt;class T &gt; </div>
 
 <p>Returns the kind of an object created with construct/find_or_construct functions. </p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="classmetall_1_1basic__manager.html#a2bb6a68e50275402ecf183c8ad00bc29">instance_kind</a> t = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.get_instance_kind&lt;T&gt;(ptr);</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html_a2bb6a68e50275402ecf183c8ad00bc29"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a2bb6a68e50275402ecf183c8ad00bc29">metall::basic_manager::instance_kind</a></div><div class="ttdeci">typename manager_kernel_type::instance_kind instance_kind</div><div class="ttdoc">An value that describes the type of the instance constructed in memory.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:68</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html_a2bb6a68e50275402ecf183c8ad00bc29"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a2bb6a68e50275402ecf183c8ad00bc29">metall::basic_manager::instance_kind</a></div><div class="ttdeci">typename manager_kernel_type::instance_kind instance_kind</div><div class="ttdoc">An value that describes the type of the instance constructed in memory.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:75</div></div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>The type of the object. </td></tr>
@@ -1579,7 +1580,7 @@ template&lt;class T &gt; </div>
 
 <p>Returns the length of an object created with construct/find_or_construct functions (1 if is a single element, &gt;=1 if it's an array). </p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="classmetall_1_1basic__manager.html#a81bcb1cb53a0c5a33b02ef3f32ca513d">size_type</a> length = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.get_instance_length&lt;T&gt;(ptr);</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html_a81bcb1cb53a0c5a33b02ef3f32ca513d"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a81bcb1cb53a0c5a33b02ef3f32ca513d">metall::basic_manager::size_type</a></div><div class="ttdeci">typename manager_kernel_type::size_type size_type</div><div class="ttdoc">Size type.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:46</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html_a81bcb1cb53a0c5a33b02ef3f32ca513d"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a81bcb1cb53a0c5a33b02ef3f32ca513d">metall::basic_manager::size_type</a></div><div class="ttdeci">typename manager_kernel_type::size_type size_type</div><div class="ttdoc">Size type.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:48</div></div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>The type of the object. </td></tr>
@@ -2111,7 +2112,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 <p>Allocates nbytes bytes. The address of the allocated memory will be a multiple of alignment. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">nbytes</td><td>Number of bytes to allocate. Must be a multiple alignment. </td></tr>
+    <tr><td class="paramname">nbytes</td><td>Number of bytes to allocate. Must be a multiple alignment.</td></tr>
     <tr><td class="paramname">alignment</td><td>Alignment size. Alignment must be a power of two and satisfy [min allocation size, chunk size]. </td></tr>
   </table>
   </dd>
@@ -2268,7 +2269,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">destination_dir_path</td><td>Path to store a snapshot. </td></tr>
-    <tr><td class="paramname">clone</td><td>Use the file clone mechanism (reflink) instead of normal copy if it is available. </td></tr>
+    <tr><td class="paramname">clone</td><td>Use the file clone mechanism (reflink) instead of normal copy if it is available.</td></tr>
     <tr><td class="paramname">num_max_copy_threads</td><td>The maximum number of copy threads to use. If &lt;= 0 is given, the value is automatically determined. </td></tr>
   </table>
   </dd>
@@ -2328,8 +2329,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 <p>Copies data store synchronously. The behavior of copying a data store that is open without the read-only mode is undefined. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">source_dir_path</td><td>Source data store path. </td></tr>
-    <tr><td class="paramname">destination_dir_path</td><td>Destination data store path. </td></tr>
+    <tr><td class="paramname">source_dir_path</td><td>Source data store path.</td></tr>
+    <tr><td class="paramname">destination_dir_path</td><td>Destination data store path.</td></tr>
     <tr><td class="paramname">clone</td><td>Use the file clone mechanism (reflink) instead of normal copy if it is available. </td></tr>
     <tr><td class="paramname">num_max_copy_threads</td><td>The maximum number of copy threads to use. If &lt;= 0 is given, the value is automatically determined. </td></tr>
   </table>
@@ -2390,8 +2391,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 <p>Copies data store asynchronously. The behavior of copying a data store that is open without the read-only mode is undefined. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">source_dir_path</td><td>Source data store path. </td></tr>
-    <tr><td class="paramname">destination_dir_path</td><td>Destination data store path. </td></tr>
+    <tr><td class="paramname">source_dir_path</td><td>Source data store path.</td></tr>
+    <tr><td class="paramname">destination_dir_path</td><td>Destination data store path.</td></tr>
     <tr><td class="paramname">clone</td><td>Use the file clone mechanism (reflink) instead of normal copy if it is available. </td></tr>
     <tr><td class="paramname">num_max_copy_threads</td><td>The maximum number of copy threads to use. If &lt;= 0 is given, the value is automatically determined. </td></tr>
   </table>
@@ -2675,7 +2676,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Sets a description to a Metall data store. An existing description is overwritten (only one description per data store). </p>
-<dl class="section warning"><dt>Warning</dt><dd>This method is not thread-safe. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This method is not thread-safe.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">description</td><td>An std::string object that holds a description. </td></tr>
@@ -2725,10 +2726,10 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Sets a description to a Metall data store. An existing description is overwritten (only one description per data store). </p>
-<dl class="section warning"><dt>Warning</dt><dd>This function is not thread-safe. Updating the same data store with multiple threads simultaneously could cause an issue. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This function is not thread-safe. Updating the same data store with multiple threads simultaneously could cause an issue.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
+    <tr><td class="paramname">dir_path</td><td>Path to a data store.</td></tr>
     <tr><td class="paramname">description</td><td>An std::string object that holds a description. </td></tr>
   </table>
   </dd>
@@ -2815,7 +2816,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 <p>Gets a description. If there is no description, nothing to happen to the given description object. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
+    <tr><td class="paramname">dir_path</td><td>Path to a data store.</td></tr>
     <tr><td class="paramname">description</td><td>A pointer to an std::string object to store a description if it exists. </td></tr>
   </table>
   </dd>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Metall: /home/runner/work/metall/metall/include/metall/container/experimental/json/serialize.hpp File Reference</title>
+<title>Metall: /home/runner/work/metall/metall/include/metall/json/serialize.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -101,8 +101,8 @@ $(document).ready(function(){initNavTree('serialize_8hpp.html',''); initResizabl
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;iostream&gt;</code><br />
-<code>#include &lt;<a class="el" href="string_8hpp_source.html">metall/container/string.hpp</a>&gt;</code><br />
-<code>#include &lt;<a class="el" href="json__fwd_8hpp_source.html">metall/container/experimental/json/json_fwd.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="container_2string_8hpp_source.html">metall/container/string.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="json__fwd_8hpp_source.html">metall/json/json_fwd.hpp</a>&gt;</code><br />
 </div>
 <p><a href="serialize_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -111,46 +111,40 @@ Namespaces</h2></td></tr>
 <tr class="memitem:namespacemetall"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall.html">metall</a></td></tr>
 <tr class="memdesc:namespacemetall"><td class="mdescLeft">&#160;</td><td class="mdescRight">The top level of namespace of Metall. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacemetall_1_1container"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html">metall::container</a></td></tr>
-<tr class="memdesc:namespacemetall_1_1container"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall container. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacemetall_1_1container_1_1experimental"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental.html">metall::container::experimental</a></td></tr>
-<tr class="memdesc:namespacemetall_1_1container_1_1experimental"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall containers in an experimental phase. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacemetall_1_1container_1_1experimental_1_1json"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a></td></tr>
-<tr class="memdesc:namespacemetall_1_1container_1_1experimental_1_1json"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall JSON container, which is in an experimental phase. <br /></td></tr>
+<tr class="memitem:namespacemetall_1_1json"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html">metall::json</a></td></tr>
+<tr class="memdesc:namespacemetall_1_1json"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall JSON container, which is in an experimental phase. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a7a3beec419c392809e63b292ffe7fc34"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:a7a3beec419c392809e63b292ffe7fc34"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a7a3beec419c392809e63b292ffe7fc34">metall::container::experimental::json::serialize</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">mj::value</a>&lt; allocator_type &gt; &amp;input)</td></tr>
-<tr class="separator:a7a3beec419c392809e63b292ffe7fc34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aceff306b9f4ca124373479c3b1e779f6"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:aceff306b9f4ca124373479c3b1e779f6"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#aceff306b9f4ca124373479c3b1e779f6">metall::container::experimental::json::serialize</a> (const <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">mj::object</a>&lt; allocator_type &gt; &amp;input)</td></tr>
-<tr class="separator:aceff306b9f4ca124373479c3b1e779f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95a8f44b9533c748ddb08fb2506a8843"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:a95a8f44b9533c748ddb08fb2506a8843"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a95a8f44b9533c748ddb08fb2506a8843">metall::container::experimental::json::serialize</a> (const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">mj::array</a>&lt; allocator_type &gt; &amp;input)</td></tr>
-<tr class="separator:a95a8f44b9533c748ddb08fb2506a8843"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c8716e182184f8e2c0a7fe4a5ace675"><td class="memTemplParams" colspan="2">template&lt;typename char_type , typename traits , typename allocator_type &gt; </td></tr>
-<tr class="memitem:a2c8716e182184f8e2c0a7fe4a5ace675"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a2c8716e182184f8e2c0a7fe4a5ace675">metall::container::experimental::json::serialize</a> (const <a class="el" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">mc::basic_string</a>&lt; char_type, traits, allocator_type &gt; &amp;input)</td></tr>
-<tr class="separator:a2c8716e182184f8e2c0a7fe4a5ace675"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d747a58d196b2eab34677a579b93987"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:a4d747a58d196b2eab34677a579b93987"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a4d747a58d196b2eab34677a579b93987">metall::container::experimental::json::operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1value.html">mj::value</a>&lt; allocator_type &gt; &amp;val)</td></tr>
-<tr class="separator:a4d747a58d196b2eab34677a579b93987"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adacd39f289b84bc705c52ab6b2051ac1"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:adacd39f289b84bc705c52ab6b2051ac1"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#adacd39f289b84bc705c52ab6b2051ac1">metall::container::experimental::json::operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#af32d8fd6746c4e2cd3beec2fcea71495">mj::object</a>&lt; allocator_type &gt; &amp;obj)</td></tr>
-<tr class="separator:adacd39f289b84bc705c52ab6b2051ac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a74c70b7ee829090756472e7f9b91d28b"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:a74c70b7ee829090756472e7f9b91d28b"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a74c70b7ee829090756472e7f9b91d28b">metall::container::experimental::json::operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1array.html">mj::array</a>&lt; allocator_type &gt; &amp;arr)</td></tr>
-<tr class="separator:a74c70b7ee829090756472e7f9b91d28b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f6a1acdd52d1736d0dd8e163ec089a1"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
+<tr class="memitem:a1f6a1acdd52d1736d0dd8e163ec089a1"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#a1f6a1acdd52d1736d0dd8e163ec089a1">metall::json::serialize</a> (const value&lt; allocator_type &gt; &amp;input)</td></tr>
+<tr class="separator:a1f6a1acdd52d1736d0dd8e163ec089a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88b8319417b6ffa4216b62d97aaa5480"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
+<tr class="memitem:a88b8319417b6ffa4216b62d97aaa5480"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#a88b8319417b6ffa4216b62d97aaa5480">metall::json::serialize</a> (const object&lt; allocator_type &gt; &amp;input)</td></tr>
+<tr class="separator:a88b8319417b6ffa4216b62d97aaa5480"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74b9d6d02728f4ba7fe8fa41960eb771"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
+<tr class="memitem:a74b9d6d02728f4ba7fe8fa41960eb771"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#a74b9d6d02728f4ba7fe8fa41960eb771">metall::json::serialize</a> (const array&lt; allocator_type &gt; &amp;input)</td></tr>
+<tr class="separator:a74b9d6d02728f4ba7fe8fa41960eb771"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9bebd97c09d44060f018ce83fd25efc"><td class="memTemplParams" colspan="2">template&lt;typename char_type , typename traits , typename allocator_type &gt; </td></tr>
+<tr class="memitem:ad9bebd97c09d44060f018ce83fd25efc"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#ad9bebd97c09d44060f018ce83fd25efc">metall::json::serialize</a> (const basic_string&lt; char_type, traits, allocator_type &gt; &amp;input)</td></tr>
+<tr class="separator:ad9bebd97c09d44060f018ce83fd25efc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a816157f70acd9faf9b9eb840c8637512"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
+<tr class="memitem:a816157f70acd9faf9b9eb840c8637512"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#a816157f70acd9faf9b9eb840c8637512">metall::json::operator&lt;&lt;</a> (std::ostream &amp;os, const value&lt; allocator_type &gt; &amp;val)</td></tr>
+<tr class="separator:a816157f70acd9faf9b9eb840c8637512"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53ab6a4d88d7e1b146f8a6cf31b834ed"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
+<tr class="memitem:a53ab6a4d88d7e1b146f8a6cf31b834ed"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#a53ab6a4d88d7e1b146f8a6cf31b834ed">metall::json::operator&lt;&lt;</a> (std::ostream &amp;os, const object&lt; allocator_type &gt; &amp;obj)</td></tr>
+<tr class="separator:a53ab6a4d88d7e1b146f8a6cf31b834ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28b6ad2be31c3f5d52c69010369c3d30"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
+<tr class="memitem:a28b6ad2be31c3f5d52c69010369c3d30"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#a28b6ad2be31c3f5d52c69010369c3d30">metall::json::operator&lt;&lt;</a> (std::ostream &amp;os, const array&lt; allocator_type &gt; &amp;arr)</td></tr>
+<tr class="separator:a28b6ad2be31c3f5d52c69010369c3d30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_d2584ed046096dfe019b8482b1f231a9.html">metall</a></li><li class="navelem"><a class="el" href="dir_b076435bd9cb7fc857f2c822f589f071.html">container</a></li><li class="navelem"><a class="el" href="dir_987c7659588fbd8620eea3db9d71186f.html">experimental</a></li><li class="navelem"><a class="el" href="dir_0cf584ca205c5d8199b57bed8cb9e40d.html">json</a></li><li class="navelem"><a class="el" href="serialize_8hpp.html">serialize.hpp</a></li>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_d2584ed046096dfe019b8482b1f231a9.html">metall</a></li><li class="navelem"><a class="el" href="dir_a6456f3a4aa62d6ec2aa86e18e009e61.html">json</a></li><li class="navelem"><a class="el" href="serialize_8hpp.html">serialize.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>

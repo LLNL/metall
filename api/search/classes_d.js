@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['rebind_394',['rebind',['../structmetall_1_1stl__allocator_1_1rebind.html',1,'metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;::rebind&lt; T2 &gt;'],['../structmetall_1_1utility_1_1fallback__allocator__adaptor_1_1rebind.html',1,'metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;::rebind&lt; T2 &gt;']]],
-  ['rebind_3c_20manager_5fkernel_5ftype_20_2aconst_20_3e_395',['rebind&lt; manager_kernel_type *const &gt;',['../structmetall_1_1stl__allocator_1_1rebind.html',1,'metall::stl_allocator']]]
+  ['stl_5fallocator_393',['stl_allocator',['../classmetall_1_1stl__allocator.html',1,'metall']]],
+  ['string_5fkey_5fstore_394',['string_key_store',['../classmetall_1_1container_1_1string__key__store.html',1,'metall::container']]],
+  ['string_5fkey_5fstore_5flocator_395',['string_key_store_locator',['../classmetall_1_1container_1_1string__key__store__locator.html',1,'metall::container']]]
 ];

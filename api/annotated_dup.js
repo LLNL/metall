@@ -12,18 +12,17 @@ var annotated_dup =
               [ "edge_iterator_impl", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl" ]
             ] ],
             [ "jgraph", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph" ]
-          ] ],
-          [ "json", "namespacemetall_1_1container_1_1experimental_1_1json.html", [
-            [ "array", "classmetall_1_1container_1_1experimental_1_1json_1_1array.html", "classmetall_1_1container_1_1experimental_1_1json_1_1array" ],
-            [ "compact_object", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object.html", "classmetall_1_1container_1_1experimental_1_1json_1_1compact__object" ],
-            [ "indexed_object", "classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object.html", "classmetall_1_1container_1_1experimental_1_1json_1_1indexed__object" ],
-            [ "key_value_pair", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html", "classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair" ],
-            [ "value", "classmetall_1_1container_1_1experimental_1_1json_1_1value.html", "classmetall_1_1container_1_1experimental_1_1json_1_1value" ]
           ] ]
         ] ],
         [ "concurrent_map", "classmetall_1_1container_1_1concurrent__map.html", "classmetall_1_1container_1_1concurrent__map" ],
         [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html", "classmetall_1_1container_1_1string__key__store" ],
         [ "string_key_store_locator", "classmetall_1_1container_1_1string__key__store__locator.html", "classmetall_1_1container_1_1string__key__store__locator" ]
+      ] ],
+      [ "json", "namespacemetall_1_1json.html", [
+        [ "array", "classmetall_1_1json_1_1array.html", "classmetall_1_1json_1_1array" ],
+        [ "key_value_pair", "classmetall_1_1json_1_1key__value__pair.html", "classmetall_1_1json_1_1key__value__pair" ],
+        [ "object", "classmetall_1_1json_1_1object.html", null ],
+        [ "value", "classmetall_1_1json_1_1value.html", "classmetall_1_1json_1_1value" ]
       ] ],
       [ "utility", "namespacemetall_1_1utility.html", [
         [ "container_of_containers_iterator_adaptor", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor" ],

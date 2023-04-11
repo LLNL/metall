@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['metall_5fmpi_5fadaptor_390',['metall_mpi_adaptor',['../classmetall_1_1utility_1_1metall__mpi__adaptor.html',1,'metall::utility']]]
+  ['named_5fobject_5fattr_5faccessor_387',['named_object_attr_accessor',['../classmetall_1_1named__object__attr__accessor.html',1,'metall']]]
 ];

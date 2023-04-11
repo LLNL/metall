@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Metall: /home/runner/work/metall/metall/include/metall/container/experimental/json/key_value_pair.hpp File Reference</title>
+<title>Metall: /home/runner/work/metall/metall/include/metall/json/key_value_pair.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -108,14 +108,14 @@ $(document).ready(function(){initNavTree('key__value__pair_8hpp.html',''); initR
 <code>#include &lt;cstring&gt;</code><br />
 <code>#include &lt;<a class="el" href="offset__ptr_8hpp_source.html">metall/offset_ptr.hpp</a>&gt;</code><br />
 <code>#include &lt;metall/detail/utilities.hpp&gt;</code><br />
-<code>#include &lt;<a class="el" href="json__fwd_8hpp_source.html">metall/container/experimental/json/json_fwd.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="json__fwd_8hpp_source.html">metall/json/json_fwd.hpp</a>&gt;</code><br />
 </div>
 <p><a href="key__value__pair_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html">metall::container::experimental::json::key_value_pair&lt; _char_type, _char_traits, _allocator_type &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class for holding a pair of JSON string (as its key) and JSON value (as its value).  <a href="classmetall_1_1container_1_1experimental_1_1json_1_1key__value__pair.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1json_1_1key__value__pair.html">metall::json::key_value_pair&lt; char_type, char_traits, Alloc &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class for holding a pair of JSON string (as its key) and JSON value (as its value).  <a href="classmetall_1_1json_1_1key__value__pair.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -123,35 +123,29 @@ Namespaces</h2></td></tr>
 <tr class="memitem:namespacemetall"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall.html">metall</a></td></tr>
 <tr class="memdesc:namespacemetall"><td class="mdescLeft">&#160;</td><td class="mdescRight">The top level of namespace of Metall. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacemetall_1_1container"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html">metall::container</a></td></tr>
-<tr class="memdesc:namespacemetall_1_1container"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall container. <br /></td></tr>
+<tr class="memitem:namespacemetall_1_1json"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html">metall::json</a></td></tr>
+<tr class="memdesc:namespacemetall_1_1json"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall JSON container, which is in an experimental phase. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacemetall_1_1container_1_1experimental"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental.html">metall::container::experimental</a></td></tr>
-<tr class="memdesc:namespacemetall_1_1container_1_1experimental"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall containers in an experimental phase. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacemetall_1_1container_1_1experimental_1_1json"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html">metall::container::experimental::json</a></td></tr>
-<tr class="memdesc:namespacemetall_1_1container_1_1experimental_1_1json"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for Metall JSON container, which is in an experimental phase. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl.html">metall::container::experimental::json::jsndtl</a></td></tr>
+<tr class="memitem:namespacemetall_1_1json_1_1jsndtl"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json_1_1jsndtl.html">metall::json::jsndtl</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:adcd4238dce87eea35a29ca9205881477"><td class="memTemplParams" colspan="2">template&lt;typename char_type , typename char_traits , typename allocator_type , typename other_key_value_pair_type &gt; </td></tr>
-<tr class="memitem:adcd4238dce87eea35a29ca9205881477"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl.html#adcd4238dce87eea35a29ca9205881477">metall::container::experimental::json::jsndtl::general_key_value_pair_equal</a> (const key_value_pair&lt; char_type, char_traits, allocator_type &gt; &amp;key_value, const other_key_value_pair_type &amp;other_key_value) noexcept</td></tr>
-<tr class="memdesc:adcd4238dce87eea35a29ca9205881477"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides 'equal' calculation for other key-value types that have the same interface as the object class.  <a href="namespacemetall_1_1container_1_1experimental_1_1json_1_1jsndtl.html#adcd4238dce87eea35a29ca9205881477">More...</a><br /></td></tr>
-<tr class="separator:adcd4238dce87eea35a29ca9205881477"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d74e0a9aa4189538100fc09c7d609da"><td class="memTemplParams" colspan="2">template&lt;typename allocator_type &gt; </td></tr>
-<tr class="memitem:a3d74e0a9aa4189538100fc09c7d609da"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container_1_1experimental_1_1json.html#a3d74e0a9aa4189538100fc09c7d609da">metall::container::experimental::json::swap</a> (key_value_pair&lt; allocator_type &gt; &amp;lhd, key_value_pair&lt; allocator_type &gt; &amp;rhd) noexcept</td></tr>
-<tr class="memdesc:a3d74e0a9aa4189538100fc09c7d609da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swap value instances.  <a href="namespacemetall_1_1container_1_1experimental_1_1json.html#a3d74e0a9aa4189538100fc09c7d609da">More...</a><br /></td></tr>
-<tr class="separator:a3d74e0a9aa4189538100fc09c7d609da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afeb6d520c94184c0e44de1ab59fea747"><td class="memTemplParams" colspan="2">template&lt;typename char_type , typename char_traits , typename allocator_type , typename other_key_value_pair_type &gt; </td></tr>
+<tr class="memitem:afeb6d520c94184c0e44de1ab59fea747"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json_1_1jsndtl.html#afeb6d520c94184c0e44de1ab59fea747">metall::json::jsndtl::general_key_value_pair_equal</a> (const key_value_pair&lt; char_type, char_traits, allocator_type &gt; &amp;key_value, const other_key_value_pair_type &amp;other_key_value) noexcept</td></tr>
+<tr class="memdesc:afeb6d520c94184c0e44de1ab59fea747"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides 'equal' calculation for other key-value types that have the same interface as the object class.  <a href="namespacemetall_1_1json_1_1jsndtl.html#afeb6d520c94184c0e44de1ab59fea747">More...</a><br /></td></tr>
+<tr class="separator:afeb6d520c94184c0e44de1ab59fea747"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f0ad7429eb2ad45af17156c380eb654"><td class="memTemplParams" colspan="2">template&lt;typename char_type , typename char_traits , typename allocator_type &gt; </td></tr>
+<tr class="memitem:a6f0ad7429eb2ad45af17156c380eb654"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1json.html#a6f0ad7429eb2ad45af17156c380eb654">metall::json::swap</a> (key_value_pair&lt; char_type, char_traits, allocator_type &gt; &amp;rhd, key_value_pair&lt; char_type, char_traits, allocator_type &gt; &amp;lhd) noexcept</td></tr>
+<tr class="memdesc:a6f0ad7429eb2ad45af17156c380eb654"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swap value instances.  <a href="namespacemetall_1_1json.html#a6f0ad7429eb2ad45af17156c380eb654">More...</a><br /></td></tr>
+<tr class="separator:a6f0ad7429eb2ad45af17156c380eb654"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_d2584ed046096dfe019b8482b1f231a9.html">metall</a></li><li class="navelem"><a class="el" href="dir_b076435bd9cb7fc857f2c822f589f071.html">container</a></li><li class="navelem"><a class="el" href="dir_987c7659588fbd8620eea3db9d71186f.html">experimental</a></li><li class="navelem"><a class="el" href="dir_0cf584ca205c5d8199b57bed8cb9e40d.html">json</a></li><li class="navelem"><a class="el" href="key__value__pair_8hpp.html">key_value_pair.hpp</a></li>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_d2584ed046096dfe019b8482b1f231a9.html">metall</a></li><li class="navelem"><a class="el" href="dir_a6456f3a4aa62d6ec2aa86e18e009e61.html">json</a></li><li class="navelem"><a class="el" href="key__value__pair_8hpp.html">key_value_pair.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>

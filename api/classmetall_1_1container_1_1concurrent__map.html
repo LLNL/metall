@@ -124,9 +124,9 @@ Public Types</h2></td></tr>
 <tr class="memitem:a952d71d3ff464014e4d91d0971400e07"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a952d71d3ff464014e4d91d0971400e07">allocator_type</a> = _allocator</td></tr>
 <tr class="memdesc:a952d71d3ff464014e4d91d0971400e07"><td class="mdescLeft">&#160;</td><td class="mdescRight">An allocator type.  <a href="classmetall_1_1container_1_1concurrent__map.html#a952d71d3ff464014e4d91d0971400e07">More...</a><br /></td></tr>
 <tr class="separator:a952d71d3ff464014e4d91d0971400e07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76f796f0709bfae62ea219ed0339d2bc"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a> = <a class="el" href="classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html">metall::utility::container_of_containers_iterator_adaptor</a>&lt; typename banked_map_type::const_iterator, typename internal_map_type::const_iterator &gt;</td></tr>
-<tr class="memdesc:a76f796f0709bfae62ea219ed0339d2bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">A const iterator type.  <a href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">More...</a><br /></td></tr>
-<tr class="separator:a76f796f0709bfae62ea219ed0339d2bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a370c1110d8744f56fed40d034e2dd79b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a> = <a class="el" href="classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html">metall::utility::container_of_containers_iterator_adaptor</a>&lt; typename banked_map_type::const_iterator, typename internal_map_type::const_iterator &gt;</td></tr>
+<tr class="memdesc:a370c1110d8744f56fed40d034e2dd79b"><td class="mdescLeft">&#160;</td><td class="mdescRight">A const iterator type.  <a href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">More...</a><br /></td></tr>
+<tr class="separator:a370c1110d8744f56fed40d034e2dd79b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -147,13 +147,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad1b863f4e10609d9f26d85457865a27c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#ad1b863f4e10609d9f26d85457865a27c">edit</a> (const <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a0eca3a6229fcb4959de8a648d08e0956">key_type</a> &amp;key, const std::function&lt; void(<a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a7112e27eba4668b8849d0036286c61c0">mapped_type</a> &amp;mapped_value)&gt; &amp;editor)</td></tr>
 <tr class="memdesc:ad1b863f4e10609d9f26d85457865a27c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a way to edit an element exclusively. If no element exists with an equivalent key, this container creates a new element with key.  <a href="classmetall_1_1container_1_1concurrent__map.html#ad1b863f4e10609d9f26d85457865a27c">More...</a><br /></td></tr>
 <tr class="separator:ad1b863f4e10609d9f26d85457865a27c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad07c4724d93afa8a8078f5ba0af5406a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#ad07c4724d93afa8a8078f5ba0af5406a">cbegin</a> () const</td></tr>
+<tr class="memitem:ad07c4724d93afa8a8078f5ba0af5406a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#ad07c4724d93afa8a8078f5ba0af5406a">cbegin</a> () const</td></tr>
 <tr class="memdesc:ad07c4724d93afa8a8078f5ba0af5406a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an iterator to the first element of the map. If the container is empty, the returned iterator will be equal to end().  <a href="classmetall_1_1container_1_1concurrent__map.html#ad07c4724d93afa8a8078f5ba0af5406a">More...</a><br /></td></tr>
 <tr class="separator:ad07c4724d93afa8a8078f5ba0af5406a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a610d55a490a92bfcfc713b4f827acc5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a610d55a490a92bfcfc713b4f827acc5f">cend</a> () const</td></tr>
+<tr class="memitem:a610d55a490a92bfcfc713b4f827acc5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a610d55a490a92bfcfc713b4f827acc5f">cend</a> () const</td></tr>
 <tr class="memdesc:a610d55a490a92bfcfc713b4f827acc5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an iterator to the element following the last element of the map. This element acts as a placeholder; attempting to access it results in undefined behavior.  <a href="classmetall_1_1container_1_1concurrent__map.html#a610d55a490a92bfcfc713b4f827acc5f">More...</a><br /></td></tr>
 <tr class="separator:a610d55a490a92bfcfc713b4f827acc5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb1093ae57cfa29f8d27a1e2334761ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#acb1093ae57cfa29f8d27a1e2334761ef">find</a> (const <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a0eca3a6229fcb4959de8a648d08e0956">key_type</a> &amp;key) const</td></tr>
+<tr class="memitem:acb1093ae57cfa29f8d27a1e2334761ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#acb1093ae57cfa29f8d27a1e2334761ef">find</a> (const <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a0eca3a6229fcb4959de8a648d08e0956">key_type</a> &amp;key) const</td></tr>
 <tr class="memdesc:acb1093ae57cfa29f8d27a1e2334761ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds an element with an equivalent key.  <a href="classmetall_1_1container_1_1concurrent__map.html#acb1093ae57cfa29f8d27a1e2334761ef">More...</a><br /></td></tr>
 <tr class="separator:acb1093ae57cfa29f8d27a1e2334761ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0d50af590eed33526dad3ac0ca4692e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a952d71d3ff464014e4d91d0971400e07">allocator_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#ac0d50af590eed33526dad3ac0ca4692e">get_allocator</a> () const</td></tr>
@@ -269,8 +269,8 @@ template&lt;typename _key_type , typename _mapped_type , typename _compare  = st
 
 </div>
 </div>
-<a id="a76f796f0709bfae62ea219ed0339d2bc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76f796f0709bfae62ea219ed0339d2bc">&#9670;&nbsp;</a></span>const_iterator</h2>
+<a id="a370c1110d8744f56fed40d034e2dd79b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a370c1110d8744f56fed40d034e2dd79b">&#9670;&nbsp;</a></span>const_iterator</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -278,7 +278,7 @@ template&lt;typename _key_type , typename _mapped_type , typename _compare  = st
 template&lt;typename _key_type , typename _mapped_type , typename _compare  = std::less&lt;_key_type&gt;, typename _bank_no_hasher  = std::hash&lt;_key_type&gt;, typename _allocator  = std::allocator&lt;std::pair&lt;const _key_type, _mapped_type&gt;&gt;, int k_num_banks = 1024&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::<a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a> =  <a class="el" href="classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html">metall::utility::container_of_containers_iterator_adaptor</a>&lt;typename banked_map_type::const_iterator, typename internal_map_type::const_iterator&gt;</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::<a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a> =  <a class="el" href="classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html">metall::utility::container_of_containers_iterator_adaptor</a>&lt; typename banked_map_type::const_iterator, typename internal_map_type::const_iterator&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -497,7 +497,7 @@ template&lt;typename _key_type , typename _mapped_type , typename _compare  = st
 <p>Provides a way to edit an element exclusively. If no element exists with an equivalent key, this container creates a new element with key. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">key</td><td>A key of the element to edit. </td></tr>
+    <tr><td class="paramname">key</td><td>A key of the element to edit.</td></tr>
     <tr><td class="paramname">editor</td><td>A function object which edits an element. </td></tr>
   </table>
   </dd>
@@ -517,7 +517,7 @@ template&lt;typename _key_type , typename _mapped_type , typename _compare  = st
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a> <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::cbegin </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a> <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::cbegin </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -547,7 +547,7 @@ template&lt;typename _key_type , typename _mapped_type , typename _compare  = st
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a> <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::cend </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a> <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::cend </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -577,7 +577,7 @@ template&lt;typename _key_type , typename _mapped_type , typename _compare  = st
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a76f796f0709bfae62ea219ed0339d2bc">const_iterator</a> <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::find </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a370c1110d8744f56fed40d034e2dd79b">const_iterator</a> <a class="el" href="classmetall_1_1container_1_1concurrent__map.html">metall::container::concurrent_map</a>&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;::find </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a0eca3a6229fcb4959de8a648d08e0956">key_type</a> &amp;&#160;</td>
           <td class="paramname"><em>key</em></td><td>)</td>

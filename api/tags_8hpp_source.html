@@ -97,8 +97,8 @@ $(document).ready(function(){initNavTree('tags_8hpp_source.html',''); initResiza
 <div class="title">tags.hpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="tags_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<a href="tags_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
@@ -121,12 +121,14 @@ $(document).ready(function(){initNavTree('tags_8hpp_source.html',''); initResiza
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;[[maybe_unused]] <span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structmetall_1_1open__read__only__t.html">open_read_only_t</a> open_read_only{};</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;[[maybe_unused]] <span class="keyword">static</span> <span class="keyword">const</span> mtlldetail::anonymous_instance_t *anonymous_instance = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;[[maybe_unused]] <span class="keyword">static</span> <span class="keyword">const</span> mtlldetail::unique_instance_t *unique_instance = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;}</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//METALL_TAGS_HPP</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;[[maybe_unused]] <span class="keyword">static</span> <span class="keyword">const</span> mtlldetail::anonymous_instance_t</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    *anonymous_instance = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;[[maybe_unused]] <span class="keyword">static</span> <span class="keyword">const</span> mtlldetail::unique_instance_t *unique_instance =</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;}  <span class="comment">// namespace metall</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// METALL_TAGS_HPP</span></div>
 <div class="ttc" id="anamespacemetall_html"><div class="ttname"><a href="namespacemetall.html">metall</a></div><div class="ttdoc">The top level of namespace of Metall.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:18</div></div>
 <div class="ttc" id="astructmetall_1_1create__only__t_html"><div class="ttname"><a href="structmetall_1_1create__only__t.html">metall::create_only_t</a></div><div class="ttdoc">Tag type to create the segment always. The existing segment with the same name is over written.</div><div class="ttdef"><b>Definition:</b> tags.hpp:15</div></div>
 <div class="ttc" id="astructmetall_1_1open__only__t_html"><div class="ttname"><a href="structmetall_1_1open__only__t.html">metall::open_only_t</a></div><div class="ttdoc">Tag type to open an already created segment.</div><div class="ttdef"><b>Definition:</b> tags.hpp:22</div></div>

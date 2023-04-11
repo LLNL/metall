@@ -174,11 +174,11 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a6efc3f12030cc354af58b94f53d3858c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">wstring</a> = <a class="el" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">basic_string</a>&lt; wchar_t &gt;</td></tr>
 <tr class="memdesc:a6efc3f12030cc354af58b94f53d3858c"><td class="mdescLeft">&#160;</td><td class="mdescRight">A string container that uses wchar_t as its character type and Metall as its default allocator.  <a href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">More...</a><br /></td></tr>
 <tr class="separator:a6efc3f12030cc354af58b94f53d3858c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6538b68ed07639523fd7313e407881a"><td class="memTemplParams" colspan="2">template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt; &gt;&gt; </td></tr>
+<tr class="memitem:ad6538b68ed07639523fd7313e407881a"><td class="memTemplParams" colspan="2">template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt;&gt;&gt; </td></tr>
 <tr class="memitem:ad6538b68ed07639523fd7313e407881a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html#ad6538b68ed07639523fd7313e407881a">unordered_map</a> = boost::unordered_map&lt; Key, T, Hash, KeyEqual, Allocator &gt;</td></tr>
 <tr class="memdesc:ad6538b68ed07639523fd7313e407881a"><td class="mdescLeft">&#160;</td><td class="mdescRight">An unordered_map container that uses Metall as its default allocator.  <a href="namespacemetall_1_1container.html#ad6538b68ed07639523fd7313e407881a">More...</a><br /></td></tr>
 <tr class="separator:ad6538b68ed07639523fd7313e407881a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae46d3b3ceb781a5b55e5070639919a02"><td class="memTemplParams" colspan="2">template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt; &gt;&gt; </td></tr>
+<tr class="memitem:ae46d3b3ceb781a5b55e5070639919a02"><td class="memTemplParams" colspan="2">template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt;&gt;&gt; </td></tr>
 <tr class="memitem:ae46d3b3ceb781a5b55e5070639919a02"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html#ae46d3b3ceb781a5b55e5070639919a02">unordered_multimap</a> = boost::unordered_multimap&lt; Key, T, Hash, KeyEqual, Allocator &gt;</td></tr>
 <tr class="memdesc:ae46d3b3ceb781a5b55e5070639919a02"><td class="mdescLeft">&#160;</td><td class="mdescRight">An unordered_multimap container that uses Metall as its default allocator.  <a href="namespacemetall_1_1container.html#ae46d3b3ceb781a5b55e5070639919a02">More...</a><br /></td></tr>
 <tr class="separator:ae46d3b3ceb781a5b55e5070639919a02"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -251,7 +251,7 @@ template&lt;class Key , class T , class Compare  = std::less&lt;Key&gt;, class A
 </div><div class="memdoc">
 
 <p>A map container that uses Metall as its default allocator. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="string_map_8cpp-example.html#a2">string_map.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="string_map_8cpp-example.html#a1">string_map.cpp</a>.</dd>
 </dl>
 
 </div>
@@ -325,7 +325,7 @@ template&lt;class OuterAlloc , class... InnerAlloc&gt; </div>
 </div><div class="memdoc">
 
 <p>An allocator which can be used with multilevel containers. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="complex_map_8cpp-example.html#a0">complex_map.cpp</a>, and <a class="el" href="multilevel_containers_8cpp-example.html#a3">multilevel_containers.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="complex_map_8cpp-example.html#a0">complex_map.cpp</a>, <a class="el" href="multilevel_containers_8cpp-example.html#a2">multilevel_containers.cpp</a>, <a class="el" href="string_map_8cpp-example.html#a4">string_map.cpp</a>, and <a class="el" href="vector_of_vectors_8cpp-example.html#a1">vector_of_vectors.cpp</a>.</dd>
 </dl>
 
 </div>
@@ -399,8 +399,6 @@ template&lt;class CharT , class Traits  = std::char_traits&lt;CharT&gt;, class A
 </div><div class="memdoc">
 
 <p>A string container that uses Metall as its default allocator. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="string_8cpp-example.html#a0">string.cpp</a>, and <a class="el" href="string_map_8cpp-example.html#a0">string_map.cpp</a>.</dd>
-</dl>
 
 </div>
 </div>
@@ -444,7 +442,7 @@ template&lt;class CharT , class Traits  = std::char_traits&lt;CharT&gt;, class A
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt; &gt;&gt; </div>
+template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt;&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="namespacemetall_1_1container.html#ad6538b68ed07639523fd7313e407881a">metall::container::unordered_map</a> = typedef boost::unordered_map&lt;Key, T, Hash, KeyEqual, Allocator&gt;</td>
@@ -453,7 +451,7 @@ template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyE
 </div><div class="memdoc">
 
 <p>An unordered_map container that uses Metall as its default allocator. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="multilevel_containers_8cpp-example.html#a1">multilevel_containers.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="multilevel_containers_8cpp-example.html#a0">multilevel_containers.cpp</a>.</dd>
 </dl>
 
 </div>
@@ -464,7 +462,7 @@ template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyE
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt; &gt;&gt; </div>
+template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyEqual  = std::equal_to&lt;Key&gt;, class Allocator  = manager::allocator_type&lt;std::pair&lt;const Key, T&gt;&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="namespacemetall_1_1container.html#ae46d3b3ceb781a5b55e5070639919a02">metall::container::unordered_multimap</a> = typedef boost::unordered_multimap&lt;Key, T, Hash, KeyEqual, Allocator&gt;</td>
@@ -473,7 +471,7 @@ template&lt;class Key , class T , class Hash  = std::hash&lt;Key&gt;, class KeyE
 </div><div class="memdoc">
 
 <p>An unordered_multimap container that uses Metall as its default allocator. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="multilevel_containers_8cpp-example.html#a2">multilevel_containers.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="multilevel_containers_8cpp-example.html#a1">multilevel_containers.cpp</a>.</dd>
 </dl>
 
 </div>
@@ -529,7 +527,7 @@ template&lt;typename T , typename Allocator  = manager::allocator_type&lt;T&gt;&
 </div><div class="memdoc">
 
 <p>A vector container that uses Metall as its default allocator. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="multilevel_containers_8cpp-example.html#a0">multilevel_containers.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="multilevel_containers_8cpp-example.html#a3">multilevel_containers.cpp</a>.</dd>
 </dl>
 
 </div>

@@ -98,8 +98,8 @@ $(document).ready(function(){initNavTree('static_mutex_8cpp-example.html',''); i
 </div><!--header-->
 <div class="contents">
 <p>This is an example of how to use the mutex_lock function.</p>
-<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><span class="comment">//</span></div>
 <div class="line"><span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"> </div>
@@ -111,22 +111,21 @@ $(document).ready(function(){initNavTree('static_mutex_8cpp-example.html',''); i
 <div class="line"><span class="keyword">static</span> constexpr std::size_t k_num_mutexes = 2;</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> mutex_work(<span class="keyword">const</span> <span class="keywordtype">int</span> key, <span class="keyword">const</span> <span class="keywordtype">int</span> value, <span class="keywordtype">int</span>* array) {</div>
-<div class="line">  { <span class="comment">// A mutex block</span></div>
+<div class="line">  {  <span class="comment">// A mutex block</span></div>
 <div class="line">    <span class="keyword">const</span> <span class="keywordtype">int</span> index = key % k_num_mutexes;</div>
 <div class="line">    <span class="keyword">auto</span> guard = metall::utility::mutex::mutex_lock&lt;k_num_mutexes&gt;(index);</div>
-<div class="line">    array[index] = array[index] + value; <span class="comment">// do some mutex work</span></div>
-<div class="line">  } <span class="comment">// The mutex is released here</span></div>
+<div class="line">    array[index] = array[index] + value;  <span class="comment">// do some mutex work</span></div>
+<div class="line">  }                                       <span class="comment">// The mutex is released here</span></div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> <a name="a0"></a><a class="code" href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>() {</div>
-<div class="line"> </div>
 <div class="line">  <span class="keywordtype">int</span> array[k_num_mutexes] = {0, 0};</div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// Launch multiple concurrent jobs</span></div>
-<div class="line">  std::thread t1(mutex_work, 0, 1, array); <span class="comment">// Add 1 to array[0]</span></div>
-<div class="line">  std::thread t2(mutex_work, 1, 2, array); <span class="comment">// Add 2 to array[1]</span></div>
-<div class="line">  std::thread t3(mutex_work, 2, 3, array); <span class="comment">// Add 3 to array[0]</span></div>
-<div class="line">  std::thread t4(mutex_work, 3, 4, array); <span class="comment">// Add 4 to array[1]</span></div>
+<div class="line">  std::thread t1(mutex_work, 0, 1, array);  <span class="comment">// Add 1 to array[0]</span></div>
+<div class="line">  std::thread t2(mutex_work, 1, 2, array);  <span class="comment">// Add 2 to array[1]</span></div>
+<div class="line">  std::thread t3(mutex_work, 2, 3, array);  <span class="comment">// Add 3 to array[0]</span></div>
+<div class="line">  std::thread t4(mutex_work, 3, 4, array);  <span class="comment">// Add 4 to array[1]</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// Wait for the threads to finish</span></div>
 <div class="line">  t1.join();</div>
@@ -134,12 +133,12 @@ $(document).ready(function(){initNavTree('static_mutex_8cpp-example.html',''); i
 <div class="line">  t3.join();</div>
 <div class="line">  t4.join();</div>
 <div class="line"> </div>
-<div class="line">  std::cout &lt;&lt; array[0] &lt;&lt; std::endl; <span class="comment">// Will show 4</span></div>
-<div class="line">  std::cout &lt;&lt; array[1] &lt;&lt; std::endl; <span class="comment">// Will show 6</span></div>
+<div class="line">  std::cout &lt;&lt; array[0] &lt;&lt; std::endl;  <span class="comment">// Will show 4</span></div>
+<div class="line">  std::cout &lt;&lt; array[1] &lt;&lt; std::endl;  <span class="comment">// Will show 6</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:25</div></div>
+<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:24</div></div>
 <div class="ttc" id="amutex_8hpp_html"><div class="ttname"><a href="mutex_8hpp.html">mutex.hpp</a></div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->

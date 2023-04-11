@@ -74,7 +74,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search','.html');
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(document).ready(function(){initNavTree('string_8hpp_source.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('container_2string_8hpp_source.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -97,8 +97,8 @@ $(document).ready(function(){initNavTree('string_8hpp_source.html',''); initResi
 <div class="title">string.hpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="string_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<a href="container_2string_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
@@ -112,29 +112,27 @@ $(document).ready(function(){initNavTree('string_8hpp_source.html',''); initResi
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container.html">metall::container</a> {</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class </span>CharT,</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;          <span class="keyword">class </span>Traits = std::char_traits&lt;CharT&gt;,</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;          <span class="keyword">class </span>Allocator = <a class="code" href="classmetall_1_1stl__allocator.html">metall::manager::allocator_type&lt;CharT&gt;</a>&gt;</div>
-<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">   20</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">basic_string</a> = boost::container::basic_string&lt;CharT, Traits, Allocator&gt;;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> CharT, <span class="keyword">class</span> Traits = std::<span class="keywordtype">char</span>_traits&lt;CharT&gt;,</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;          <span class="keyword">class</span> Allocator = metall::manager::allocator_type&lt;CharT&gt;&gt;</div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">   19</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">basic_string</a> = boost::container::basic_string&lt;CharT, Traits, Allocator&gt;;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
 <div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">   23</a></span>&#160;<span class="keyword">using</span> <span class="keywordtype">string</span> = <a class="code" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">basic_string&lt;char&gt;</a>;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">   26</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">wstring</a> = <a class="code" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">basic_string&lt;wchar_t&gt;</a>;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;}</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//METALL_CONTAINER_STRING_HPP</span></div>
-<div class="ttc" id="aclassmetall_1_1stl__allocator_html"><div class="ttname"><a href="classmetall_1_1stl__allocator.html">metall::stl_allocator</a></div><div class="ttdoc">A STL compatible allocator.</div><div class="ttdef"><b>Definition:</b> stl_allocator.hpp:32</div></div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">   27</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">wstring</a> = <a class="code" href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">basic_string&lt;wchar_t&gt;</a>;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;}  <span class="comment">// namespace metall::container</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// METALL_CONTAINER_STRING_HPP</span></div>
 <div class="ttc" id="ametall_8hpp_html"><div class="ttname"><a href="metall_8hpp.html">metall.hpp</a></div></div>
 <div class="ttc" id="anamespacemetall_1_1container_html"><div class="ttname"><a href="namespacemetall_1_1container.html">metall::container</a></div><div class="ttdoc">Namespace for Metall container.</div></div>
-<div class="ttc" id="anamespacemetall_1_1container_html_a5a4de42b06a5ec17815a15504d100745"><div class="ttname"><a href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">metall::container::basic_string</a></div><div class="ttdeci">boost::container::basic_string&lt; CharT, Traits, Allocator &gt; basic_string</div><div class="ttdoc">A string container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:20</div></div>
-<div class="ttc" id="anamespacemetall_1_1container_html_a6efc3f12030cc354af58b94f53d3858c"><div class="ttname"><a href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">metall::container::wstring</a></div><div class="ttdeci">basic_string&lt; wchar_t &gt; wstring</div><div class="ttdoc">A string container that uses wchar_t as its character type and Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:26</div></div>
+<div class="ttc" id="anamespacemetall_1_1container_html_a5a4de42b06a5ec17815a15504d100745"><div class="ttname"><a href="namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745">metall::container::basic_string</a></div><div class="ttdeci">boost::container::basic_string&lt; CharT, Traits, Allocator &gt; basic_string</div><div class="ttdoc">A string container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:19</div></div>
+<div class="ttc" id="anamespacemetall_1_1container_html_a6efc3f12030cc354af58b94f53d3858c"><div class="ttname"><a href="namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c">metall::container::wstring</a></div><div class="ttdeci">basic_string&lt; wchar_t &gt; wstring</div><div class="ttdoc">A string container that uses wchar_t as its character type and Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:27</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_d2584ed046096dfe019b8482b1f231a9.html">metall</a></li><li class="navelem"><a class="el" href="dir_b076435bd9cb7fc857f2c822f589f071.html">container</a></li><li class="navelem"><a class="el" href="string_8hpp.html">string.hpp</a></li>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_d2584ed046096dfe019b8482b1f231a9.html">metall</a></li><li class="navelem"><a class="el" href="dir_b076435bd9cb7fc857f2c822f589f071.html">container</a></li><li class="navelem"><a class="el" href="container_2string_8hpp.html">string.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>

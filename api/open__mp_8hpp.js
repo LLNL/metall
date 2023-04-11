@@ -7,5 +7,5 @@ var open__mp_8hpp =
     [ "get_schedule", "open__mp_8hpp.html#a7b5a58be05ed22ddd9d9622a6fd1cdb6", null ],
     [ "get_num_threads", "open__mp_8hpp.html#acf2b134dc91c82ca7ed4c40a83a3bccf", null ],
     [ "get_thread_num", "open__mp_8hpp.html#aa466ef3cf52ddc6e186eb095b7fca71b", null ],
-    [ "set_num_threads", "open__mp_8hpp.html#a4e9fb1d6939a372b7a97357165860a7f", null ]
+    [ "set_num_threads", "open__mp_8hpp.html#a0c6baa11faea548d5ebe4f3b7a92c228", null ]
 ];

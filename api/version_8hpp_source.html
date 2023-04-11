@@ -97,8 +97,8 @@ $(document).ready(function(){initNavTree('version_8hpp_source.html',''); initRes
 <div class="title">version.hpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="version_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<a href="version_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
@@ -115,18 +115,19 @@ $(document).ready(function(){initNavTree('version_8hpp_source.html',''); initRes
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#ifndef DOXYGEN_SKIP</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">namespace </span>ver_detail {</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">static</span> constexpr <a class="code" href="namespacemetall.html#a1ef5e73286c49c050b65d7449aea7b45">version_type</a> k_error_version = 0;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;static_assert(k_error_version != <a class="code" href="version_8hpp.html#a0687f70753a71ee8ead378f2102d1bf2">METALL_VERSION</a>, <span class="stringliteral">&quot;The current version is equal to a error number&quot;</span>);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// DOXYGEN_SKIP</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;static_assert(k_error_version != <a class="code" href="version_8hpp.html#a0687f70753a71ee8ead378f2102d1bf2">METALL_VERSION</a>,</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;              <span class="stringliteral">&quot;The current version is equal to a error number&quot;</span>);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;}  <span class="comment">// namespace ver_detail</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// DOXYGEN_SKIP</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
 <div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="namespacemetall.html#a7a2f89786b4414df11cdf95898811a62">   42</a></span>&#160;<span class="keyword">inline</span> <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> <a class="code" href="namespacemetall.html#a7a2f89786b4414df11cdf95898811a62">to_version_string</a>(<span class="keyword">const</span> <a class="code" href="namespacemetall.html#a1ef5e73286c49c050b65d7449aea7b45">version_type</a> version) {</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordflow">return</span> std::to_string(version / 100000)</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      + <span class="stringliteral">&quot;.&quot;</span> + std::to_string(version / 100 % 1000)</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      + <span class="stringliteral">&quot;.&quot;</span> + std::to_string(version % 100);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordflow">return</span> std::to_string(version / 100000) + <span class="stringliteral">&quot;.&quot;</span> +</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;         std::to_string(version / 100 % 1000) + <span class="stringliteral">&quot;.&quot;</span> +</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;         std::to_string(version % 100);</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;} <span class="comment">// namespace metall</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}  <span class="comment">// namespace metall</span></div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//METALL_VERSION_HPP</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// METALL_VERSION_HPP</span></div>
 <div class="ttc" id="anamespacemetall_1_1container_html_a5fe499903b179ed596cd8c2bd6892009"><div class="ttname"><a href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">metall::container::string</a></div><div class="ttdeci">basic_string&lt; char &gt; string</div><div class="ttdoc">A string container that uses char as its character type and Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:23</div></div>
 <div class="ttc" id="anamespacemetall_html"><div class="ttname"><a href="namespacemetall.html">metall</a></div><div class="ttdoc">The top level of namespace of Metall.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:18</div></div>
 <div class="ttc" id="anamespacemetall_html_a1ef5e73286c49c050b65d7449aea7b45"><div class="ttname"><a href="namespacemetall.html#a1ef5e73286c49c050b65d7449aea7b45">metall::version_type</a></div><div class="ttdeci">uint32_t version_type</div><div class="ttdoc">Variable type to handle a version data.</div><div class="ttdef"><b>Definition:</b> version.hpp:21</div></div>

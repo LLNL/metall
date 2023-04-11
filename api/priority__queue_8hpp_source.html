@@ -97,8 +97,8 @@ $(document).ready(function(){initNavTree('priority__queue_8hpp_source.html','');
 <div class="title">priority_queue.hpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="priority__queue_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<a href="priority__queue_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
@@ -112,14 +112,15 @@ $(document).ready(function(){initNavTree('priority__queue_8hpp_source.html','');
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container.html">metall::container</a> {</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = vector&lt;T&gt;, <span class="keyword">typename</span> Compare = std::less&lt;<span class="keyword">typename</span> Container::value_type&gt;&gt;</div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#a2fede91b4f95ac641e5d38ff6d2e1f54">   18</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#a2fede91b4f95ac641e5d38ff6d2e1f54">priority_queue</a> = std::priority_queue&lt;T, Container&gt;;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;}</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//METALL_CONTAINER_PRIORITY_QUEUE_HPP</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> Container = vector&lt;T&gt;,</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;          <span class="keyword">typename</span> Compare = std::less&lt;<span class="keyword">typename</span> Container::value_type&gt;&gt;</div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#a2fede91b4f95ac641e5d38ff6d2e1f54">   19</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#a2fede91b4f95ac641e5d38ff6d2e1f54">priority_queue</a> = std::priority_queue&lt;T, Container&gt;;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;}  <span class="comment">// namespace metall::container</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// METALL_CONTAINER_PRIORITY_QUEUE_HPP</span></div>
 <div class="ttc" id="anamespacemetall_1_1container_html"><div class="ttname"><a href="namespacemetall_1_1container.html">metall::container</a></div><div class="ttdoc">Namespace for Metall container.</div></div>
-<div class="ttc" id="anamespacemetall_1_1container_html_a2fede91b4f95ac641e5d38ff6d2e1f54"><div class="ttname"><a href="namespacemetall_1_1container.html#a2fede91b4f95ac641e5d38ff6d2e1f54">metall::container::priority_queue</a></div><div class="ttdeci">std::priority_queue&lt; T, Container &gt; priority_queue</div><div class="ttdoc">A priority_queue container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> priority_queue.hpp:18</div></div>
+<div class="ttc" id="anamespacemetall_1_1container_html_a2fede91b4f95ac641e5d38ff6d2e1f54"><div class="ttname"><a href="namespacemetall_1_1container.html#a2fede91b4f95ac641e5d38ff6d2e1f54">metall::container::priority_queue</a></div><div class="ttdeci">std::priority_queue&lt; T, Container &gt; priority_queue</div><div class="ttdoc">A priority_queue container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> priority_queue.hpp:19</div></div>
 <div class="ttc" id="avector_8hpp_html"><div class="ttname"><a href="vector_8hpp.html">vector.hpp</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

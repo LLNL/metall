@@ -21,7 +21,7 @@ var namespacemetall_1_1utility =
       [ "get_schedule", "namespacemetall_1_1utility_1_1omp.html#a7b5a58be05ed22ddd9d9622a6fd1cdb6", null ],
       [ "get_num_threads", "namespacemetall_1_1utility_1_1omp.html#acf2b134dc91c82ca7ed4c40a83a3bccf", null ],
       [ "get_thread_num", "namespacemetall_1_1utility_1_1omp.html#aa466ef3cf52ddc6e186eb095b7fca71b", null ],
-      [ "set_num_threads", "namespacemetall_1_1utility_1_1omp.html#a4e9fb1d6939a372b7a97357165860a7f", null ]
+      [ "set_num_threads", "namespacemetall_1_1utility_1_1omp.html#a0c6baa11faea548d5ebe4f3b7a92c228", null ]
     ] ],
     [ "container_of_containers_iterator_adaptor", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor" ],
     [ "fallback_allocator_adaptor", "classmetall_1_1utility_1_1fallback__allocator__adaptor.html", "classmetall_1_1utility_1_1fallback__allocator__adaptor" ],

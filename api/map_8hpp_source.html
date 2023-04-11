@@ -97,8 +97,8 @@ $(document).ready(function(){initNavTree('map_8hpp_source.html',''); initResizab
 <div class="title">map.hpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="map_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<a href="map_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
@@ -113,26 +113,21 @@ $(document).ready(function(){initNavTree('map_8hpp_source.html',''); initResizab
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacemetall_1_1container.html">metall::container</a> {</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class </span>Key,</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;          <span class="keyword">class </span>T,</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;          <span class="keyword">class </span>Compare = std::less&lt;Key&gt;,</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;          <span class="keyword">class </span>Allocator = manager::allocator_type&lt;std::pair&lt;const Key, T&gt;&gt;&gt;</div>
-<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#ad30d7aceb6d1ba8ab22971a4baf10621">   22</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#ad30d7aceb6d1ba8ab22971a4baf10621">map</a> = boost::container::map&lt;Key, T, Compare, Allocator&gt;;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class </span>Key,</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;          <span class="keyword">class </span>T,</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;          <span class="keyword">class </span>Compare = std::less&lt;Key&gt;,</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;          <span class="keyword">class </span>Allocator = <a class="code" href="classmetall_1_1stl__allocator.html">manager::allocator_type&lt;std::pair&lt;const Key, T&gt;</a>&gt;&gt;</div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#ae2cd99e1d3323b5f5ee7f57e1a19e1a4">   29</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#ae2cd99e1d3323b5f5ee7f57e1a19e1a4">multimap</a> = boost::container::multimap&lt;Key, T, Compare, Allocator&gt;;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#endif </span><span class="comment">//METALL_CONTAINER_MAP_HPP</span></div>
-<div class="ttc" id="aclassmetall_1_1stl__allocator_html"><div class="ttname"><a href="classmetall_1_1stl__allocator.html">metall::stl_allocator</a></div><div class="ttdoc">A STL compatible allocator.</div><div class="ttdef"><b>Definition:</b> stl_allocator.hpp:32</div></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> Key, <span class="keyword">class</span> T, <span class="keyword">class</span> Compare = std::less&lt;Key&gt;,</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;          <span class="keyword">class</span> Allocator = manager::allocator_type&lt;std::pair&lt;const Key, T&gt;&gt;&gt;</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#ad30d7aceb6d1ba8ab22971a4baf10621">   20</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#ad30d7aceb6d1ba8ab22971a4baf10621">map</a> = boost::container::map&lt;Key, T, Compare, Allocator&gt;;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> Key, <span class="keyword">class</span> T, <span class="keyword">class</span> Compare = std::less&lt;Key&gt;,</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;          <span class="keyword">class</span> Allocator = manager::allocator_type&lt;std::pair&lt;const Key, T&gt;&gt;&gt;</div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="namespacemetall_1_1container.html#ae2cd99e1d3323b5f5ee7f57e1a19e1a4">   25</a></span>&#160;<span class="keyword">using</span> <a class="code" href="namespacemetall_1_1container.html#ae2cd99e1d3323b5f5ee7f57e1a19e1a4">multimap</a> = boost::container::multimap&lt;Key, T, Compare, Allocator&gt;;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;}  <span class="comment">// namespace metall::container</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// METALL_CONTAINER_MAP_HPP</span></div>
 <div class="ttc" id="ametall_8hpp_html"><div class="ttname"><a href="metall_8hpp.html">metall.hpp</a></div></div>
 <div class="ttc" id="anamespacemetall_1_1container_html"><div class="ttname"><a href="namespacemetall_1_1container.html">metall::container</a></div><div class="ttdoc">Namespace for Metall container.</div></div>
-<div class="ttc" id="anamespacemetall_1_1container_html_ad30d7aceb6d1ba8ab22971a4baf10621"><div class="ttname"><a href="namespacemetall_1_1container.html#ad30d7aceb6d1ba8ab22971a4baf10621">metall::container::map</a></div><div class="ttdeci">boost::container::map&lt; Key, T, Compare, Allocator &gt; map</div><div class="ttdoc">A map container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> map.hpp:22</div></div>
-<div class="ttc" id="anamespacemetall_1_1container_html_ae2cd99e1d3323b5f5ee7f57e1a19e1a4"><div class="ttname"><a href="namespacemetall_1_1container.html#ae2cd99e1d3323b5f5ee7f57e1a19e1a4">metall::container::multimap</a></div><div class="ttdeci">boost::container::multimap&lt; Key, T, Compare, Allocator &gt; multimap</div><div class="ttdoc">A multimap container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> map.hpp:29</div></div>
+<div class="ttc" id="anamespacemetall_1_1container_html_ad30d7aceb6d1ba8ab22971a4baf10621"><div class="ttname"><a href="namespacemetall_1_1container.html#ad30d7aceb6d1ba8ab22971a4baf10621">metall::container::map</a></div><div class="ttdeci">boost::container::map&lt; Key, T, Compare, Allocator &gt; map</div><div class="ttdoc">A map container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> map.hpp:20</div></div>
+<div class="ttc" id="anamespacemetall_1_1container_html_ae2cd99e1d3323b5f5ee7f57e1a19e1a4"><div class="ttname"><a href="namespacemetall_1_1container.html#ae2cd99e1d3323b5f5ee7f57e1a19e1a4">metall::container::multimap</a></div><div class="ttdeci">boost::container::multimap&lt; Key, T, Compare, Allocator &gt; multimap</div><div class="ttdoc">A multimap container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> map.hpp:25</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

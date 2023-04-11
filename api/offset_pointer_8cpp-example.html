@@ -98,12 +98,13 @@ $(document).ready(function(){initNavTree('offset_pointer_8cpp-example.html','');
 </div><!--header-->
 <div class="contents">
 <p>This is an example of how to use offset_pointer.</p>
-<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.</span></div>
-<div class="line"><span class="comment">// See the top-level COPYRIGHT file for details.</span></div>
+<div class="fragment"><div class="line"><span class="comment">// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall</span></div>
+<div class="line"><span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><span class="comment">//</span></div>
 <div class="line"><span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"> </div>
-<div class="line"><span class="comment">// This is an example shows how to store pointers in persistent memory using the offset pointer</span></div>
+<div class="line"><span class="comment">// This is an example shows how to store pointers in persistent memory using the</span></div>
+<div class="line"><span class="comment">// offset pointer</span></div>
 <div class="line"> </div>
 <div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
 <div class="line"><span class="preprocessor">#include &lt;<a class="code" href="metall_8hpp.html">metall/metall.hpp</a>&gt;</span></div>
@@ -121,21 +122,24 @@ $(document).ready(function(){initNavTree('offset_pointer_8cpp-example.html','');
 <div class="line">    array[0] = 1;</div>
 <div class="line">    array[1] = 2;</div>
 <div class="line"> </div>
-<div class="line">    <span class="comment">// Allocate an offset pointer with key &#39;ptr&#39; and initialize its value with the address of &#39;array&#39;</span></div>
-<div class="line">    [[maybe_unused]] int_offset_prt* ptr = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;int_offset_prt&gt;(<span class="stringliteral">&quot;ptr&quot;</span>)(array);</div>
+<div class="line">    <span class="comment">// Allocate an offset pointer with key &#39;ptr&#39; and initialize its value with</span></div>
+<div class="line">    <span class="comment">// the address of &#39;array&#39;</span></div>
+<div class="line">    [[maybe_unused]] int_offset_prt *ptr =</div>
+<div class="line">        <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;int_offset_prt&gt;(<span class="stringliteral">&quot;ptr&quot;</span>)(array);</div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  {</div>
 <div class="line">    <a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::open_only, <span class="stringliteral">&quot;/tmp/datastore&quot;</span>);</div>
 <div class="line"> </div>
-<div class="line">    int_offset_prt* ptr = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.find&lt;int_offset_prt&gt;(<span class="stringliteral">&quot;ptr&quot;</span>).first;</div>
+<div class="line">    int_offset_prt *ptr = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.find&lt;int_offset_prt&gt;(<span class="stringliteral">&quot;ptr&quot;</span>).first;</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// metall::to_raw_pointer extracts a raw pointer from metall::offset_ptr</span></div>
-<div class="line">    <span class="comment">// If a raw pointer is given, it just returns the address the given pointer points to</span></div>
+<div class="line">    <span class="comment">// If a raw pointer is given, it just returns the address the given pointer</span></div>
+<div class="line">    <span class="comment">// points to</span></div>
 <div class="line">    <span class="keywordtype">int</span> *array = metall::to_raw_pointer(*ptr);</div>
 <div class="line"> </div>
-<div class="line">    std::cout &lt;&lt; array[0] &lt;&lt; std::endl; <span class="comment">// Print 1</span></div>
-<div class="line">    std::cout &lt;&lt; array[1] &lt;&lt; std::endl; <span class="comment">// Print 2</span></div>
+<div class="line">    std::cout &lt;&lt; array[0] &lt;&lt; std::endl;  <span class="comment">// Print 1</span></div>
+<div class="line">    std::cout &lt;&lt; array[1] &lt;&lt; std::endl;  <span class="comment">// Print 2</span></div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Deallocate the array</span></div>
 <div class="line">    <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.deallocate(metall::to_raw_pointer(*ptr));</div>
@@ -147,10 +151,10 @@ $(document).ready(function(){initNavTree('offset_pointer_8cpp-example.html','');
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:30</div></div>
-<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:25</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:31</div></div>
+<div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:24</div></div>
 <div class="ttc" id="ametall_8hpp_html"><div class="ttname"><a href="metall_8hpp.html">metall.hpp</a></div></div>
-<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:18</div></div>
+<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:19</div></div>
 <div class="ttc" id="anamespacemetall_html_af0208c9c4196932b08bd8157cccf3014"><div class="ttname"><a href="namespacemetall.html#af0208c9c4196932b08bd8157cccf3014">metall::offset_ptr</a></div><div class="ttdeci">boost::interprocess::offset_ptr&lt; T &gt; offset_ptr</div><div class="ttdoc">Holds an offset between the address pointing at and itself.</div><div class="ttdef"><b>Definition:</b> offset_ptr.hpp:17</div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->

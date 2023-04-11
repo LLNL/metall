@@ -2,6 +2,7 @@ var namespacemetall =
 [
     [ "attraccs_detail", "namespacemetall_1_1attraccs__detail.html", "namespacemetall_1_1attraccs__detail" ],
     [ "container", "namespacemetall_1_1container.html", "namespacemetall_1_1container" ],
+    [ "json", "namespacemetall_1_1json.html", "namespacemetall_1_1json" ],
     [ "utility", "namespacemetall_1_1utility.html", "namespacemetall_1_1utility" ],
     [ "basic_manager", "classmetall_1_1basic__manager.html", "classmetall_1_1basic__manager" ],
     [ "logger", "classmetall_1_1logger.html", "classmetall_1_1logger" ],
