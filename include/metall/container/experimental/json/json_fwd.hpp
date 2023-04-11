@@ -12,7 +12,11 @@
 #include <string>
 #include <variant>
 
+#ifndef METALL_JSON_BOOST_JSON_SRC_INCLUDED
+/// \brief Include guard for boost/json/src.hpp
+#define METALL_JSON_BOOST_JSON_SRC_INCLUDED
 #include <boost/json/src.hpp>
+#endif // METALL_JSON_BOOST_JSON_SRC_INCLUDED
 
 #include <metall/container/string.hpp>
 
