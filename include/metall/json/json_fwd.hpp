@@ -16,24 +16,26 @@
 /// \brief Include guard for boost/json/src.hpp
 #define METALL_JSON_BOOST_JSON_SRC_INCLUDED
 #include <boost/json/src.hpp>
-#endif // METALL_JSON_BOOST_JSON_SRC_INCLUDED
+#endif  // METALL_JSON_BOOST_JSON_SRC_INCLUDED
 
 #include <metall/container/string.hpp>
 
 /// \namespace metall::json
-/// \brief Namespace for Metall JSON container, which is in an experimental phase.
+/// \brief Namespace for Metall JSON container, which is in an experimental
+/// phase.
 namespace metall::json {
 /// \brief JSON null type.
 using null_type = std::monostate;
 
 /// \brief JSON basic string type.
 template <typename char_t, typename traits, typename allocator_type>
-using basic_string = metall::container::basic_string<char_t, traits, allocator_type>;
+using basic_string =
+    metall::container::basic_string<char_t, traits, allocator_type>;
 
 /// \brief JSON string.
 template <typename allocator_type = std::allocator<std::byte>>
 using string = basic_string<char, std::char_traits<char>, allocator_type>;
-} // namespace metall::json
+}  // namespace metall::json
 
 // Forward declaration
 #if !defined(DOXYGEN_SKIP)
@@ -111,20 +113,16 @@ template <typename allocator_type>
 bool operator!=(const boost::json::array &, const array<allocator_type> &);
 
 template <typename allocator_type>
-bool operator==(const object<allocator_type> &,
-                const boost::json::object &);
+bool operator==(const object<allocator_type> &, const boost::json::object &);
 
 template <typename allocator_type>
-bool operator==(const boost::json::object &,
-                const object<allocator_type> &);
+bool operator==(const boost::json::object &, const object<allocator_type> &);
 
 template <typename allocator_type>
-bool operator!=(const object<allocator_type> &,
-                const boost::json::object &);
+bool operator!=(const object<allocator_type> &, const boost::json::object &);
 
 template <typename allocator_type>
-bool operator!=(const boost::json::object &,
-                const object<allocator_type> &);
+bool operator!=(const boost::json::object &, const object<allocator_type> &);
 
 template <typename char_t, typename traits, typename allocator>
 bool operator==(const basic_string<char_t, traits, allocator> &,
@@ -171,8 +169,8 @@ value<allocator_type> parse(std::string_view,
                             const allocator_type &allocator = allocator_type());
 
 template <typename T, typename allocator_type = std::allocator<std::byte>>
-value<allocator_type>
-value_from(T &&, const allocator_type &allocator = allocator_type());
+value<allocator_type> value_from(
+    T &&, const allocator_type &allocator = allocator_type());
 
 template <typename T, typename allocator_type>
 T value_to(const value<allocator_type> &);
@@ -180,7 +178,8 @@ T value_to(const value<allocator_type> &);
 namespace jsndtl {
 
 template <typename allocator_type, typename other_value_type>
-bool general_value_equal(const value<allocator_type> &, const other_value_type &) noexcept;
+bool general_value_equal(const value<allocator_type> &,
+                         const other_value_type &) noexcept;
 
 template <typename char_t, typename traits, typename allocator,
           typename other_string_type>
@@ -200,10 +199,10 @@ template <typename char_type, typename char_traits, typename allocator_type,
 bool general_key_value_pair_equal(
     const key_value_pair<char_type, char_traits, allocator_type> &,
     const other_key_value_pair_type &) noexcept;
-} // namespace jsndtl
+}  // namespace jsndtl
 
-#endif // DOXYGEN_SKIP
+#endif  // DOXYGEN_SKIP
 
-} // namespace metall::json
+}  // namespace metall::json
 
-#endif // METALL_JSON_JSON_FWD_HPP
+#endif  // METALL_JSON_JSON_FWD_HPP

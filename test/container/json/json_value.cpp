@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,14 +13,14 @@ namespace mj = metall::json;
 
 namespace {
 
-TEST (JSONValueTest, Constructor) {
+TEST(JSONValueTest, Constructor) {
   mj::value val;
   mj::value val_with_alloc(std::allocator<std::byte>{});
   mj::value cp(val);
   mj::value mv(std::move(val));
 }
 
-TEST (JSONValueTest, Assign) {
+TEST(JSONValueTest, Assign) {
   mj::value val;
   {
     val = nullptr;
@@ -158,7 +158,7 @@ TEST (JSONValueTest, Assign) {
   }
 }
 
-TEST (JSONValueTest, Emplace) {
+TEST(JSONValueTest, Emplace) {
   mj::value val;
   {
     val.emplace_null();
@@ -264,20 +264,24 @@ void check_json_string(T &jv) {
   GTEST_ASSERT_TRUE(jv.as_object()["happy"].as_bool());
   GTEST_ASSERT_EQ(jv.as_object()["name"].as_string(), "Alice");
   GTEST_ASSERT_TRUE(jv.as_object()["nothing"].is_null());
-  GTEST_ASSERT_EQ(jv.as_object()["long key test long key test"].as_object()["everything"], 42);
+  GTEST_ASSERT_EQ(
+      jv.as_object()["long key test long key test"].as_object()["everything"],
+      42);
   GTEST_ASSERT_EQ(jv.as_object()["list"].as_array()[0], 1);
   GTEST_ASSERT_EQ(jv.as_object()["list"].as_array()[1], 0);
   GTEST_ASSERT_EQ(jv.as_object()["list"].as_array()[2], 2);
-  GTEST_ASSERT_EQ(jv.as_object()["object"].as_object()["currency"].as_string(), "USD");
-  GTEST_ASSERT_EQ(jv.as_object()["object"].as_object()["value"].as_double(), 42.99);
+  GTEST_ASSERT_EQ(jv.as_object()["object"].as_object()["currency"].as_string(),
+                  "USD");
+  GTEST_ASSERT_EQ(jv.as_object()["object"].as_object()["value"].as_double(),
+                  42.99);
 }
 
-TEST (JSONValueTest, Parse) {
+TEST(JSONValueTest, Parse) {
   auto jv = mj::parse(json_string);
   check_json_string(jv);
 }
 
-TEST (JSONValueTest, Equal) {
+TEST(JSONValueTest, Equal) {
   auto jv1 = mj::parse(json_string);
   auto jv2 = mj::parse(json_string);
   GTEST_ASSERT_EQ(jv1, jv2);
@@ -286,7 +290,7 @@ TEST (JSONValueTest, Equal) {
   GTEST_ASSERT_NE(jv1, jv2);
 }
 
-TEST (JSONValueTest, EqualBool) {
+TEST(JSONValueTest, EqualBool) {
   auto jv = mj::value();
   jv.emplace_bool() = true;
   GTEST_ASSERT_EQ(jv, true);
@@ -295,7 +299,7 @@ TEST (JSONValueTest, EqualBool) {
   GTEST_ASSERT_NE(jv, 10.0);
 }
 
-TEST (JSONValueTest, EqualInt64) {
+TEST(JSONValueTest, EqualInt64) {
   auto jv = mj::value();
   jv.emplace_int64() = -10;
   GTEST_ASSERT_NE(jv, true);
@@ -304,7 +308,7 @@ TEST (JSONValueTest, EqualInt64) {
   GTEST_ASSERT_NE(jv, 10.0);
 }
 
-TEST (JSONValueTest, EqualUint64) {
+TEST(JSONValueTest, EqualUint64) {
   auto jv = mj::value();
   jv.emplace_uint64() = 10;
   GTEST_ASSERT_NE(jv, true);
@@ -313,7 +317,7 @@ TEST (JSONValueTest, EqualUint64) {
   GTEST_ASSERT_NE(jv, 10.0);
 }
 
-TEST (JSONValueTest, EqualDouble) {
+TEST(JSONValueTest, EqualDouble) {
   auto jv = mj::value();
   jv.emplace_double() = 10.0;
   GTEST_ASSERT_NE(jv, true);
@@ -322,7 +326,7 @@ TEST (JSONValueTest, EqualDouble) {
   GTEST_ASSERT_EQ(jv, 10.0);
 }
 
-TEST (JSONValueTest, Copy) {
+TEST(JSONValueTest, Copy) {
   auto jv = mj::parse(json_string);
 
   {
@@ -338,7 +342,7 @@ TEST (JSONValueTest, Copy) {
   }
 }
 
-TEST (JSONValueTest, Move) {
+TEST(JSONValueTest, Move) {
   {
     auto jv = mj::parse(json_string);
     SCOPED_TRACE("Move Construct");
@@ -354,22 +358,29 @@ TEST (JSONValueTest, Move) {
   }
 }
 
-TEST (JSONValueTest, CopyDifferentMetallAllocator) {
+TEST(JSONValueTest, CopyDifferentMetallAllocator) {
   using valut_t = mj::value<metall::manager::allocator_type<std::byte>>;
   {
     SCOPED_TRACE("Copy Assignment");
     {
-      metall::manager manager_copy(metall::create_only, (test_utility::make_test_path() + "_copy").c_str());
-      metall::manager manager_src(metall::create_only, (test_utility::make_test_path() + "_src").c_str());
+      metall::manager manager_copy(
+          metall::create_only,
+          (test_utility::make_test_path() + "_copy").c_str());
+      metall::manager manager_src(
+          metall::create_only,
+          (test_utility::make_test_path() + "_src").c_str());
 
-      auto *jv_copy = manager_copy.construct<valut_t>("jv")(manager_copy.get_allocator());
+      auto *jv_copy =
+          manager_copy.construct<valut_t>("jv")(manager_copy.get_allocator());
       auto json_src = mj::parse(json_string, manager_src.get_allocator());
       // copy to an instance allocated by a different allocators
       *jv_copy = json_src;
     }
 
     {
-      metall::manager manager_copy(metall::open_read_only, (test_utility::make_test_path() + "_copy").c_str());
+      metall::manager manager_copy(
+          metall::open_read_only,
+          (test_utility::make_test_path() + "_copy").c_str());
       const auto *const jv_copy = manager_copy.find<valut_t>("jv").first;
       check_json_string(*jv_copy);
     }
@@ -378,38 +389,52 @@ TEST (JSONValueTest, CopyDifferentMetallAllocator) {
   {
     SCOPED_TRACE("Copy Constructor");
     {
-      metall::manager manager_src(metall::create_only, (test_utility::make_test_path() + "_src").c_str());
-      metall::manager manager_copy(metall::create_only, (test_utility::make_test_path() + "_copy").c_str());
+      metall::manager manager_src(
+          metall::create_only,
+          (test_utility::make_test_path() + "_src").c_str());
+      metall::manager manager_copy(
+          metall::create_only,
+          (test_utility::make_test_path() + "_copy").c_str());
       auto json_src = mj::parse(json_string, manager_src.get_allocator());
-      // Construct a new one from another instance that was allocated by another allocator
-      auto *jv_copy = manager_copy.construct<valut_t>("jv")(json_src,
-                                                            manager_copy.get_allocator());
+      // Construct a new one from another instance that was allocated by another
+      // allocator
+      auto *jv_copy = manager_copy.construct<valut_t>("jv")(
+          json_src, manager_copy.get_allocator());
       check_json_string(*jv_copy);
     }
 
     {
-      metall::manager manager_copy(metall::open_read_only, (test_utility::make_test_path() + "_copy").c_str());
+      metall::manager manager_copy(
+          metall::open_read_only,
+          (test_utility::make_test_path() + "_copy").c_str());
       const auto *const jv_copy = manager_copy.find<valut_t>("jv").first;
       check_json_string(*jv_copy);
     }
   }
 }
 
-TEST (JSONValueTest, MoveDifferentMetallAllocator) {
+TEST(JSONValueTest, MoveDifferentMetallAllocator) {
   using valut_t = mj::value<metall::manager::allocator_type<std::byte>>;
   {
     SCOPED_TRACE("Move Assignment");
     {
-      metall::manager manager_move(metall::create_only, (test_utility::make_test_path() + "_move").c_str());
-      metall::manager manager_src(metall::create_only, (test_utility::make_test_path() + "_src").c_str());
+      metall::manager manager_move(
+          metall::create_only,
+          (test_utility::make_test_path() + "_move").c_str());
+      metall::manager manager_src(
+          metall::create_only,
+          (test_utility::make_test_path() + "_src").c_str());
 
-      auto *jv_move = manager_move.construct<valut_t>("jv")(manager_move.get_allocator());
+      auto *jv_move =
+          manager_move.construct<valut_t>("jv")(manager_move.get_allocator());
       // Move to an instance allocated by a different allocators
       *jv_move = mj::parse(json_string, manager_src.get_allocator());
     }
 
     {
-      metall::manager manager_move(metall::open_read_only, (test_utility::make_test_path() + "_move").c_str());
+      metall::manager manager_move(
+          metall::open_read_only,
+          (test_utility::make_test_path() + "_move").c_str());
       const auto *const jv_move = manager_move.find<valut_t>("jv").first;
       check_json_string(*jv_move);
     }
@@ -418,19 +443,27 @@ TEST (JSONValueTest, MoveDifferentMetallAllocator) {
   {
     SCOPED_TRACE("Move Constructor");
     {
-      metall::manager manager_src(metall::create_only, (test_utility::make_test_path() + "_src").c_str());
-      metall::manager manager_move(metall::create_only, (test_utility::make_test_path() + "_move").c_str());
-      // Construct a new one from another instance that was allocated by another allocator
-      auto *jv_move = manager_move.construct<valut_t>("jv")(mj::parse(json_string, manager_src.get_allocator()),
-                                                            manager_move.get_allocator());
+      metall::manager manager_src(
+          metall::create_only,
+          (test_utility::make_test_path() + "_src").c_str());
+      metall::manager manager_move(
+          metall::create_only,
+          (test_utility::make_test_path() + "_move").c_str());
+      // Construct a new one from another instance that was allocated by another
+      // allocator
+      auto *jv_move = manager_move.construct<valut_t>("jv")(
+          mj::parse(json_string, manager_src.get_allocator()),
+          manager_move.get_allocator());
       check_json_string(*jv_move);
     }
 
     {
-      metall::manager manager_move(metall::open_read_only, (test_utility::make_test_path() + "_move").c_str());
+      metall::manager manager_move(
+          metall::open_read_only,
+          (test_utility::make_test_path() + "_move").c_str());
       const auto *const jv_move = manager_move.find<valut_t>("jv").first;
       check_json_string(*jv_move);
     }
   }
 }
-}
+}  // namespace

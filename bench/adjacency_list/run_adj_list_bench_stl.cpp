@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,10 +15,11 @@ using key_type = uint64_t;
 using value_type = uint64_t;
 
 using allocator_type = std::allocator<std::byte>;
-using adjacency_list_type =  data_structure::multithread_adjacency_list<key_type, value_type, allocator_type>;
+using adjacency_list_type =
+    data_structure::multithread_adjacency_list<key_type, value_type,
+                                               allocator_type>;
 
 int main(int argc, char *argv[]) {
-
   bench_options option;
   if (!parse_options(argc, argv, &option)) {
     std::abort();

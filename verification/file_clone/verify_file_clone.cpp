@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,7 +13,6 @@
 namespace mdtl = metall::mtlldetail;
 
 void init_file(const std::string &file_path, const std::size_t size) {
-
   mdtl::create_file(file_path);
   mdtl::extend_file_size(file_path, size);
 
@@ -31,12 +30,10 @@ void init_file(const std::string &file_path, const std::size_t size) {
   mdtl::munmap(ret.first, ret.second, size, true);
 }
 
-void update_file(const std::string &file_path,
-                 const std::size_t size,
+void update_file(const std::string &file_path, const std::size_t size,
                  const std::size_t update_value) {
-
   int fd;
-  void* addr;
+  void *addr;
   std::tie(fd, addr) = mdtl::map_file_write_mode(file_path, nullptr, size, 0);
   if (fd == -1 || !addr) {
     std::abort();
@@ -53,10 +50,8 @@ void update_file(const std::string &file_path,
   }
 }
 
-void validate_file(const std::string &file_path,
-                   const std::size_t size,
+void validate_file(const std::string &file_path, const std::size_t size,
                    const std::size_t update_value) {
-
   auto ret = mdtl::map_file_read_mode(file_path, nullptr, size, 0);
   if (ret.first == -1 || !ret.second) {
     std::abort();
@@ -79,7 +74,6 @@ void validate_file(const std::string &file_path,
 
 // FIXME: check sparse copy
 int main([[maybe_unused]] int argc, char *argv[]) {
-
   const std::string source_file_path(argv[1]);
   const std::size_t file_size = std::stoll(argv[2]);
   const std::string destination_file_path(argv[3]);
@@ -92,7 +86,8 @@ int main([[maybe_unused]] int argc, char *argv[]) {
 
   std::cout << "\nClone the file" << std::endl;
   if (!mdtl::clone_file(source_file_path, destination_file_path)) {
-    std::cerr << "Failed to clone file: " << source_file_path << " to " << destination_file_path << std::endl;
+    std::cerr << "Failed to clone file: " << source_file_path << " to "
+              << destination_file_path << std::endl;
     std::abort();
   }
 
@@ -103,14 +98,18 @@ int main([[maybe_unused]] int argc, char *argv[]) {
   update_file(source_file_path, file_size, 1);
   std::cout << "Validate the source file" << std::endl;
   validate_file(source_file_path, file_size, 1);
-  std::cout << "Validate the clone file (to make sure there is no affect to the clone file)" << std::endl;
+  std::cout << "Validate the clone file (to make sure there is no affect to "
+               "the clone file)"
+            << std::endl;
   validate_file(destination_file_path, file_size, 0);
 
   std::cout << "\nUpdate the clone file" << std::endl;
   update_file(destination_file_path, file_size, 2);
   std::cout << "Validate the clone file" << std::endl;
   validate_file(destination_file_path, file_size, 2);
-  std::cout << "Validate the source file (to make sure there is no affect to the source file)" << std::endl;
+  std::cout << "Validate the source file (to make sure there is no affect to "
+               "the source file)"
+            << std::endl;
   validate_file(source_file_path, file_size, 1);
 
   return 0;

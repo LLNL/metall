@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -17,13 +17,13 @@ using namespace data_structure;
 
 using vertex_id_type = uint64_t;
 
-using local_adjacency_list_type =  multithread_adjacency_list<vertex_id_type,
-                                                              vertex_id_type,
-                                                              typename metall::manager::allocator_type<std::byte>>;
-using adjacency_list_type =  partitioned_multithread_adjacency_list<local_adjacency_list_type>;
+using local_adjacency_list_type = multithread_adjacency_list<
+    vertex_id_type, vertex_id_type,
+    typename metall::manager::allocator_type<std::byte>>;
+using adjacency_list_type =
+    partitioned_multithread_adjacency_list<local_adjacency_list_type>;
 
 int main(int argc, char *argv[]) {
-
   bench_options<vertex_id_type> option;
   if (!parse_options(argc, argv, &option)) {
     std::abort();
@@ -31,11 +31,13 @@ int main(int argc, char *argv[]) {
 
   {
     std::vector<metall::manager *> managers;
-    for (const auto& file_name : option.graph_file_name_list) {
-      managers.emplace_back(new metall::manager(metall::open_read_only, file_name.c_str()));
+    for (const auto &file_name : option.graph_file_name_list) {
+      managers.emplace_back(
+          new metall::manager(metall::open_read_only, file_name.c_str()));
     }
 
-    auto adj_list = adjacency_list_type(option.graph_key_name, managers.begin(), managers.end());
+    auto adj_list = adjacency_list_type(option.graph_key_name, managers.begin(),
+                                        managers.end());
 
     run_bench(adj_list, option);
   }

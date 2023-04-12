@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -23,8 +23,10 @@ class bin_number_manager {
 
  private:
   using object_size_mngr = object_size_manager<k_chunk_size, k_max_object_size>;
-  static constexpr size_type k_num_small_bins = object_size_mngr::num_small_sizes();
-  static constexpr size_type k_num_large_bins = object_size_mngr::num_large_sizes();
+  static constexpr size_type k_num_small_bins =
+      object_size_mngr::num_small_sizes();
+  static constexpr size_type k_num_large_bins =
+      object_size_mngr::num_large_sizes();
   static constexpr size_type k_num_bins = k_num_small_bins + k_num_large_bins;
 
  public:
@@ -37,9 +39,7 @@ class bin_number_manager {
   bin_number_manager &operator=(const bin_number_manager &) = delete;
   bin_number_manager &operator=(bin_number_manager &&) noexcept = delete;
 
-  static constexpr size_type num_bins() noexcept {
-    return k_num_bins;
-  }
+  static constexpr size_type num_bins() noexcept { return k_num_bins; }
 
   static constexpr size_type num_small_bins() noexcept {
     return k_num_small_bins;
@@ -58,6 +58,6 @@ class bin_number_manager {
   }
 };
 
-} // namespace kernel
-} // namespace metall
-#endif //METALL_DETAIL_KERNEL_BIN_NUMBER_MANAGER_HPP
+}  // namespace kernel
+}  // namespace metall
+#endif  // METALL_DETAIL_KERNEL_BIN_NUMBER_MANAGER_HPP

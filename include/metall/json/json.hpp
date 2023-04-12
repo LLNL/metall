@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -26,4 +26,4 @@
 /// \example json_open.cpp
 /// This is an example of how to open an already created JSON object.
 
-#endif //METALL_JSON_JSON_HPP
+#endif  // METALL_JSON_JSON_HPP

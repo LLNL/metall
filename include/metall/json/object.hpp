@@ -1,5 +1,5 @@
-// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -32,15 +32,17 @@ inline void swap(object<allocator_type> &lhd,
 
 namespace jsndtl {
 
-/// \brief Provides 'equal' calculation for other object types that have the same interface as the object class.
+/// \brief Provides 'equal' calculation for other object types that have the
+/// same interface as the object class.
 template <typename allocator_type, typename other_object_type>
-inline bool general_object_equal(const object<allocator_type> &object,
-                                 const other_object_type &other_object) noexcept {
+inline bool general_object_equal(
+    const object<allocator_type> &object,
+    const other_object_type &other_object) noexcept {
   return general_compact_object_equal(object, other_object);
 }
 
-} // namespace jsndtl
+}  // namespace jsndtl
 
-} // namespace metall::json
+}  // namespace metall::json
 
-#endif //METALL_OBJECT_HPP
+#endif  // METALL_OBJECT_HPP

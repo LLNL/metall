@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -12,14 +12,14 @@ namespace mj = metall::json;
 namespace {
 using array_type = mj::array<std::allocator<std::byte>>;
 
-TEST (JSONArrayTest, Constructor) {
+TEST(JSONArrayTest, Constructor) {
   array_type array;
   array_type array_with_alloc(std::allocator<std::byte>{});
   array_type cp(array);
   array_type mv(std::move(array));
 }
 
-TEST (JSONArrayTest, Size) {
+TEST(JSONArrayTest, Size) {
   array_type array;
   GTEST_ASSERT_EQ(array.size(), 0);
   array.resize(10);
@@ -28,7 +28,7 @@ TEST (JSONArrayTest, Size) {
   GTEST_ASSERT_EQ(array.size(), 0);
 }
 
-TEST (JSONArrayTest, Capacity) {
+TEST(JSONArrayTest, Capacity) {
   array_type array;
   GTEST_ASSERT_EQ(array.capacity(), 0);
   array.resize(10);
@@ -37,7 +37,7 @@ TEST (JSONArrayTest, Capacity) {
   GTEST_ASSERT_GE(array.capacity(), 10);
 }
 
-TEST (JSONArrayTest, Bracket) {
+TEST(JSONArrayTest, Bracket) {
   array_type array;
   array.resize(2);
   array[0] = 0;
@@ -46,7 +46,7 @@ TEST (JSONArrayTest, Bracket) {
   GTEST_ASSERT_EQ(array[1], 1);
 }
 
-TEST (JSONArrayTest, Iterator) {
+TEST(JSONArrayTest, Iterator) {
   array_type array;
   array.resize(2);
 
@@ -58,13 +58,13 @@ TEST (JSONArrayTest, Iterator) {
 
   const array_type cnst_array = array;
   i = 0;
-  for (const auto &elem: cnst_array) {
+  for (const auto &elem : cnst_array) {
     GTEST_ASSERT_EQ(elem, i);
     ++i;
   }
 }
 
-TEST (JSONArrayTest, Erase) {
+TEST(JSONArrayTest, Erase) {
   array_type array;
   array.resize(4);
 
@@ -83,7 +83,7 @@ TEST (JSONArrayTest, Erase) {
   GTEST_ASSERT_EQ(array.size(), 0);
 }
 
-TEST (JSONArrayTest, EqualOperator) {
+TEST(JSONArrayTest, EqualOperator) {
   array_type array0;
   array0.resize(2);
   array_type array1;
@@ -120,14 +120,14 @@ TEST(JSONArrayTest, Swap) {
   GTEST_ASSERT_EQ(array1[1], 1);
 }
 
-TEST (JSONArrayTest, Clear) {
+TEST(JSONArrayTest, Clear) {
   array_type array;
   array.resize(2);
   array.clear();
   GTEST_ASSERT_EQ(array.size(), 0);
 }
 
-TEST (JSONArrayTest, PushBack) {
+TEST(JSONArrayTest, PushBack) {
   array_type array;
 
   array_type::value_type value0(array.get_allocator());
@@ -142,4 +142,4 @@ TEST (JSONArrayTest, PushBack) {
   GTEST_ASSERT_EQ(array[1].as_string(), "1");
 }
 
-}
+}  // namespace

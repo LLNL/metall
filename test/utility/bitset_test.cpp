@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -11,17 +11,18 @@
 namespace {
 
 template <int num_bits>
-using block_type = typename metall::mtlldetail::bitset_detail::block_type<num_bits>::type;
+using block_type =
+    typename metall::mtlldetail::bitset_detail::block_type<num_bits>::type;
 
-using metall::mtlldetail::bitset_detail::num_blocks;
-using metall::mtlldetail::bitset_detail::get;
-using metall::mtlldetail::bitset_detail::set;
-using metall::mtlldetail::bitset_detail::reset;
 using metall::mtlldetail::bitset_detail::empty_block;
-using metall::mtlldetail::bitset_detail::full_block;
 using metall::mtlldetail::bitset_detail::erase;
 using metall::mtlldetail::bitset_detail::fill;
+using metall::mtlldetail::bitset_detail::full_block;
 using metall::mtlldetail::bitset_detail::generate_mask;
+using metall::mtlldetail::bitset_detail::get;
+using metall::mtlldetail::bitset_detail::num_blocks;
+using metall::mtlldetail::bitset_detail::reset;
+using metall::mtlldetail::bitset_detail::set;
 
 TEST(BitsetTest, BaseType) {
   ASSERT_LE(0, sizeof(block_type<0>) * 8);
@@ -60,16 +61,22 @@ TEST(BitsetTest, BitsetSize) {
   ASSERT_EQ(64, num_blocks<block_type<64>>(64) * sizeof(block_type<64>) * 8);
   ASSERT_LE(65, num_blocks<block_type<65>>(65) * sizeof(block_type<65>) * 8);
 
-  ASSERT_LE(127, num_blocks<block_type<127>>(127) * sizeof(block_type<127>) * 8);
-  ASSERT_EQ(128, num_blocks<block_type<128>>(128) * sizeof(block_type<128>) * 8);
-  ASSERT_LE(129, num_blocks<block_type<129>>(129) * sizeof(block_type<129>) * 8);
+  ASSERT_LE(127,
+            num_blocks<block_type<127>>(127) * sizeof(block_type<127>) * 8);
+  ASSERT_EQ(128,
+            num_blocks<block_type<128>>(128) * sizeof(block_type<128>) * 8);
+  ASSERT_LE(129,
+            num_blocks<block_type<129>>(129) * sizeof(block_type<129>) * 8);
 
   ASSERT_EQ(1ULL << 10ULL,
-            num_blocks<block_type<1ULL << 10ULL>>(1ULL << 10ULL) * sizeof(block_type<1ULL << 10ULL>) * 8);
+            num_blocks<block_type<1ULL << 10ULL>>(1ULL << 10ULL) *
+                sizeof(block_type<1ULL << 10ULL>) * 8);
   ASSERT_EQ(1ULL << 20ULL,
-            num_blocks<block_type<1ULL << 20ULL>>(1ULL << 20ULL) * sizeof(block_type<1ULL << 20ULL>) * 8);
+            num_blocks<block_type<1ULL << 20ULL>>(1ULL << 20ULL) *
+                sizeof(block_type<1ULL << 20ULL>) * 8);
   ASSERT_EQ(1ULL << 30ULL,
-            num_blocks<block_type<1ULL << 30ULL>>(1ULL << 30ULL) * sizeof(block_type<1ULL << 30ULL>) * 8);
+            num_blocks<block_type<1ULL << 30ULL>>(1ULL << 30ULL) *
+                sizeof(block_type<1ULL << 30ULL>) * 8);
 }
 
 TEST(BitsetTest, EraseAndEmpty) {
@@ -163,12 +170,13 @@ TEST(BitsetTest, GenerateMask) {
 template <std::size_t num_bits>
 void RandomAccessHelper() {
   std::bitset<num_bits> reference;
-  auto bitset = new block_type<num_bits>[num_blocks<block_type<num_bits>>(num_bits)](); // () is for zero initialization
+  auto bitset = new block_type<num_bits>[num_blocks<block_type<num_bits>>(
+      num_bits)]();  // () is for zero initialization
 
   std::mt19937_64 mt;
   std::uniform_int_distribution<uint64_t> rand_dist(0, num_bits * 2);
 
-  for (uint64_t i = 0; i < num_bits * 8; ++i) { // 8 is just a random number
+  for (uint64_t i = 0; i < num_bits * 8; ++i) {  // 8 is just a random number
     const auto random_value = rand_dist(mt);
     const uint64_t pos = random_value % num_bits;
     const bool do_set = random_value / num_bits;
@@ -198,4 +206,4 @@ TEST(BitsetTest, RandomAccess) {
   // RandomAccessHelper<1 << 20>();
   // RandomAccessHelper<1 << 30>();
 }
-}
+}  // namespace

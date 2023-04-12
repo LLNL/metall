@@ -1,5 +1,5 @@
-// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -22,7 +22,7 @@ int main() {
   std::size_t num_inputs = (1ULL << scale) * 16;
   std::vector<std::pair<uint64_t, uint64_t>> inputs;
 
-  //gen_edges(scale, num_inputs, inputs);
+  // gen_edges(scale, num_inputs, inputs);
   gen_random_values(num_inputs, inputs);
   std::cout << "Generated inputs\t" << inputs.size() << std::endl;
 
@@ -30,7 +30,7 @@ int main() {
     std::map<uint64_t, uint64_t> map;
 
     const auto start = mdtl::elapsed_time_sec();
-    for (const auto &kv: inputs) {
+    for (const auto &kv : inputs) {
       map[kv.first];
       map[kv.second];
     }
@@ -42,7 +42,7 @@ int main() {
     boost::container::map<uint64_t, uint64_t> map;
 
     const auto start = mdtl::elapsed_time_sec();
-    for (const auto &kv: inputs) {
+    for (const auto &kv : inputs) {
       map[kv.first];
       map[kv.second];
     }
@@ -55,12 +55,13 @@ int main() {
     metall::container::map<uint64_t, uint64_t> map(mngr.get_allocator());
 
     const auto start = mdtl::elapsed_time_sec();
-    for (const auto &kv: inputs) {
+    for (const auto &kv : inputs) {
       map[kv.first];
       map[kv.second];
     }
     const auto elapsed_time = mdtl::elapsed_time_sec(start);
-    std::cout << "Boost map with Metall took (s)\t" << elapsed_time << std::endl;
+    std::cout << "Boost map with Metall took (s)\t" << elapsed_time
+              << std::endl;
   }
 
   return 0;

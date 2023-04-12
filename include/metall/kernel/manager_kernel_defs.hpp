@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -25,4 +25,4 @@
 #define METALL_INITIAL_SEGMENT_SIZE (1ULL << 28ULL)
 #endif
 
-#endif //METALL_KERNEL_MANAGER_KERNEL_DEFS_HPP
+#endif  // METALL_KERNEL_MANAGER_KERNEL_DEFS_HPP

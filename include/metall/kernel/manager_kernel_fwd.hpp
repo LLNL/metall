@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,7 +15,7 @@ namespace kernel {
 template <typename _chunk_no_type, std::size_t _chunk_size>
 class manager_kernel;
 
-} // namespace kernel
-} // namespace metall
+}  // namespace kernel
+}  // namespace metall
 
-#endif //METALL_KERNEL_MANAGER_KERNEL_FWD_HPP
+#endif  // METALL_KERNEL_MANAGER_KERNEL_FWD_HPP

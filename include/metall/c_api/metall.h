@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -43,16 +43,16 @@ extern void *metall_malloc(uint64_t nbytes);
 /// \param ptr A pointer to the allocated memory to be free
 extern void metall_free(void *ptr);
 
-/// \brief Allocates nbytes bytes and save the address of the allocated memory with name
-/// \param name A name of the allocated memory
-/// \param nbytes A size to allocate
-/// \return Returns a pointer to the allocated memory
-extern void* metall_named_malloc(const char *name, uint64_t nbytes);
+/// \brief Allocates nbytes bytes and save the address of the allocated memory
+/// with name \param name A name of the allocated memory \param nbytes A size to
+/// allocate \return Returns a pointer to the allocated memory
+extern void *metall_named_malloc(const char *name, uint64_t nbytes);
 
 /// \brief Finds a saved memory
 /// \param name A name of the allocated memory to find
-/// \return Returns a pointer to the allocated memory if it exist. Otherwise, returns NULL.
-extern void* metall_find(char *name);
+/// \return Returns a pointer to the allocated memory if it exist. Otherwise,
+/// returns NULL.
+extern void *metall_find(char *name);
 
 /// \brief Frees memory with the name
 /// \param name A name of the allocated memory to free
@@ -83,4 +83,4 @@ extern int consistent(const char *path);
 /// \example c_api.c
 /// This is an example of how to use the C API.
 
-#endif //METALL_C_API_METALL_H
+#endif  // METALL_C_API_METALL_H
