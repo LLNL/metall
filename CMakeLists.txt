@@ -211,7 +211,6 @@ if (USE_ANONYMOUS_NEW_MAP)
     message(STATUS "Use the anonymous map for new map region")
 endif ()
 
-
 # Requirements for GCC
 if (NOT RUN_BUILD_AND_TEST_WITH_CI)
     if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))

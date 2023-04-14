@@ -12,11 +12,22 @@
 #include <string>
 #include <variant>
 
-#ifndef METALL_JSON_BOOST_JSON_SRC_INCLUDED
+#if defined(DOXYGEN_SKIP)
+/// \brief If defined, link with a buit Boost.JSON.
+#define METALL_LINK_WITH_BOOST_JSON
+
 /// \brief Include guard for boost/json/src.hpp
 #define METALL_JSON_BOOST_JSON_SRC_INCLUDED
+#endif
+
+#if METALL_LINK_WITH_BOOST_JSON
+#include <boost/json.hpp>
+#else
+#ifndef METALL_BOOST_JSON_SRC_INCLUDED
+#define METALL_BOOST_JSON_SRC_INCLUDED
 #include <boost/json/src.hpp>
-#endif  // METALL_JSON_BOOST_JSON_SRC_INCLUDED
+#endif  // METALL_BOOST_JSON_SRC_INCLUDED
+#endif // METALL_LINK_WITH_BOOST_JSON
 
 #include <metall/container/string.hpp>
 
