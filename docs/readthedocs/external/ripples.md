@@ -41,7 +41,7 @@ The following instructions are tested with the latest version of Ripples at the 
 # Set up Python environment, if not available
 # For example:
 pip install --user pipenv
-pip install --user conan
+pip install --user conan==1.59.0
 # If needed, configure PATH, for example:
 # export PATH="$HOME/.local/bin:$PATH"
 
