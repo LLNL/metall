@@ -53,7 +53,7 @@ git checkout da08b3e759642a93556f081169c61607354ecd3e
 # Apply the patch file (download from the link under this code block)
 git apply ripples-metall.patch
 
-pipenv --three
+pipenv --python 3.7
 pipenv install
 pipenv shell
 
