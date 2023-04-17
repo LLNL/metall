@@ -38,13 +38,6 @@ Tested Environment:
 The following instructions are tested with the latest version of Ripples at the time of writing (commit ID: da08b3e759642a93556f081169c61607354ecd3e).
 
 ```shell
-# Set up Python environment, if not available
-# For example:
-pip install --user pipenv
-pip install --user conan==1.59.0
-# If needed, configure PATH, for example:
-# export PATH="$HOME/.local/bin:$PATH"
-
 # Get source code
 git clone git@github.com:pnnl/ripples.git
 cd ripples
@@ -58,6 +51,13 @@ git apply ripples-metall.patch
 # (please enable Metall as described on the page above)
 #
 # Here, we show example build commands for the convenience of the reader.
+
+# Set up Python environment, if not available
+# For example:
+pip install --user pipenv
+pip install --user conan==1.59.0
+# If needed, configure PATH, for example:
+# export PATH="$HOME/.local/bin:$PATH"
 
 # Set up Python environment
 pipenv --python 3.7
