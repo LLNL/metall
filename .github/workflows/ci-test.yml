@@ -18,8 +18,8 @@ jobs:
           export BOOST_ROOT=${PWD}/boost
           popd
           export METALL_TEST_DIR=${GITHUB_JOB}
-          export CC=gcc-10
-          export CXX=g++-10
+          export CC=gcc-12
+          export CXX=g++-12
           cd $GITHUB_WORKSPACE
           bash ./scripts/CI/build_and_test.sh
 
@@ -38,7 +38,7 @@ jobs:
           export BOOST_ROOT=${PWD}/boost
           popd
           export METALL_TEST_DIR=${GITHUB_JOB}
-          export CC=gcc-10
-          export CXX=g++-10
+          export CC=gcc-12
+          export CXX=g++-12
           cd $GITHUB_WORKSPACE
           bash ./scripts/CI/build_and_test.sh
