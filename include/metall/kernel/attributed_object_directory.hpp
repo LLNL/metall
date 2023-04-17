@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -30,7 +30,7 @@ namespace kernel {
 namespace {
 namespace mdtl = metall::mtlldetail;
 namespace json = metall::mtlldetail::ptree;
-}
+}  // namespace
 
 template <typename T>
 inline auto gen_type_name() {
@@ -48,9 +48,9 @@ inline auto gen_type_id() {
 template <typename _offset_type, typename _size_type>
 class attributed_object_directory {
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using size_type = _size_type;
   using name_type = std::string;
   using offset_type = _offset_type;
@@ -61,8 +61,9 @@ class attributed_object_directory {
   class entry_type {
    public:
     entry_type() noexcept = default;
-    entry_type(const name_type &name, const offset_type &offset, const length_type &length,
-               const type_id_type &type_id, const description_type &description)
+    entry_type(const name_type &name, const offset_type &offset,
+               const length_type &length, const type_id_type &type_id,
+               const description_type &description)
         : m_name(name),
           m_offset(offset),
           m_length(length),
@@ -77,29 +78,17 @@ class attributed_object_directory {
     entry_type &operator=(const entry_type &) noexcept = default;
     entry_type &operator=(entry_type &&) noexcept = default;
 
-    const auto &name() const noexcept {
-      return m_name;
-    }
+    const auto &name() const noexcept { return m_name; }
 
-    const auto &offset() const noexcept {
-      return m_offset;
-    }
+    const auto &offset() const noexcept { return m_offset; }
 
-    const auto &length() const noexcept {
-      return m_length;
-    }
+    const auto &length() const noexcept { return m_length; }
 
-    const auto &type_id() const noexcept {
-      return m_type_id;
-    }
+    const auto &type_id() const noexcept { return m_type_id; }
 
-    const auto &description() const noexcept {
-      return m_description;
-    }
+    const auto &description() const noexcept { return m_description; }
 
-    auto &description() noexcept {
-      return m_description;
-    }
+    auto &description() noexcept { return m_description; }
 
     template <typename T>
     bool is_type() const noexcept {
@@ -115,52 +104,54 @@ class attributed_object_directory {
   };
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using entry_table_type = boost::container::list<entry_type>;
 
   // Following tables hold the index of the corresponding entry of each key
-  using offset_index_table_type = boost::unordered_map<offset_type,
-                                                       typename entry_table_type::iterator,
-                                                       mdtl::hash<offset_type>>;
-  using name_index_table_type = boost::unordered_map<name_type,
-                                                     typename entry_table_type::iterator,
-                                                     mdtl::string_hash<name_type>>;
+  using offset_index_table_type =
+      boost::unordered_map<offset_type, typename entry_table_type::iterator,
+                           mdtl::hash<offset_type>>;
+  using name_index_table_type =
+      boost::unordered_map<name_type, typename entry_table_type::iterator,
+                           mdtl::string_hash<name_type>>;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   using const_iterator = typename entry_table_type::const_iterator;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
-  attributed_object_directory() noexcept {
-    priv_allocate_core_data();
-  }
+  // -------------------- //
+  attributed_object_directory() noexcept { priv_allocate_core_data(); }
 
   ~attributed_object_directory() noexcept = default;
 
-  attributed_object_directory(const attributed_object_directory &other) noexcept {
+  attributed_object_directory(
+      const attributed_object_directory &other) noexcept {
     if (priv_allocate_core_data()) {
       priv_deep_copy(other);
     }
   }
 
-  attributed_object_directory(attributed_object_directory &&) noexcept = default;
+  attributed_object_directory(attributed_object_directory &&) noexcept =
+      default;
 
-  attributed_object_directory &operator=(const attributed_object_directory &other) noexcept {
+  attributed_object_directory &operator=(
+      const attributed_object_directory &other) noexcept {
     priv_deep_copy(other);
     return *this;
   }
 
-  attributed_object_directory &operator=(attributed_object_directory &&) noexcept = default;
+  attributed_object_directory &operator=(
+      attributed_object_directory &&) noexcept = default;
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   bool good() const noexcept {
     return m_entry_table && m_offset_index_table && m_name_index_table;
   }
@@ -172,10 +163,8 @@ class attributed_object_directory {
   /// \param type_id
   /// \param description
   /// \return
-  bool insert(const name_type &name,
-              const offset_type offset,
-              const length_type length,
-              const type_id_type type_id,
+  bool insert(const name_type &name, const offset_type offset,
+              const length_type length, const type_id_type type_id,
               const description_type &description = std::string()) noexcept {
     if (!good()) return false;
 
@@ -186,20 +175,24 @@ class attributed_object_directory {
     assert(name.empty() || m_name_index_table->count(name) == 0);
 
     try {
-      auto inserted_itr = m_entry_table->emplace(m_entry_table->end(),
-                                                 entry_type{name, offset, length, type_id, description});
+      auto inserted_itr = m_entry_table->emplace(
+          m_entry_table->end(),
+          entry_type{name, offset, length, type_id, description});
       {
-        [[maybe_unused]] const auto ret = m_offset_index_table->emplace(offset, inserted_itr);
+        [[maybe_unused]] const auto ret =
+            m_offset_index_table->emplace(offset, inserted_itr);
         assert(ret.first != m_offset_index_table->end());
         assert(ret.second);
       }
       if (!name.empty()) {
-        [[maybe_unused]] const auto ret = m_name_index_table->emplace(name, inserted_itr);
+        [[maybe_unused]] const auto ret =
+            m_name_index_table->emplace(name, inserted_itr);
         assert(ret.first != m_name_index_table->end());
         assert(ret.second);
       }
     } catch (...) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Exception was thrown when inserting entry");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Exception was thrown when inserting entry");
       return false;
     }
 
@@ -210,7 +203,8 @@ class attributed_object_directory {
   /// \param position
   /// \param description
   /// \return
-  bool set_description(const_iterator position, const description_type &description) noexcept {
+  bool set_description(const_iterator position,
+                       const description_type &description) noexcept {
     if (!good()) return false;
 
     if (position == m_entry_table->cend()) return false;
@@ -231,7 +225,8 @@ class attributed_object_directory {
   /// \param position
   /// \param description
   /// \return
-  bool get_description(const_iterator position, description_type *description) const noexcept {
+  bool get_description(const_iterator position,
+                       description_type *description) const noexcept {
     if (!good()) return false;
 
     if (position == m_entry_table->cend()) return false;
@@ -349,10 +344,12 @@ class attributed_object_directory {
 
     try {
       m_offset_index_table->erase(position->offset());
-      if (!position->name().empty()) m_name_index_table->erase(position->name());
+      if (!position->name().empty())
+        m_name_index_table->erase(position->name());
       m_entry_table->erase(position);
     } catch (...) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Exception was thrown when erasing an entry");
       return 0;
     }
 
@@ -377,7 +374,8 @@ class attributed_object_directory {
       m_entry_table->erase(itr);
       if (!name.empty()) m_name_index_table->erase(name);
     } catch (...) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Exception was thrown when erasing an entry");
       return 0;
     }
 
@@ -402,7 +400,8 @@ class attributed_object_directory {
       if (!itr->name().empty()) m_name_index_table->erase(itr->name());
       m_entry_table->erase(itr);
     } catch (...) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Exception was thrown when erasing an entry");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Exception was thrown when erasing an entry");
       return 0;
     }
 
@@ -421,7 +420,8 @@ class attributed_object_directory {
       m_name_index_table->clear();
       m_entry_table->clear();
     } catch (...) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Exception was thrown when clearing entries");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Exception was thrown when clearing entries");
       return false;
     }
     return true;
@@ -450,15 +450,17 @@ class attributed_object_directory {
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private types and static values
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   // JSON structure
   // {
   // "attributed_objects" : [
-  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "type_id" : "424", "description" : ""},
-  //  {"name" : "object1", "offset" : 0x432, "length" : 2, "type_id" : "932", "description" : "..."}
+  //  {"name" : "object0", "offset" : 0x845, "length" : 1, "type_id" : "424",
+  //  "description" : ""},
+  //  {"name" : "object1", "offset" : 0x432, "length" : 2, "type_id" : "932",
+  //  "description" : "..."}
   // ]
   // }
   struct json_key {
@@ -470,16 +472,17 @@ class attributed_object_directory {
     static constexpr const char *description = "description";
   };
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   bool priv_allocate_core_data() noexcept {
     try {
       m_entry_table = std::make_unique<entry_table_type>();
       m_offset_index_table = std::make_unique<offset_index_table_type>();
       m_name_index_table = std::make_unique<name_index_table_type>();
     } catch (...) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to allocate core data");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Failed to allocate core data");
       m_entry_table.reset(nullptr);
       m_offset_index_table.reset(nullptr);
       m_name_index_table.reset(nullptr);
@@ -494,7 +497,8 @@ class attributed_object_directory {
       *m_offset_index_table = *(other.m_offset_index_table);
       *m_name_index_table = *(other.m_name_index_table);
     } catch (...) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to copy members");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Failed to copy members");
       m_entry_table.reset(nullptr);
       m_offset_index_table.reset(nullptr);
       m_name_index_table.reset(nullptr);
@@ -511,20 +515,27 @@ class attributed_object_directory {
     json::node_type json_attributed_objects_list;
     for (const auto &item : *m_entry_table) {
       json::node_type json_named_object_entry;
-      if (!json::add_value(json_key::name, item.name(), &json_named_object_entry) ||
-          !json::add_value(json_key::offset, item.offset(), &json_named_object_entry) ||
-          !json::add_value(json_key::length, item.length(), &json_named_object_entry) ||
-          !json::add_value(json_key::type_id, item.type_id(), &json_named_object_entry) ||
-          !json::add_value(json_key::description, item.description(), &json_named_object_entry)) {
+      if (!json::add_value(json_key::name, item.name(),
+                           &json_named_object_entry) ||
+          !json::add_value(json_key::offset, item.offset(),
+                           &json_named_object_entry) ||
+          !json::add_value(json_key::length, item.length(),
+                           &json_named_object_entry) ||
+          !json::add_value(json_key::type_id, item.type_id(),
+                           &json_named_object_entry) ||
+          !json::add_value(json_key::description, item.description(),
+                           &json_named_object_entry)) {
         return false;
       }
-      if (!json::push_back(json_named_object_entry, &json_attributed_objects_list)) {
+      if (!json::push_back(json_named_object_entry,
+                           &json_attributed_objects_list)) {
         return false;
       }
     }
 
     json::node_type json_root;
-    if (!json::add_child(json_key::attributed_objects, json_attributed_objects_list, &json_root)) {
+    if (!json::add_child(json_key::attributed_objects,
+                         json_attributed_objects_list, &json_root)) {
       return false;
     }
 
@@ -546,7 +557,8 @@ class attributed_object_directory {
     }
 
     json::node_type json_attributed_objects_list;
-    if (!json::get_child(json_root, json_key::attributed_objects, &json_attributed_objects_list)) {
+    if (!json::get_child(json_root, json_key::attributed_objects,
+                         &json_attributed_objects_list)) {
       return false;
     }
 
@@ -561,17 +573,20 @@ class attributed_object_directory {
           !json::get_value(object.second, json_key::offset, &offset) ||
           !json::get_value(object.second, json_key::length, &length) ||
           !json::get_value(object.second, json_key::type_id, &type_id) ||
-          !json::get_value(object.second, json_key::description, &description)) {
+          !json::get_value(object.second, json_key::description,
+                           &description)) {
         return false;
       }
 
       if (count(name) > 0) {
-        logger::out(logger::level::error, __FILE__, __LINE__, "Failed to reconstruct object table");
+        logger::out(logger::level::error, __FILE__, __LINE__,
+                    "Failed to reconstruct object table");
         return false;
       }
 
       if (!insert(name, offset, length, type_id, description)) {
-        logger::out(logger::level::error, __FILE__, __LINE__, "Failed to reconstruct object table");
+        logger::out(logger::level::error, __FILE__, __LINE__,
+                    "Failed to reconstruct object table");
         return false;
       }
     }
@@ -579,13 +594,13 @@ class attributed_object_directory {
     return true;
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   std::unique_ptr<entry_table_type> m_entry_table;
   std::unique_ptr<offset_index_table_type> m_offset_index_table;
   std::unique_ptr<name_index_table_type> m_name_index_table;
 };
-} // namespace kernel
-} // namespace metall
-#endif //METALL_DETAIL_ATTRIBUTED_OBJECT_DIRECTORY_HPP
+}  // namespace kernel
+}  // namespace metall
+#endif  // METALL_DETAIL_ATTRIBUTED_OBJECT_DIRECTORY_HPP

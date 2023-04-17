@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -20,7 +20,8 @@ void log_cerr() {
 
 void log_perror() {
   logger::perror(logger::level::silent, __FILE__, __LINE__, "silent logger");
-  logger::perror(logger::level::critical, __FILE__, __LINE__, "critical logger");
+  logger::perror(logger::level::critical, __FILE__, __LINE__,
+                 "critical logger");
   logger::perror(logger::level::error, __FILE__, __LINE__, "error logger");
   logger::perror(logger::level::warning, __FILE__, __LINE__, "warning logger");
   logger::perror(logger::level::info, __FILE__, __LINE__, "info logger");

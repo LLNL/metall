@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,10 +15,8 @@ namespace metall::utility {
 /// \brief Namespace for mutex
 namespace mutex {
 
-/// \brief A utility function that returns a mutex lock allocated as a static object.
-/// This is an experimental implementation.
-/// Example:
-/// { // Mutex region
+/// \brief A utility function that returns a mutex lock allocated as a static
+/// object. This is an experimental implementation. Example: { // Mutex region
 ///   const int bank_index = hash(key) % num_banks;
 ///   auto guard = metall::utility::mutex::mutex_lock<num_banks>(bank_index);
 ///   // do some mutex work
@@ -30,10 +28,10 @@ inline std::unique_lock<std::mutex> mutex_lock(const std::size_t index) {
   return std::unique_lock<std::mutex>(mutexes[index]);
 }
 
-}
-}
+}  // namespace mutex
+}  // namespace metall::utility
 
 /// \example static_mutex.cpp
 /// This is an example of how to use the mutex_lock function.
 
-#endif //METALL_UTILITY_MUTEX_HPP
+#endif  // METALL_UTILITY_MUTEX_HPP

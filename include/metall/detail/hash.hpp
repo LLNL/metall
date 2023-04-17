@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -18,11 +18,12 @@ namespace metall::mtlldetail {
 // domain. The author hereby disclaims copyright to this source code.
 //
 //-----------------------------------------------------------------------------
-inline constexpr uint64_t MurmurHash64A(const void *key, const int len, const uint64_t seed) {
+inline constexpr uint64_t MurmurHash64A(const void *key, const int len,
+                                        const uint64_t seed) {
   constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
   constexpr int r = 47;
 
-  uint64_t h = seed ^(len * m);
+  uint64_t h = seed ^ (len * m);
 
   const uint64_t *data = (const uint64_t *)key;
   const uint64_t *end = data + (len / 8);
@@ -41,13 +42,26 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len, const ui
   const unsigned char *data2 = (const unsigned char *)data;
 
   switch (len & 7) {
-    case 7: h ^= uint64_t(data2[6]) << 48; [[fallthrough]];
-    case 6: h ^= uint64_t(data2[5]) << 40; [[fallthrough]];
-    case 5: h ^= uint64_t(data2[4]) << 32; [[fallthrough]];
-    case 4: h ^= uint64_t(data2[3]) << 24; [[fallthrough]];
-    case 3: h ^= uint64_t(data2[2]) << 16; [[fallthrough]];
-    case 2: h ^= uint64_t(data2[1]) << 8; [[fallthrough]];
-    case 1: h ^= uint64_t(data2[0]);
+    case 7:
+      h ^= uint64_t(data2[6]) << 48;
+      [[fallthrough]];
+    case 6:
+      h ^= uint64_t(data2[5]) << 40;
+      [[fallthrough]];
+    case 5:
+      h ^= uint64_t(data2[4]) << 32;
+      [[fallthrough]];
+    case 4:
+      h ^= uint64_t(data2[3]) << 24;
+      [[fallthrough]];
+    case 3:
+      h ^= uint64_t(data2[2]) << 16;
+      [[fallthrough]];
+    case 2:
+      h ^= uint64_t(data2[1]) << 8;
+      [[fallthrough]];
+    case 1:
+      h ^= uint64_t(data2[0]);
       h *= m;
   };
 
@@ -56,7 +70,7 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len, const ui
   h ^= h >> r;
 
   return h;
-};
+}
 
 /// \brief Hash a value of type T
 /// \tparam T The type of a value to hash
@@ -74,10 +88,12 @@ struct hash {
 template <typename string_type, unsigned int seed = 123>
 struct string_hash {
   uint64_t operator()(const string_type &key) const {
-    return MurmurHash64A(key.c_str(), key.length() * sizeof(typename string_type::value_type), seed);
+    return MurmurHash64A(
+        key.c_str(), key.length() * sizeof(typename string_type::value_type),
+        seed);
   }
 };
 
-} // namespace metall::mtlldetail
+}  // namespace metall::mtlldetail
 
-#endif //METALL_DETAIL_UTILITY_HASH_HPP
+#endif  // METALL_DETAIL_UTILITY_HASH_HPP

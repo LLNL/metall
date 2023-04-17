@@ -1,43 +1,43 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include "gtest/gtest.h"
 #include <memory>
-#include <metall/container/experimental/json/json.hpp>
+#include <metall/json/json.hpp>
 
-using namespace metall::container::experimental;
+namespace mj = metall::json;
 
 namespace {
 
-using object_type = json::object<std::allocator<std::byte>>;
+using object_type = mj::object<std::allocator<std::byte>>;
 
-TEST (JSONObjectTest, Constructor) {
+TEST(JSONObjectTest, Constructor) {
   object_type obj;
   object_type obj_with_alloc(std::allocator<std::byte>{});
   object_type cp(obj);
   object_type mv(std::move(obj));
 }
 
-TEST (JSONObjectTest, Brackets) {
+TEST(JSONObjectTest, Brackets) {
   object_type obj;
 
   obj["0"].emplace_bool() = true;
-  obj["1"].emplace_uint64() = 10;
+  obj["0123456789"].emplace_uint64() = 10;
   GTEST_ASSERT_TRUE(obj["0"].as_bool());
-  GTEST_ASSERT_EQ(obj["1"].as_uint64(), 10);
+  GTEST_ASSERT_EQ(obj["0123456789"].as_uint64(), 10);
 
   // Override
-  obj["1"].emplace_double() = 20.5;
-  GTEST_ASSERT_EQ(obj["1"].as_double(), 20.5);
+  obj["0123456789"].emplace_double() = 20.5;
+  GTEST_ASSERT_EQ(obj["0123456789"].as_double(), 20.5);
 
   const auto cnt_obj(obj);
   GTEST_ASSERT_TRUE(cnt_obj["0"].as_bool());
-  GTEST_ASSERT_EQ(cnt_obj["1"].as_double(), 20.5);
+  GTEST_ASSERT_EQ(cnt_obj["0123456789"].as_double(), 20.5);
 }
 
-TEST (JSONObjectTest, ContainsAndCount) {
+TEST(JSONObjectTest, ContainsAndCount) {
   object_type obj;
 
   GTEST_ASSERT_FALSE(obj.contains("0"));
@@ -46,31 +46,31 @@ TEST (JSONObjectTest, ContainsAndCount) {
   GTEST_ASSERT_TRUE(obj.contains("0"));
   GTEST_ASSERT_EQ(obj.count("0"), 1);
 
-  GTEST_ASSERT_FALSE(obj.contains("1"));
-  GTEST_ASSERT_EQ(obj.count("1"), 0);
-  obj["1"].emplace_uint64() = 10;
-  GTEST_ASSERT_TRUE(obj.contains("1"));
-  GTEST_ASSERT_EQ(obj.count("1"), 1);
+  GTEST_ASSERT_FALSE(obj.contains("0123456789"));
+  GTEST_ASSERT_EQ(obj.count("0123456789"), 0);
+  obj["0123456789"].emplace_uint64() = 10;
+  GTEST_ASSERT_TRUE(obj.contains("0123456789"));
+  GTEST_ASSERT_EQ(obj.count("0123456789"), 1);
 
   obj["0"].emplace_bool() = true;
   GTEST_ASSERT_TRUE(obj.contains("0"));
   GTEST_ASSERT_EQ(obj.count("0"), 1);
 }
 
-TEST (JSONObjectTest, At) {
+TEST(JSONObjectTest, At) {
   object_type obj;
 
   obj["0"].emplace_bool() = true;
-  obj["1"].emplace_uint64() = 10;
+  obj["0123456789"].emplace_uint64() = 10;
   GTEST_ASSERT_TRUE(obj.at("0").as_bool());
-  GTEST_ASSERT_EQ(obj.at("1").as_uint64(), 10);
+  GTEST_ASSERT_EQ(obj.at("0123456789").as_uint64(), 10);
 
   const auto cnt_obj(obj);
   GTEST_ASSERT_TRUE(cnt_obj.at("0").as_bool());
-  GTEST_ASSERT_EQ(cnt_obj.at("1").as_uint64(), 10);
+  GTEST_ASSERT_EQ(cnt_obj.at("0123456789").as_uint64(), 10);
 }
 
-TEST (JSONObjectTest, Find) {
+TEST(JSONObjectTest, Find) {
   object_type obj;
 
   GTEST_ASSERT_EQ(obj.find("0"), obj.end());
@@ -79,22 +79,22 @@ TEST (JSONObjectTest, Find) {
   GTEST_ASSERT_EQ(obj.find("0")->key(), "0");
   GTEST_ASSERT_TRUE(obj.find("0")->value().as_bool());
 
-  GTEST_ASSERT_EQ(obj.find("1"), obj.end());
-  obj["1"].emplace_uint64() = 10;
-  GTEST_ASSERT_NE(obj.find("1"), obj.end());
-  GTEST_ASSERT_EQ(obj.find("1")->key(), "1");
-  GTEST_ASSERT_EQ(obj.find("1")->value().as_uint64(), 10);
+  GTEST_ASSERT_EQ(obj.find("0123456789"), obj.end());
+  obj["0123456789"].emplace_uint64() = 10;
+  GTEST_ASSERT_NE(obj.find("0123456789"), obj.end());
+  GTEST_ASSERT_EQ(obj.find("0123456789")->key(), "0123456789");
+  GTEST_ASSERT_EQ(obj.find("0123456789")->value().as_uint64(), 10);
 
   const auto cnt_obj(obj);
   GTEST_ASSERT_NE(cnt_obj.find("0"), cnt_obj.end());
   GTEST_ASSERT_EQ(cnt_obj.find("0")->key(), "0");
   GTEST_ASSERT_TRUE(cnt_obj.find("0")->value().as_bool());
-  GTEST_ASSERT_NE(cnt_obj.find("1"), cnt_obj.end());
-  GTEST_ASSERT_EQ(cnt_obj.find("1")->key(), "1");
-  GTEST_ASSERT_EQ(cnt_obj.find("1")->value().as_uint64(), 10);
+  GTEST_ASSERT_NE(cnt_obj.find("0123456789"), cnt_obj.end());
+  GTEST_ASSERT_EQ(cnt_obj.find("0123456789")->key(), "0123456789");
+  GTEST_ASSERT_EQ(cnt_obj.find("0123456789")->value().as_uint64(), 10);
 }
 
-TEST (JSONObjectTest, BeginAndEnd) {
+TEST(JSONObjectTest, BeginAndEnd) {
   object_type obj;
 
   GTEST_ASSERT_EQ(obj.begin(), obj.end());
@@ -102,27 +102,27 @@ TEST (JSONObjectTest, BeginAndEnd) {
   GTEST_ASSERT_NE(obj.begin(), obj.end());
   GTEST_ASSERT_EQ(obj.begin()->key(), "0");
 
-  obj["1"].emplace_uint64() = 10;
+  obj["0123456789"].emplace_uint64() = 10;
 
   std::size_t count = 0;
-  for (auto &elem: obj) {
-    GTEST_ASSERT_TRUE(elem.key() == "0" || elem.key() == "1");
-    if (elem.key() == "1") elem.value().emplace_double() = 20.5;
+  for (auto &elem : obj) {
+    GTEST_ASSERT_TRUE(elem.key() == "0" || elem.key() == "0123456789");
+    if (elem.key() == "0123456789") elem.value().emplace_double() = 20.5;
     ++count;
   }
   GTEST_ASSERT_EQ(count, 2);
-  GTEST_ASSERT_EQ(obj["1"].as_double(), 20.5);
+  GTEST_ASSERT_EQ(obj["0123456789"].as_double(), 20.5);
 
   count = 0;
   const auto cnt_obj(obj);
-  for (const auto &elem: cnt_obj) {
-    GTEST_ASSERT_TRUE(elem.key() == "0" || elem.key() == "1");
+  for (const auto &elem : cnt_obj) {
+    GTEST_ASSERT_TRUE(elem.key() == "0" || elem.key() == "0123456789");
     ++count;
   }
   GTEST_ASSERT_EQ(count, 2);
 }
 
-TEST (JSONObjectTest, Size) {
+TEST(JSONObjectTest, Size) {
   object_type obj;
 
   GTEST_ASSERT_EQ(obj.size(), 0);
@@ -130,30 +130,30 @@ TEST (JSONObjectTest, Size) {
   obj["0"].emplace_bool() = true;
   GTEST_ASSERT_EQ(obj.size(), 1);
 
-  obj["1"].emplace_uint64() = 10;
+  obj["0123456789"].emplace_uint64() = 10;
   GTEST_ASSERT_EQ(obj.size(), 2);
 
   const auto cnt_obj(obj);
   GTEST_ASSERT_EQ(cnt_obj.size(), 2);
 }
 
-TEST (JSONObjectTest, Erase) {
+TEST(JSONObjectTest, Erase) {
   object_type obj;
 
   obj["0"].emplace_bool() = true;
-  obj["1"].emplace_uint64() = 10;
+  obj["0123456789"].emplace_uint64() = 10;
   obj["2"].emplace_double() = 20.5;
 
   obj.erase("0");
   GTEST_ASSERT_FALSE(obj.contains("0"));
   GTEST_ASSERT_EQ(obj.size(), 2);
 
-  auto itr = obj.find("1");
+  auto itr = obj.find("0123456789");
   GTEST_ASSERT_EQ(obj.erase(itr)->key(), "2");
-  GTEST_ASSERT_FALSE(obj.contains("1"));
+  GTEST_ASSERT_FALSE(obj.contains("0123456789"));
   GTEST_ASSERT_EQ(obj.size(), 1);
 
-  const auto& const_ref = obj;
+  const auto &const_ref = obj;
   auto const_itr = const_ref.find("2");
   auto next_pos = obj.erase(const_itr);
   GTEST_ASSERT_EQ(next_pos, obj.end());
@@ -161,10 +161,10 @@ TEST (JSONObjectTest, Erase) {
   GTEST_ASSERT_EQ(obj.size(), 0);
 }
 
-TEST (JSONObjectTest, Equal) {
+TEST(JSONObjectTest, Equal) {
   object_type obj;
   obj["0"].emplace_bool() = true;
-  obj["1"].emplace_uint64() = 10;
+  obj["0123456789"].emplace_uint64() = 10;
   auto obj_cpy(obj);
   GTEST_ASSERT_TRUE(obj == obj_cpy);
   GTEST_ASSERT_FALSE(obj != obj_cpy);
@@ -173,4 +173,4 @@ TEST (JSONObjectTest, Equal) {
   GTEST_ASSERT_FALSE(obj == obj_cpy);
   GTEST_ASSERT_TRUE(obj != obj_cpy);
 }
-}
+}  // namespace

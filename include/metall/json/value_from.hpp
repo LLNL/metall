@@ -1,23 +1,23 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_VALUE_FROM_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_VALUE_FROM_HPP
+#ifndef METALL_JSON_VALUE_FROM_HPP
+#define METALL_JSON_VALUE_FROM_HPP
 
-#include <boost/json/src.hpp>
+#include <metall/json/json_fwd.hpp>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
-
-namespace metall::container::experimental::json::jsndtl {
+namespace metall::json::jsndtl {
 
 namespace {
 namespace bj = boost::json;
 }
 
 template <typename allocator_type>
-inline value<allocator_type> value_from_impl(const bj::value &input_bj_value, allocator_type allocator = allocator_type()) {
+inline value<allocator_type> value_from_impl(
+    const bj::value &input_bj_value,
+    allocator_type allocator = allocator_type()) {
   value<allocator_type> out_value(allocator);
 
   if (input_bj_value.is_null()) {
@@ -49,14 +49,15 @@ inline value<allocator_type> value_from_impl(const bj::value &input_bj_value, al
 }
 
 template <typename allocator_type>
-inline value<allocator_type> value_from_impl(bj::value &&input_bj_value, allocator_type allocator = allocator_type()) {
+inline value<allocator_type> value_from_impl(
+    bj::value &&input_bj_value, allocator_type allocator = allocator_type()) {
   bj::value tmp_input_bj_value(std::move(input_bj_value));
   return value_from_impl(tmp_input_bj_value, allocator);
 }
 
-} // namespace metall::container::experimental::json::jsndtl
+}  // namespace metall::json::jsndtl
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 /// \brief Convert an input data and construct a JSON value.
 /// \tparam T The type of an input data.
@@ -64,11 +65,19 @@ namespace metall::container::experimental::json {
 /// \param input_data Input data.
 /// \param allocator An allocator object.
 /// \return Returns a constructed JSON value.
+#ifdef DOXYGEN_SKIP
 template <typename T, typename allocator_type = std::allocator<std::byte>>
-value<allocator_type> value_from(T &&input_data, const allocator_type& allocator) {
+inline value<allocator_type> value_from(
+    T &&input_data, const allocator_type &allocator = allocator_type())
+#else
+template <typename T, typename allocator_type>
+inline value<allocator_type> value_from(T &&input_data,
+                                        const allocator_type &allocator)
+#endif
+{
   return jsndtl::value_from_impl(std::forward<T>(input_data), allocator);
 }
 
-}
+}  // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_VALUE_FROM_HPP
+#endif  // METALL_JSON_VALUE_FROM_HPP

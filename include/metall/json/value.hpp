@@ -1,10 +1,10 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
+#ifndef METALL_JSON_VALUE_HPP
+#define METALL_JSON_VALUE_HPP
 
 #include <memory>
 #include <utility>
@@ -12,9 +12,9 @@
 #include <variant>
 #include <type_traits>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace mc = metall::container;
@@ -22,9 +22,11 @@ namespace mc = metall::container;
 
 namespace jsndtl {
 
-/// \brief Provides 'equal' calculation for other value types that have the same interface as the value class.
+/// \brief Provides 'equal' calculation for other value types that have the same
+/// interface as the value class.
 template <typename allocator_type, typename other_value_type>
-inline bool general_value_equal(const value<allocator_type> &value, const other_value_type &other_value) noexcept {
+inline bool general_value_equal(const value<allocator_type> &value,
+                                const other_value_type &other_value) noexcept {
   if (other_value.is_null()) {
     return value.is_null();
   } else if (other_value.is_bool()) {
@@ -34,8 +36,10 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
       return value.as_int64() == other_value.as_int64();
     }
     if (value.is_uint64()) {
-      return (other_value.as_int64() < 0) ? false : value.as_uint64()
-          == static_cast<std::uint64_t>(other_value.as_int64());
+      return (other_value.as_int64() < 0)
+                 ? false
+                 : value.as_uint64() ==
+                       static_cast<std::uint64_t>(other_value.as_int64());
     }
     return false;
   } else if (other_value.is_uint64()) {
@@ -43,7 +47,10 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
       return value.as_uint64() == other_value.as_uint64();
     }
     if (value.is_int64()) {
-      return (value.as_int64() < 0) ? false : static_cast<std::uint64_t>(value.as_int64()) == other_value.as_uint64();
+      return (value.as_int64() < 0)
+                 ? false
+                 : static_cast<std::uint64_t>(value.as_int64()) ==
+                       other_value.as_uint64();
     }
     return false;
   } else if (other_value.is_double()) {
@@ -62,53 +69,56 @@ inline bool general_value_equal(const value<allocator_type> &value, const other_
   assert(false);
   return false;
 }
-} // namespace metall::container::experimental::json::jsndtl
+}  // namespace jsndtl
 
 /// \brief JSON value.
-/// A container that holds a single bool, int64, uint64, double, JSON string, JSON array, or JSON object.
-template <typename _allocator_type = std::allocator<std::byte>>
+/// A container that holds a single bool, int64, uint64, double, JSON string,
+/// JSON array, or JSON object.
+#ifdef DOXYGEN_SKIP
+template <typename Alloc = std::allocator<std::byte>>
+#else
+template <typename Alloc>
+#endif
 class value {
  public:
-  using allocator_type = _allocator_type;
-  using string_type = string<char,
-                             std::char_traits<char>,
-                             typename std::allocator_traits<allocator_type>::template rebind_alloc<char>>;
-  using object_type = object<_allocator_type>;
-  using array_type = array<_allocator_type>;
+  using allocator_type = Alloc;
+  using string_type =
+      basic_string<char, std::char_traits<char>,
+                   typename std::allocator_traits<
+                       allocator_type>::template rebind_alloc<char>>;
+  using object_type = object<Alloc>;
+  using array_type = array<Alloc>;
 
  private:
-  using internal_data_type = std::variant<null_type, bool, std::int64_t, std::uint64_t, double,
-                                          object_type, array_type, string_type>;
+  using internal_data_type =
+      std::variant<null_type, bool, std::int64_t, std::uint64_t, double,
+                   object_type, array_type, string_type>;
 
  public:
-
   /// \brief Constructor.
-  value() {}
+  value() { priv_reset(); }
 
   /// \brief Constructor.
   /// \param alloc An allocator object.
-  explicit value(const allocator_type &alloc)
-      : m_allocator(alloc),
-        m_data(null_type()) {}
-
-  /// \brief Copy constructor
-  value(const value &other)
-      : m_allocator(std::allocator_traits<allocator_type>::select_on_container_copy_construction(other.get_allocator())),
-        m_data(other.m_data) {}
-
-  ~value() noexcept {
+  explicit value(const allocator_type &alloc) : m_allocator(alloc) {
     priv_reset();
   }
 
+  /// \brief Copy constructor
+  value(const value &other)
+      : m_allocator(
+            std::allocator_traits<allocator_type>::
+                select_on_container_copy_construction(other.get_allocator())),
+        m_data(other.m_data) {}
+
   /// \brief Allocator-extended copy constructor
-  value(const value &other, const allocator_type &alloc)
-      : m_allocator(alloc) {
+  value(const value &other, const allocator_type &alloc) : m_allocator(alloc) {
     if (other.is_object()) {
-      emplace_object() = other.as_object();
+      m_data.template emplace<object_type>(other.as_object(), m_allocator);
     } else if (other.is_array()) {
-      emplace_array() = other.as_array();
+      m_data.template emplace<array_type>(other.as_array(), m_allocator);
     } else if (other.is_string()) {
-      emplace_string() = other.as_string();
+      m_data.template emplace<string_type>(other.as_string(), m_allocator);
     } else {
       m_data = other.m_data;
     }
@@ -125,27 +135,37 @@ class value {
   value(value &&other, const allocator_type &alloc) noexcept
       : m_allocator(alloc) {
     if (other.is_object()) {
-      emplace_object() = std::move(other.as_object());
+      m_data.template emplace<object_type>(std::move(other.as_object()),
+                                           m_allocator);
     } else if (other.is_array()) {
-      emplace_array() = std::move(other.as_array());
+      m_data.template emplace<array_type>(std::move(other.as_array()),
+                                          m_allocator);
     } else if (other.is_string()) {
-      emplace_string() = std::move(other.as_string());
+      m_data.template emplace<string_type>(std::move(other.as_string()),
+                                           m_allocator);
     } else {
       m_data = std::move(other.m_data);
     }
     other.priv_reset();
   }
 
+  /// \brief Destructor
+  ~value() noexcept { priv_reset(); }
+
   /// \brief Copy assignment operator
   value &operator=(const value &other) {
-    if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment,
-                                 std::true_type>) {
+    if (this == &other) return *this;
+
+    if constexpr (std::is_same_v<
+                      typename std::allocator_traits<allocator_type>::
+                          propagate_on_container_copy_assignment,
+                      std::true_type>) {
       m_allocator = other.m_allocator;
     }
 
     // Cannot do `m_data = other.m_data`
-    // because std::variant calls the allocator-extended copy constructor of the holding data,
-    // which ignores propagate_on_container_copy_assignment value.
+    // because std::variant calls the allocator-extended copy constructor of the
+    // holding data, which ignores propagate_on_container_copy_assignment value.
     if (other.is_object()) {
       emplace_object() = other.as_object();
     } else if (other.is_array()) {
@@ -161,8 +181,12 @@ class value {
 
   /// \brief Move assignment operator
   value &operator=(value &&other) noexcept {
-    if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_move_assignment,
-                                 std::true_type>) {
+    if (this == &other) return *this;
+
+    if constexpr (std::is_same_v<
+                      typename std::allocator_traits<allocator_type>::
+                          propagate_on_container_move_assignment,
+                      std::true_type>) {
       m_allocator = std::move(other.m_allocator);
     }
 
@@ -184,8 +208,10 @@ class value {
   /// \brief Swap contents.
   void swap(value &other) noexcept {
     using std::swap;
-    if constexpr (std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_swap,
-                                 std::true_type>) {
+    if constexpr (std::is_same_v<
+                      typename std::allocator_traits<
+                          allocator_type>::propagate_on_container_swap,
+                      std::true_type>) {
       swap(m_allocator, other.m_allocator);
     } else {
       // This is an undefined behavior in the C++ standard.
@@ -216,9 +242,7 @@ class value {
 
   /// \brief Assign an int value.
   /// Allocates a memory storage or destroy the old content, if necessary.
-  value &operator=(const int i) {
-    return operator=(static_cast<long long>(i));
-  }
+  value &operator=(const int i) { return operator=(static_cast<long long>(i)); }
 
   /// \brief Assign a long value.
   /// Allocates a memory storage or destroy the old content, if necessary.
@@ -338,9 +362,7 @@ class value {
 
   /// \brief Set a null.
   /// The old content is destroyed.
-  void emplace_null() {
-    priv_reset();
-  }
+  void emplace_null() { priv_reset(); }
 
   /// \brief Set a bool and return a reference.
   /// The old content is destroyed.
@@ -392,74 +414,59 @@ class value {
   }
 
   /// \brief Return a reference to the underlying bool, or throw an exception.
-  bool &as_bool() {
-    return std::get<bool>(m_data);
-  }
+  bool &as_bool() { return std::get<bool>(m_data); }
 
-  /// \brief Return a const reference to the underlying bool, or throw an exception.
-  const bool &as_bool() const {
-    return std::get<bool>(m_data);
-  }
+  /// \brief Return a const reference to the underlying bool, or throw an
+  /// exception.
+  const bool &as_bool() const { return std::get<bool>(m_data); }
 
-  /// \brief Return a reference to the underlying std::int64_t, or throw an exception.
-  std::int64_t &as_int64() {
-    return std::get<std::int64_t>(m_data);
-  }
+  /// \brief Return a reference to the underlying std::int64_t, or throw an
+  /// exception.
+  std::int64_t &as_int64() { return std::get<std::int64_t>(m_data); }
 
-  /// \brief Return a const reference to the underlying std::int64_t, or throw an exception.
+  /// \brief Return a const reference to the underlying std::int64_t, or throw
+  /// an exception.
   const std::int64_t &as_int64() const {
     return std::get<std::int64_t>(m_data);
   }
 
-  /// \brief Return a reference to the underlying std::uint64_t, or throw an exception.
-  std::uint64_t &as_uint64() {
-    return std::get<std::uint64_t>(m_data);
-  }
+  /// \brief Return a reference to the underlying std::uint64_t, or throw an
+  /// exception.
+  std::uint64_t &as_uint64() { return std::get<std::uint64_t>(m_data); }
 
-  /// \brief Return a const reference to the underlying std::uint64_t, or throw an exception.
+  /// \brief Return a const reference to the underlying std::uint64_t, or throw
+  /// an exception.
   const std::uint64_t &as_uint64() const {
     return std::get<std::uint64_t>(m_data);
   }
 
   /// \brief Return a reference to the underlying double, or throw an exception.
-  double &as_double() {
-    return std::get<double>(m_data);
-  }
+  double &as_double() { return std::get<double>(m_data); }
 
-  /// \brief Return a const reference to the underlying double, or throw an exception.
-  const double &as_double() const {
-    return std::get<double>(m_data);
-  }
+  /// \brief Return a const reference to the underlying double, or throw an
+  /// exception.
+  const double &as_double() const { return std::get<double>(m_data); }
 
   /// \brief Return a reference to the underlying string, or throw an exception.
-  string_type &as_string() {
-    return std::get<string_type>(m_data);
-  }
+  string_type &as_string() { return std::get<string_type>(m_data); }
 
-  /// \brief Return a const reference to the underlying string, or throw an exception.
-  const string_type &as_string() const {
-    return std::get<string_type>(m_data);
-  }
+  /// \brief Return a const reference to the underlying string, or throw an
+  /// exception.
+  const string_type &as_string() const { return std::get<string_type>(m_data); }
 
   /// \brief Return a reference to the underlying array, or throw an exception.
-  array_type &as_array() {
-    return std::get<array_type>(m_data);
-  }
+  array_type &as_array() { return std::get<array_type>(m_data); }
 
-  /// \brief Return a const reference to the underlying array, or throw an exception.
-  const array_type &as_array() const {
-    return std::get<array_type>(m_data);
-  }
+  /// \brief Return a const reference to the underlying array, or throw an
+  /// exception.
+  const array_type &as_array() const { return std::get<array_type>(m_data); }
 
   /// \brief Return a reference to the underlying object, or throw an exception.
-  object_type &as_object() {
-    return std::get<object_type>(m_data);
-  }
+  object_type &as_object() { return std::get<object_type>(m_data); }
 
-  /// \brief Return a const reference to the underlying object, or throw an exception.
-  const object_type &as_object() const {
-    return std::get<object_type>(m_data);
-  }
+  /// \brief Return a const reference to the underlying object, or throw an
+  /// exception.
+  const object_type &as_object() const { return std::get<object_type>(m_data); }
 
   /// \brief Return true if this is a null.
   bool is_null() const noexcept {
@@ -467,9 +474,7 @@ class value {
   }
 
   /// \brief Return true if this is a bool.
-  bool is_bool() const noexcept {
-    return std::holds_alternative<bool>(m_data);
-  }
+  bool is_bool() const noexcept { return std::holds_alternative<bool>(m_data); }
 
   /// \brief Return true if this is a int64.
   bool is_int64() const noexcept {
@@ -502,13 +507,12 @@ class value {
   }
 
   /// \brief Return an allocator object.
-  allocator_type get_allocator() const noexcept {
-    return m_allocator;
-  }
+  allocator_type get_allocator() const noexcept { return m_allocator; }
 
   /// \brief Equal operator.
   friend bool operator==(const value &lhs, const value &rhs) noexcept {
-    return jsndtl::general_value_equal(lhs, rhs);;
+    return jsndtl::general_value_equal(lhs, rhs);
+    ;
   }
 
   /// \brief Return `true` if two values are not equal.
@@ -521,7 +525,6 @@ class value {
   }
 
  private:
-
   bool priv_reset() {
     m_data.template emplace<null_type>();
     return true;
@@ -533,10 +536,11 @@ class value {
 
 /// \brief Swap value instances.
 template <typename allocator_type>
-inline void swap(value<allocator_type> &lhd, value<allocator_type> &rhd) noexcept {
+inline void swap(value<allocator_type> &lhd,
+                 value<allocator_type> &rhd) noexcept {
   lhd.swap(rhd);
 }
 
-} // namespace metall::container::experimental::json
+}  // namespace metall::json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_VALUE_HPP
+#endif  // METALL_JSON_VALUE_HPP

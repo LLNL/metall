@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -31,10 +31,12 @@ struct open_read_only_t {};
 [[maybe_unused]] static const open_read_only_t open_read_only{};
 
 /// \brief Tag to construct anonymous instances.
-[[maybe_unused]] static const mtlldetail::anonymous_instance_t *anonymous_instance = nullptr;
+[[maybe_unused]] static const mtlldetail::anonymous_instance_t
+    *anonymous_instance = nullptr;
 
 /// \brief Tag to construct a unique instance of a type
-[[maybe_unused]] static const mtlldetail::unique_instance_t *unique_instance = nullptr;
-}
+[[maybe_unused]] static const mtlldetail::unique_instance_t *unique_instance =
+    nullptr;
+}  // namespace metall
 
-#endif //METALL_TAGS_HPP
+#endif  // METALL_TAGS_HPP

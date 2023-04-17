@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -10,7 +10,6 @@
 #include <metall/logger.hpp>
 
 int main(int argc, char *argv[]) {
-
 #ifdef _FILE_OFFSET_BITS
   std::cout << "_FILE_OFFSET_BITS = " << _FILE_OFFSET_BITS << std::endl;
 #else
@@ -27,9 +26,11 @@ int main(int argc, char *argv[]) {
   std::string file_name = argv[1];
   ssize_t size = std::stoull(argv[2]);
 
-  const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  const int fd =
+      ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
-    metall::logger::perror(metall::logger::level::critical, __FILE__, __LINE__, "open");
+    metall::logger::perror(metall::logger::level::critical, __FILE__, __LINE__,
+                           "open");
     std::abort();
   }
 
@@ -44,12 +45,14 @@ int main(int argc, char *argv[]) {
   } else {
     std::cerr << "Requested write size " << size << std::endl;
     std::cerr << "Actually written size " << written_size << std::endl;
-    metall::logger::perror(metall::logger::level::critical, __FILE__, __LINE__, "write");
+    metall::logger::perror(metall::logger::level::critical, __FILE__, __LINE__,
+                           "write");
     std::abort();
   }
 
   if (::close(fd) == -1) {
-    metall::logger::perror(metall::logger::level::critical, __FILE__, __LINE__, "close");
+    metall::logger::perror(metall::logger::level::critical, __FILE__, __LINE__,
+                           "close");
     std::abort();
   }
 

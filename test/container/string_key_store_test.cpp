@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -17,8 +17,9 @@ namespace {
 
 namespace bip = boost::interprocess;
 
-TEST (StringKeyStoreTest, DuplicateInsert) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, DuplicateInsert) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
 
   ASSERT_FALSE(store.unique());
   ASSERT_EQ(store.count("a"), 0);
@@ -46,8 +47,9 @@ TEST (StringKeyStoreTest, DuplicateInsert) {
   ASSERT_EQ(store.size(), 5);
 }
 
-TEST (StringKeyStoreTest, UniqueInsert) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, UniqueInsert) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
 
   ASSERT_TRUE(store.unique());
   ASSERT_EQ(store.count("a"), 0);
@@ -75,8 +77,9 @@ TEST (StringKeyStoreTest, UniqueInsert) {
   ASSERT_EQ(store.size(), 2);
 }
 
-TEST (StringKeyStoreTest, CopyConstructorDuplicate) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, CopyConstructorDuplicate) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -99,8 +102,9 @@ TEST (StringKeyStoreTest, CopyConstructorDuplicate) {
   ASSERT_EQ(store_copy.size(), 4);
 }
 
-TEST (StringKeyStoreTest, CopyConstructorUnique) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, CopyConstructorUnique) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -122,8 +126,9 @@ TEST (StringKeyStoreTest, CopyConstructorUnique) {
   ASSERT_EQ(store_copy.size(), 2);
 }
 
-TEST (StringKeyStoreTest, CopyAsignmentDuplicate) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, CopyAsignmentDuplicate) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -146,8 +151,9 @@ TEST (StringKeyStoreTest, CopyAsignmentDuplicate) {
   ASSERT_EQ(store_copy.size(), 4);
 }
 
-TEST (StringKeyStoreTest, CopyAsignmentUnique) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, CopyAsignmentUnique) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -169,8 +175,9 @@ TEST (StringKeyStoreTest, CopyAsignmentUnique) {
   ASSERT_EQ(store_copy.size(), 2);
 }
 
-TEST (StringKeyStoreTest, MoveConstructorDuplicate) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, MoveConstructorDuplicate) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -185,8 +192,9 @@ TEST (StringKeyStoreTest, MoveConstructorDuplicate) {
   ASSERT_EQ(store_copy.size(), 4);
 }
 
-TEST (StringKeyStoreTest, MoveConstructorUnique) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, MoveConstructorUnique) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -200,8 +208,9 @@ TEST (StringKeyStoreTest, MoveConstructorUnique) {
   ASSERT_EQ(store_copy.size(), 2);
 }
 
-TEST (StringKeyStoreTest, MoveAsignmentDuplicate) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, MoveAsignmentDuplicate) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
   store.insert("a");
   store.insert("b");
   store.insert("b");
@@ -216,8 +225,9 @@ TEST (StringKeyStoreTest, MoveAsignmentDuplicate) {
   ASSERT_EQ(store_copy.size(), 4);
 }
 
-TEST (StringKeyStoreTest, MoveAsignmentUnique) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, MoveAsignmentUnique) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   store.insert("a");
   store.insert("b");
 
@@ -231,16 +241,18 @@ TEST (StringKeyStoreTest, MoveAsignmentUnique) {
   ASSERT_EQ(store_copy.size(), 2);
 }
 
-TEST (StringKeyStoreTest, Clear) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, Clear) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   store.insert("a");
   store.insert("b", "0");
   store.clear();
   ASSERT_EQ(store.size(), 0);
 }
 
-TEST (StringKeyStoreTest, EraseMultipleWithKey) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, EraseMultipleWithKey) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
   ASSERT_EQ(store.erase("a"), 0);
   store.insert("a");
   store.insert("b");
@@ -252,8 +264,9 @@ TEST (StringKeyStoreTest, EraseMultipleWithKey) {
   ASSERT_EQ(store.erase("b"), 0);
 }
 
-TEST (StringKeyStoreTest, EraseSingleWithKey) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, EraseSingleWithKey) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   ASSERT_EQ(store.erase("a"), 0);
   store.insert("a");
   store.insert("b");
@@ -265,8 +278,9 @@ TEST (StringKeyStoreTest, EraseSingleWithKey) {
   ASSERT_EQ(store.erase("b"), 0);
 }
 
-TEST (StringKeyStoreTest, EraseMultipleWithLocator) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, EraseMultipleWithLocator) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
   ASSERT_EQ(store.erase(store.find("a")), store.end());
   store.insert("a");
   store.insert("b");
@@ -279,8 +293,9 @@ TEST (StringKeyStoreTest, EraseMultipleWithLocator) {
   ASSERT_EQ(itr = store.erase(itr), store.end());
 }
 
-TEST (StringKeyStoreTest, EraseSingleWithLocator) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, EraseSingleWithLocator) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   ASSERT_EQ(store.erase(store.find("a")), store.end());
   store.insert("a");
   store.insert("b");
@@ -292,8 +307,9 @@ TEST (StringKeyStoreTest, EraseSingleWithLocator) {
   ASSERT_EQ(itr = store.erase(itr), store.end());
 }
 
-TEST (StringKeyStoreTest, LocatorDuplicate) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(false, 111);
+TEST(StringKeyStoreTest, LocatorDuplicate) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(false, 111);
   ASSERT_EQ(store.begin(), store.end());
   ASSERT_EQ(store.find("a"), store.end());
   ASSERT_EQ(store.equal_range("a").first, store.end());
@@ -340,8 +356,10 @@ TEST (StringKeyStoreTest, LocatorDuplicate) {
     std::size_t b_with_value_count = 0;
     for (auto locator = store.begin(); locator != store.end(); ++locator) {
       a_count += store.key(locator) == "a" && store.value(locator).empty();
-      b_default_value_count += store.key(locator) == "b" && store.value(locator).empty();
-      b_with_value_count += store.key(locator) == "b" && store.value(locator) == "0";
+      b_default_value_count +=
+          store.key(locator) == "b" && store.value(locator).empty();
+      b_with_value_count +=
+          store.key(locator) == "b" && store.value(locator) == "0";
       ++count;
     }
     ASSERT_EQ(count, 3);
@@ -351,8 +369,9 @@ TEST (StringKeyStoreTest, LocatorDuplicate) {
   }
 }
 
-TEST (StringKeyStoreTest, LocatorUnique) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store(true, 111);
+TEST(StringKeyStoreTest, LocatorUnique) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store(true, 111);
   ASSERT_EQ(store.begin(), store.end());
   ASSERT_EQ(store.find("a"), store.end());
   ASSERT_EQ(store.equal_range("a").first, store.end());
@@ -399,8 +418,10 @@ TEST (StringKeyStoreTest, LocatorUnique) {
     std::size_t b_with_value_count = 0;
     for (auto locator = store.begin(); locator != store.end(); ++locator) {
       a_count += store.key(locator) == "a" && store.value(locator).empty();
-      b_default_value_count += store.key(locator) == "b" && store.value(locator).empty();
-      b_with_value_count += store.key(locator) == "b" && store.value(locator) == "0";
+      b_default_value_count +=
+          store.key(locator) == "b" && store.value(locator).empty();
+      b_with_value_count +=
+          store.key(locator) == "b" && store.value(locator) == "0";
       ++count;
     }
     ASSERT_EQ(count, 2);
@@ -410,7 +431,7 @@ TEST (StringKeyStoreTest, LocatorUnique) {
   }
 }
 
-TEST (StringKeyStoreTest, MaxProbeDistance) {
+TEST(StringKeyStoreTest, MaxProbeDistance) {
   metall::container::string_key_store<int, std::allocator<std::byte>> store;
   ASSERT_EQ(store.max_id_probe_distance(), 0);
   store.insert("a");
@@ -419,8 +440,9 @@ TEST (StringKeyStoreTest, MaxProbeDistance) {
   ASSERT_LE(store.max_id_probe_distance(), 1);
 }
 
-TEST (StringKeyStoreTest, Rehash) {
-  metall::container::string_key_store<std::string, std::allocator<std::byte>> store;
+TEST(StringKeyStoreTest, Rehash) {
+  metall::container::string_key_store<std::string, std::allocator<std::byte>>
+      store;
   store.insert("a", "0");
   store.insert("b", "1");
   store.insert("c", "2");
@@ -434,19 +456,22 @@ TEST (StringKeyStoreTest, Rehash) {
   ASSERT_EQ(store.value(store.find("c")), "2");
 }
 
-TEST (StringKeyStoreTest, Persistence) {
-  using value_type = boost::container::vector<int, bip::allocator<int, bip::managed_mapped_file::segment_manager>>;
-  using store_type = metall::container::string_key_store<value_type,
-                                                         bip::allocator<std::byte,
-                                                                        bip::managed_mapped_file::segment_manager>>;
+TEST(StringKeyStoreTest, Persistence) {
+  using value_type = boost::container::vector<
+      int, bip::allocator<int, bip::managed_mapped_file::segment_manager>>;
+  using store_type = metall::container::string_key_store<
+      value_type,
+      bip::allocator<std::byte, bip::managed_mapped_file::segment_manager>>;
   const std::string file_path(test_utility::make_test_path());
   test_utility::create_test_dir();
   metall::mtlldetail::remove_file(file_path);
 
   // Create
   {
-    bip::managed_mapped_file mfile(bip::create_only, file_path.c_str(), 1 << 20);
-    auto *store = mfile.construct<store_type>(bip::unique_instance)(true, 111, mfile.get_allocator<std::byte>());
+    bip::managed_mapped_file mfile(bip::create_only, file_path.c_str(),
+                                   1 << 20);
+    auto *store = mfile.construct<store_type>(bip::unique_instance)(
+        true, 111, mfile.get_allocator<std::byte>());
     store->insert("a");
     store->value(store->find("a")).push_back(10);
   }
@@ -476,4 +501,4 @@ TEST (StringKeyStoreTest, Persistence) {
   }
 }
 
-}
+}  // namespace

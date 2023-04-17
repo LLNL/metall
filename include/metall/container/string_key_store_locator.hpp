@@ -1,5 +1,5 @@
-// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2022 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,9 +15,7 @@ class string_key_store_locator {
   friend class string_key_store;
 
  public:
-
-  string_key_store_locator(iterator_type iterator)
-      : m_iterator(iterator) {}
+  string_key_store_locator(iterator_type iterator) : m_iterator(iterator) {}
 
   string_key_store_locator &operator++() {
     ++m_iterator;
@@ -42,6 +40,6 @@ class string_key_store_locator {
   iterator_type m_iterator;
 };
 
-} // namespace metall::container
+}  // namespace metall::container
 
-#endif //METALL_CONTAINER_CONCURRENT__STRING_KEY_STORE_LOCATOR_HPP_
+#endif  // METALL_CONTAINER_CONCURRENT__STRING_KEY_STORE_LOCATOR_HPP_

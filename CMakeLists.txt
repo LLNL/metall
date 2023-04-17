@@ -17,7 +17,7 @@ endif()
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.24
+        VERSION 0.25
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 
@@ -210,7 +210,6 @@ if (USE_ANONYMOUS_NEW_MAP)
     list(APPEND METALL_DEFS "METALL_USE_ANONYMOUS_NEW_MAP")
     message(STATUS "Use the anonymous map for new map region")
 endif ()
-
 
 # Requirements for GCC
 if (NOT RUN_BUILD_AND_TEST_WITH_CI)

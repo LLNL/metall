@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -24,20 +24,18 @@ int main() {
   }
 
   // Set and get object attributes via object attribute accessor object
-  // Using object attribute accessor, one can access object attribute without allocating a metall::manager object
-  // (i.e., w/o memory mapping files).
+  // Using object attribute accessor, one can access object attribute without
+  // allocating a metall::manager object (i.e., w/o memory mapping files).
   {
     auto accessor = metall::manager::access_named_object_attribute("/tmp/dir");
     for (const auto &object : accessor) {
-      std::cout << "Name: " << object.name()
-                << ", Length: " << object.length()
+      std::cout << "Name: " << object.name() << ", Length: " << object.length()
                 << ", Description: " << object.description() << std::endl;
     }
 
     auto itr = accessor.find("obj");
     accessor.set_description(itr, "description example 2");
-    std::cout << "Name: " << itr->name()
-              << ", Length: " << itr->length()
+    std::cout << "Name: " << itr->name() << ", Length: " << itr->length()
               << ", Description: " << itr->description() << std::endl;
   }
 

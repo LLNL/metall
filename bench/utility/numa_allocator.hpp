@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,25 +13,24 @@ namespace bench_utility::numa {
 
 template <typename T>
 class numa_allocator {
-
  public:
-  // -------------------- Types -------------------- //
+  // ---------- Types ---------- //
   using value_type = T;
   using pointer = T *;
   using size_type = std::size_t;
 
-  // -------------------- Constructor -------------------- //
+  // ---------- Constructor ---------- //
   numa_allocator() = default;
 
   /// \brief Construct a new instance using an instance that has a different T
   template <typename T2>
-  numa_allocator(const numa_allocator<T2> &) {};
+  numa_allocator(const numa_allocator<T2> &){};
 
-  // -------------------- Copy and move constructor -------------------- //
+  // ---------- Copy and move constructor ---------- //
   numa_allocator(const numa_allocator &other) = default;
   numa_allocator(numa_allocator &&other) noexcept = default;
 
-  // -------------------- Copy and move assignments -------------------- //
+  // ---------- Copy and move assignments ---------- //
   numa_allocator &operator=(const numa_allocator &) = default;
   numa_allocator &operator=(numa_allocator &&other) noexcept = default;
 
@@ -41,7 +40,8 @@ class numa_allocator {
   }
 
   template <typename T2>
-  numa_allocator &operator=([[maybe_unused]] numa_allocator<T2> &&other) noexcept {
+  numa_allocator &operator=(
+      [[maybe_unused]] numa_allocator<T2> &&other) noexcept {
     return *this;
   }
 
@@ -75,8 +75,8 @@ class numa_allocator {
   /// \param ptr A pointer to allocated storage
   /// \param args The constructor arguments to use
   template <class... Args>
-  void construct(const pointer &ptr, Args &&... args) const {
-    ::new((void *)(ptr)) value_type(std::forward<Args>(args)...);
+  void construct(const pointer &ptr, Args &&...args) const {
+    ::new ((void *)(ptr)) value_type(std::forward<Args>(args)...);
   }
 
   /// \brief Deconstruct an object of T
@@ -98,13 +98,12 @@ class numa_allocator {
     return std::true_type();
   }
 
-  bool propagate_on_container_swap() const noexcept {
-    return std::true_type();
-  }
+  bool propagate_on_container_swap() const noexcept { return std::true_type(); }
 };
 
 template <typename T>
-bool operator==([[maybe_unused]] const numa_allocator<T> &rhd, [[maybe_unused]] const numa_allocator<T> &lhd) {
+bool operator==([[maybe_unused]] const numa_allocator<T> &rhd,
+                [[maybe_unused]] const numa_allocator<T> &lhd) {
   return true;
 }
 
@@ -113,5 +112,5 @@ bool operator!=(const numa_allocator<T> &rhd, const numa_allocator<T> &lhd) {
   return !(rhd == lhd);
 }
 
-} // namespace bench_utility::numa
-#endif //METALL_UTILITY_NUMA_ALLOCATOR_HPP
+}  // namespace bench_utility::numa
+#endif  // METALL_UTILITY_NUMA_ALLOCATOR_HPP

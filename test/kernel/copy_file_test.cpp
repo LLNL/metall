@@ -1,8 +1,7 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
-
 
 #include "gtest/gtest.h"
 
@@ -46,7 +45,8 @@ TEST(CopyFileTest, SyncCopy) {
 
   create(original_dir_path());
 
-  ASSERT_TRUE(metall::manager::copy(original_dir_path().c_str(), copy_dir_path().c_str()));
+  ASSERT_TRUE(metall::manager::copy(original_dir_path().c_str(),
+                                    copy_dir_path().c_str()));
 
   open(copy_dir_path());
 }
@@ -57,9 +57,10 @@ TEST(CopyFileTest, AsyncCopy) {
 
   create(original_dir_path());
 
-  auto handler = metall::manager::copy_async(original_dir_path().c_str(), copy_dir_path().c_str());
+  auto handler = metall::manager::copy_async(original_dir_path().c_str(),
+                                             copy_dir_path().c_str());
   ASSERT_TRUE(handler.get());
 
   open(copy_dir_path());
 }
-}
+}  // namespace

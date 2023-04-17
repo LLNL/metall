@@ -1,8 +1,7 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
-
 
 #include "gtest/gtest.h"
 
@@ -15,22 +14,26 @@ namespace {
 using namespace metall;
 
 auto attr_accessor_named() {
-  return manager::access_named_object_attribute(test_utility::make_test_path().c_str());
+  return manager::access_named_object_attribute(
+      test_utility::make_test_path().c_str());
 }
 
 auto attr_accessor_unique() {
-  return manager::access_unique_object_attribute(test_utility::make_test_path().c_str());
+  return manager::access_unique_object_attribute(
+      test_utility::make_test_path().c_str());
 }
 
 auto attr_accessor_anonymous() {
-  return manager::access_anonymous_object_attribute(test_utility::make_test_path().c_str());
+  return manager::access_anonymous_object_attribute(
+      test_utility::make_test_path().c_str());
 }
 
 TEST(ObjectAttributeAccessorTest, Constructor) {
   manager::remove(test_utility::make_test_path().c_str());
 
   {
-    manager mngr(create_only, test_utility::make_test_path().c_str(), 1ULL << 30ULL);
+    manager mngr(create_only, test_utility::make_test_path().c_str(),
+                 1ULL << 30ULL);
   }
 
   ASSERT_TRUE(attr_accessor_named().good());
@@ -42,7 +45,8 @@ TEST(ObjectAttributeAccessorTest, NumObjects) {
   manager::remove(test_utility::make_test_path().c_str());
 
   {
-    manager mngr(create_only, test_utility::make_test_path().c_str(), 1ULL << 30ULL);
+    manager mngr(create_only, test_utility::make_test_path().c_str(),
+                 1ULL << 30ULL);
   }
 
   {
@@ -70,7 +74,8 @@ TEST(ObjectAttributeAccessorTest, Count) {
   manager::remove(test_utility::make_test_path().c_str());
 
   {
-    manager mngr(create_only, test_utility::make_test_path().c_str(), 1ULL << 30ULL);
+    manager mngr(create_only, test_utility::make_test_path().c_str(),
+                 1ULL << 30ULL);
   }
 
   {
@@ -86,7 +91,8 @@ TEST(ObjectAttributeAccessorTest, Count) {
 
   {
     GTEST_ASSERT_EQ(attr_accessor_named().count("int1"), 1);
-    GTEST_ASSERT_EQ(attr_accessor_unique().template count<float>(unique_instance), 1);
+    GTEST_ASSERT_EQ(
+        attr_accessor_unique().template count<float>(unique_instance), 1);
   }
 }
 
@@ -94,7 +100,8 @@ TEST(ObjectAttributeAccessorTest, Find) {
   manager::remove(test_utility::make_test_path().c_str());
 
   {
-    manager mngr(create_only, test_utility::make_test_path().c_str(), 1ULL << 30ULL);
+    manager mngr(create_only, test_utility::make_test_path().c_str(),
+                 1ULL << 30ULL);
   }
 
   {
@@ -113,7 +120,9 @@ TEST(ObjectAttributeAccessorTest, Find) {
 
   {
     GTEST_ASSERT_EQ(attr_accessor_named().find("int1")->name(), "int1");
-    GTEST_ASSERT_EQ(attr_accessor_unique().template find<float>(unique_instance)->name(), typeid(float).name());
+    GTEST_ASSERT_EQ(
+        attr_accessor_unique().template find<float>(unique_instance)->name(),
+        typeid(float).name());
   }
 }
 
@@ -121,7 +130,8 @@ TEST(ObjectAttributeAccessorTest, Iterator) {
   manager::remove(test_utility::make_test_path().c_str());
 
   {
-    manager mngr(create_only, test_utility::make_test_path().c_str(), 1ULL << 30ULL);
+    manager mngr(create_only, test_utility::make_test_path().c_str(),
+                 1ULL << 30ULL);
   }
 
   {
@@ -145,8 +155,12 @@ TEST(ObjectAttributeAccessorTest, Iterator) {
     mngr.construct<int>(unique_instance)();
     mngr.construct<float>(unique_instance)();
 
-    anony_off_obj1 = reinterpret_cast<char *>(mngr.construct<int>(anonymous_instance)()) - reinterpret_cast<const char*>(mngr.get_address());
-    anony_off_obj2 = reinterpret_cast<char *>(mngr.construct<float>(anonymous_instance)()) - reinterpret_cast<const char*>(mngr.get_address());
+    anony_off_obj1 =
+        reinterpret_cast<char *>(mngr.construct<int>(anonymous_instance)()) -
+        reinterpret_cast<const char *>(mngr.get_address());
+    anony_off_obj2 =
+        reinterpret_cast<char *>(mngr.construct<float>(anonymous_instance)()) -
+        reinterpret_cast<const char *>(mngr.get_address());
   }
 
   {
@@ -199,12 +213,14 @@ TEST(ObjectAttributeAccessorTest, Description) {
   manager::remove(test_utility::make_test_path().c_str());
 
   {
-    manager mngr(create_only, test_utility::make_test_path().c_str(), 1ULL << 30ULL);
+    manager mngr(create_only, test_utility::make_test_path().c_str(),
+                 1ULL << 30ULL);
   }
 
   {
     ASSERT_FALSE(attr_accessor_named().set_description("int1", "desc1"));
-    ASSERT_FALSE(attr_accessor_unique().set_description<float>(unique_instance, "desc2"));
+    ASSERT_FALSE(attr_accessor_unique().set_description<float>(unique_instance,
+                                                               "desc2"));
   }
 
   {
@@ -215,18 +231,21 @@ TEST(ObjectAttributeAccessorTest, Description) {
 
   {
     ASSERT_TRUE(attr_accessor_named().set_description("int1", "desc1"));
-    ASSERT_TRUE(attr_accessor_unique().set_description<float>(unique_instance, "desc2"));
+    ASSERT_TRUE(attr_accessor_unique().set_description<float>(unique_instance,
+                                                              "desc2"));
   }
 
   {
     manager mngr(open_only, test_utility::make_test_path().c_str());
     std::string buf1;
-    ASSERT_TRUE(mngr.get_instance_description(mngr.find<int>("int1").first, &buf1));
+    ASSERT_TRUE(
+        mngr.get_instance_description(mngr.find<int>("int1").first, &buf1));
     ASSERT_STREQ(buf1.c_str(), "desc1");
 
     std::string buf2;
-    ASSERT_TRUE(mngr.get_instance_description(mngr.find<float>(unique_instance).first, &buf2));
+    ASSERT_TRUE(mngr.get_instance_description(
+        mngr.find<float>(unique_instance).first, &buf2));
     ASSERT_STREQ(buf2.c_str(), "desc2");
   }
 }
-}
+}  // namespace

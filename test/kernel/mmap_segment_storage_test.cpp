@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -9,7 +9,8 @@
 #include "../test_utility.hpp"
 
 namespace {
-using segment_storage_type = metall::kernel::mmap_segment_storage<std::ptrdiff_t, std::size_t>;
+using segment_storage_type =
+    metall::kernel::mmap_segment_storage<std::ptrdiff_t, std::size_t>;
 
 const std::string &test_dir() {
   const static std::string path(test_utility::make_test_path());
@@ -39,11 +40,12 @@ TEST(MultifileSegmentStorageTest, Create) {
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
     ASSERT_TRUE(segment_storage.is_open());
     ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_NE(segment_storage.get_segment(), nullptr);
-    auto buf = static_cast<char*>(segment_storage.get_segment());
+    auto buf = static_cast<char *>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size / 2; ++i) {
       buf[i] = '1';
       ASSERT_EQ(buf[i], '1');
@@ -53,11 +55,12 @@ TEST(MultifileSegmentStorageTest, Create) {
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size * 2));
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size * 2));
     ASSERT_TRUE(segment_storage.is_open());
     ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_NE(segment_storage.get_segment(), nullptr);
-    auto buf = static_cast<char*>(segment_storage.get_segment());
+    auto buf = static_cast<char *>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
       buf[i] = '1';
       ASSERT_EQ(buf[i], '1');
@@ -66,7 +69,6 @@ TEST(MultifileSegmentStorageTest, Create) {
 
   ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
-
 
 TEST(MultifileSegmentStorageTest, GetSize) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
@@ -77,7 +79,8 @@ TEST(MultifileSegmentStorageTest, GetSize) {
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
     ASSERT_GE(segment_storage.size(), vm_size / 2);
     ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size / 2);
   }
@@ -86,7 +89,8 @@ TEST(MultifileSegmentStorageTest, GetSize) {
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size * 2));
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size * 2));
     ASSERT_GE(segment_storage.size(), vm_size);
     ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size);
   }
@@ -102,7 +106,8 @@ TEST(MultifileSegmentStorageTest, Extend) {
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
 
     // Has enough space already
     ASSERT_TRUE(segment_storage.extend(vm_size / 2));
@@ -113,7 +118,7 @@ TEST(MultifileSegmentStorageTest, Extend) {
     ASSERT_TRUE(segment_storage.extend(vm_size));
     ASSERT_GE(segment_storage.size(), vm_size);
     ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size);
-    auto buf = static_cast<char*>(segment_storage.get_segment());
+    auto buf = static_cast<char *>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
       buf[i] = '1';
       ASSERT_EQ(buf[i], '1');
@@ -130,7 +135,8 @@ TEST(MultifileSegmentStorageTest, Openable) {
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size));
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size));
   }
   ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 
@@ -146,8 +152,9 @@ TEST(MultifileSegmentStorageTest, Open) {
   {
     prepare_test_dir();
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size));
-    auto buf = static_cast<char*>(segment_storage.get_segment());
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size));
+    auto buf = static_cast<char *>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
       buf[i] = '1';
       ASSERT_EQ(buf[i], '1');
@@ -161,7 +168,7 @@ TEST(MultifileSegmentStorageTest, Open) {
     ASSERT_TRUE(segment_storage.is_open());
     ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_FALSE(segment_storage.read_only());
-    auto buf = static_cast<char*>(segment_storage.get_segment());
+    auto buf = static_cast<char *>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
       ASSERT_EQ(buf[i], '1');
       buf[i] = '2';
@@ -175,7 +182,7 @@ TEST(MultifileSegmentStorageTest, Open) {
     ASSERT_TRUE(segment_storage.is_open());
     ASSERT_TRUE(segment_storage.check_sanity());
     ASSERT_TRUE(segment_storage.read_only());
-    auto buf = static_cast<char*>(segment_storage.get_segment());
+    auto buf = static_cast<char *>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
       ASSERT_EQ(buf[i], '2');
     }
@@ -192,8 +199,9 @@ TEST(MultifileSegmentStorageTest, Sync) {
     prepare_test_dir();
 
     segment_storage_type segment_storage;
-    ASSERT_TRUE(segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
-    auto buf = static_cast<char*>(segment_storage.get_segment());
+    ASSERT_TRUE(
+        segment_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    auto buf = static_cast<char *>(segment_storage.get_segment());
     for (std::size_t i = 0; i < vm_size / 2; ++i) {
       buf[i] = '1';
       ASSERT_EQ(buf[i], '1');
@@ -217,4 +225,4 @@ TEST(MultifileSegmentStorageTest, Sync) {
 
   ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
-}
+}  // namespace

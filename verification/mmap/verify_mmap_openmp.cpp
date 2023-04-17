@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -23,9 +23,11 @@
 #include <cassert>
 #include <random>
 
-void *map_file_write_mode(const std::string &file_name, const std::size_t size) {
+void *map_file_write_mode(const std::string &file_name,
+                          const std::size_t size) {
   // Create a file
-  const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  const int fd =
+      ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     ::perror("open");
     std::cerr << "errno: " << errno << std::endl;
@@ -40,7 +42,8 @@ void *map_file_write_mode(const std::string &file_name, const std::size_t size) 
   }
 
   // Map the file
-  void *mapped_addr = ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  void *mapped_addr =
+      ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (mapped_addr == MAP_FAILED) {
     ::perror("mmap");
     std::cerr << "errno: " << errno << std::endl;
@@ -68,7 +71,6 @@ int get_num_threads() noexcept {
 }
 
 int main(int argc, char *argv[]) {
-
   if (argc != 3) {
     std::cerr << "Wrong arguments: a.out [file name] [file size]" << std::endl;
     std::abort();
@@ -76,8 +78,10 @@ int main(int argc, char *argv[]) {
   std::string file_name(argv[1]);
   const std::size_t file_size = std::stoll(argv[2]);
 
-  std::cout << "\nMap a file: " << file_name << ", " << file_size << " bytes" << std::endl;
-  auto const buf = static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
+  std::cout << "\nMap a file: " << file_name << ", " << file_size << " bytes"
+            << std::endl;
+  auto const buf =
+      static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
   const std::size_t length = file_size / sizeof(uint64_t);
 
   std::cout << "\nWrite data" << std::endl;
@@ -88,9 +92,7 @@ int main(int argc, char *argv[]) {
 #ifdef _OPENMP
 #pragma omp single
 #endif
-    {
-      std::cout << "#of threads: " << get_num_threads() << std::endl;
-    }
+    { std::cout << "#of threads: " << get_num_threads() << std::endl; }
 
     std::random_device rd;
     std::mt19937_64 g(rd());

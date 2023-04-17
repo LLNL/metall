@@ -11,7 +11,7 @@ However, it stores only simple data structures (e.g., std::vector) because it ca
 
 Metall allows applications to store the C++ containers easily. It also has multiple features for large-scale data management, such as the snapshot, parallel data copy, and user-level mmap implementation support for better data locality.
 
-This collaboration is aiming at leveraging Metall in Ripples' actual workload. To investigate how Metall can improve Ripples', we have integrated Metall into Ripples.
+This collaboration aims at leveraging Metall in Ripples' actual workload. To investigate how Metall can improve Ripples', we have integrated Metall into Ripples.
 
 ### Integrating Metall into Ripples
 
@@ -32,19 +32,12 @@ Tested Environment:
 
 - Linux
 - Python 3.7
-- GCC 10
-- CMake 3.23
+- GCC 10 (or later)
+- CMake 3.23 (or later)
 
 The following instructions are tested with the latest version of Ripples at the time of writing (commit ID: da08b3e759642a93556f081169c61607354ecd3e).
 
 ```shell
-# Set up Python environment, if not available
-# For example:
-pip install --user pipenv
-pip install --user conan
-# If needed, configure PATH, for example:
-# export PATH="$HOME/.local/bin:$PATH"
-
 # Get source code
 git clone git@github.com:pnnl/ripples.git
 cd ripples
@@ -53,7 +46,21 @@ git checkout da08b3e759642a93556f081169c61607354ecd3e
 # Apply the patch file (download from the link under this code block)
 git apply ripples-metall.patch
 
-pipenv --three
+# Hereafter, build instructions are described in the original Ripples:
+# https://github.com/pnnl/ripples/blob/master
+# (please enable Metall as described on the page above)
+#
+# Here, we show example build commands for the convenience of the reader.
+
+# Set up Python environment, if not available
+# For example:
+pip install --user pipenv
+pip install --user conan==1.59.0
+# If needed, configure PATH, for example:
+# export PATH="$HOME/.local/bin:$PATH"
+
+# Set up Python environment
+pipenv --python 3.7
 pipenv install
 pipenv shell
 

@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -37,17 +37,21 @@ std::size_t get_page_size() {
   return (std::size_t)page_size;
 }
 
-std::pair<int, void *> map_file_share(const std::string &file_path, const std::size_t size) {
+std::pair<int, void *> map_file_share(const std::string &file_path,
+                                      const std::size_t size) {
   const auto start = mdtl::elapsed_time_sec();
 
   std::cout << "Map size: " << size << std::endl;
 
-  if (!mdtl::create_file(file_path) || !mdtl::extend_file_size(file_path, size)) {
-    std::cerr << __LINE__ << " Failed to initialize file: " << file_path << std::endl;
+  if (!mdtl::create_file(file_path) ||
+      !mdtl::extend_file_size(file_path, size)) {
+    std::cerr << __LINE__ << " Failed to initialize file: " << file_path
+              << std::endl;
     std::abort();
   }
 
-  const auto ret = mdtl::map_file_write_mode(file_path, nullptr, size, 0, k_map_nosync);
+  const auto ret =
+      mdtl::map_file_write_mode(file_path, nullptr, size, 0, k_map_nosync);
   if (ret.first == -1 || !ret.second) {
     std::cerr << __LINE__ << " Failed mapping" << std::endl;
     std::abort();
@@ -59,17 +63,21 @@ std::pair<int, void *> map_file_share(const std::string &file_path, const std::s
   return ret;
 }
 
-std::pair<int, void *> map_file_private(const std::string &file_path, const std::size_t size) {
+std::pair<int, void *> map_file_private(const std::string &file_path,
+                                        const std::size_t size) {
   const auto start = mdtl::elapsed_time_sec();
 
   std::cout << "Map size: " << size << std::endl;
 
-  if (!mdtl::create_file(file_path) || !mdtl::extend_file_size(file_path, size)) {
-    std::cerr << __LINE__ << " Failed to initialize file: " << file_path << std::endl;
+  if (!mdtl::create_file(file_path) ||
+      !mdtl::extend_file_size(file_path, size)) {
+    std::cerr << __LINE__ << " Failed to initialize file: " << file_path
+              << std::endl;
     std::abort();
   }
 
-  const auto ret = mdtl::map_file_write_private_mode(file_path, nullptr, size, 0, k_map_nosync);
+  const auto ret = mdtl::map_file_write_private_mode(file_path, nullptr, size,
+                                                     0, k_map_nosync);
   if (ret.first == -1 || !ret.second) {
     std::cerr << __LINE__ << " Failed mapping" << std::endl;
     std::abort();
@@ -124,4 +132,4 @@ void close_file(const int fd) {
   std::cout << __FUNCTION__ << " took\t" << elapsed_time << std::endl;
 }
 
-#endif //METALL_FREE_MEMORY_SPACE_HPP
+#endif  // METALL_FREE_MEMORY_SPACE_HPP

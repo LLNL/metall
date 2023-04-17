@@ -1,8 +1,7 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
-
 
 #include "gtest/gtest.h"
 
@@ -27,18 +26,23 @@ using metall_allocator = typename manager_type::allocator_type<T>;
 
 TEST(MultiManagerTest, SingleThread) {
   using element_type = uint64_t;
-  using vector_type = boost::interprocess::vector<element_type, metall_allocator<element_type>>;
+  using vector_type =
+      boost::interprocess::vector<element_type, metall_allocator<element_type>>;
 
   test_utility::create_test_dir();
   const auto dir_path1(test_utility::make_test_path(std::to_string(1)));
   const auto dir_path2(test_utility::make_test_path(std::to_string(2)));
 
   {
-    manager_type manager1(metall::create_only, dir_path1.c_str(), k_chunk_size * 8);
-    manager_type manager2(metall::create_only, dir_path2.c_str(), k_chunk_size * 8);
+    manager_type manager1(metall::create_only, dir_path1.c_str(),
+                          k_chunk_size * 8);
+    manager_type manager2(metall::create_only, dir_path2.c_str(),
+                          k_chunk_size * 8);
 
-    vector_type *vector1 = manager1.construct<vector_type>("vector")(manager1.get_allocator<>());
-    vector_type *vector2 = manager2.construct<vector_type>("vector")(manager2.get_allocator<>());
+    vector_type *vector1 =
+        manager1.construct<vector_type>("vector")(manager1.get_allocator<>());
+    vector_type *vector2 =
+        manager2.construct<vector_type>("vector")(manager2.get_allocator<>());
 
     vector1->emplace_back(1);
     vector1->emplace_back(2);
@@ -93,24 +97,24 @@ TEST(MultiManagerTest, SingleThread) {
 int get_num_threads() {
   int num_threads = 0;
 
-  OMP_DIRECTIVE(parallel)
-  {
-    num_threads = omp::get_num_threads();
-  }
+  OMP_DIRECTIVE(parallel) { num_threads = omp::get_num_threads(); }
 
   return num_threads;
 }
 
 TEST(MultiManagerTest, MultiThread) {
   using element_type = uint64_t;
-  using vector_type = boost::interprocess::vector<element_type, metall_allocator<element_type>>;
+  using vector_type =
+      boost::interprocess::vector<element_type, metall_allocator<element_type>>;
 
-  OMP_DIRECTIVE(parallel)
-  {
-    const auto dir_path(test_utility::make_test_path("/" + std::to_string(omp::get_thread_num())));
+  OMP_DIRECTIVE(parallel) {
+    const auto dir_path(test_utility::make_test_path(
+        "/" + std::to_string(omp::get_thread_num())));
 
-    manager_type manager(metall::create_only, dir_path.c_str(), k_chunk_size * 16);
-    vector_type *vector = manager.construct<vector_type>("vector")(manager.get_allocator<>());
+    manager_type manager(metall::create_only, dir_path.c_str(),
+                         k_chunk_size * 16);
+    vector_type *vector =
+        manager.construct<vector_type>("vector")(manager.get_allocator<>());
 
     for (int i = 0; i < 64; ++i) {
       vector->emplace_back(i * omp::get_thread_num());
@@ -130,4 +134,4 @@ TEST(MultiManagerTest, MultiThread) {
     }
   }
 }
-}
+}  // namespace

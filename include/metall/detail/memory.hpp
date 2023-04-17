@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -19,7 +19,8 @@ namespace metall::mtlldetail {
 inline ssize_t get_page_size() noexcept {
   const ssize_t page_size = ::sysconf(_SC_PAGE_SIZE);
   if (page_size == -1) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "Failed to get the page size");
+    logger::perror(logger::level::error, __FILE__, __LINE__,
+                   "Failed to get the page size");
   }
 
   return page_size;
@@ -51,11 +52,11 @@ inline ssize_t read_meminfo(const std::string &key) {
     if (fin >> unit) {
       std::transform(unit.begin(), unit.end(), unit.begin(),
                      [](const unsigned char c) { return std::tolower(c); });
-      if (unit == "kb") { // for now, we only expect this case
+      if (unit == "kb") {  // for now, we only expect this case
         return value * 1024;
       }
       return -1;
-    } else { // found a line does not has unit
+    } else {  // found a line does not has unit
       return value;
     }
   }
@@ -63,11 +64,12 @@ inline ssize_t read_meminfo(const std::string &key) {
 }
 
 /// \brief Returns the size of the total ram size
-/// \return On success, returns the total ram size of the system. On error, returns -1.
+/// \return On success, returns the total ram size of the system. On error,
+/// returns -1.
 inline ssize_t get_total_ram_size() {
   const ssize_t mem_total = read_meminfo("MemTotal:");
   if (mem_total == -1) {
-    return -1; // something wrong;
+    return -1;  // something wrong;
   }
   return static_cast<ssize_t>(mem_total);
 }
@@ -81,8 +83,9 @@ inline ssize_t get_used_ram_size() {
   const ssize_t cached = read_meminfo("Cached:");
   const ssize_t slab = read_meminfo("Slab:");
   const ssize_t used = mem_total - mem_free - buffers - cached - slab;
-  if (mem_total == -1 || mem_free == -1 || buffers == -1 || cached == -1 || slab == -1 || used < 0) {
-    return -1; // something wrong;
+  if (mem_total == -1 || mem_free == -1 || buffers == -1 || cached == -1 ||
+      slab == -1 || used < 0) {
+    return -1;  // something wrong;
   }
   return used;
 }
@@ -92,17 +95,18 @@ inline ssize_t get_used_ram_size() {
 inline ssize_t get_free_ram_size() {
   const ssize_t mem_free = read_meminfo("MemFree:");
   if (mem_free == -1) {
-    return -1; // something wrong;
+    return -1;  // something wrong;
   }
   return static_cast<ssize_t>(mem_free);
 }
 
 /// \brief Returns the size of the 'cached' ram size
-/// \return On success, returns the 'cached' ram size of the system. On error, returns -1.
+/// \return On success, returns the 'cached' ram size of the system. On error,
+/// returns -1.
 inline ssize_t get_page_cache_size() {
   const ssize_t cached_size = read_meminfo("Cached:");
   if (cached_size == -1) {
-    return -1; // something wrong;
+    return -1;  // something wrong;
   }
   return static_cast<ssize_t>(cached_size);
 }
@@ -113,12 +117,14 @@ inline std::pair<std::size_t, std::size_t> get_num_page_faults() {
   std::size_t minflt = 0;
   std::size_t majflt = 0;
 #ifdef __linux__
-  const char* stat_path = "/proc/self/stat";
+  const char *stat_path = "/proc/self/stat";
   FILE *f = ::fopen(stat_path, "r");
   if (f) {
-    // 0:pid 1:comm 2:state 3:ppid 4:pgrp 5:session 6:tty_nr 7:tpgid 8:flags 9:minflt 10:cminflt 11:majflt
+    // 0:pid 1:comm 2:state 3:ppid 4:pgrp 5:session 6:tty_nr 7:tpgid 8:flags
+    // 9:minflt 10:cminflt 11:majflt
     int ret;
-    if ((ret = ::fscanf(f,"%*d %*s %*c %*d %*d %*d %*d %*d %*u %lu %*u %lu", &minflt, &majflt)) != 2) {
+    if ((ret = ::fscanf(f, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %lu %*u %lu",
+                        &minflt, &majflt)) != 2) {
       std::stringstream ss;
       ss << "Failed to reading #of page faults " << ret;
       logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
@@ -134,6 +140,6 @@ inline std::pair<std::size_t, std::size_t> get_num_page_faults() {
   return std::make_pair(minflt, majflt);
 }
 
-} // namespace metall::mtlldetail
+}  // namespace metall::mtlldetail
 
-#endif //METALL_DETAIL_UTILITY_MEMORY_HPP
+#endif  // METALL_DETAIL_UTILITY_MEMORY_HPP
