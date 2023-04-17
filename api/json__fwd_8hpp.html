@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.24</span>
+   &#160;<span id="projectnumber">v0.25</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('json__fwd_8hpp.html',''); initResizabl
 <div class="contents">
 <div class="textblock"><code>#include &lt;string&gt;</code><br />
 <code>#include &lt;variant&gt;</code><br />
-<code>#include &lt;boost/json/src.hpp&gt;</code><br />
+<code>#include &lt;boost/json.hpp&gt;</code><br />
 <code>#include &lt;<a class="el" href="container_2string_8hpp_source.html">metall/container/string.hpp</a>&gt;</code><br />
 </div>
 <p><a href="json__fwd_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -119,8 +119,11 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:ab819b71da7116cd116ec786e71b0a2f9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="json__fwd_8hpp.html#ab819b71da7116cd116ec786e71b0a2f9">METALL_LINK_WITH_BOOST_JSON</a></td></tr>
+<tr class="memdesc:ab819b71da7116cd116ec786e71b0a2f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains forward declarations and type alias of Metall JSON container.  <a href="json__fwd_8hpp.html#ab819b71da7116cd116ec786e71b0a2f9">More...</a><br /></td></tr>
+<tr class="separator:ab819b71da7116cd116ec786e71b0a2f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1fc91f892a518ca8b00ab6bbd825e432"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="json__fwd_8hpp.html#a1fc91f892a518ca8b00ab6bbd825e432">METALL_JSON_BOOST_JSON_SRC_INCLUDED</a></td></tr>
-<tr class="memdesc:a1fc91f892a518ca8b00ab6bbd825e432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains forward declarations and type alias of Metall JSON container.  <a href="json__fwd_8hpp.html#a1fc91f892a518ca8b00ab6bbd825e432">More...</a><br /></td></tr>
+<tr class="memdesc:a1fc91f892a518ca8b00ab6bbd825e432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Include guard for boost/json/src.hpp.  <a href="json__fwd_8hpp.html#a1fc91f892a518ca8b00ab6bbd825e432">More...</a><br /></td></tr>
 <tr class="separator:a1fc91f892a518ca8b00ab6bbd825e432"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
@@ -138,6 +141,23 @@ Typedefs</h2></td></tr>
 <tr class="separator:af78c2b26acaea7245fcde5b14ff76b1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="ab819b71da7116cd116ec786e71b0a2f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab819b71da7116cd116ec786e71b0a2f9">&#9670;&nbsp;</a></span>METALL_LINK_WITH_BOOST_JSON</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define METALL_LINK_WITH_BOOST_JSON</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Contains forward declarations and type alias of Metall JSON container. </p>
+<p>If defined, link with a buit Boost.JSON. </p>
+
+</div>
+</div>
 <a id="a1fc91f892a518ca8b00ab6bbd825e432"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1fc91f892a518ca8b00ab6bbd825e432">&#9670;&nbsp;</a></span>METALL_JSON_BOOST_JSON_SRC_INCLUDED</h2>
 
@@ -150,8 +170,7 @@ Typedefs</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Contains forward declarations and type alias of Metall JSON container. </p>
-<p>Include guard for boost/json/src.hpp </p>
+<p>Include guard for boost/json/src.hpp. </p>
 
 </div>
 </div>
