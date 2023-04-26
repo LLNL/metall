@@ -5,13 +5,13 @@
 
 #include "gtest/gtest.h"
 #include <memory>
-#include <metall/container/experimental/json/json.hpp>
+#include <metall/json/json.hpp>
 
-using namespace metall::container::experimental;
+namespace mj = metall::json;
 
 namespace {
 
-using object_type = json::object<std::allocator<std::byte>>;
+using object_type = mj::object<std::allocator<std::byte>>;
 
 TEST (JSONObjectTest, Constructor) {
   object_type obj;

@@ -3,14 +3,12 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_EQUAL_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_EQUAL_HPP
+#ifndef METALL_JSON_EQUAL_HPP
+#define METALL_JSON_EQUAL_HPP
 
-#include <boost/json/src.hpp>
+#include <metall/json/json_fwd.hpp>
 
-#include <metall/container/experimental/json/json_fwd.hpp>
-
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace {
 namespace bj = boost::json;
@@ -81,63 +79,43 @@ inline bool operator!=(const bj::array &bj_array, const array<allocator_type> &a
 }
 
 template <typename allocator_type>
-inline bool operator==(const compact_object<allocator_type> &object, const bj::object &bj_object) {
-  return jsndtl::general_compact_object_equal(object, bj_object);
+inline bool operator==(const object<allocator_type> &object, const bj::object &bj_object) {
+  return jsndtl::general_object_equal(object, bj_object);
 }
 
 template <typename allocator_type>
-inline bool operator==(const bj::object &bj_object, const compact_object<allocator_type> &object) {
+inline bool operator==(const bj::object &bj_object, const object<allocator_type> &object) {
   return object == bj_object;
 }
 
 template <typename allocator_type>
-inline bool operator!=(const compact_object<allocator_type> &object, const bj::object &bj_object) {
+inline bool operator!=(const object<allocator_type> &object, const bj::object &bj_object) {
   return !(object == bj_object);
 }
 
 template <typename allocator_type>
-inline bool operator!=(const bj::object &bj_object, const compact_object<allocator_type> &object) {
-  return object != bj_object;
-}
-
-template <typename allocator_type>
-inline bool operator==(const indexed_object<allocator_type> &object, const bj::object &bj_object) {
-  return jsndtl::general_indexed_object_equal(object, bj_object);
-}
-
-template <typename allocator_type>
-inline bool operator==(const bj::object &bj_object, const indexed_object<allocator_type> &object) {
-  return object == bj_object;
-}
-
-template <typename allocator_type>
-inline bool operator!=(const indexed_object<allocator_type> &object, const bj::object &bj_object) {
-  return !(object == bj_object);
-}
-
-template <typename allocator_type>
-inline bool operator!=(const bj::object &bj_object, const indexed_object<allocator_type> &object) {
+inline bool operator!=(const bj::object &bj_object, const object<allocator_type> &object) {
   return object != bj_object;
 }
 
 template <typename char_t, typename traits, typename allocator>
-inline bool operator==(const string<char_t, traits, allocator> &string, const bj::string &bj_string) {
+inline bool operator==(const basic_string<char_t, traits, allocator> &string, const bj::string &bj_string) {
   return jsndtl::general_string_equal(string, bj_string);
 }
 
 template <typename char_t, typename traits, typename allocator>
-inline bool operator==(const bj::string &bj_string, const string<char_t, traits, allocator> &string) {
+inline bool operator==(const bj::string &bj_string, const basic_string<char_t, traits, allocator> &string) {
   return string == bj_string;
 }
 
 template <typename char_t, typename traits, typename allocator>
-inline bool operator!=(const string<char_t, traits, allocator> &string, const bj::string &bj_string) {
+inline bool operator!=(const basic_string<char_t, traits, allocator> &string, const bj::string &bj_string) {
   return !(string == bj_string);
 }
 
 template <typename char_t, typename traits, typename allocator>
-inline bool operator!=(const bj::string &bj_string, const string<char_t, traits, allocator> &string) {
+inline bool operator!=(const bj::string &bj_string, const basic_string<char_t, traits, allocator> &string) {
   return string != bj_string;
 }
-} // namespace metall::container::experimental::json
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_EQUAL_HPP
+} // namespace metall::json
+#endif //METALL_JSON_EQUAL_HPP

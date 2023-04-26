@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_CONTAINER_EXPERIMENT_JSON_KEY_VALUE_PAIR_HPP
-#define METALL_CONTAINER_EXPERIMENT_JSON_KEY_VALUE_PAIR_HPP
+#ifndef METALL_JSON_KEY_VALUE_PAIR_HPP
+#define METALL_JSON_KEY_VALUE_PAIR_HPP
 
 #include <string_view>
 #include <memory>
@@ -14,9 +14,9 @@
 
 #include <metall/offset_ptr.hpp>
 #include <metall/detail/utilities.hpp>
-#include <metall/container/experimental/json/json_fwd.hpp>
+#include <metall/json/json_fwd.hpp>
 
-namespace metall::container::experimental::json {
+namespace metall::json {
 
 namespace jsndtl {
 /// \brief Provides 'equal' calculation for other key-value types that have the same interface as the object class.
@@ -32,20 +32,22 @@ inline bool general_key_value_pair_equal(const key_value_pair<char_type, char_tr
 /// \tparam char_type A char type to store.
 /// \tparam char_traits A chart traits.
 /// \tparam _allocator_type An allocator type.
-template <typename _char_type = char,
-          typename _char_traits = std::char_traits<_char_type>,
-          typename _allocator_type = std::allocator<_char_type>>
+#ifdef DOXYGEN_SKIP
+template <typename char_type = char, typename char_traits = std::char_traits<char_type>, typename Alloc = std::allocator<char_type>>
+#else
+template <typename _char_type, typename _char_traits, typename Alloc>
+#endif
 class key_value_pair {
  private:
-  using char_allocator_type = typename std::allocator_traits<_allocator_type>::template rebind_alloc<_char_type>;
+  using char_allocator_type = typename std::allocator_traits<Alloc>::template rebind_alloc<_char_type>;
   using char_pointer = typename std::allocator_traits<char_allocator_type>::pointer;
 
  public:
   using char_type = _char_type;
   using char_traits = _char_traits;
-  using allocator_type = _allocator_type;
+  using allocator_type = Alloc;
   using key_type = std::basic_string_view<char_type, char_traits>;
-  using value_type = metall::container::experimental::json::value<allocator_type>;
+  using value_type = metall::json::value<allocator_type>;
   using size_type = std::size_t;
 
  public:
@@ -154,7 +156,7 @@ class key_value_pair {
     if constexpr (!std::is_same_v<typename std::allocator_traits<allocator_type>::propagate_on_container_swap,
                                   std::true_type>) {
       // This is an undefined behavior in the C++ standard.
-      assert(get_allocator() == other.m_allocator);
+      assert(get_allocator() == other.get_allocator());
     }
 
     using std::swap;
@@ -282,11 +284,11 @@ class key_value_pair {
 };
 
 /// \brief Swap value instances.
-template <typename allocator_type>
-inline void swap(key_value_pair<allocator_type> &lhd, key_value_pair<allocator_type> &rhd) noexcept {
+template <typename char_type, typename char_traits, typename allocator_type>
+inline void swap(key_value_pair<char_type, char_traits, allocator_type> &rhd, key_value_pair<char_type, char_traits, allocator_type> &lhd) noexcept {
   lhd.swap(rhd);
 }
 
 } // namespace json
 
-#endif //METALL_CONTAINER_EXPERIMENT_JSON_KEY_VALUE_PAIR_HPP
+#endif //METALL_JSON_KEY_VALUE_PAIR_HPP
