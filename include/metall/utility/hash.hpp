@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -22,6 +22,6 @@ using hash = metall::mtlldetail::hash<T, seed>;
 template <typename string_type, unsigned int seed = 123>
 using string_hash = metall::mtlldetail::string_hash<string_type, seed>;
 
-} // namespace metall::utility
+}  // namespace metall::utility
 
-#endif //METALL_UTILITY_HASH_HPP
+#endif  // METALL_UTILITY_HASH_HPP

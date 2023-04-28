@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -21,12 +21,11 @@ using node_type = bptree::ptree;
 
 inline bool validate_key(const std::string &key) {
   using path_type = bptree::ptree::path_type;
-  return path_type(key).single(); // To avoid confusion, a multi-layer path style string is invalid.
+  return path_type(key).single();  // To avoid confusion, a multi-layer path
+                                   // style string is invalid.
 }
 
-inline bool empty(const node_type &tree) {
-  return tree.empty();
-}
+inline bool empty(const node_type &tree) { return tree.empty(); }
 
 inline std::size_t count(const node_type &tree, const std::string &key) {
   if (!validate_key(key)) {
@@ -38,7 +37,8 @@ inline std::size_t count(const node_type &tree, const std::string &key) {
 }
 
 template <typename value_type>
-inline bool get_value(const node_type &tree, const std::string &key, value_type *const value) {
+inline bool get_value(const node_type &tree, const std::string &key,
+                      value_type *const value) {
   if (!validate_key(key)) {
     std::string s("Invalid key: " + key);
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
@@ -54,7 +54,8 @@ inline bool get_value(const node_type &tree, const std::string &key, value_type 
   return true;
 }
 
-inline bool get_child(const node_type &tree, const std::string &key, node_type *out) {
+inline bool get_child(const node_type &tree, const std::string &key,
+                      node_type *out) {
   if (!validate_key(key)) {
     std::string s("Invalid key: " + key);
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
@@ -69,7 +70,8 @@ inline bool get_child(const node_type &tree, const std::string &key, node_type *
 }
 
 template <typename value_type>
-inline bool add_value(const std::string &key, const value_type &value, node_type *tree) {
+inline bool add_value(const std::string &key, const value_type &value,
+                      node_type *tree) {
   if (!validate_key(key)) {
     std::string s("Invalid key: " + key);
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
@@ -86,7 +88,8 @@ inline bool add_value(const std::string &key, const value_type &value, node_type
   return true;
 }
 
-inline bool add_child(const std::string &key, const node_type &child, node_type *tree) {
+inline bool add_child(const std::string &key, const node_type &child,
+                      node_type *tree) {
   if (!validate_key(key)) {
     std::string s("Invalid key: " + key);
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
@@ -107,7 +110,8 @@ inline bool push_back(const node_type &child, node_type *parent) {
   try {
     parent->push_back(std::make_pair("", child));
   } catch (...) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to pushback an item");
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Failed to pushback an item");
     return false;
   }
   return true;
@@ -147,6 +151,6 @@ inline std::size_t erase(const std::string &key, node_type *tree) {
   return tree->erase(key);
 }
 
-} // namespace metall::mtlldetail::ptree
+}  // namespace metall::mtlldetail::ptree
 
-#endif //METALL_DETAIL_UTILITY_PTREE_HPP
+#endif  // METALL_DETAIL_UTILITY_PTREE_HPP

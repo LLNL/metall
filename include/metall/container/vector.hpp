@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -16,6 +16,6 @@ namespace metall::container {
 template <typename T, typename Allocator = manager::allocator_type<T>>
 using vector = boost::container::vector<T, Allocator>;
 
-}
+}  // namespace metall::container
 
-#endif //METALL_CONTAINER_VECTOR_HPP
+#endif  // METALL_CONTAINER_VECTOR_HPP

@@ -1,5 +1,5 @@
-// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2021 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -16,7 +16,7 @@ namespace metall::json {
 namespace {
 namespace mc = metall::container;
 namespace bj = boost::json;
-}
+}  // namespace
 
 template <typename allocator_type>
 std::string serialize(const value<allocator_type> &input) {
@@ -42,7 +42,8 @@ std::string serialize(const array<allocator_type> &input) {
 }
 
 template <typename char_type, typename traits, typename allocator_type>
-std::string serialize(const basic_string<char_type, traits, allocator_type> &input) {
+std::string serialize(
+    const basic_string<char_type, traits, allocator_type> &input) {
   return input.data();
 }
 
@@ -64,6 +65,6 @@ std::ostream &operator<<(std::ostream &os, const array<allocator_type> &arr) {
   return os;
 }
 
-} // namespace metall::json
+}  // namespace metall::json
 
-#endif //METALL_JSON_SERIALIZE_HPP
+#endif  // METALL_JSON_SERIALIZE_HPP

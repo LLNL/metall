@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -10,7 +10,8 @@
 
 using T = int;
 
-// Just a one way to extract the type of the attributed object directory iterator
+// Just a one way to extract the type of the attributed object directory
+// iterator
 using iterator_t = metall::manager::const_named_iterator;
 
 int main() {

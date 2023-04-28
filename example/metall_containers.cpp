@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -34,10 +34,12 @@ int main() {
   mg.construct<mc::multiset<int>>("multiset")(mg.get_allocator());
 
   mg.construct<mc::unordered_map<int, int>>("umap")(mg.get_allocator());
-  mg.construct<mc::unordered_multimap<int, int>>("unordered_multimap")(mg.get_allocator());
+  mg.construct<mc::unordered_multimap<int, int>>("unordered_multimap")(
+      mg.get_allocator());
 
   mg.construct<mc::unordered_set<int>>("unordered_set")(mg.get_allocator());
-  mg.construct<mc::unordered_multiset<int>>("unordered_multiset")(mg.get_allocator());
+  mg.construct<mc::unordered_multiset<int>>("unordered_multiset")(
+      mg.get_allocator());
 
   mg.construct<mc::vector<int>>("vector")(mg.get_allocator());
 
@@ -51,7 +53,8 @@ int main() {
   mg.construct<mc::wstring>("wstring")(mg.get_allocator());
 
   using innger_set = mc::set<int>;
-  using vec_of_sets = mc::vector<innger_set, manager::scoped_allocator_type < innger_set>>;
+  using vec_of_sets =
+      mc::vector<innger_set, manager::scoped_allocator_type<innger_set>>;
   mg.construct<vec_of_sets>("vec-sets")(mg.get_allocator());
 
   return 0;

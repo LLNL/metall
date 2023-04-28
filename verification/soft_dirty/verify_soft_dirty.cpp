@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -8,8 +8,8 @@
 #include <metall/detail/file.hpp>
 #include <metall/detail/memory.hpp>
 
-bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages, char *const map) {
-
+bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages,
+                      char *const map) {
   const uint64_t page_no_offset = reinterpret_cast<uint64_t>(map) / page_size;
   for (uint64_t i = 0; i < 2; ++i) {
     if (!metall::mtlldetail::reset_soft_dirty_bit()) {
@@ -48,8 +48,10 @@ bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages, char
           return false;
         }
         const bool desired_dirty_flag = (p % 2 == i % 2);
-        if (metall::mtlldetail::check_soft_dirty_page(pagemap) != desired_dirty_flag) {
-          std::cerr << "Dirty flag must be " << desired_dirty_flag << " at " << p << std::endl;
+        if (metall::mtlldetail::check_soft_dirty_page(pagemap) !=
+            desired_dirty_flag) {
+          std::cerr << "Dirty flag must be " << desired_dirty_flag << " at "
+                    << p << std::endl;
           return false;
         }
       }
@@ -59,7 +61,6 @@ bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages, char
 }
 
 int main(int argc, char *argv[]) {
-
   if (!metall::mtlldetail::file_exist("/proc/self/pagemap")) {
     std::cerr << "Pagemap file does not exist" << std::endl;
     std::abort();
@@ -72,8 +73,8 @@ int main(int argc, char *argv[]) {
 
   const std::size_t k_num_pages = 1024;
   {
-    auto map = static_cast<char *>(metall::mtlldetail::map_anonymous_write_mode(nullptr,
-                                                                                     page_size * k_num_pages));
+    auto map = static_cast<char *>(metall::mtlldetail::map_anonymous_write_mode(
+        nullptr, page_size * k_num_pages));
     if (map) {
       run_in_core_test(page_size, k_num_pages, map);
       metall::mtlldetail::munmap(map, page_size * k_num_pages, false);
@@ -95,10 +96,10 @@ int main(int argc, char *argv[]) {
     metall::mtlldetail::create_file(file_name);
     metall::mtlldetail::extend_file_size(file_name, page_size * k_num_pages);
 
-    auto map = static_cast<char *>(metall::mtlldetail::map_file_write_mode(file_name,
-                                                                                nullptr,
-                                                                                page_size * k_num_pages,
-                                                                                0).second);
+    auto map =
+        static_cast<char *>(metall::mtlldetail::map_file_write_mode(
+                                file_name, nullptr, page_size * k_num_pages, 0)
+                                .second);
     if (map) {
       run_in_core_test(page_size, k_num_pages, map);
       metall::mtlldetail::munmap(map, page_size * k_num_pages, false);
@@ -112,10 +113,10 @@ int main(int argc, char *argv[]) {
     metall::mtlldetail::create_file(file_name);
     metall::mtlldetail::extend_file_size(file_name, page_size * k_num_pages);
 
-    auto map = static_cast<char *>(metall::mtlldetail::map_file_write_private_mode(file_name,
-                                                                                        nullptr,
-                                                                                        page_size * k_num_pages,
-                                                                                        0).second);
+    auto map =
+        static_cast<char *>(metall::mtlldetail::map_file_write_private_mode(
+                                file_name, nullptr, page_size * k_num_pages, 0)
+                                .second);
     if (map) {
       run_in_core_test(page_size, k_num_pages, map);
       metall::mtlldetail::munmap(map, page_size * k_num_pages, false);

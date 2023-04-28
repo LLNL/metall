@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -12,7 +12,7 @@
 #include <metall/detail/memory.hpp>
 
 #ifdef __linux__
-#include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
+#include <linux/falloc.h>  // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
 #endif
 
 #include "free_mmap_region.hpp"
@@ -39,18 +39,21 @@ void check_macros() {
 #endif
 }
 
-void free_file_backed_mmap(const std::string &file_name, const std::size_t file_size,
-                           const std::function<std::pair<int, void *>(const std::string &file_name,
-                                                                      const long unsigned int size)> &map_file,
-                           const std::function<void(void *const addr,
-                                                    const long unsigned int size)> &uncommit_function) {
+void free_file_backed_mmap(
+    const std::string &file_name, const std::size_t file_size,
+    const std::function<std::pair<int, void *>(
+        const std::string &file_name, const long unsigned int size)> &map_file,
+    const std::function<void(void *const addr, const long unsigned int size)>
+        &uncommit_function) {
   std::cout << "\n----- Map file -----" << std::endl;
   int fd = -1;
   void *addr = nullptr;
   std::tie(fd, addr) = map_file(file_name, file_size);
   close_file(fd);
-  std::cout << "DRAM usage (GB)\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-  std::cout << "DRAM cache usage (GB)\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
+  std::cout << "DRAM usage (GB)\t"
+            << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t"
+            << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
             << std::endl;
 
   // Commit pages
@@ -60,25 +63,33 @@ void free_file_backed_mmap(const std::string &file_name, const std::size_t file_
   for (uint64_t i = 0; i < file_size; i += page_size) {
     map[i] = 1;
   }
-  std::cout << "DRAM usage (GB)\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-  std::cout << "DRAM cache usage (GB)\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
+  std::cout << "DRAM usage (GB)\t"
+            << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t"
+            << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
             << std::endl;
 
   std::cout << "\n----- Uncommit pages -----" << std::endl;
   for (std::size_t offset = 0; offset < file_size; offset += page_size) {
     uncommit_function(static_cast<char *>(addr) + offset, page_size);
   }
-  std::cout << "The current file size\t" << mdtl::get_actual_file_size(file_name) << std::endl;
-  std::cout << "DRAM usage (GB)\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-  std::cout << "DRAM cache usage (GB)\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
+  std::cout << "The current file size\t"
+            << mdtl::get_actual_file_size(file_name) << std::endl;
+  std::cout << "DRAM usage (GB)\t"
+            << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t"
+            << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
             << std::endl;
 
   std::cout << "\n----- munmap -----" << std::endl;
   unmap(addr, file_size);
 
-  std::cout << "The current file size\t" << mdtl::get_actual_file_size(file_name) << std::endl;
-  std::cout << "DRAM usage (GB)\t" << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
-  std::cout << "DRAM cache usage (GB)\t" << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
+  std::cout << "The current file size\t"
+            << mdtl::get_actual_file_size(file_name) << std::endl;
+  std::cout << "DRAM usage (GB)\t"
+            << (double)mdtl::get_used_ram_size() / (1ULL << 30ULL) << std::endl;
+  std::cout << "DRAM cache usage (GB)\t"
+            << (double)mdtl::get_page_cache_size() / (1ULL << 30ULL)
             << std::endl;
 }
 
@@ -92,12 +103,14 @@ int main() {
   std::cout << "\n------------------------------" << std::endl;
   std::cout << "\nMap Shared" << std::endl;
   std::cout << "\n------------------------------" << std::endl;
-  free_file_backed_mmap(file_name, file_size, map_file_share, mdtl::uncommit_shared_pages_and_free_file_space);
+  free_file_backed_mmap(file_name, file_size, map_file_share,
+                        mdtl::uncommit_shared_pages_and_free_file_space);
 
   std::cout << "\n------------------------------" << std::endl;
   std::cout << "\nMap Private" << std::endl;
   std::cout << "\n------------------------------" << std::endl;
-  free_file_backed_mmap(file_name, file_size, map_file_private, mdtl::uncommit_private_nonanonymous_pages);
+  free_file_backed_mmap(file_name, file_size, map_file_private,
+                        mdtl::uncommit_private_nonanonymous_pages);
 
   return 0;
 }

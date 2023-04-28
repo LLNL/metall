@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -25,9 +25,13 @@ inline std::chrono::high_resolution_clock::time_point elapsed_time_sec() {
   return std::chrono::high_resolution_clock::now();
 }
 
-inline double elapsed_time_sec(const std::chrono::high_resolution_clock::time_point &tic) {
+inline double elapsed_time_sec(
+    const std::chrono::high_resolution_clock::time_point &tic) {
   auto duration_time = std::chrono::high_resolution_clock::now() - tic;
-  return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(duration_time).count() / 1e6);
+  return static_cast<double>(
+      std::chrono::duration_cast<std::chrono::microseconds>(duration_time)
+          .count() /
+      1e6);
 }
 
 void remove_file(const std::string &file_name) {
@@ -69,7 +73,7 @@ void *map_file_read_mode(const std::string &file_name, const std::size_t size) {
   os_fsync(fd);
 
   void *mapped_addr = ::mmap(nullptr, size, PROT_READ, MAP_SHARED, fd, 0);
-  ::close(fd); // It is ok to close descriptor after mapping
+  ::close(fd);  // It is ok to close descriptor after mapping
   if (mapped_addr == nullptr) {
     ::perror("mmap");
     std::cerr << "errno: " << errno << std::endl;
@@ -82,12 +86,14 @@ void *map_file_read_mode(const std::string &file_name, const std::size_t size) {
   return mapped_addr;
 }
 
-void *map_file_write_mode(const std::string &file_name, const std::size_t size) {
+void *map_file_write_mode(const std::string &file_name,
+                          const std::size_t size) {
   std::cout << "Map file (write mode): " << file_name << std::endl;
   std::cout << "Map size: " << size << std::endl;
 
   // Create a file
-  const int fd = ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  const int fd =
+      ::open(file_name.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     ::perror("open");
     std::cerr << "errno: " << errno << std::endl;
@@ -97,7 +103,8 @@ void *map_file_write_mode(const std::string &file_name, const std::size_t size) 
 
   // Extent the file
   // This command makes a sparse file, i.e.,
-  // physical memory space won't be used until the corresponding pages are accessed
+  // physical memory space won't be used until the corresponding pages are
+  // accessed
   if (::ftruncate(fd, size) == -1) {
     ::perror("ftruncate");
     std::cerr << "errno: " << errno << std::endl;
@@ -105,8 +112,9 @@ void *map_file_write_mode(const std::string &file_name, const std::size_t size) 
   }
 
   // Map the file with read and write mode
-  void *mapped_addr = ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-  ::close(fd); // It is ok to close descriptor after mapping
+  void *mapped_addr =
+      ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  ::close(fd);  // It is ok to close descriptor after mapping
   if (mapped_addr == nullptr) {
     ::perror("mmap");
     std::cerr << "errno: " << errno << std::endl;
@@ -120,7 +128,8 @@ void *map_file_write_mode(const std::string &file_name, const std::size_t size) 
 }
 
 void unmap(void *const addr, const std::size_t size) {
-  std::cout << "Unmap file: address " << (uint64_t)addr << ", size " << size << std::endl;
+  std::cout << "Unmap file: address " << (uint64_t)addr << ", size " << size
+            << std::endl;
   if (::munmap(addr, size) != 0) {
     ::perror("munmap");
     std::cerr << "errno: " << errno << std::endl;
@@ -129,26 +138,28 @@ void unmap(void *const addr, const std::size_t size) {
   std::cout << __FUNCTION__ << " done" << std::endl;
 }
 
-std::vector<std::size_t> gen_random_index(const std::size_t max_index, const std::size_t num_indices) {
-
+std::vector<std::size_t> gen_random_index(const std::size_t max_index,
+                                          const std::size_t num_indices) {
   std::vector<std::size_t> index_list(num_indices);
 
   std::random_device rd;
   std::mt19937_64 g(rd());
   std::uniform_int_distribution<std::size_t> dist(0, max_index);
 
-  for (auto& elem : index_list) {
+  for (auto &elem : index_list) {
     elem = dist(g);
   }
 
   return index_list;
 }
 
-void write_data_with_single_thread(const std::string &file_name, const std::size_t file_size) {
+void write_data_with_single_thread(const std::string &file_name,
+                                   const std::size_t file_size) {
   std::cout << "\nWrite data with a single thread" << std::endl;
   remove_file(file_name);
 
-  auto const buf = static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
+  auto const buf =
+      static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
   const std::size_t length = file_size / sizeof(uint64_t);
 
   std::cout << "Write data" << std::endl;
@@ -160,16 +171,19 @@ void write_data_with_single_thread(const std::string &file_name, const std::size
   for (uint64_t i = 0; i < length; ++i) {
     buf[i] *= 2;
   }
-  std::cout << "Writing data took (sec.)\t" << elapsed_time_sec(start) << std::endl;
+  std::cout << "Writing data took (sec.)\t" << elapsed_time_sec(start)
+            << std::endl;
 
   unmap(buf, file_size);
 }
 
-void validate_data_with_single_thread(const std::string &file_name, const std::size_t file_size) {
+void validate_data_with_single_thread(const std::string &file_name,
+                                      const std::size_t file_size) {
   std::cout << "Validate data with a single thread" << std::endl;
   remove_file(file_name);
 
-  auto const buf = static_cast<uint64_t *>(map_file_read_mode(file_name, file_size));
+  auto const buf =
+      static_cast<uint64_t *>(map_file_read_mode(file_name, file_size));
   const std::size_t length = file_size / sizeof(uint64_t);
 
   std::cout << "Validate data" << std::endl;
@@ -185,14 +199,17 @@ void validate_data_with_single_thread(const std::string &file_name, const std::s
   unmap(buf, file_size);
 }
 
-void write_data_with_multiple_threads(const std::string &file_name, const std::size_t file_size) {
+void write_data_with_multiple_threads(const std::string &file_name,
+                                      const std::size_t file_size) {
   std::cout << "\nWrite data with multiple threads" << std::endl;
   remove_file(file_name);
 
-  auto const buf = static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
+  auto const buf =
+      static_cast<uint64_t *>(map_file_write_mode(file_name, file_size));
   const std::size_t length = file_size / sizeof(uint64_t);
 
-  const auto num_threads = (int)std::min((std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
+  const auto num_threads = (int)std::min(
+      (std::size_t)length, (std::size_t)std::thread::hardware_concurrency());
   std::cout << "#of threads: " << num_threads << std::endl;
 
   std::cout << "Generate index" << std::endl;
@@ -201,17 +218,18 @@ void write_data_with_multiple_threads(const std::string &file_name, const std::s
     std::vector<std::thread *> threads(num_threads, nullptr);
     const std::size_t num_indices = (length + num_threads - 1) / num_threads;
     for (int t = 0; t < num_threads; ++t) {
-      threads[t] = new std::thread([&length, &num_indices, &index_list](const int thread_no) {
-                                     index_list[thread_no] = gen_random_index(length - 1, num_indices);
-                                   },
-                                   t);
+      threads[t] = new std::thread(
+          [&length, &num_indices, &index_list](const int thread_no) {
+            index_list[thread_no] = gen_random_index(length - 1, num_indices);
+          },
+          t);
     }
     for (auto &th : threads) {
       th->join();
     }
 
-    for (const auto& indices : index_list) {
-      for (const auto& index : indices) {
+    for (const auto &indices : index_list) {
+      for (const auto &index : indices) {
         assert(index < length);
       }
     }
@@ -219,23 +237,27 @@ void write_data_with_multiple_threads(const std::string &file_name, const std::s
 
   std::cout << "Write data" << std::endl;
   {
-    std::vector<std::mutex> mutex_list(std::thread::hardware_concurrency() * 128);
+    std::vector<std::mutex> mutex_list(std::thread::hardware_concurrency() *
+                                       128);
     std::vector<std::thread *> threads(num_threads, nullptr);
 
     const auto start = elapsed_time_sec();
     for (int t = 0; t < num_threads; ++t) {
-      threads[t] = new std::thread([&index_list, &mutex_list, buf](const int thread_no) {
-                                     for (const auto idx : index_list[thread_no]) {
-                                       std::lock_guard<std::mutex> guard(mutex_list[idx % mutex_list.size()]);
-                                       buf[idx] = idx;
-                                     }
-                                   },
-                                   t);
+      threads[t] = new std::thread(
+          [&index_list, &mutex_list, buf](const int thread_no) {
+            for (const auto idx : index_list[thread_no]) {
+              std::lock_guard<std::mutex> guard(
+                  mutex_list[idx % mutex_list.size()]);
+              buf[idx] = idx;
+            }
+          },
+          t);
     }
     for (auto &th : threads) {
       th->join();
     }
-    std::cout << "Writing data took (sec.)\t" << elapsed_time_sec(start) << std::endl;
+    std::cout << "Writing data took (sec.)\t" << elapsed_time_sec(start)
+              << std::endl;
   }
 
   unmap(buf, file_size);
@@ -243,7 +265,6 @@ void write_data_with_multiple_threads(const std::string &file_name, const std::s
 
 // a.out file_name file_size
 int main(int argc, char *argv[]) {
-
   const std::string file_name(argv[1]);
   const std::size_t file_size = std::stoll(argv[2]);
 

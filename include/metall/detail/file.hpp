@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,7 +15,7 @@
 #include <libgen.h>
 
 #ifdef __linux__
-#include <linux/falloc.h> // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
+#include <linux/falloc.h>  // For FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE
 #endif
 
 #include <cstdlib>
@@ -40,19 +40,21 @@
 #endif
 #endif
 
-#else // __has_include is not defined
+#else  // __has_include is not defined
 
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "__has_include is not defined, consequently disable the Filesystem library."
-#endif // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
+#warning \
+    "__has_include is not defined, consequently disable the Filesystem library."
+#endif  // METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 
-#endif // #ifdef __has_include
+#endif  // #ifdef __has_include
 
 #include <metall/logger.hpp>
 
 namespace metall::mtlldetail {
 
-#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && \
+    !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 namespace {
 namespace fs = std::filesystem;
 }
@@ -89,7 +91,8 @@ inline bool fsync(const std::string &path) {
 }
 
 inline bool fsync_recursive(const std::string &path) {
-#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && \
+    !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
   fs::path p(path);
   p = fs::canonical(p);
   while (true) {
@@ -121,7 +124,8 @@ inline bool fsync_recursive(const std::string &path) {
 #endif
 }
 
-inline bool extend_file_size_manually(const int fd, const off_t offset, const ssize_t file_size) {
+inline bool extend_file_size_manually(const int fd, const off_t offset,
+                                      const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
   for (off_t i = offset; i < file_size / 4096 + offset; ++i) {
     ::pwrite(fd, buffer, 4096, i * 4096);
@@ -137,12 +141,13 @@ inline bool extend_file_size_manually(const int fd, const off_t offset, const ss
   return ret;
 }
 
-inline bool extend_file_size(const int fd, const size_t file_size, const bool fill_with_zero) {
-
+inline bool extend_file_size(const int fd, const size_t file_size,
+                             const bool fill_with_zero) {
   if (fill_with_zero) {
 #ifdef __APPLE__
     if (!extend_file_size_manually(fd, 0, file_size)) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Failed to extend file size manually, filling zero");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Failed to extend file size manually, filling zero");
       return false;
     }
 #else
@@ -152,7 +157,8 @@ inline bool extend_file_size(const int fd, const size_t file_size, const bool fi
     }
 #endif
   } else {
-    // -----  extend the file if its size is smaller than that of mapped area ----- //
+    // -----  extend the file if its size is smaller than that of mapped area
+    // ----- //
     struct stat stat_buf;
     if (::fstat(fd, &stat_buf) == -1) {
       logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
@@ -170,7 +176,9 @@ inline bool extend_file_size(const int fd, const size_t file_size, const bool fi
   return ret;
 }
 
-inline bool extend_file_size(const std::string &file_path, const size_t file_size, const bool fill_with_zero = false) {
+inline bool extend_file_size(const std::string &file_path,
+                             const size_t file_size,
+                             const bool fill_with_zero = false) {
   const int fd = ::open(file_path.c_str(), O_RDWR);
   if (fd == -1) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "open");
@@ -184,13 +192,11 @@ inline bool extend_file_size(const std::string &file_path, const size_t file_siz
 }
 
 /// \brief Check if a file, any kinds of file including directory, exists
-/// \warning This implementation could return a wrong result due to metadata cache on NFS.
-/// The following code could fail:
-/// if (mpi_rank == 1) file_exist(path); // NFS creates metadata cache
-/// mpi_barrier();
-/// if (mpi_rank == 0) create_directory(path);
-/// mpi_barrier();
-/// if (mpi_rank == 1) assert(file_exist(path)); // Could fail due to the cached metadata.
+/// \warning This implementation could return a wrong result due to metadata
+/// cache on NFS. The following code could fail: if (mpi_rank == 1)
+/// file_exist(path); // NFS creates metadata cache mpi_barrier(); if (mpi_rank
+/// == 0) create_directory(path); mpi_barrier(); if (mpi_rank == 1)
+/// assert(file_exist(path)); // Could fail due to the cached metadata.
 inline bool file_exist(const std::string &file_name) {
   std::string fixed_string(file_name);
   while (fixed_string.back() == '/') {
@@ -200,7 +206,8 @@ inline bool file_exist(const std::string &file_name) {
 }
 
 /// \brief Check if a directory exists
-/// \warning This implementation could return a wrong result due to metadata cache on NFS.
+/// \warning This implementation could return a wrong result due to metadata
+/// cache on NFS.
 inline bool directory_exist(const std::string &dir_path) {
   struct stat stat_buf;
   if (::stat(dir_path.c_str(), &stat_buf) == -1) {
@@ -210,34 +217,35 @@ inline bool directory_exist(const std::string &dir_path) {
 }
 
 inline bool create_file(const std::string &file_path) {
-
-  const int fd = ::open(file_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  const int fd =
+      ::open(file_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "open");
     return false;
   }
 
-  if (!os_close(fd))
-    return false;
+  if (!os_close(fd)) return false;
 
   return fsync_recursive(file_path);
 }
 
-#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && \
+    !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 /// \brief Creates directories recursively.
 /// \return Returns true if the directory was created or already exists.
 /// Otherwise, returns false.
 inline bool create_directory(const std::string &dir_path) {
-
   std::string fixed_string = dir_path;
   // MEMO: GCC bug 87846 (fixed in v8.3)
-  // "Calling std::filesystem::create_directories with a path with a trailing separator (e.g. "./a/b/")
-  // does not create any directory."
-#if (defined(__GNUG__) && !defined(__clang__)) && (__GNUC__ < 8 || (__GNUC__ == 8 && __GNUC_MINOR__ < 3)) // Check if < GCC 8.3
+  // "Calling std::filesystem::create_directories with a path with a trailing
+  // separator (e.g. "./a/b/") does not create any directory."
+#if (defined(__GNUG__) && !defined(__clang__)) && \
+    (__GNUC__ < 8 ||                              \
+     (__GNUC__ == 8 && __GNUC_MINOR__ < 3))  // Check if < GCC 8.3
   // Remove trailing separator(s) if they exist:
-    while (fixed_string.back() == '/') {
-      fixed_string.pop_back();
-    }
+  while (fixed_string.back() == '/') {
+    fixed_string.pop_back();
+  }
 #endif
 
   bool success = true;
@@ -250,7 +258,8 @@ inline bool create_directory(const std::string &dir_path) {
         return true;
       }
 
-      logger::out(logger::level::error, __FILE__, __LINE__, ec.message().c_str());
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  ec.message().c_str());
       success = false;
     }
   } catch (fs::filesystem_error &e) {
@@ -262,10 +271,9 @@ inline bool create_directory(const std::string &dir_path) {
 }
 #else
 /// \brief Creates directories recursively.
-/// \return Returns true if the directory was created or already exists, returns true.
-/// Otherwise, returns false.
+/// \return Returns true if the directory was created or already exists, returns
+/// true. Otherwise, returns false.
 inline bool create_directory(const std::string &dir_path) {
-
   std::string mkdir_command("mkdir -p " + dir_path);
   const int status = std::system(mkdir_command.c_str());
   return (status != -1) && !!(WIFEXITED(status));
@@ -298,10 +306,11 @@ inline ssize_t get_actual_file_size(const std::string &file_path) {
 }
 
 /// \brief Remove a file or directory
-/// \return Upon successful completion, returns true; otherwise, false is returned.
-/// If the file or directory does not exist, true is returned.
+/// \return Upon successful completion, returns true; otherwise, false is
+/// returned. If the file or directory does not exist, true is returned.
 inline bool remove_file(const std::string &path) {
-#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
+#if defined(__cpp_lib_filesystem) && \
+    !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
   std::filesystem::path p(path);
   std::error_code ec;
   [[maybe_unused]] const auto num_removed = std::filesystem::remove_all(p, ec);
@@ -317,7 +326,8 @@ inline bool free_file_space([[maybe_unused]] const int fd,
                             [[maybe_unused]] const off_t off,
                             [[maybe_unused]] const off_t len) {
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
-  if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, off, len) == -1) {
+  if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, off, len) ==
+      -1) {
     logger::perror(logger::level::warning, __FILE__, __LINE__, "fallocate");
     return false;
   }
@@ -333,13 +343,17 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 
 namespace file_copy_detail {
 
-#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
-inline bool copy_file_dense(const std::string &source_path, const std::string &destination_path) {
+#if defined(__cpp_lib_filesystem) && \
+    !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
+inline bool copy_file_dense(const std::string &source_path,
+                            const std::string &destination_path) {
   bool success = true;
   try {
-    if (!fs::copy_file(source_path, destination_path, fs::copy_options::overwrite_existing)) {
+    if (!fs::copy_file(source_path, destination_path,
+                       fs::copy_options::overwrite_existing)) {
       std::stringstream ss;
-      ss << "Failed copying file: " << source_path << " -> " << destination_path;
+      ss << "Failed copying file: " << source_path << " -> "
+         << destination_path;
       logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       success = false;
     }
@@ -357,7 +371,8 @@ inline bool copy_file_dense(const std::string &source_path, const std::string &d
 
 #else
 
-inline bool copy_file_dense(const std::string &source_path, const std::string &destination_path) {
+inline bool copy_file_dense(const std::string &source_path,
+                            const std::string &destination_path) {
   {
     const ssize_t source_file_size = get_file_size(source_path);
     const ssize_t actual_source_file_size = get_actual_file_size(source_path);
@@ -421,8 +436,10 @@ inline bool copy_file_dense(const std::string &source_path, const std::string &d
 #endif
 
 #ifdef __linux__
-inline bool copy_file_sparse_linux(const std::string &source_path, const std::string &destination_path) {
-  std::string command("cp --sparse=auto " + source_path + " " + destination_path);
+inline bool copy_file_sparse_linux(const std::string &source_path,
+                                   const std::string &destination_path) {
+  std::string command("cp --sparse=auto " + source_path + " " +
+                      destination_path);
   const int status = std::system(command.c_str());
   const bool success = (status != -1) && !!(WIFEXITED(status));
   if (!success) {
@@ -435,7 +452,7 @@ inline bool copy_file_sparse_linux(const std::string &source_path, const std::st
 }
 #endif
 
-}// namespace file_copy_detail
+}  // namespace file_copy_detail
 
 /// \brief Copy a file.
 /// \param source_path A source file path.
@@ -447,9 +464,11 @@ inline bool copy_file(const std::string &source_path,
                       const bool sparse_copy = true) {
   if (sparse_copy) {
 #ifdef __linux__
-    return file_copy_detail::copy_file_sparse_linux(source_path, destination_path);
+    return file_copy_detail::copy_file_sparse_linux(source_path,
+                                                    destination_path);
 #else
-    logger::out(logger::level::info, __FILE__, __LINE__, "Sparse file copy is not available");
+    logger::out(logger::level::info, __FILE__, __LINE__,
+                "Sparse file copy is not available");
 #endif
   }
   return file_copy_detail::copy_file_dense(source_path, destination_path);
@@ -460,10 +479,12 @@ inline bool copy_file(const std::string &source_path,
 /// Only regular files are returned.
 /// \param dir_path A directory path.
 /// \param file_list A buffer to put results.
-/// \return Returns true if there is no error (empty directory returns true as long as the operation does not fail).
-/// Returns false on error.
-inline bool get_regular_file_names(const std::string &dir_path, std::vector<std::string> *file_list) {
-#if defined(__cpp_lib_filesystem) && !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
+/// \return Returns true if there is no error (empty directory returns true as
+/// long as the operation does not fail). Returns false on error.
+inline bool get_regular_file_names(const std::string &dir_path,
+                                   std::vector<std::string> *file_list) {
+#if defined(__cpp_lib_filesystem) && \
+    !defined(METALL_DISABLE_CXX17_FILESYSTEM_LIB)
 
   if (!directory_exist(dir_path)) {
     return false;
@@ -471,13 +492,14 @@ inline bool get_regular_file_names(const std::string &dir_path, std::vector<std:
 
   try {
     file_list->clear();
-    for (auto &p: fs::directory_iterator(dir_path)) {
+    for (auto &p : fs::directory_iterator(dir_path)) {
       if (p.is_regular_file()) {
         file_list->push_back(p.path().filename().string());
       }
     }
   } catch (...) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Exception was thrown");
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Exception was thrown");
     return false;
   }
 
@@ -509,41 +531,43 @@ inline bool get_regular_file_names(const std::string &dir_path, std::vector<std:
 /// If <= 0 is given, the value is automatically determined.
 /// \param copy_func The actual copy function.
 /// \return  On success, returns true. On error, returns false.
-inline bool
-copy_files_in_directory_in_parallel_helper(const std::string &source_dir_path,
-                                           const std::string &destination_dir_path,
-                                           const int max_num_threads,
-                                           const std::function<bool(const std::string &,
-                                                                    const std::string &)> &copy_func) {
-
+inline bool copy_files_in_directory_in_parallel_helper(
+    const std::string &source_dir_path, const std::string &destination_dir_path,
+    const int max_num_threads,
+    const std::function<bool(const std::string &, const std::string &)>
+        &copy_func) {
   std::vector<std::string> src_file_names;
   if (!get_regular_file_names(source_dir_path, &src_file_names)) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Failed to get file list");
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Failed to get file list");
     return false;
   }
 
   std::atomic_uint_fast64_t num_successes = 0;
   std::atomic_uint_fast64_t file_no_cnt = 0;
-  auto copy_lambda
-      = [&file_no_cnt, &num_successes, &source_dir_path, &src_file_names, &destination_dir_path, &copy_func]() {
-        while (true) {
-          const auto file_no = file_no_cnt.fetch_add(1);
-          if (file_no >= src_file_names.size()) break;
-          const std::string &src_file_path = source_dir_path + "/" + src_file_names[file_no];
-          const std::string &dst_file_path = destination_dir_path + "/" + src_file_names[file_no];
-          num_successes.fetch_add(copy_func(src_file_path, dst_file_path) ? 1 : 0);
-        }
-      };
+  auto copy_lambda = [&file_no_cnt, &num_successes, &source_dir_path,
+                      &src_file_names, &destination_dir_path, &copy_func]() {
+    while (true) {
+      const auto file_no = file_no_cnt.fetch_add(1);
+      if (file_no >= src_file_names.size()) break;
+      const std::string &src_file_path =
+          source_dir_path + "/" + src_file_names[file_no];
+      const std::string &dst_file_path =
+          destination_dir_path + "/" + src_file_names[file_no];
+      num_successes.fetch_add(copy_func(src_file_path, dst_file_path) ? 1 : 0);
+    }
+  };
 
-  const auto num_threads = (int)std::min(src_file_names.size(),
-                                         (std::size_t)(max_num_threads > 0 ? max_num_threads
-                                                                           : std::thread::hardware_concurrency()));
+  const auto num_threads = (int)std::min(
+      src_file_names.size(),
+      (std::size_t)(max_num_threads > 0 ? max_num_threads
+                                        : std::thread::hardware_concurrency()));
   std::vector<std::thread *> threads(num_threads, nullptr);
-  for (auto &th: threads) {
+  for (auto &th : threads) {
     th = new std::thread(copy_lambda);
   }
 
-  for (auto &th: threads) {
+  for (auto &th : threads) {
     th->join();
   }
 
@@ -558,18 +582,15 @@ copy_files_in_directory_in_parallel_helper(const std::string &source_dir_path,
 /// If <= 0 is given, it is automatically determined.
 /// \param sparse_copy Performs sparse file copy.
 /// \return  On success, returns true. On error, returns false.
-inline bool copy_files_in_directory_in_parallel(const std::string &source_dir_path,
-                                                const std::string &destination_dir_path,
-                                                const int max_num_threads,
-                                                const bool sparse_copy = true) {
-  return copy_files_in_directory_in_parallel_helper(source_dir_path,
-                                                    destination_dir_path,
-                                                    max_num_threads,
-                                                    [&sparse_copy](const std::string &src,
-                                                                   const std::string &dst) -> bool {
-                                                      return copy_file(src, dst, sparse_copy);
-                                                    });
+inline bool copy_files_in_directory_in_parallel(
+    const std::string &source_dir_path, const std::string &destination_dir_path,
+    const int max_num_threads, const bool sparse_copy = true) {
+  return copy_files_in_directory_in_parallel_helper(
+      source_dir_path, destination_dir_path, max_num_threads,
+      [&sparse_copy](const std::string &src, const std::string &dst) -> bool {
+        return copy_file(src, dst, sparse_copy);
+      });
 }
-} // namespace metall::mtlldetail
+}  // namespace metall::mtlldetail
 
-#endif //METALL_DETAIL_UTILITY_FILE_HPP
+#endif  // METALL_DETAIL_UTILITY_FILE_HPP

@@ -1,10 +1,10 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef  METALL_BENCH_DATA_STRUCTURE_PARTITIONED_MULTITHREAD_ADJACENCY_LIST_HPP
-#define  METALL_BENCH_DATA_STRUCTURE_PARTITIONED_MULTITHREAD_ADJACENCY_LIST_HPP
+#ifndef METALL_BENCH_DATA_STRUCTURE_PARTITIONED_MULTITHREAD_ADJACENCY_LIST_HPP
+#define METALL_BENCH_DATA_STRUCTURE_PARTITIONED_MULTITHREAD_ADJACENCY_LIST_HPP
 
 #include <vector>
 #include <memory>
@@ -21,10 +21,12 @@ class partitioned_multithread_adjacency_list {
 
  private:
   template <typename T>
-  using actual_global_allocator_type = typename std::allocator_traits<global_allocator_type>::template rebind_alloc<T>;
+  using actual_global_allocator_type = typename std::allocator_traits<
+      global_allocator_type>::template rebind_alloc<T>;
 
-  using global_adjacency_list_type = std::vector<local_adj_list_type *,
-                                                 actual_global_allocator_type<local_adj_list_type *>>;
+  using global_adjacency_list_type =
+      std::vector<local_adj_list_type *,
+                  actual_global_allocator_type<local_adj_list_type *>>;
 
   // Forward declaration
   class impl_key_iterator;
@@ -32,18 +34,23 @@ class partitioned_multithread_adjacency_list {
  public:
   using const_key_iterator = impl_key_iterator;
   using value_iterator = typename local_adj_list_type::value_iterator;
-  using const_value_iterator = typename local_adj_list_type::const_value_iterator;;
-  using const_local_key_iterator = typename local_adj_list_type::const_key_iterator;;
+  using const_value_iterator =
+      typename local_adj_list_type::const_value_iterator;
+  ;
+  using const_local_key_iterator =
+      typename local_adj_list_type::const_key_iterator;
+  ;
 
   template <typename local_manager_iterator>
-  partitioned_multithread_adjacency_list(const std::string &key_name,
-                                         local_manager_iterator first, local_manager_iterator last,
-                                         const global_allocator_type &global_allocator = global_allocator_type())
+  partitioned_multithread_adjacency_list(
+      const std::string &key_name, local_manager_iterator first,
+      local_manager_iterator last,
+      const global_allocator_type &global_allocator = global_allocator_type())
       : m_global_adjacency_list(global_allocator) {
     for (; first != last; ++first) {
       auto manager = *first;
-      auto adj_list = manager->template find_or_construct<local_adj_list_type>(key_name.c_str())
-                                                                              (manager->template get_allocator<>());
+      auto adj_list = manager->template find_or_construct<local_adj_list_type>(
+          key_name.c_str())(manager->template get_allocator<>());
       m_global_adjacency_list.push_back(adj_list);
     }
   }
@@ -104,9 +111,7 @@ class partitioned_multithread_adjacency_list {
     return m_global_adjacency_list[partition_index].keys_end();
   }
 
-  std::size_t num_partition() const {
-    return m_global_adjacency_list.size();
-  }
+  std::size_t num_partition() const { return m_global_adjacency_list.size(); }
 
   std::size_t partition_index(const key_type &key) const {
     return key % num_partition();
@@ -119,12 +124,12 @@ class partitioned_multithread_adjacency_list {
   }
 
  private:
-
   local_adj_list_type &local_adjacency_list_of(const std::size_t i) {
     return *m_global_adjacency_list[partition_index(i)];
   }
 
-  const local_adj_list_type &local_adjacency_list_of(const std::size_t i) const {
+  const local_adj_list_type &local_adjacency_list_of(
+      const std::size_t i) const {
     return *m_global_adjacency_list[partition_index(i)];
   }
 
@@ -132,9 +137,13 @@ class partitioned_multithread_adjacency_list {
 };
 
 template <typename local_adj_list_type, typename global_allocator_type>
-class partitioned_multithread_adjacency_list<local_adj_list_type, global_allocator_type>::impl_key_iterator {
+class partitioned_multithread_adjacency_list<
+    local_adj_list_type, global_allocator_type>::impl_key_iterator {
  private:
-  using global_adjacency_list_type = partitioned_multithread_adjacency_list<local_adj_list_type, global_allocator_type>;
+  using global_adjacency_list_type =
+      partitioned_multithread_adjacency_list<local_adj_list_type,
+                                             global_allocator_type>;
+
  public:
   using difference_type = typename const_local_key_iterator::difference_type;
   using value_type = typename const_local_key_iterator::value_type;
@@ -144,13 +153,18 @@ class partitioned_multithread_adjacency_list<local_adj_list_type, global_allocat
   explicit impl_key_iterator(const global_adjacency_list_type *adjacency_list)
       : m_ptr_adjacency_list(adjacency_list),
         m_current_partition(0),
-        m_local_iterator(m_ptr_adjacency_list->m_global_adjacency_list[0]->keys_begin()) {
-    while (m_local_iterator == m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]->keys_end()) {
-      ++m_current_partition; // move to the next bank
+        m_local_iterator(
+            m_ptr_adjacency_list->m_global_adjacency_list[0]->keys_begin()) {
+    while (m_local_iterator ==
+           m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]
+               ->keys_end()) {
+      ++m_current_partition;  // move to the next bank
       if (m_current_partition == m_ptr_adjacency_list->num_partition()) {
         return;  // reach the end
       }
-      m_local_iterator = m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]->keys_begin();
+      m_local_iterator =
+          m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]
+              ->keys_begin();
     }
   }
 
@@ -162,19 +176,20 @@ class partitioned_multithread_adjacency_list<local_adj_list_type, global_allocat
 
   void move_to_end() {
     m_current_partition = m_ptr_adjacency_list->num_partition();
-    m_local_iterator = m_ptr_adjacency_list->m_global_adjacency_list[m_ptr_adjacency_list->num_partition()
-        - 1]->keys_end();
+    m_local_iterator =
+        m_ptr_adjacency_list
+            ->m_global_adjacency_list[m_ptr_adjacency_list->num_partition() - 1]
+            ->keys_end();
   }
 
   bool operator==(const impl_key_iterator &other) {
-    return (m_current_partition == other.m_current_partition && m_local_iterator == other.m_local_iterator);
+    return (m_current_partition == other.m_current_partition &&
+            m_local_iterator == other.m_local_iterator);
   }
 
-  bool operator!=(const impl_key_iterator &other) {
-    return !(*this == other);
-  }
+  bool operator!=(const impl_key_iterator &other) { return !(*this == other); }
 
-  impl_key_iterator& operator++() {
+  impl_key_iterator &operator++() {
     next();
     return *this;
   }
@@ -185,40 +200,46 @@ class partitioned_multithread_adjacency_list<local_adj_list_type, global_allocat
     return tmp;
   }
 
-  pointer operator->() {
-    return &(*m_local_iterator);
-  }
+  pointer operator->() { return &(*m_local_iterator); }
 
-  reference operator*() {
-    return (*m_local_iterator);
-  }
+  reference operator*() { return (*m_local_iterator); }
 
  private:
-
   void next() {
     if (m_current_partition == m_ptr_adjacency_list->num_partition()) {
-      assert(m_local_iterator
-                 == m_ptr_adjacency_list->m_global_adjacency_list[m_ptr_adjacency_list->num_partition()
-                     - 1]->keys_end());
-      return; // already at the end
+      assert(
+          m_local_iterator ==
+          m_ptr_adjacency_list
+              ->m_global_adjacency_list[m_ptr_adjacency_list->num_partition() -
+                                        1]
+              ->keys_end());
+      return;  // already at the end
     }
 
     ++m_local_iterator;
-    if (m_local_iterator != m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]->keys_end())
-      return; // found the next one
+    if (m_local_iterator !=
+        m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]
+            ->keys_end())
+      return;  // found the next one
 
     // iterate until find the next valid element
     while (true) {
-      ++m_current_partition; // move to next bank
+      ++m_current_partition;  // move to next bank
       if (m_current_partition == m_ptr_adjacency_list->num_partition()) {
-        assert(m_local_iterator
-                   == m_ptr_adjacency_list->m_global_adjacency_list[m_ptr_adjacency_list->num_partition()
-                       - 1]->keys_end());
+        assert(m_local_iterator ==
+               m_ptr_adjacency_list
+                   ->m_global_adjacency_list
+                       [m_ptr_adjacency_list->num_partition() - 1]
+                   ->keys_end());
         return;  // reach the end
       }
-      m_local_iterator = m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]->keys_begin();
-      if (m_local_iterator != m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]->keys_end())
-        return; // found the next one
+      m_local_iterator =
+          m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]
+              ->keys_begin();
+      if (m_local_iterator !=
+          m_ptr_adjacency_list->m_global_adjacency_list[m_current_partition]
+              ->keys_end())
+        return;  // found the next one
     }
   }
 
@@ -226,6 +247,6 @@ class partitioned_multithread_adjacency_list<local_adj_list_type, global_allocat
   std::size_t m_current_partition;
   const_local_key_iterator m_local_iterator;
 };
-}
+}  // namespace data_structure
 
-#endif // METALL_BENCH_DATA_STRUCTURE_PARTITIONED_MULTITHREAD_ADJACENCY_LIST_HPP
+#endif  // METALL_BENCH_DATA_STRUCTURE_PARTITIONED_MULTITHREAD_ADJACENCY_LIST_HPP

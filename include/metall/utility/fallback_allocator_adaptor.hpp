@@ -1,5 +1,5 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -14,39 +14,45 @@
 
 namespace metall::utility {
 
-/// \brief A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc)
-/// if its constructor receives no argument.
-/// \tparam primary_alloc A primary allocator type, i.e., metall::stl_allocator.
+/// \brief A STL compatible allocator which fallbacks to a heap allocator (e.g.,
+/// malloc) if its constructor receives no argument. \tparam primary_alloc A
+/// primary allocator type, i.e., metall::stl_allocator.
 ///
 /// \details
 /// Using this allocator, the following code will work:
 /// \code
 /// {
-///  using alloc = fallback_allocator_adaptor<metall::manager::allocator_type<int>>;
-///  vector<int, alloc> temp_vec; // Allocate an vector object temporarily in 'DRAM'.
+///  using alloc =
+///  fallback_allocator_adaptor<metall::manager::allocator_type<int>>;
+///  vector<int, alloc> temp_vec; // Allocate an vector object temporarily in
+///  'DRAM'.
 /// }
 /// \endcode
 /// \attention
-/// The purpose of this allocator is providing a way to quickly integrate Metall into an application
-/// which wants to allocate 'metallized' classes temporarily in 'DRAM' occasionally.
-/// This allocator could cause difficult bugs to debug. Use this allocator with great care.
+/// The purpose of this allocator is providing a way to quickly integrate Metall
+/// into an application which wants to allocate 'metallized' classes temporarily
+/// in 'DRAM' occasionally. This allocator could cause difficult bugs to debug.
+/// Use this allocator with great care.
 template <typename primary_alloc>
 class fallback_allocator_adaptor {
  private:
   template <typename T>
-  using other_primary_allocator_type = typename std::allocator_traits<primary_alloc>::template rebind_alloc<T>;
+  using other_primary_allocator_type =
+      typename std::allocator_traits<primary_alloc>::template rebind_alloc<T>;
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Public types and static values
-  // -------------------------------------------------------------------------------- //
-  using primary_allocator_type = typename std::remove_const<typename std::remove_reference<primary_alloc>::type>::type;
+  // -------------------- //
+  using primary_allocator_type = typename std::remove_const<
+      typename std::remove_reference<primary_alloc>::type>::type;
 
   using value_type = typename primary_allocator_type::value_type;
   using pointer = typename primary_allocator_type::pointer;
   using const_pointer = typename primary_allocator_type::const_pointer;
   using void_pointer = typename primary_allocator_type::void_pointer;
-  using const_void_pointer = typename primary_allocator_type::const_void_pointer;
+  using const_void_pointer =
+      typename primary_allocator_type::const_void_pointer;
   using difference_type = typename primary_allocator_type::difference_type;
   using size_type = typename primary_allocator_type::size_type;
   using propagate_on_container_copy_assignment = std::true_type;
@@ -61,67 +67,92 @@ class fallback_allocator_adaptor {
   };
 
  public:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Constructor & assign operator
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
 
   /// \brief Default constructor which falls back on a heap allocator.
-  fallback_allocator_adaptor() noexcept
-      : m_primary_allocator(nullptr) {}
+  fallback_allocator_adaptor() noexcept : m_primary_allocator(nullptr) {}
 
-  /// \brief Construct a new instance using an instance of fallback_allocator_adaptor with any primary_allocator type.
+  /// \brief Construct a new instance using an instance of
+  /// fallback_allocator_adaptor with any primary_allocator type.
   template <typename primary_allocator_type2,
-      std::enable_if_t<std::is_constructible<primary_alloc, primary_allocator_type2>::value, int> = 0>
-  fallback_allocator_adaptor(fallback_allocator_adaptor<primary_allocator_type2> allocator_instance) noexcept
+            std::enable_if_t<std::is_constructible<
+                                 primary_alloc, primary_allocator_type2>::value,
+                             int> = 0>
+  fallback_allocator_adaptor(fallback_allocator_adaptor<primary_allocator_type2>
+                                 allocator_instance) noexcept
       : m_primary_allocator(allocator_instance.primary_allocator()) {}
 
-  /// \brief Construct a new instance using an instance of any primary_allocator.
+  /// \brief Construct a new instance using an instance of any
+  /// primary_allocator.
   template <typename primary_allocator_type2,
-      std::enable_if_t<std::is_constructible<primary_alloc, primary_allocator_type2>::value, int> = 0>
-  fallback_allocator_adaptor(primary_allocator_type2 allocator_instance) noexcept
+            std::enable_if_t<std::is_constructible<
+                                 primary_alloc, primary_allocator_type2>::value,
+                             int> = 0>
+  fallback_allocator_adaptor(
+      primary_allocator_type2 allocator_instance) noexcept
       : m_primary_allocator(allocator_instance) {}
 
   /// \brief Copy constructor
-  fallback_allocator_adaptor(const fallback_allocator_adaptor &other) noexcept = default;
+  fallback_allocator_adaptor(const fallback_allocator_adaptor &other) noexcept =
+      default;
 
   /// \brief Move constructor
-  fallback_allocator_adaptor(fallback_allocator_adaptor &&other) noexcept = default;
+  fallback_allocator_adaptor(fallback_allocator_adaptor &&other) noexcept =
+      default;
 
   /// \brief Copy assign operator
-  fallback_allocator_adaptor &operator=(const fallback_allocator_adaptor &) noexcept = default;
+  fallback_allocator_adaptor &operator=(
+      const fallback_allocator_adaptor &) noexcept = default;
 
-  /// \brief Copy assign operator, using an instance of fallback_allocator_adaptor with any primary_allocator type
+  /// \brief Copy assign operator, using an instance of
+  /// fallback_allocator_adaptor with any primary_allocator type
   template <typename primary_allocator_type2,
-      std::enable_if_t<std::is_constructible<primary_alloc, primary_allocator_type2>::value, int> = 0>
-  fallback_allocator_adaptor &operator=(const fallback_allocator_adaptor<primary_allocator_type2> &other) noexcept {
+            std::enable_if_t<std::is_constructible<
+                                 primary_alloc, primary_allocator_type2>::value,
+                             int> = 0>
+  fallback_allocator_adaptor &operator=(
+      const fallback_allocator_adaptor<primary_allocator_type2>
+          &other) noexcept {
     m_primary_allocator = other.primary_allocator();
     return *this;
   }
 
   /// \brief Copy assign operator for any primary_allocator
   template <typename primary_allocator_type2,
-      std::enable_if_t<std::is_constructible<primary_alloc, primary_allocator_type2>::value, int> = 0>
-  fallback_allocator_adaptor &operator=(const primary_allocator_type2 &allocator_instance) noexcept {
+            std::enable_if_t<std::is_constructible<
+                                 primary_alloc, primary_allocator_type2>::value,
+                             int> = 0>
+  fallback_allocator_adaptor &operator=(
+      const primary_allocator_type2 &allocator_instance) noexcept {
     m_primary_allocator = allocator_instance;
     return *this;
   }
 
   /// \brief Move assign operator
-  fallback_allocator_adaptor &operator=(fallback_allocator_adaptor &&other) noexcept = default;
+  fallback_allocator_adaptor &operator=(
+      fallback_allocator_adaptor &&other) noexcept = default;
 
-
-  /// \brief Move assign operator, using an instance of fallback_allocator_adaptor with any primary_allocator type
+  /// \brief Move assign operator, using an instance of
+  /// fallback_allocator_adaptor with any primary_allocator type
   template <typename primary_allocator_type2,
-      std::enable_if_t<std::is_constructible<primary_alloc, primary_allocator_type2>::value, int> = 0>
-  fallback_allocator_adaptor &operator=(fallback_allocator_adaptor<primary_allocator_type2> &&other) noexcept {
+            std::enable_if_t<std::is_constructible<
+                                 primary_alloc, primary_allocator_type2>::value,
+                             int> = 0>
+  fallback_allocator_adaptor &operator=(
+      fallback_allocator_adaptor<primary_allocator_type2> &&other) noexcept {
     m_primary_allocator = std::move(other.primary_allocator());
     return *this;
   }
 
   /// \brief Move assign operator for any primary_allocator
   template <typename primary_allocator_type2,
-      std::enable_if_t<std::is_constructible<primary_alloc, primary_allocator_type2>::value, int> = 0>
-  fallback_allocator_adaptor &operator=(primary_allocator_type2 &&allocator_instance) noexcept {
+            std::enable_if_t<std::is_constructible<
+                                 primary_alloc, primary_allocator_type2>::value,
+                             int> = 0>
+  fallback_allocator_adaptor &operator=(
+      primary_allocator_type2 &&allocator_instance) noexcept {
     m_primary_allocator = std::move(allocator_instance);
     return *this;
   }
@@ -149,16 +180,14 @@ class fallback_allocator_adaptor {
 
   /// \brief The size of the theoretical maximum allocation size
   /// \return The size of the theoretical maximum allocation size
-  size_type max_size() const noexcept {
-    return m_primary_allocator.max_size();
-  }
+  size_type max_size() const noexcept { return m_primary_allocator.max_size(); }
 
   /// \brief Constructs an object of T
   /// \tparam Args The types of the constructor arguments
   /// \param ptr A pointer to allocated storage
   /// \param args The constructor arguments to use
   template <class... Args>
-  void construct(const pointer &ptr, Args &&... args) const {
+  void construct(const pointer &ptr, Args &&...args) const {
     if (priv_primary_allocator_available()) {
       m_primary_allocator.construct(ptr, std::forward<Args>(args)...);
     } else {
@@ -177,25 +206,25 @@ class fallback_allocator_adaptor {
   }
 
   /// \brief Obtains the copy-constructed version of the allocator a.
-  /// \param a Allocator used by a standard container passed as an argument to a container copy constructor.
-  /// \return The allocator to use by the copy-constructed standard containers.
-  fallback_allocator_adaptor select_on_container_copy_construction(const fallback_allocator_adaptor &a) {
+  /// \param a Allocator used by a standard container passed as an argument to a
+  /// container copy constructor. \return The allocator to use by the
+  /// copy-constructed standard containers.
+  fallback_allocator_adaptor select_on_container_copy_construction(
+      const fallback_allocator_adaptor &a) {
     return fallback_allocator_adaptor(a);
   }
 
-  // ----------------------------------- This class's unique public functions ----------------------------------- //
-  primary_allocator_type &primary_allocator() {
-    return m_primary_allocator;
-  }
+  // ---------- This class's unique public functions ---------- //
+  primary_allocator_type &primary_allocator() { return m_primary_allocator; }
 
   const primary_allocator_type &primary_allocator() const {
     return m_primary_allocator;
   }
 
  private:
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private methods
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   auto priv_primary_allocator_available() const {
     return !!(m_primary_allocator.get_pointer_to_manager_kernel());
   }
@@ -217,37 +246,38 @@ class fallback_allocator_adaptor {
     std::free(to_raw_pointer(ptr));
   }
 
-  void priv_fallback_destroy(pointer ptr) const {
-    (*ptr).~value_type();
-  }
+  void priv_fallback_destroy(pointer ptr) const { (*ptr).~value_type(); }
 
   template <class... arg_types>
-  void priv_fallback_construct(const pointer &ptr, arg_types &&... args) const {
-    ::new((void *)to_raw_pointer(ptr)) value_type(std::forward<arg_types>(args)...);
+  void priv_fallback_construct(const pointer &ptr, arg_types &&...args) const {
+    ::new ((void *)to_raw_pointer(ptr))
+        value_type(std::forward<arg_types>(args)...);
   }
 
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   // Private fields
-  // -------------------------------------------------------------------------------- //
+  // -------------------- //
   primary_allocator_type m_primary_allocator;
 };
 
 template <typename primary_allocator_type>
-inline bool operator==(const fallback_allocator_adaptor<primary_allocator_type> &rhd,
-                       const fallback_allocator_adaptor<primary_allocator_type> &lhd) {
+inline bool operator==(
+    const fallback_allocator_adaptor<primary_allocator_type> &rhd,
+    const fallback_allocator_adaptor<primary_allocator_type> &lhd) {
   // Return true if they point to the same manager kernel
   return rhd.primary_allocator() == lhd.primary_allocator();
 }
 
 template <typename primary_allocator_type>
-inline bool operator!=(const fallback_allocator_adaptor<primary_allocator_type> &rhd,
-                       const fallback_allocator_adaptor<primary_allocator_type> &lhd) {
+inline bool operator!=(
+    const fallback_allocator_adaptor<primary_allocator_type> &rhd,
+    const fallback_allocator_adaptor<primary_allocator_type> &lhd) {
   return !(rhd == lhd);
 }
 
-} // namespace metall::utility
+}  // namespace metall::utility
 
 /// \example fallback_allocator_adaptor.cpp
 /// This is an example of how to use fallback_allocator_adaptor.
 
-#endif //METALL_UTILITY_FALLBACK_ALLOCATOR_ADAPTOR_HPP
+#endif  // METALL_UTILITY_FALLBACK_ALLOCATOR_ADAPTOR_HPP

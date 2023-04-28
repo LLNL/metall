@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -16,7 +16,8 @@
 namespace {
 
 TEST(MultilayerBitsetTest, FindAndSet) {
-  for (uint64_t num_bits = 1; num_bits <= (64ULL * 64 * 64 * 32); num_bits *= 64) { // Test up to 4 layers,
+  for (uint64_t num_bits = 1; num_bits <= (64ULL * 64 * 64 * 32);
+       num_bits *= 64) {  // Test up to 4 layers,
     metall::kernel::multilayer_bitset bitset;
     bitset.allocate(num_bits);
     for (uint64_t i = 0; i < num_bits; ++i) {
@@ -28,7 +29,8 @@ TEST(MultilayerBitsetTest, FindAndSet) {
 }
 
 TEST(MultilayerBitsetTest, Reset) {
-  for (uint64_t num_bits = 1; num_bits <= (64ULL * 64 * 64 * 32); num_bits *= 64) { // Test up to 4 layers
+  for (uint64_t num_bits = 1; num_bits <= (64ULL * 64 * 64 * 32);
+       num_bits *= 64) {  // Test up to 4 layers
     metall::kernel::multilayer_bitset bitset;
     bitset.allocate(num_bits);
     for (uint64_t i = 0; i < num_bits; ++i) {
@@ -45,11 +47,13 @@ TEST(MultilayerBitsetTest, Reset) {
   }
 }
 
-void FindAndSetManyHelper(const std::size_t num_bits,
-                          const std::size_t num_to_find,
-                          metall::kernel::multilayer_bitset &bitset,
-                          std::unordered_set<metall::kernel::multilayer_bitset::bit_position_type> &used_bits) {
-  SCOPED_TRACE("#of bits = " + std::to_string(num_bits) + ", #of finds = " + std::to_string(num_to_find));
+void FindAndSetManyHelper(
+    const std::size_t num_bits, const std::size_t num_to_find,
+    metall::kernel::multilayer_bitset &bitset,
+    std::unordered_set<metall::kernel::multilayer_bitset::bit_position_type>
+        &used_bits) {
+  SCOPED_TRACE("#of bits = " + std::to_string(num_bits) +
+               ", #of finds = " + std::to_string(num_to_find));
 
   metall::kernel::multilayer_bitset::bit_position_type buf[num_to_find];
 
@@ -65,15 +69,16 @@ void FindAndSetManyHelper(const std::size_t num_bits,
     else
       ASSERT_FALSE(bitset.get(num_bits, i)) << " i = " << i;
   }
-
 }
 
 TEST(MultilayerBitsetTest, FindAndSetMany) {
-  for (std::size_t num_bits = 1; num_bits <= (64ULL * 64 * 64 * 32); num_bits *= 64) { // Test up to 4 layers,
+  for (std::size_t num_bits = 1; num_bits <= (64ULL * 64 * 64 * 32);
+       num_bits *= 64) {  // Test up to 4 layers,
     metall::kernel::multilayer_bitset bitset;
     bitset.allocate(num_bits);
 
-    std::unordered_set<metall::kernel::multilayer_bitset::bit_position_type> used_bits;
+    std::unordered_set<metall::kernel::multilayer_bitset::bit_position_type>
+        used_bits;
 
     FindAndSetManyHelper(num_bits, 1, bitset, used_bits);
 
@@ -87,11 +92,7 @@ TEST(MultilayerBitsetTest, FindAndSetMany) {
   }
 }
 
-enum mode : uint8_t {
-  set,
-  reset,
-  set_many
-};
+enum mode : uint8_t { set, reset, set_many };
 
 void RandomSetAndResetHelper2(const std::size_t num_bits) {
   SCOPED_TRACE("num_bits = " + std::to_string(num_bits));
@@ -105,10 +106,11 @@ void RandomSetAndResetHelper2(const std::size_t num_bits) {
   std::mt19937_64 rnd_gen(rd());
   std::uniform_int_distribution<uint64_t> dist(0, num_bits - 1);
 
-  std::discrete_distribution<> mode_dist({mode::set, mode::set, mode::reset, mode::reset, mode::set_many});
+  std::discrete_distribution<> mode_dist(
+      {mode::set, mode::set, mode::reset, mode::reset, mode::set_many});
 
   std::size_t cnt_trues = 0;
-  for (std::size_t i = 0; i < num_bits * 2ULL; ++i) { // Just repeat many times
+  for (std::size_t i = 0; i < num_bits * 2ULL; ++i) {  // Just repeat many times
     const auto mode = mode_dist(rnd_gen);
 
     if (mode == mode::set) {
@@ -163,10 +165,9 @@ void RandomSetAndResetHelper2(const std::size_t num_bits) {
 
   bitset.free(num_bits);
 }
-}
+}  // namespace
 
 TEST(MultilayerBitsetTest, RandomSetAndReset2) {
-
   // 1–2 layers
   for (std::size_t num_bits = 1; num_bits <= 64 * 4; ++num_bits) {
     RandomSetAndResetHelper2(num_bits);

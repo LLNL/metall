@@ -1,5 +1,5 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall Project Developers.
-// See the top-level COPYRIGHT file for details.
+// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -17,8 +17,9 @@ namespace metall::mtlldetail {
 /// \tparam T type of object to build
 /// \tparam is_iterator passing parameters are normal object or iterators?
 template <typename segment_manager, typename T, bool is_iterator>
-using named_proxy = boost::interprocess::ipcdetail::named_proxy<segment_manager, T, is_iterator>;
+using named_proxy = boost::interprocess::ipcdetail::named_proxy<segment_manager,
+                                                                T, is_iterator>;
 
-} // namespace metall::mtlldetail
+}  // namespace metall::mtlldetail
 
-#endif //METALL_UTILITY_DETAIL_NAMED_PROXY_HPP
+#endif  // METALL_UTILITY_DETAIL_NAMED_PROXY_HPP
