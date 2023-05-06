@@ -25,29 +25,8 @@ install_boost:
     - shell
   script:
     - hostname
-    - pwd
-#    - spack install boost@1.82.0
-#    - spack install boost@1.81.0
-#    - spack install boost@1.80.0
-#    - spack install boost@1.79.0
-#    - spack install boost@1.78.0
-#    - spack install boost@1.77.0
-#    - spack install boost@1.76.0
-#    - spack install boost@1.75.0
-#    - spack install boost@1.74.0
-#    - spack install boost@1.73.0
-#    - spack install boost@1.72.0
-#    - spack install boost@1.71.0
-#    - spack install boost@1.70.0
-#    - spack install boost@1.69.0
-#    - spack install boost@1.68.0
-#    - spack install boost@1.67.0
-#    - spack install boost@1.66.0
-#    - spack install boost@1.65.1
-#    - spack install boost@1.65.0
-#    - spack install boost@1.64.0
-#    - spack clean
-    - spack find
+    - srun -N1 -ppdebug spack install boost@1.82.0 boost@1.81.0 boost@1.80.0 boost@1.79.0 boost@1.78.0 boost@1.77.0 boost@1.76.0 boost@1.75.0 boost@1.74.0 boost@1.73.0 boost@1.72.0 boost@1.71.0 boost@1.70.0 boost@1.69.0 boost@1.68.0 boost@1.67.0 boost@1.66.0 boost@1.65.1 boost@1.65.0 boost@1.64.0
+    - spack clean
 
 
 .build:
