@@ -17,7 +17,7 @@
 #define METALL_LINK_WITH_BOOST_JSON
 
 /// \brief Include guard for boost/json/src.hpp
-#define METALL_JSON_BOOST_JSON_SRC_INCLUDED
+#define METALL_BOOST_JSON_SRC_INCLUDED
 #endif
 
 #if METALL_LINK_WITH_BOOST_JSON
