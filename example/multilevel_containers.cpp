@@ -53,18 +53,13 @@ using map_type =
 int main() {
   {
     // Create a new metall object
-    // Note that Metall creates sparse files so that it does not use physical
-    // memory space until required
-    metall::manager manager(metall::create_only,
-                            "/tmp/datastore");  // Prefix of the backing files
+    metall::manager manager(metall::create_only, "/tmp/datastore");
 
     // Construct an object of map_type
     map_type* pmap =
-        manager.construct<map_type>("map")  // Name of the constructed object
-        (manager.get_allocator<>());  // Call map_type's constructor with Metall
-                                      // allocator object
+        manager.construct<map_type>("map")(manager.get_allocator<>());
 
-    // You can use the container as usual //
+    // Can use the container as usual
     vector_type vec1(manager.get_allocator());
     vec1.push_back('a');
     (*pmap)[30].emplace(20, vec1);

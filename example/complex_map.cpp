@@ -22,7 +22,6 @@ using key_type = int;
 // Mapped type
 template <typename _allocator_type>
 struct mapped_type {
- public:
   using allocator_type = _allocator_type;
 
   bc::vector<int, rebind_alloc<_allocator_type, int>> vec;
@@ -56,13 +55,11 @@ int main() {
     auto pmap =
         manager.construct<metall_map_type>("map")(manager.get_allocator<>());
 
-    (*pmap)[0] = metall_map_type::mapped_type(manager.get_allocator<>());
+    (*pmap)[0];
     pmap->at(0).vec.push_back(0);
     pmap->at(0).str = "hello, world 0";
 
-    pmap->try_emplace(1);  // Scoped_allocator_adopter passes an allocator
-                           // object to mapped_type? pmap->try_emplace(1,
-                           // manager.get_allocator<>()); does not work?
+    pmap->try_emplace(1);
     pmap->at(1).vec.push_back(1);
     pmap->at(1).str = "hello, world 1";
   }

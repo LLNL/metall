@@ -26,6 +26,10 @@ using manager = basic_manager<>;
 /// \example multilevel_containers.cpp
 /// This is an example of how to use a multi-level STL container with Metall.
 
+/// \example allocator_aware_type.cpp
+/// This example shows how to create an allocator-aware type, which takes an
+/// allocator and can be stored inside an STL container.
+
 /// \example simple.cpp
 /// This is a simple example of how to use Metall.
 
