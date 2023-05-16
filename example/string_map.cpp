@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
-#include <boost/container/scoped_allocator.hpp>
 #include <boost/container/string.hpp>
 #include <boost/container/map.hpp>
 #include <metall/metall.hpp>
@@ -18,9 +17,8 @@ void string_int_map() {
   using value_type = std::pair<const persistent_string,  // Key type
                                int>;                     // Mapped type
   using string_int_map =
-      boost::container::map<persistent_string, int,
-                            std::less<persistent_string>,
-                            metall::manager::allocator_type<value_type>>;
+      boost::container::map<persistent_string, int, std::less<>,
+                            metall::manager::scoped_allocator_type<value_type>>;
 
   {
     metall::manager manager(metall::create_only, "/tmp/datastore");
@@ -50,13 +48,9 @@ void int_string_map() {
   using value_type = std::pair<const int,           // Key type
                                persistent_string>;  // Mapped type
 
-  // Scoped allocator is required to force to use user given allocators in inner
-  // containers
-  using map_allocator_type = boost::container::scoped_allocator_adaptor<
-      metall::manager::allocator_type<value_type>>;
-  using int_string_map =
-      boost::container::map<int, persistent_string, std::less<int>,
-                            map_allocator_type>;
+  using map_allocator_type = metall::manager::scoped_allocator_type<value_type>;
+  using int_string_map = boost::container::map<int, persistent_string,
+                                               std::less<>, map_allocator_type>;
 
   {
     metall::manager manager(metall::create_only, "/tmp/datastore");
