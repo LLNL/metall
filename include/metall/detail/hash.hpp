@@ -1,4 +1,4 @@
-// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall
+// Copyright 2023 Lawrence Livermore National Security, LLC and other Metall
 // Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -8,20 +8,47 @@
 
 #include <cstdint>
 
+#include <metall/detail/utilities.hpp>
+
 namespace metall::mtlldetail {
 
 // -----------------------------------------------------------------------------
-// This also contains public domain code from MurmurHash2.
+// This file contains public domain code from MurmurHash2.
 // From the MurmurHash2 header:
 //
 // MurmurHash2 was written by Austin Appleby, and is placed in the public
 // domain. The author hereby disclaims copyright to this source code.
-//
 //-----------------------------------------------------------------------------
-inline constexpr uint64_t MurmurHash64A(const void *key, const int len,
-                                        const uint64_t seed) {
-  constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
-  constexpr int r = 47;
+
+namespace mmhdtl {
+//-----------------------------------------------------------------------------
+// Block read - on little-endian machines this is a single load,
+// while on big-endian or unknown machines the byte accesses should
+// still get optimized into the most efficient instruction.
+static inline uint64_t murmurhash_getblock(const uint64_t *p) {
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+  return *p;
+#else
+  const uint8_t *c = (const uint8_t *)p;
+  return (uint64_t)c[0] | (uint64_t)c[1] << 8 | (uint64_t)c[2] << 16 |
+         (uint64_t)c[3] << 24 | (uint64_t)c[4] << 32 | (uint64_t)c[5] << 40 |
+         (uint64_t)c[6] << 48 | (uint64_t)c[7] << 56;
+#endif
+}
+
+}  // namespace mmhdtl
+
+/// \brief MurmurHash2 64-bit hash for 64-bit platforms.
+/// \param key The key to hash.
+/// \param len Length of the key in byte.
+/// \param seed A seed value used for hashing.
+/// \return A hash value.
+METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_BEGIN
+inline uint64_t murmur_hash_64a(const void *key, int len,
+                                uint64_t seed) noexcept {
+
+  const uint64_t m = 0xc6a4a7935bd1e995LLU;
+  const int r = 47;
 
   uint64_t h = seed ^ (len * m);
 
@@ -29,7 +56,7 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len,
   const uint64_t *end = data + (len / 8);
 
   while (data != end) {
-    uint64_t k = *data++;
+    uint64_t k = mmhdtl::murmurhash_getblock(data++);
 
     k *= m;
     k ^= k >> r;
@@ -44,7 +71,7 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len,
   switch (len & 7) {
     case 7:
       h ^= uint64_t(data2[6]) << 48;
-      [[fallthrough]];
+    [[fallthrough]];
     case 6:
       h ^= uint64_t(data2[5]) << 40;
       [[fallthrough]];
@@ -71,24 +98,32 @@ inline constexpr uint64_t MurmurHash64A(const void *key, const int len,
 
   return h;
 }
+METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_END
 
-/// \brief Hash a value of type T
-/// \tparam T The type of a value to hash
-/// \tparam seed A seed value used for hashing
+/// \brief Alias of murmur_hash_64a.
+/// \warning This function is deprecated. Use murmur_hash_64a instead.
+inline uint64_t MurmurHash64A(const void *key, int len,
+                              uint64_t seed) noexcept {
+  return murmur_hash_64a(key, len, seed);
+}
+
+/// \brief Hash a value of type T. Provides the same interface as std::hash.
+/// \tparam T The type of a value to hash.
+/// \tparam seed A seed value used for hashing.
 template <typename T, unsigned int seed = 123>
 struct hash {
-  uint64_t operator()(const T &key) const {
-    return MurmurHash64A(&key, sizeof(T), seed);
+  inline uint64_t operator()(const T &key) const noexcept {
+    return murmur_hash_64a(&key, sizeof(T), seed);
   }
 };
 
-/// \brief Hash string data
-/// \tparam string_type A string class
-/// \tparam seed A seed value used for hashing
+/// \brief Hash string data.
+/// \tparam string_type A string class.
+/// \tparam seed A seed value used for hashing.
 template <typename string_type, unsigned int seed = 123>
 struct string_hash {
-  uint64_t operator()(const string_type &key) const {
-    return MurmurHash64A(
+  inline uint64_t operator()(const string_type &key) const noexcept {
+    return murmur_hash_64a(
         key.c_str(), key.length() * sizeof(typename string_type::value_type),
         seed);
   }

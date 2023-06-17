@@ -440,7 +440,7 @@ class jgraph {
   internal_id_type priv_generate_edge_id() { return ++m_max_edge_id; }
 
   static internal_id_type priv_hash_id(const std::string_view &id) {
-    return metall::mtlldetail::MurmurHash64A(id.data(), id.length(), 1234);
+    return metall::mtlldetail::murmur_hash_64a(id.data(), id.length(), 1234);
   }
 
   vertex_storage_type m_vertex_storage;
