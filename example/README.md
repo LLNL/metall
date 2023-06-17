@@ -50,6 +50,10 @@ Therefore, the data structures in the examples below are more like how to use ST
 
 ### Metall (advanced)
 
+* [logger.cpp](logger.cpp)
+
+  * How to use Metall's logger.
+
 * [datastore_description.cpp](datastore_description.cpp)
 
   * Set and get datastore description
