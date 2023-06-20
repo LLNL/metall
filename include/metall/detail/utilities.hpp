@@ -14,6 +14,25 @@
 
 #include <metall/detail/builtin_functions.hpp>
 
+#ifndef METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_BEGIN
+#if defined(__GNUC__) and !defined(__clang__)
+#define METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_BEGIN \
+  _Pragma("GCC diagnostic push")                      \
+      _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+#else
+#define METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_BEGIN
+#endif
+#endif
+
+#ifndef METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_END
+#if defined(__GNUC__) and !defined(__clang__)
+#define METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_END \
+  _Pragma("GCC diagnostic pop")
+#else
+#define METALL_PRAGMA_IGNORE_GCC_UNINIT_WARNING_END
+#endif
+#endif
+
 namespace metall::mtlldetail {
 
 /// \brief Computes the next power of 2

@@ -300,9 +300,8 @@ class mmap_segment_storage {
         mdtl::round_up(std::min(vm_region_size, block_size), page_size());
     m_base_path = base_path;
     m_vm_region_size = mdtl::round_down(vm_region_size, page_size());
-    m_segment =
-        mdtl::round_up(reinterpret_cast<intptr_t>(vm_region), page_size()) +
-        reinterpret_cast<char *>(0);
+    m_segment = reinterpret_cast<char *>(
+        mdtl::round_up(reinterpret_cast<uintptr_t>(vm_region), page_size()));
     m_read_only = false;
 
     // Create the first block so that we can assume that there is a block always
@@ -338,7 +337,7 @@ class mmap_segment_storage {
     m_vm_region_size = mdtl::round_down(vm_region_size, page_size());
     ;
     m_segment = reinterpret_cast<char *>(
-        mdtl::round_up(reinterpret_cast<intptr_t>(vm_region), page_size()));
+        mdtl::round_up(reinterpret_cast<uintptr_t>(vm_region), page_size()));
     m_read_only = read_only;
 
     // Maps block files one by one

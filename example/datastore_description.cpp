@@ -15,7 +15,7 @@ int main() {
     metall::manager manager(metall::create_only, "/tmp/dir");
 
     std::string buf;
-    const auto ret = manager.get_description(&buf);
+    [[maybe_unused]] const auto ret = manager.get_description(&buf);
     assert(!ret && buf.empty());  // 'ret' is false and 'buf' is empty since
                                   // description has not been created yet.
 
