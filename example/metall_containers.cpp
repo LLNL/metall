@@ -16,6 +16,18 @@
 #include <metall/container/priority_queue.hpp>
 #include <metall/container/string.hpp>
 
+// Boost 1.81 or later is required
+#if BOOST_VERSION >= 108100
+#include <metall/container/unordered_flat_map.hpp>
+#include <metall/container/unordered_flat_set.hpp>
+#endif
+
+// Boost 1.82 or later is required
+#if BOOST_VERSION >= 108200
+#include <metall/container/unordered_node_map.hpp>
+#include <metall/container/unordered_node_set.hpp>
+#endif
+
 using namespace metall;
 namespace mc = metall::container;
 
@@ -33,13 +45,28 @@ int main() {
   mg.construct<mc::set<int>>("set")(mg.get_allocator());
   mg.construct<mc::multiset<int>>("multiset")(mg.get_allocator());
 
-  mg.construct<mc::unordered_map<int, int>>("umap")(mg.get_allocator());
+  mg.construct<mc::unordered_map<int, int>>("unordered_map")(
+      mg.get_allocator());
   mg.construct<mc::unordered_multimap<int, int>>("unordered_multimap")(
       mg.get_allocator());
 
   mg.construct<mc::unordered_set<int>>("unordered_set")(mg.get_allocator());
   mg.construct<mc::unordered_multiset<int>>("unordered_multiset")(
       mg.get_allocator());
+
+#if BOOST_VERSION >= 108100
+  mg.construct<mc::unordered_flat_map<int, int>>("unordered_flat_map")(
+      mg.get_allocator());
+  mg.construct<mc::unordered_flat_set<int>>("unordered_flat_set")(
+      mg.get_allocator());
+#endif
+
+#if BOOST_VERSION >= 108200
+  mg.construct<mc::unordered_node_map<int, int>>("unordered_node_map")(
+      mg.get_allocator());
+  mg.construct<mc::unordered_node_set<int>>("unordered_node_set")(
+      mg.get_allocator());
+#endif
 
   mg.construct<mc::vector<int>>("vector")(mg.get_allocator());
 

@@ -26,6 +26,10 @@ using manager = basic_manager<>;
 /// \example multilevel_containers.cpp
 /// This is an example of how to use a multi-level STL container with Metall.
 
+/// \example allocator_aware_type.cpp
+/// This example shows how to create an allocator-aware type, which takes an
+/// allocator and can be stored inside an STL container.
+
 /// \example simple.cpp
 /// This is a simple example of how to use Metall.
 
@@ -49,6 +53,9 @@ using manager = basic_manager<>;
 
 /// \example csr_graph.cpp
 /// This is an example of how to use a CSR graph data structure with Metall.
+
+/// \example logger.cpp
+/// This is an example of how to use Metall's logger.
 
 /// \example datastore_description.cpp
 /// This is an example of how to set and get datastore description.

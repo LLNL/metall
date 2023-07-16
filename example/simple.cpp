@@ -35,7 +35,9 @@ int main() {
 
   // ---------- Assume exit and restart the program at this point ---------- //
 
-  {
+  /// consistent() returns true if a Metall data store exits at the path and
+  /// was closed property.
+  if (metall::manager::consistent("/tmp/dir")) {
     // Reattach the manager instance
     metall::manager manager(metall::open_only, "/tmp/dir");
 
@@ -49,6 +51,8 @@ int main() {
     std::cout << (*pvec)[1] << std::endl;  // Will print "10"
 
     manager.destroy<vector_t>("vec");  // Destroy the instance
+  } else {
+    std::cerr << "Cannot open a Metall data store" << std::endl;
   }
 
   return 0;
