@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.25</span>
+   &#160;<span id="projectnumber">v0.26</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -501,7 +501,7 @@ $(document).ready(function(){initNavTree('jgraph_8hpp_source.html',''); initResi
 <div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;  internal_id_type priv_generate_edge_id() { <span class="keywordflow">return</span> ++m_max_edge_id; }</div>
 <div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160; </div>
 <div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;  <span class="keyword">static</span> internal_id_type priv_hash_id(<span class="keyword">const</span> std::string_view &amp;<span class="keywordtype">id</span>) {</div>
-<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;    <span class="keywordflow">return</span> metall::mtlldetail::MurmurHash64A(<span class="keywordtype">id</span>.data(), <span class="keywordtype">id</span>.length(), 1234);</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;    <span class="keywordflow">return</span> metall::mtlldetail::murmur_hash_64a(<span class="keywordtype">id</span>.data(), <span class="keywordtype">id</span>.length(), 1234);</div>
 <div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;  }</div>
 <div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160; </div>
 <div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;  vertex_storage_type m_vertex_storage;</div>

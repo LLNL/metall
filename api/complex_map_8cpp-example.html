@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.25</span>
+   &#160;<span id="projectnumber">v0.26</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -122,7 +122,6 @@ $(document).ready(function(){initNavTree('complex_map_8cpp-example.html',''); in
 <div class="line"><span class="comment">// Mapped type</span></div>
 <div class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> _allocator_type&gt;</div>
 <div class="line"><span class="keyword">struct </span>mapped_type {</div>
-<div class="line"> <span class="keyword">public</span>:</div>
 <div class="line">  <span class="keyword">using</span> allocator_type = _allocator_type;</div>
 <div class="line"> </div>
 <div class="line">  bc::vector&lt;int, rebind_alloc&lt;_allocator_type, int&gt;&gt; vec;</div>
@@ -156,13 +155,11 @@ $(document).ready(function(){initNavTree('complex_map_8cpp-example.html',''); in
 <div class="line">    <span class="keyword">auto</span> pmap =</div>
 <div class="line">        <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;metall_map_type&gt;(<span class="stringliteral">&quot;map&quot;</span>)(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator&lt;&gt;());</div>
 <div class="line"> </div>
-<div class="line">    (*pmap)[0] = metall_map_type::mapped_type(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator&lt;&gt;());</div>
+<div class="line">    (*pmap)[0];</div>
 <div class="line">    pmap-&gt;at(0).vec.push_back(0);</div>
 <div class="line">    pmap-&gt;at(0).str = <span class="stringliteral">&quot;hello, world 0&quot;</span>;</div>
 <div class="line"> </div>
-<div class="line">    pmap-&gt;try_emplace(1);  <span class="comment">// Scoped_allocator_adopter passes an allocator</span></div>
-<div class="line">                           <span class="comment">// object to mapped_type? pmap-&gt;try_emplace(1,</span></div>
-<div class="line">                           <span class="comment">// manager.get_allocator&lt;&gt;()); does not work?</span></div>
+<div class="line">    pmap-&gt;try_emplace(1);</div>
 <div class="line">    pmap-&gt;at(1).vec.push_back(1);</div>
 <div class="line">    pmap-&gt;at(1).str = <span class="stringliteral">&quot;hello, world 1&quot;</span>;</div>
 <div class="line">  }</div>

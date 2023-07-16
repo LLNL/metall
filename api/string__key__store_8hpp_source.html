@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.25</span>
+   &#160;<span id="projectnumber">v0.26</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -345,7 +345,7 @@ $(document).ready(function(){initNavTree('string__key__store_8hpp_source.html','
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;<span class="preprocessor">#ifdef METALL_CONTAINER_STRING_KEY_STORE_USE_SIMPLE_HASH</span></div>
 <div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    internal_id_type <a class="code" href="namespacemetall_1_1utility.html#a3ded00e1f031af1f986412a9b090da8a">hash</a> = <a class="code" href="classmetall_1_1container_1_1string__key__store.html#a68379a45724225d32d286cfec11d32ca">key</a>.empty() ? 0 : (uint8_t)<a class="code" href="classmetall_1_1container_1_1string__key__store.html#a68379a45724225d32d286cfec11d32ca">key</a>[0] % 2;</div>
 <div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="keyword">auto</span> <a class="code" href="namespacemetall_1_1utility.html#a3ded00e1f031af1f986412a9b090da8a">hash</a> = (internal_id_type)metall::mtlldetail::MurmurHash64A(</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="keyword">auto</span> <a class="code" href="namespacemetall_1_1utility.html#a3ded00e1f031af1f986412a9b090da8a">hash</a> = (internal_id_type)metall::mtlldetail::murmur_hash_64a(</div>
 <div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;        <a class="code" href="classmetall_1_1container_1_1string__key__store.html#a68379a45724225d32d286cfec11d32ca">key</a>.data(), (int)<a class="code" href="classmetall_1_1container_1_1string__key__store.html#a68379a45724225d32d286cfec11d32ca">key</a>.length(), seed);</div>
 <div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="namespacemetall_1_1utility.html#a3ded00e1f031af1f986412a9b090da8a">hash</a> == k_max_internal_id) {</div>

@@ -2,7 +2,8 @@ var NAVTREEINDEX0 =
 {
 "adjacency__list_8hpp.html":[2,0,0,0,0],
 "adjacency__list_8hpp_source.html":[2,0,0,0,0],
-"adjacency_list_graph_8cpp-example.html":[3,7],
+"adjacency_list_graph_8cpp-example.html":[3,8],
+"allocator_aware_type_8cpp-example.html":[3,2],
 "annotated.html":[1,0],
 "array_8hpp.html":[2,0,1,0,2,0],
 "array_8hpp.html#a4fe0b293cbd06544af22ca91d0e3969b":[2,0,1,0,2,0,2],
@@ -10,7 +11,7 @@ var NAVTREEINDEX0 =
 "array_8hpp_source.html":[2,0,1,0,2,0],
 "basic__manager_8hpp.html":[2,0,1,0,4],
 "basic__manager_8hpp_source.html":[2,0,1,0,4],
-"c_api_8c-example.html":[3,14],
+"c_api_8c-example.html":[3,16],
 "classadjacency__list.html":[1,0,1],
 "classadjacency__list.html#a057beca877f7a4d4dcb19643a7c61daa":[1,0,1,2],
 "classadjacency__list.html#a24d5976c74e5e4a0a4689556a7196ef2":[1,0,1,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX0 =
 "classmetall_1_1container_1_1string__key__store__locator.html#a55dd8db52865ee55dd7194e87706cb24":[1,0,0,1,3,1],
 "classmetall_1_1container_1_1string__key__store__locator.html#aaa4d9903e700b04f44ba3b50c580a4fe":[1,0,0,1,3,0],
 "classmetall_1_1container_1_1string__key__store__locator.html#ab334b81c9ddca2409185764538d7ba86":[1,0,0,1,3,2],
-"classmetall_1_1container_1_1string__key__store__locator.html#ae0cf998a4af8dc9988ef8ca03c26503e":[1,0,0,1,3,5],
-"classmetall_1_1json_1_1array.html":[1,0,0,2,0]
+"classmetall_1_1container_1_1string__key__store__locator.html#ae0cf998a4af8dc9988ef8ca03c26503e":[1,0,0,1,3,5]
 };

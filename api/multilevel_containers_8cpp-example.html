@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.25</span>
+   &#160;<span id="projectnumber">v0.26</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -153,18 +153,13 @@ $(document).ready(function(){initNavTree('multilevel_containers_8cpp-example.htm
 <div class="line"><span class="keywordtype">int</span> <a name="a5"></a><a class="code" href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>() {</div>
 <div class="line">  {</div>
 <div class="line">    <span class="comment">// Create a new metall object</span></div>
-<div class="line">    <span class="comment">// Note that Metall creates sparse files so that it does not use physical</span></div>
-<div class="line">    <span class="comment">// memory space until required</span></div>
-<div class="line">    <a name="_a6"></a><a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a name="a7"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::create_only,</div>
-<div class="line">                            <span class="stringliteral">&quot;/tmp/datastore&quot;</span>);  <span class="comment">// Prefix of the backing files</span></div>
+<div class="line">    <a name="_a6"></a><a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a name="a7"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::create_only, <span class="stringliteral">&quot;/tmp/datastore&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Construct an object of map_type</span></div>
 <div class="line">    map_type* pmap =</div>
-<div class="line">        <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;map_type&gt;(<span class="stringliteral">&quot;map&quot;</span>)  <span class="comment">// Name of the constructed object</span></div>
-<div class="line">        (<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator&lt;&gt;());  <span class="comment">// Call map_type&#39;s constructor with Metall</span></div>
-<div class="line">                                      <span class="comment">// allocator object</span></div>
+<div class="line">        <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;map_type&gt;(<span class="stringliteral">&quot;map&quot;</span>)(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator&lt;&gt;());</div>
 <div class="line"> </div>
-<div class="line">    <span class="comment">// You can use the container as usual //</span></div>
+<div class="line">    <span class="comment">// Can use the container as usual</span></div>
 <div class="line">    vector_type vec1(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator());</div>
 <div class="line">    vec1.push_back(<span class="charliteral">&#39;a&#39;</span>);</div>
 <div class="line">    (*pmap)[30].emplace(20, vec1);</div>

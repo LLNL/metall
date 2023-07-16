@@ -17,8 +17,12 @@ var namespacemetall_1_1container =
     [ "basic_string", "namespacemetall_1_1container.html#a5a4de42b06a5ec17815a15504d100745", null ],
     [ "string", "namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009", null ],
     [ "wstring", "namespacemetall_1_1container.html#a6efc3f12030cc354af58b94f53d3858c", null ],
+    [ "unordered_flat_map", "namespacemetall_1_1container.html#a690b36ae19f87241ea3500ec31602fe6", null ],
+    [ "unordered_flat_set", "namespacemetall_1_1container.html#a64610e40cedd482892f0390cd569410f", null ],
     [ "unordered_map", "namespacemetall_1_1container.html#ad6538b68ed07639523fd7313e407881a", null ],
     [ "unordered_multimap", "namespacemetall_1_1container.html#ae46d3b3ceb781a5b55e5070639919a02", null ],
+    [ "unordered_node_map", "namespacemetall_1_1container.html#aef865664a84a8897e375b1fc47fd89a8", null ],
+    [ "unordered_node_set", "namespacemetall_1_1container.html#a3636ca005c35447c08fa5ab0128df86f", null ],
     [ "unordered_set", "namespacemetall_1_1container.html#a7e69404c0f68aa2e313ea57a0dc053d6", null ],
     [ "unordered_multiset", "namespacemetall_1_1container.html#ac09b8143943f9ac654c0a29029a89652", null ],
     [ "vector", "namespacemetall_1_1container.html#ab652095363b8ca308d2d39c53fe6e6ae", null ]

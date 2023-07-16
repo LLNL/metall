@@ -2,6 +2,7 @@ var examples =
 [
     [ "complex_map.cpp", "complex_map_8cpp-example.html", null ],
     [ "multilevel_containers.cpp", "multilevel_containers_8cpp-example.html", null ],
+    [ "allocator_aware_type.cpp", "allocator_aware_type_8cpp-example.html", null ],
     [ "simple.cpp", "simple_8cpp-example.html", null ],
     [ "snapshot.cpp", "snapshot_8cpp-example.html", null ],
     [ "string.cpp", "string_8cpp-example.html", null ],
@@ -9,6 +10,7 @@ var examples =
     [ "vector_of_vectors.cpp", "vector_of_vectors_8cpp-example.html", null ],
     [ "adjacency_list_graph.cpp", "adjacency_list_graph_8cpp-example.html", null ],
     [ "csr_graph.cpp", "csr_graph_8cpp-example.html", null ],
+    [ "logger.cpp", "logger_8cpp-example.html", null ],
     [ "datastore_description.cpp", "datastore_description_8cpp-example.html", null ],
     [ "object_attribute.cpp", "object_attribute_8cpp-example.html", null ],
     [ "object_attribute_api_list.cpp", "object_attribute_api_list_8cpp-example.html", null ],
