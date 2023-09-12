@@ -832,6 +832,7 @@ class basic_manager {
   // void deallocate_many(multiallocation_chain &chain);
 
   /// \brief Check if all allocated memory has been deallocated.
+  /// This function is not cheap if many objects has not been deallocated.
   /// \return Returns true if all allocated memory has been deallocated;
   /// otherwise, false.
   bool all_memory_deallocated() const noexcept {

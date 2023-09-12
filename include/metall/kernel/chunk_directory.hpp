@@ -25,6 +25,9 @@ namespace {
 namespace mdtl = metall::mtlldetail;
 }
 
+/// \brief Chunk directory class.
+/// Chunk directory is a table that stores information about chunks.
+/// This class assumes that race condition is handled by the caller.
 template <typename _chunk_no_type, std::size_t _k_chunk_size,
           std::size_t _k_max_size>
 class chunk_directory {
@@ -54,7 +57,7 @@ class chunk_directory {
   // Private types and static values
   // -------------------- //
   enum chunk_type : uint8_t {
-    empty = 0,
+    unused = 0,
     small_chunk = 1,
     large_chunk_head = 2,
     large_chunk_body = 3
@@ -63,7 +66,7 @@ class chunk_directory {
   // Chunk directory is just an array of this structure
   struct entry_type {
     void init() {
-      type = chunk_type::empty;
+      type = chunk_type::unused;
       num_occupied_slots = 0;
       slot_occupancy.reset();
     }
@@ -78,9 +81,14 @@ class chunk_directory {
   // -------------------- //
   // Constructor & assign operator
   // -------------------- //
+  /// \brief Constructor. This constructor allocates memory for the chunk
+  /// directory. \param max_num_chunks Maximum number of chunks that can be
+  /// managed.
   explicit chunk_directory(const std::size_t max_num_chunks)
-      : m_table(nullptr), m_max_num_chunks(0), m_last_used_chunk_no(-1) {
-    priv_allocate(max_num_chunks);
+      : m_table(nullptr),
+        m_max_num_chunks(max_num_chunks),
+        m_last_used_chunk_no(-1) {
+    priv_allocate();
   }
 
   ~chunk_directory() noexcept { priv_destroy(); }
@@ -94,9 +102,10 @@ class chunk_directory {
   // -------------------- //
   // Public methods
   // -------------------- //
-  /// \brief
-  /// \param bin_no
-  /// \return
+  /// \brief Registers a new chunk for a bin whose bin number is 'bin_no'.
+  /// Requires a global lock to avoid race condition.
+  /// \param bin_no Bin number.
+  /// \return Returns the chunk number of the new chunk.
   chunk_no_type insert(const bin_no_type bin_no) {
     chunk_no_type inserted_chunk_no;
 
@@ -105,17 +114,17 @@ class chunk_directory {
     } else {
       inserted_chunk_no = priv_insert_large_chunk(bin_no);
     }
-
     assert(inserted_chunk_no < size());
 
     return inserted_chunk_no;
   }
 
-  /// \brief
-  /// \param chunk_no
+  /// \brief Erases a chunk whose chunk number is 'chunk_no'.
+  /// Requires a global lock to avoid race condition.
+  /// \param chunk_no Chunk number to erase.
   void erase(const chunk_no_type chunk_no) {
     assert(chunk_no < size());
-    if (empty_chunk(chunk_no)) return;
+    if (unused_chunk(chunk_no)) return;
 
     if (m_table[chunk_no].type == chunk_type::small_chunk) {
       const slot_count_type num_slots = slots(chunk_no);
@@ -142,11 +151,11 @@ class chunk_directory {
     }
   }
 
-  /// \brief
-  /// \param chunk_no
-  /// \return
+  /// \brief Finds an available slot in the chunk whose chunk number is
+  /// 'chunk_no' and marks it as occupied. slot in the chunk. This function
+  /// modifies only the specified chunk; thus, the global lock is not required.
+  /// \param chunk_no Chunk number. \return Returns the marked slot number.
   slot_no_type find_and_mark_slot(const chunk_no_type chunk_no) {
-    assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const slot_count_type num_slots = slots(chunk_no);
@@ -161,7 +170,8 @@ class chunk_directory {
     return empty_slot_no;
   }
 
-  /// \brief Finds and marks multiple slots up to 'num_slots'.
+  /// \brief Finds and marks multiple slots up to 'num_slots'. This function
+  /// modifies only the specified chunk; thus, the global lock is not required.
   /// \param chunk_no Chunk number.
   /// \param num_slots Number of slots to find and mark.
   /// \param slots_buf Buffer to store found slots.
@@ -171,7 +181,6 @@ class chunk_directory {
   std::size_t find_and_mark_many_slots(const chunk_no_type chunk_no,
                                        const std::size_t num_slots,
                                        slot_no_type *const slots_buf) {
-    assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const slot_count_type num_holding_slots = slots(chunk_no);
@@ -194,7 +203,6 @@ class chunk_directory {
   /// \param chunk_no
   /// \param slot_no
   void unmark_slot(const chunk_no_type chunk_no, const slot_no_type slot_no) {
-    assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const slot_count_type num_slots = slots(chunk_no);
@@ -205,13 +213,11 @@ class chunk_directory {
     --m_table[chunk_no].num_occupied_slots;
   }
 
-  /// \brief
-  /// \param chunk_no
-  /// \return
+  /// \brief Returns if all slots in the chunk are marked.
+  /// This function is valid only for a small chunk.
+  /// \param chunk_no Chunk number. Must be less than size().
+  /// \return Returns true if all slots in the chunk are marked.
   bool all_slots_marked(const chunk_no_type chunk_no) const {
-    if (chunk_no >= size()) {
-      return false;
-    }
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const slot_count_type num_slots = slots(chunk_no);
@@ -220,11 +226,13 @@ class chunk_directory {
     return (m_table[chunk_no].num_occupied_slots == num_slots);
   }
 
-  /// \brief
-  /// \param chunk_no
-  /// \return
+  /// \brief Returns if all slots in the chunk are unmarked.
+  /// This function is valid only for a small chunk.
+  /// Even if all slots are unmarked, the chunk still holds a slot table;
+  /// thus, unused_chunk() return false.
+  /// \param chunk_no Chunk number of a small chunk.
+  /// \return Returns true if all slots in the chunk are unmarked.
   bool all_slots_unmarked(const chunk_no_type chunk_no) const {
-    assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
     return (m_table[chunk_no].num_occupied_slots == 0);
   }
@@ -233,9 +241,8 @@ class chunk_directory {
   /// \param chunk_no
   /// \param slot_no
   /// \return
-  bool slot_marked(const chunk_no_type chunk_no,
+  bool marked_slot(const chunk_no_type chunk_no,
                    const slot_no_type slot_no) const {
-    assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const slot_count_type num_slots =
@@ -244,15 +251,20 @@ class chunk_directory {
     return m_table[chunk_no].slot_occupancy.get(num_slots, slot_no);
   }
 
-  /// \brief
-  /// \return
+  /// \brief Returns the chunk directory size, which is the max chunk number +
+  /// 1, not the number of used chunks.
+  /// \return Returns the chunk directory size.
+  /// \warning The returned value can be incorrect depending on the timing of
+  /// another thread.
   std::size_t size() const { return m_last_used_chunk_no + 1; }
 
-  /// \brief
-  /// \param chunk_no
-  /// \return
-  bool empty_chunk(const chunk_no_type chunk_no) const {
-    return (m_table[chunk_no].type == chunk_type::empty);
+  /// \brief Returns true if a chunk is unused.
+  /// 'unused' chunk means that the chunk is not used and does not hold any
+  /// data or slot table.
+  /// \param chunk_no Chunk number. Must be less than size().
+  /// \return Returns true if the chunk is not used.
+  bool unused_chunk(const chunk_no_type chunk_no) const {
+    return (m_table[chunk_no].type == chunk_type::unused);
   }
 
   /// \brief
@@ -266,7 +278,6 @@ class chunk_directory {
   /// \param chunk_no
   /// \return
   const slot_count_type slots(const chunk_no_type chunk_no) const {
-    assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
 
     const auto bin_no = m_table[chunk_no].bin_no;
@@ -277,7 +288,6 @@ class chunk_directory {
   /// \param chunk_no
   /// \return
   slot_count_type occupied_slots(const chunk_no_type chunk_no) const {
-    assert(chunk_no < size());
     assert(m_table[chunk_no].type == chunk_type::small_chunk);
     return m_table[chunk_no].num_occupied_slots;
   }
@@ -294,7 +304,7 @@ class chunk_directory {
     }
 
     for (chunk_no_type chunk_no = 0; chunk_no < size(); ++chunk_no) {
-      if (empty_chunk(chunk_no)) {
+      if (unused_chunk(chunk_no)) {
         continue;
       }
 
@@ -488,23 +498,22 @@ class chunk_directory {
     return k_chunk_size / object_size;
   }
 
-  /// \brief Reserves chunk directory.
+  /// \brief Allocates memory for 'm_max_num_chunks' chunks.
+  /// This function assumes that 'm_max_num_chunks' is set.
   /// Allocates 'uncommitted pages' so that not to waste physical memory until
   /// the pages are touched. Accordingly, this function does not initialize an
-  /// allocate data. \param max_num_chunks
-  bool priv_allocate(const std::size_t max_num_chunks) {
+  /// allocate data.
+  bool priv_allocate() {
     assert(!m_table);
-    m_max_num_chunks = max_num_chunks;
 
     // Assume that mmap + MAP_ANONYMOUS returns 'uncommitted pages'.
     // An uncommitted page will be zero-initialized when it is touched first
-    // time; however, this class does not relies on that. The table entries will
+    // time; however, this class does not rely on that. The table entries will
     // be initialized just before they are used.
     m_table = static_cast<entry_type *>(mdtl::map_anonymous_write_mode(
         nullptr, m_max_num_chunks * sizeof(entry_type)));
 
     if (!m_table) {
-      m_max_num_chunks = 0;
       logger::perror(logger::level::error, __FILE__, __LINE__,
                      "Cannot allocate chunk table");
       return false;
@@ -525,7 +534,6 @@ class chunk_directory {
     }
     mdtl::os_munmap(m_table, m_max_num_chunks * sizeof(entry_type));
     m_table = nullptr;
-    m_max_num_chunks = 0;
     m_last_used_chunk_no = -1;
   }
 
@@ -544,12 +552,9 @@ class chunk_directory {
     }
 
     for (chunk_no_type chunk_no = 0; chunk_no < m_max_num_chunks; ++chunk_no) {
-      if (chunk_no > m_last_used_chunk_no) {
-        // Initialize (empty) it before just in case
-        m_table[chunk_no].init();
-      }
+      if (chunk_no > m_last_used_chunk_no || unused_chunk(chunk_no)) {
+        m_table[chunk_no].init();  // init just in case
 
-      if (empty_chunk(chunk_no)) {
         m_table[chunk_no].bin_no = bin_no;
         m_table[chunk_no].type = chunk_type::small_chunk;
         m_table[chunk_no].num_occupied_slots = 0;
@@ -585,7 +590,7 @@ class chunk_directory {
         m_table[chunk_no].init();
       }
 
-      if (!empty_chunk(chunk_no)) {
+      if (chunk_no <= m_last_used_chunk_no && !unused_chunk(chunk_no)) {
         count_continuous_empty_chunks = 0;
         continue;
       }
@@ -617,8 +622,9 @@ class chunk_directory {
 
   ssize_t find_next_used_chunk_backward(
       const chunk_no_type start_chunk_no) const {
+    assert(start_chunk_no < size());
     for (ssize_t chunk_no = start_chunk_no; chunk_no >= 0; --chunk_no) {
-      if (!empty_chunk(chunk_no)) {
+      if (!unused_chunk(chunk_no)) {
         return chunk_no;
       }
     }
@@ -629,7 +635,8 @@ class chunk_directory {
   // Private fields
   // -------------------- //
   entry_type *m_table;
-  std::size_t m_max_num_chunks;
+  // Use const here to avoid race condition risks
+  const std::size_t m_max_num_chunks;
   ssize_t m_last_used_chunk_no;
 };
 
