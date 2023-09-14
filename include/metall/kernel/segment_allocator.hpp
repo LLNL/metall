@@ -150,7 +150,6 @@ class segment_allocator {
                             ? priv_allocate_small_object(bin_no)
                             : priv_allocate_large_object(bin_no);
     assert(offset >= 0 || offset == k_null_offset);
-    assert(offset < (difference_type)size() || offset == k_null_offset);
 
     return offset;
   }
@@ -170,7 +169,7 @@ class segment_allocator {
     // from the minimum allocation size (i.e., 8 bytes) to maximum allocation
     // size exist in the object size table
 
-    // alignment must be equal to or large than the min allocation size
+    // alignment must be equal to or larger than the min allocation size
     if (alignment < bin_no_mngr::to_object_size(0)) {
       return k_null_offset;
     }
@@ -202,9 +201,7 @@ class segment_allocator {
   /// \param offset
   void deallocate(const difference_type offset) {
     if (offset == k_null_offset) return;
-
     assert(offset >= 0);
-    assert(offset < (difference_type)size());
 
     const chunk_no_type chunk_no = offset / k_chunk_size;
     const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
@@ -217,13 +214,19 @@ class segment_allocator {
   }
 
   /// \brief Checks if all memory is deallocated.
+  /// This function is not cheap if many objects are allocated.
+  /// \return Returns true if all memory is deallocated.
   bool all_memory_deallocated() const {
+#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+    lock_guard_type chunk_guard(*m_chunk_mutex);
+#endif
+
     if (m_chunk_directory.size() == 0) {
       return true;
     }
 
 #ifndef METALL_DISABLE_OBJECT_CACHE
-    if (priv_check_all_small_allocations_are_cached() &&
+    if (priv_check_all_small_allocations_are_cached_without_lock() &&
         m_chunk_directory.num_used_large_chunks() == 0) {
       return true;
     }
@@ -232,8 +235,10 @@ class segment_allocator {
     return false;
   }
 
-  /// \brief
-  /// \return Returns the size of the segment range being used
+  /// \brief Returns the size of the segment being used.
+  /// \return The size of the segment being used.
+  /// \warning Be careful: the returned value can be incorrect because another
+  /// thread can increase or decrease chunk directory size at the same time.
   size_type size() const { return m_chunk_directory.size() * k_chunk_size; }
 
   /// \brief
@@ -302,7 +307,7 @@ class segment_allocator {
                << "\n";
     for (chunk_no_type chunk_no = 0; chunk_no < m_chunk_directory.size();
          ++chunk_no) {
-      if (m_chunk_directory.empty_chunk(chunk_no)) {
+      if (m_chunk_directory.unused_chunk(chunk_no)) {
         (*log_out) << chunk_no << "\t0\t0\n";
       } else {
         const bin_no_type bin_no = m_chunk_directory.bin_no(chunk_no);
@@ -469,7 +474,7 @@ class segment_allocator {
     lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
     new_chunk_no = m_chunk_directory.insert(bin_no);
-    if (!priv_extend_segment(new_chunk_no, 1)) {
+    if (!priv_extend_segment_without_lock(new_chunk_no, 1)) {
       return false;
     }
     m_non_full_chunk_bin.insert(bin_no, new_chunk_no);
@@ -483,7 +488,9 @@ class segment_allocator {
     const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
     const size_type num_chunks =
         (bin_no_mngr::to_object_size(bin_no) + k_chunk_size - 1) / k_chunk_size;
-    if (!priv_extend_segment(new_chunk_no, num_chunks)) {
+    if (!priv_extend_segment_without_lock(new_chunk_no, num_chunks)) {
+      // Failed to extend the segment (fatal error)
+      // Do clean up just in case and return k_null_offset
       m_chunk_directory.erase(new_chunk_no);
       return k_null_offset;
     }
@@ -491,8 +498,8 @@ class segment_allocator {
     return offset;
   }
 
-  bool priv_extend_segment(const chunk_no_type head_chunk_no,
-                           const size_type num_chunks) {
+  bool priv_extend_segment_without_lock(const chunk_no_type head_chunk_no,
+                                        const size_type num_chunks) {
     const size_type required_segment_size =
         (head_chunk_no + num_chunks) * k_chunk_size;
     if (required_segment_size <= m_segment_storage->size()) {
@@ -564,14 +571,15 @@ class segment_allocator {
     }
 
 #ifdef METALL_FREE_SMALL_OBJECT_SIZE_HINT
-    priv_free_slot(object_size, chunk_no, slot_no,
-                   METALL_FREE_SMALL_OBJECT_SIZE_HINT);
+    priv_free_slot_without_bin_lock(object_size, chunk_no, slot_no,
+                                    METALL_FREE_SMALL_OBJECT_SIZE_HINT);
 #endif
   }
 
-  void priv_free_slot(const size_type object_size, const chunk_no_type chunk_no,
-                      const chunk_slot_no_type slot_no,
-                      const size_type min_free_size_hint) {
+  void priv_free_slot_without_bin_lock(const size_type object_size,
+                                       const chunk_no_type chunk_no,
+                                       const chunk_slot_no_type slot_no,
+                                       const size_type min_free_size_hint) {
     // To simplify the implementation, free slots only when object_size is at
     // least double of the page size
     const size_type min_free_size = std::max(
@@ -589,7 +597,7 @@ class segment_allocator {
     if (range_begin % m_segment_storage->page_size() != 0) {
       assert(slot_no > 0);  // Assume that chunk is page aligned
 
-      if (m_chunk_directory.slot_marked(chunk_no, slot_no - 1)) {
+      if (m_chunk_directory.marked_slot(chunk_no, slot_no - 1)) {
         // Round up to the next multiple of page size
         // The left region will be freed when the previous slot is freed
         range_begin =
@@ -613,7 +621,7 @@ class segment_allocator {
       // aligned
       assert(object_size * (slot_no + 1) < k_chunk_size);
 
-      if (m_chunk_directory.slot_marked(chunk_no, slot_no + 1)) {
+      if (m_chunk_directory.marked_slot(chunk_no, slot_no + 1)) {
         range_end = mdtl::round_down(range_end, m_segment_storage->page_size());
       } else {
         range_end = mdtl::round_up(range_end, m_segment_storage->page_size());
@@ -668,7 +676,7 @@ class segment_allocator {
 #ifndef METALL_DISABLE_OBJECT_CACHE
   /// \brief Checks if all marked (used) slots in the chunk directory exist in
   /// the object cache.
-  bool priv_check_all_small_allocations_are_cached() const {
+  bool priv_check_all_small_allocations_are_cached_without_lock() const {
     const auto marked_slots = m_chunk_directory.get_all_marked_slots();
     std::set<difference_type> small_allocs;
     for (const auto &item : marked_slots) {
