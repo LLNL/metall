@@ -60,12 +60,12 @@ template <typename chnk_no, std::size_t chnk_sz>
 void manager_kernel<chnk_no, chnk_sz>::close() {
   if (m_vm_region) {
     priv_sanity_check();
-    m_good = false;
     if (!m_segment_storage.read_only()) {
       priv_serialize_management_data();
       m_segment_storage.sync(true);
     }
 
+    m_good = false;
     m_segment_storage.destroy();
     priv_deallocate_segment_header();
     priv_release_vm_region();
