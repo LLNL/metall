@@ -486,7 +486,7 @@ class manager_kernel {
   // Private methods
   // -------------------- //
 
-  bool priv_initialized() const;
+  void priv_sanity_check() const;
   bool priv_validate_runtime_configuration() const;
   difference_type priv_to_offset(const void *const ptr) const;
   void *priv_to_address(difference_type offset) const;
@@ -585,7 +585,6 @@ class manager_kernel {
   // Private fields
   // -------------------- //
   bool m_good{false};
-  bool m_open{false};
   std::string m_base_dir_path{};
   size_type m_vm_region_size{0};
   void *m_vm_region{nullptr};
