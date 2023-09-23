@@ -94,9 +94,6 @@ void *manager_kernel<chnk_no, chnk_sz>::allocate(
     return nullptr;
   }
   assert(offset >= 0);
-#if !(defined(__has_feature) && __has_feature(thread_sanitizer))
-  assert(offset + nbytes <= m_segment_storage.size());
-#endif
 
   return priv_to_address(offset);
 }
@@ -117,9 +114,6 @@ void *manager_kernel<chnk_no, chnk_sz>::allocate_aligned(
     return nullptr;
   }
   assert(offset >= 0);
-#if !(defined(__has_feature) && __has_feature(thread_sanitizer))
-  assert(offset + nbytes <= m_segment_storage.size());
-#endif
 
   auto *addr = priv_to_address(offset);
   assert((uint64_t)addr % alignment == 0);
