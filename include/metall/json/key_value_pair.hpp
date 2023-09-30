@@ -26,7 +26,9 @@ template <typename char_type, typename char_traits, typename allocator_type,
 inline bool general_key_value_pair_equal(
     const key_value_pair<char_type, char_traits, allocator_type> &key_value,
     const other_key_value_pair_type &other_key_value) noexcept {
-  if (std::strcmp(key_value.c_str(), other_key_value.c_str()) != 0)
+  if (key_value.key().length() != other_key_value.key().length())
+    return false;
+  if (std::strcmp(key_value.key_c_str(), other_key_value.key_c_str()) != 0)
     return false;
   return key_value.value() == other_key_value.value();
 }
@@ -100,8 +102,10 @@ class key_value_pair {
       m_short_key_buf = other.m_short_key_buf;
     } else {
       m_long_key = std::move(other.m_long_key);
+      other.m_long_key = nullptr;
     }
     m_key_length = other.m_key_length;
+    other.m_key_length = 0;
   }
 
   /// \brief Allocator-extended move constructor
@@ -112,6 +116,7 @@ class key_value_pair {
         m_short_key_buf = other.m_short_key_buf;
       } else {
         m_long_key = std::move(other.m_long_key);
+        other.m_long_key = nullptr;
       }
       m_key_length = other.m_key_length;
       other.m_key_length = 0;
@@ -151,6 +156,7 @@ class key_value_pair {
         m_short_key_buf = other.m_short_key_buf;
       } else {
         m_long_key = std::move(other.m_long_key);
+        other.m_long_key = nullptr;
       }
       m_key_length = other.m_key_length;
       other.m_key_length = 0;
