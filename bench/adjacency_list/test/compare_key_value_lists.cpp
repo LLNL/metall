@@ -17,8 +17,8 @@
 using key_type = uint64_t;
 using value_type = uint64_t;
 using item_type = std::pair<key_type, value_type>;
-using table_type = std::unordered_map<item_type, std::size_t,
-                                      metall::utility::hash<item_type>>;
+using table_type =
+    std::unordered_map<item_type, std::size_t, metall::utility::hash<>>;
 
 void ingest_item(const std::string& file_name, table_type* table) {
   std::ifstream ifs(file_name);

@@ -94,9 +94,9 @@ class rmat_edge_generator_iterator {
       const uint64_t mask = (1ULL << m_ptr_parent->m_vertex_scale) - 1;
       // Assume utility::hash is a good hash function
       m_current_edge.first =
-          metall::utility::hash<uint64_t>()(m_current_edge.first) & mask;
+          metall::utility::hash<>()(m_current_edge.first) & mask;
       m_current_edge.second =
-          metall::utility::hash<uint64_t>()(m_current_edge.second) & mask;
+          metall::utility::hash<>()(m_current_edge.second) & mask;
     }
     ++m_num_generated_edges;
   }

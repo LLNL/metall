@@ -200,11 +200,11 @@ class object_cache {
         std::hash<std::thread::id>{}(std::this_thread::get_id()) %
         k_num_cache_per_core;
     const std::size_t core_num = priv_get_core_no();
-    return mdtl::hash<std::size_t>{}(core_num * k_num_cache_per_core +
+    return mdtl::hash<>{}(core_num * k_num_cache_per_core +
                                      sub_cache_no) %
            m_cache_table.size();
 #else
-    thread_local static const auto hashed_thread_id = mdtl::hash<std::size_t>{}(
+    thread_local static const auto hashed_thread_id = mdtl::hash<>{}(
         std::hash<std::thread::id>{}(std::this_thread::get_id()));
     return hashed_thread_id % m_cache_table.size();
 #endif
