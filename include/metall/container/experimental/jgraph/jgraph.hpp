@@ -116,11 +116,11 @@ class jgraph {
     value_type m_value;
   };
 
-  using vertex_storage_type = mc::unordered_map<
-      internal_id_type, vertex_data_type,
-      metall::utility::hash<internal_id_type>, std::equal_to<>,
-      other_scoped_allocator<
-          std::pair<const internal_id_type, vertex_data_type>>>;
+  using vertex_storage_type =
+      mc::unordered_map<internal_id_type, vertex_data_type,
+                        metall::utility::hash<>, std::equal_to<>,
+                        other_scoped_allocator<std::pair<const internal_id_type,
+                                                         vertex_data_type>>>;
 
   class edge_data_type {
    public:
@@ -184,8 +184,7 @@ class jgraph {
 
   using edge_storage_type =
       mc::unordered_map<internal_id_type, edge_data_type,
-                        metall::utility::hash<internal_id_type>,
-                        std::equal_to<>,
+                        metall::utility::hash<>, std::equal_to<>,
                         other_scoped_allocator<
                             std::pair<const internal_id_type, edge_data_type>>>;
 

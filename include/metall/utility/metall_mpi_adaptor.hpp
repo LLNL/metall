@@ -40,7 +40,9 @@ class metall_mpi_adaptor {
       : m_mpi_comm(comm),
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
-    priv_verify_num_partitions(root_dir_prefix, comm);
+    if (!priv_verify_num_partitions(root_dir_prefix, comm)) {
+      ::MPI_Abort(comm, -1);
+    }
     m_local_metall_manager = std::make_unique<manager_type>(
         metall::open_only,
         ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
@@ -56,7 +58,9 @@ class metall_mpi_adaptor {
       : m_mpi_comm(comm),
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
-    priv_verify_num_partitions(root_dir_prefix, comm);
+    if (!priv_verify_num_partitions(root_dir_prefix, comm)) {
+      ::MPI_Abort(comm, -1);
+    }
     m_local_metall_manager = std::make_unique<manager_type>(
         metall::open_read_only,
         ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
@@ -67,12 +71,16 @@ class metall_mpi_adaptor {
   /// \param root_dir_prefix A root directory path of a Metall datastore.
   /// The same name of file or directory must not exist.
   /// \param comm A MPI communicator.
+  /// \param overwrite If true, overwrite an existing datastore.
+  /// This mode does not overwrite an existing datastore if it is not Metall
+  /// datastore created by the same number of MPI processes.
   metall_mpi_adaptor(metall::create_only_t, const std::string &root_dir_prefix,
-                     const MPI_Comm &comm = MPI_COMM_WORLD)
+                     const MPI_Comm &comm = MPI_COMM_WORLD,
+                     bool overwrite = false)
       : m_mpi_comm(comm),
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
-    priv_setup_root_dir(root_dir_prefix, comm);
+    priv_setup_root_dir(root_dir_prefix, overwrite, comm);
     m_local_metall_manager = std::make_unique<manager_type>(
         metall::create_only,
         ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
@@ -84,13 +92,17 @@ class metall_mpi_adaptor {
   /// The same name of file or directory must not exist.
   /// \param capacity The max capacity of the datastore.
   /// \param comm A MPI communicator.
+  /// \param overwrite If true, overwrite an existing datastore.
+  /// This mode does not overwrite an existing datastore if it is not Metall
+  /// datastore created by the same number of MPI processes.
   metall_mpi_adaptor(metall::create_only_t, const std::string &root_dir_prefix,
                      const std::size_t capacity,
-                     const MPI_Comm &comm = MPI_COMM_WORLD)
+                     const MPI_Comm &comm = MPI_COMM_WORLD,
+                     bool overwrite = false)
       : m_mpi_comm(comm),
         m_root_dir_prefix(root_dir_prefix),
         m_local_metall_manager(nullptr) {
-    priv_setup_root_dir(root_dir_prefix, comm);
+    priv_setup_root_dir(root_dir_prefix, overwrite, comm);
     m_local_metall_manager = std::make_unique<manager_type>(
         metall::create_only,
         ds::make_local_dir_path(m_root_dir_prefix, priv_mpi_comm_rank(comm))
@@ -146,11 +158,15 @@ class metall_mpi_adaptor {
   /// mode is undefined. \param source_dir_path A path to a source datastore.
   /// \param destination_dir_path A path to a destination datastore.
   /// \param comm A MPI communicator.
+  /// \param overwrite If true, overwrite an existing datastore.
+  /// This mode does not overwrite an existing datastore if it is not Metall
+  /// datastore created by the same number of MPI processes.
   /// \return Returns true if all processes success;
   /// otherwise, returns false.
-  static bool copy(const char *source_dir_path,
-                   const char *destination_dir_path,
-                   const MPI_Comm &comm = MPI_COMM_WORLD) {
+  static bool copy(const std::string &source_dir_path,
+                   const std::string &destination_dir_path,
+                   const MPI_Comm &comm = MPI_COMM_WORLD,
+                   bool overwrite = false) {
     if (!consistent(source_dir_path, comm)) {
       if (priv_mpi_comm_rank(comm) == 0) {
         std::stringstream ss;
@@ -161,7 +177,7 @@ class metall_mpi_adaptor {
       }
       return false;
     }
-    priv_setup_root_dir(destination_dir_path, comm);
+    priv_setup_root_dir(destination_dir_path, overwrite, comm);
     const int rank = priv_mpi_comm_rank(comm);
     return priv_global_and(
         manager_type::copy(
@@ -172,10 +188,14 @@ class metall_mpi_adaptor {
 
   /// \brief Take a snapshot of the current Metall datastore to another
   /// location. \param destination_dir_path A path to a destination datastore.
+  /// \param overwrite If true, overwrite an existing datastore.
+  /// This mode does not overwrite an existing datastore if it is not Metall
+  /// datastore created by the same number of MPI processes.
   /// \return Returns true if all processes success;
   /// otherwise, returns false.
-  bool snapshot(const char *destination_dir_path) {
-    priv_setup_root_dir(destination_dir_path, m_mpi_comm);
+  bool snapshot(const std::string &destination_dir_path,
+                bool overwrite = false) {
+    priv_setup_root_dir(destination_dir_path, overwrite, m_mpi_comm);
     const int rank = priv_mpi_comm_rank(m_mpi_comm);
     return priv_global_and(
         m_local_metall_manager->snapshot(
@@ -188,35 +208,35 @@ class metall_mpi_adaptor {
   /// \param comm A MPI communicator.
   /// \return Returns true if all processes success;
   /// otherwise, returns false.
-  static bool remove(const char *root_dir_prefix,
+  /// If there is no directory with the given name, returns true.
+  static bool remove(const std::string &root_dir_prefix,
                      const MPI_Comm &comm = MPI_COMM_WORLD) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
 
+    if (!metall::mtlldetail::file_exist(
+            ds::make_root_dir_path(root_dir_prefix))) {
+      // As long as the root directory does not exist, we consider it as a
+      // success.
+      return true;
+    }
+
     // ----- Check if this is a Metall datastore ----- //
-    bool corrent_dir = true;
+    bool metall_dir = true;
     if (!metall::mtlldetail::file_exist(
             ds::make_root_dir_path(root_dir_prefix) + "/" +
             k_datastore_mark_file_name)) {
-      corrent_dir = false;
+      metall_dir = false;
     }
-    if (!priv_global_and(corrent_dir, comm)) {
+    if (!priv_global_and(metall_dir, comm)) {
+      if (rank == 0) {
+        std::string s("This is not a Metall datastore: " +
+                      ds::make_root_dir_path(root_dir_prefix));
+        logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+      }
       return false;
     }
-
-    // ----- Check if #of MPI processes matches ----- //
-    bool correct_mpi_size = true;
-    if (rank == 0) {
-      const int read_size = priv_read_num_partitions(root_dir_prefix, comm);
-      if (read_size != size) {
-        correct_mpi_size = false;
-        std::stringstream ss;
-        ss << " Invalid number of MPI processes (provided " << size << ", "
-           << "expected " << correct_mpi_size << ")";
-        logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
-      }
-    }
-    if (!priv_global_and(correct_mpi_size, comm)) {
+    if (!priv_verify_num_partitions(root_dir_prefix, comm)) {
       return false;
     }
 
@@ -244,9 +264,9 @@ class metall_mpi_adaptor {
   /// \param root_dir_prefix A root directory path of datastore.
   /// \param comm A MPI communicator.
   /// \return The number of partitions of a Metall datastore.
-  static int partitions(const char *root_dir_prefix,
+  static int partitions(const std::string &root_dir_prefix,
                         const MPI_Comm &comm = MPI_COMM_WORLD) {
-    return priv_read_num_partitions(root_dir_prefix, comm);
+    return priv_read_partition_size(root_dir_prefix, comm);
   }
 
   /// \brief Checks if all local datastores are consistent.
@@ -254,7 +274,7 @@ class metall_mpi_adaptor {
   /// \param comm A MPI communicator.
   /// \return Returns true if all datastores are consistent;
   /// otherwise, returns false.
-  static bool consistent(const char *root_dir_prefix,
+  static bool consistent(const std::string &root_dir_prefix,
                          const MPI_Comm &comm = MPI_COMM_WORLD) {
     const int rank = priv_mpi_comm_rank(comm);
     const auto local_path = ds::make_local_dir_path(root_dir_prefix, rank);
@@ -271,11 +291,27 @@ class metall_mpi_adaptor {
   // -------------------- //
   // Private methods
   // -------------------- //
+  static void priv_remove_for_overwrite(const std::string &root_dir_prefix,
+                                        const MPI_Comm &comm) {
+    if (!remove(root_dir_prefix, comm)) {
+      if (priv_mpi_comm_rank(comm) == 0) {
+        std::stringstream ss;
+        ss << "Failed to overwrite " << root_dir_prefix;
+        logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+        ::MPI_Abort(comm, -1);
+      }
+    }
+  }
+
   static void priv_setup_root_dir(const std::string &root_dir_prefix,
-                                  const MPI_Comm &comm) {
+                                  bool overwrite, const MPI_Comm &comm) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
     const std::string root_dir_path = ds::make_root_dir_path(root_dir_prefix);
+
+    if (overwrite) {
+      priv_remove_for_overwrite(root_dir_prefix, comm);
+    }
 
     // Make sure the root directory and a file with the same name do not exist
     const auto local_ret = metall::mtlldetail::file_exist(root_dir_path);
@@ -333,7 +369,7 @@ class metall_mpi_adaptor {
     ofs.close();
   }
 
-  static int priv_read_num_partitions(const std::string &root_dir_prefix,
+  static int priv_read_partition_size(const std::string &root_dir_prefix,
                                       const MPI_Comm &comm) {
     const std::string path = ds::make_root_dir_path(root_dir_prefix) + "/" +
                              k_partition_size_file_name;
@@ -353,19 +389,23 @@ class metall_mpi_adaptor {
     return read_size;
   }
 
-  static void priv_verify_num_partitions(const std::string &root_dir_prefix,
+  static bool priv_verify_num_partitions(const std::string &root_dir_prefix,
                                          const MPI_Comm &comm) {
     const int rank = priv_mpi_comm_rank(comm);
     const int size = priv_mpi_comm_size(comm);
 
+    bool correct_mpi_size = true;
     if (rank == 0) {
-      if (priv_read_num_partitions(root_dir_prefix, comm) != size) {
-        logger::out(logger::level::error, __FILE__, __LINE__,
-                    "Invalid number of MPI processes");
-        ::MPI_Abort(comm, -1);
+      const int read_size = priv_read_partition_size(root_dir_prefix, comm);
+      if (read_size != size) {
+        correct_mpi_size = false;
+        std::stringstream ss;
+        ss << "Invalid number of MPI processes (provided " << size << ", "
+           << "expected " << read_size << ")";
+        logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       }
     }
-    priv_mpi_barrier(comm);
+    return priv_global_and(correct_mpi_size, comm);
   }
 
   static int priv_mpi_comm_rank(const MPI_Comm &comm) {

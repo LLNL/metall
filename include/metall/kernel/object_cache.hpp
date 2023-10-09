@@ -1,4 +1,4 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Copyright 2023 Lawrence Livermore National Security, LLC and other Metall
 // Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -12,15 +12,19 @@
 #include <vector>
 #include <thread>
 #include <memory>
+#include <sstream>
 
 #include <boost/container/vector.hpp>
 
 #include <metall/kernel/object_cache_container.hpp>
 #include <metall/detail/proc.hpp>
 #include <metall/detail/hash.hpp>
-#define ENABLE_MUTEX_IN_METALL_OBJECT_CACHE 1
-#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
+
+#ifndef METALL_SINGLE_THREAD_ALLOC
+#define METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
 #include <metall/detail/mutex.hpp>
+#endif
 #endif
 
 namespace metall::kernel {
@@ -53,7 +57,12 @@ class object_cache {
   // Private types and static values
   // -------------------- //
 
-  static constexpr std::size_t k_num_cache_per_core = 4;
+  static constexpr std::size_t k_num_cache_per_core =
+#ifdef METALL_SINGLE_THREAD_ALLOC
+      1;
+#else
+      4;
+#endif
   static constexpr std::size_t k_cache_bin_size = 1ULL << 20ULL;
   static constexpr std::size_t k_max_cache_block_size =
       64;  // Add and remove caches by up to this size
@@ -68,7 +77,7 @@ class object_cache {
                              difference_type, bin_no_manager>;
   using cache_table_type = std::vector<single_cache_type>;
 
-#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
   using mutex_type = mdtl::mutex;
   using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
@@ -84,11 +93,12 @@ class object_cache {
   // -------------------- //
   object_cache()
       : m_cache_table(get_num_cores() * k_num_cache_per_core)
-#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
         ,
         m_mutex(m_cache_table.size())
 #endif
   {
+    priv_const_helper();
   }
 
   ~object_cache() noexcept = default;
@@ -110,7 +120,7 @@ class object_cache {
     if (bin_no > max_bin_no()) return -1;
 
     const auto cache_no = priv_comp_cache_no();
-#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
     lock_guard_type guard(m_mutex[cache_no]);
 #endif
     if (m_cache_table[cache_no].empty(bin_no)) {
@@ -138,7 +148,7 @@ class object_cache {
     if (bin_no > max_bin_no()) return false;  // Error
 
     const auto cache_no = priv_comp_cache_no();
-#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
     lock_guard_type guard(m_mutex[cache_no]);
 #endif
     m_cache_table[cache_no].push(bin_no, object_offset);
@@ -194,17 +204,46 @@ class object_cache {
                     static_cast<std::size_t>(8));
   }
 
+  void priv_const_helper() {
+    if (get_num_cores() == 0) {
+      logger::out(logger::level::critical, __FILE__, __LINE__,
+                  "The achieved number of cores is zero");
+      return;
+    }
+    {
+      std::stringstream ss;
+      ss << "The number of cores: " << get_num_cores();
+      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+    }
+    {
+      std::stringstream ss;
+      ss << "#of caches: " << m_cache_table.size();
+      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+    }
+    {
+      std::stringstream ss;
+      ss << "Cache capacity per bin: ";
+      for (std::size_t b = 0; b < single_cache_type::num_bins(); ++b) {
+        ss << single_cache_type::bin_capacity(b);
+        if (b < single_cache_type::num_bins() - 1) ss << " ";
+      }
+      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+    }
+  }
+
   std::size_t priv_comp_cache_no() const {
+#ifdef METALL_SINGLE_THREAD_ALLOC
+    return 0;
+#endif
 #if SUPPORT_GET_CPU_CORE_NO
     thread_local static const auto sub_cache_no =
         std::hash<std::thread::id>{}(std::this_thread::get_id()) %
         k_num_cache_per_core;
     const std::size_t core_num = priv_get_core_no();
-    return mdtl::hash<std::size_t>{}(core_num * k_num_cache_per_core +
-                                     sub_cache_no) %
+    return mdtl::hash<>{}(core_num * k_num_cache_per_core + sub_cache_no) %
            m_cache_table.size();
 #else
-    thread_local static const auto hashed_thread_id = mdtl::hash<std::size_t>{}(
+    thread_local static const auto hashed_thread_id = mdtl::hash<>{}(
         std::hash<std::thread::id>{}(std::this_thread::get_id()));
     return hashed_thread_id % m_cache_table.size();
 #endif
@@ -213,6 +252,9 @@ class object_cache {
   /// \brief Get CPU core number.
   /// This function does not call the system call every time as it is slow.
   static std::size_t priv_get_core_no() {
+#ifdef METALL_SINGLE_THREAD_ALLOC
+        return 0;
+#endif
     thread_local static int cached_core_no = 0;
     thread_local static int cached_count = 0;
     if (cached_core_no == 0) {
@@ -223,14 +265,18 @@ class object_cache {
   }
 
   static std::size_t get_num_cores() {
+#ifdef METALL_SINGLE_THREAD_ALLOC
+    return 1;
+#else
     return std::thread::hardware_concurrency();
+#endif
   }
 
   // -------------------- //
   // Private fields
   // -------------------- //
   cache_table_type m_cache_table;
-#if ENABLE_MUTEX_IN_METALL_OBJECT_CACHE
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
   std::vector<mutex_type> m_mutex;
 #endif
 };

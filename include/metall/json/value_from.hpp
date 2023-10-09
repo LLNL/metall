@@ -31,7 +31,8 @@ inline value<allocator_type> value_from_impl(
   } else if (input_bj_value.is_double()) {
     out_value = input_bj_value.as_double();
   } else if (input_bj_value.is_string()) {
-    out_value = input_bj_value.as_string().c_str();
+    const auto& str = input_bj_value.as_string();
+    out_value.emplace_string().assign(str.c_str(), str.size());
   } else if (input_bj_value.is_array()) {
     auto &out_array = out_value.emplace_array();
     for (const auto &item : input_bj_value.as_array()) {
