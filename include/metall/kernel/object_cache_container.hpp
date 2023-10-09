@@ -85,17 +85,30 @@ class object_cache_container {
   using bin_no_type = typename bin_no_manager::bin_no_type;
 
  private:
+  // Hold all cached objects' offsets in a 1D array rather than splitting them
+  // into bins for better locality.
   using cache_table_type = std::vector<difference_type>;
 
+  // Cache capacity per bin.
   static constexpr auto capacity_table =
       objccdetail::capacity_table<k_num_bins, k_bin_size, bin_no_manager>;
+  // Offset to the beginning of each bin in the cache table.
   static constexpr auto offset_table =
       objccdetail::offset_table<k_num_bins, k_bin_size, bin_no_manager>;
+  // Maximum number of the cache table can hold.
   static constexpr auto k_cache_capacity =
       objccdetail::compute_capacity<k_num_bins, k_bin_size, bin_no_manager>();
 
  public:
   using const_iterator = typename cache_table_type::const_iterator;
+
+  static constexpr std::size_t bin_size() noexcept { return k_bin_size; }
+
+  static std::size_t num_bins() noexcept { return k_num_bins; }
+
+  static std::size_t bin_capacity(const bin_no_type bin_no) noexcept {
+    return capacity_table[bin_no];
+  }
 
   object_cache_container()
       : m_count_table(k_num_bins, 0), m_cache(k_cache_capacity) {}
