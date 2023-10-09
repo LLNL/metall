@@ -12,6 +12,7 @@
 #include <vector>
 #include <thread>
 #include <memory>
+#include <sstream>
 
 #include <boost/container/vector.hpp>
 
@@ -89,6 +90,7 @@ class object_cache {
         m_mutex(m_cache_table.size())
 #endif
   {
+    priv_const_helper();
   }
 
   ~object_cache() noexcept = default;
@@ -194,14 +196,40 @@ class object_cache {
                     static_cast<std::size_t>(8));
   }
 
+  void priv_const_helper() {
+    if (get_num_cores() == 0) {
+      logger::out(logger::level::critical, __FILE__, __LINE__,
+                  "The achieved number of cores is zero");
+      return;
+    }
+    {
+      std::stringstream ss;
+      ss << "The number of cores: " << get_num_cores();
+      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+    }
+    {
+      std::stringstream ss;
+      ss << "#of caches: " << m_cache_table.size();
+      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+    }
+    {
+      std::stringstream ss;
+      ss << "Cache capacity per bin: ";
+      for (std::size_t b = 0; b < single_cache_type::num_bins(); ++b) {
+        ss << single_cache_type::bin_capacity(b);
+        if (b < single_cache_type::num_bins() - 1) ss << " ";
+      }
+      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+    }
+  }
+
   std::size_t priv_comp_cache_no() const {
 #if SUPPORT_GET_CPU_CORE_NO
     thread_local static const auto sub_cache_no =
         std::hash<std::thread::id>{}(std::this_thread::get_id()) %
         k_num_cache_per_core;
     const std::size_t core_num = priv_get_core_no();
-    return mdtl::hash<>{}(core_num * k_num_cache_per_core +
-                                     sub_cache_no) %
+    return mdtl::hash<>{}(core_num * k_num_cache_per_core + sub_cache_no) %
            m_cache_table.size();
 #else
     thread_local static const auto hashed_thread_id = mdtl::hash<>{}(
