@@ -10,6 +10,9 @@ add_metall_test_executable(chunk_directory_test chunk_directory_test.cpp)
 
 add_metall_test_executable(manager_test manager_test.cpp)
 
+add_metall_test_executable(manager_test_single_thread manager_test.cpp)
+target_compile_definitions(manager_test_single_thread PRIVATE METALL_SINGLE_THREAD_ALLOC)
+
 add_metall_test_executable(snapshot_test snapshot_test.cpp)
 
 add_metall_test_executable(copy_file_test copy_file_test.cpp)
