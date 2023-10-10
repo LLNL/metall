@@ -43,8 +43,10 @@
 #include <metall/kernel/segment_storage/mmap_segment_storage.hpp>
 #endif
 
-#define ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL 1
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifndef METALL_DISABLE_CONCURRENCY
+#define METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
+#endif
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
 #include <metall/detail/mutex.hpp>
 #endif
 
@@ -140,7 +142,7 @@ class manager_kernel {
 
   using json_store = mdtl::ptree::node_type;
 
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
   using mutex_type = mdtl::mutex;
   using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
@@ -596,7 +598,7 @@ class manager_kernel {
   segment_memory_allocator m_segment_memory_allocator{nullptr};
   std::unique_ptr<json_store> m_manager_metadata{nullptr};
 
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
   std::unique_ptr<mutex_type> m_object_directories_mutex{nullptr};
 #endif
 };

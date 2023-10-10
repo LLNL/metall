@@ -24,8 +24,11 @@
 #include <metall/detail/utilities.hpp>
 #include <metall/logger.hpp>
 
-#define ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR 1
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifndef METALL_DISABLE_CONCURRENCY
+#define METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
+#endif
+
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
 #include <metall/detail/mutex.hpp>
 #endif
 
@@ -94,7 +97,7 @@ class segment_allocator {
                    myself>;
 #endif
 
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
   using mutex_type = mdtl::mutex;
   using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
@@ -114,13 +117,13 @@ class segment_allocator {
         ,
         m_object_cache()
 #endif
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
         ,
         m_chunk_mutex(nullptr),
         m_bin_mutex(nullptr)
 #endif
   {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
     m_chunk_mutex = std::make_unique<mutex_type>();
     m_bin_mutex = std::make_unique<std::array<mutex_type, k_num_small_bins>>();
 #endif
@@ -217,7 +220,7 @@ class segment_allocator {
   /// This function is not cheap if many objects are allocated.
   /// \return Returns true if all memory is deallocated.
   bool all_memory_deallocated() const {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
     lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
 
@@ -384,7 +387,7 @@ class segment_allocator {
   void priv_allocate_small_objects_from_global(
       const bin_no_type bin_no, const size_type num_allocates,
       difference_type *const allocated_offsets) {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
     lock_guard_type bin_guard(m_bin_mutex->at(bin_no));
 #endif
 
@@ -470,7 +473,7 @@ class segment_allocator {
 
   bool priv_insert_new_small_object_chunk(const bin_no_type bin_no) {
     chunk_no_type new_chunk_no;
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
     lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
     new_chunk_no = m_chunk_directory.insert(bin_no);
@@ -482,7 +485,7 @@ class segment_allocator {
   }
 
   difference_type priv_allocate_large_object(const bin_no_type bin_no) {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
     lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
     const chunk_no_type new_chunk_no = m_chunk_directory.insert(bin_no);
@@ -535,7 +538,7 @@ class segment_allocator {
   void priv_deallocate_small_objects_from_global(
       const bin_no_type bin_no, const size_type num_deallocates,
       const difference_type offsets[]) {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
     lock_guard_type bin_guard(m_bin_mutex->at(bin_no));
 #endif
     for (size_type i = 0; i < num_deallocates; ++i) {
@@ -559,7 +562,7 @@ class segment_allocator {
     } else if (m_chunk_directory.all_slots_unmarked(chunk_no)) {
       // All slots in the chunk are not used, deallocate it
       {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
         lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
         m_chunk_directory.erase(chunk_no);
@@ -639,7 +642,7 @@ class segment_allocator {
 
   void priv_deallocate_large_object(const chunk_no_type chunk_no,
                                     const bin_no_type bin_no) {
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
     lock_guard_type chunk_guard(*m_chunk_mutex);
 #endif
     m_chunk_directory.erase(chunk_no);
@@ -717,7 +720,7 @@ class segment_allocator {
   small_object_cache_type m_object_cache;
 #endif
 
-#if ENABLE_MUTEX_IN_METALL_SEGMENT_ALLOCATOR
+#ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
   std::unique_ptr<mutex_type> m_chunk_mutex{nullptr};
   std::unique_ptr<std::array<mutex_type, k_num_small_bins>> m_bin_mutex{
       nullptr};

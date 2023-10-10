@@ -101,10 +101,6 @@ set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
         "Set the initial segment size (use the internally defined value if 0 is specified)")
 
 # ---------- Experimental options ---------- #
-# This mode still uses multiple threads inside Metall.
-# However, applications must not use metall with multiple threads.
-option(SINGLE_THREAD_ALLOC "Optimize Metall kernel for single thread usage" OFF)
-
 option(USE_ANONYMOUS_NEW_MAP "Use the anonymous map when creating a new map region" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
@@ -213,11 +209,6 @@ if (USE_ANONYMOUS_NEW_MAP)
 
     list(APPEND METALL_DEFS "METALL_USE_ANONYMOUS_NEW_MAP")
     message(STATUS "Use the anonymous map for new map region")
-endif ()
-
-if (SINGLE_THREAD_ALLOC)
-    list(APPEND METALL_DEFS "METALL_SINGLE_THREAD_ALLOC")
-    message(STATUS "Optimize Metall kernel for single thread usage")
 endif ()
 
 # Requirements for GCC

@@ -21,7 +21,7 @@ manager_kernel<chnk_no, chnk_sz>::manager_kernel()
   if (!m_manager_metadata) {
     return;
   }
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
   m_object_directories_mutex = std::make_unique<mutex_type>();
   if (!m_object_directories_mutex) {
     return;
@@ -177,7 +177,7 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy(char_ptr_holder_type name) {
   size_type length = 0;
 
   {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
     lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
@@ -204,7 +204,7 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy_ptr(const T *ptr) {
 
   size_type length = 0;
   {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
     lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
@@ -820,7 +820,7 @@ T *manager_kernel<chnk_no, chnk_sz>::priv_generic_construct(
 
   void *ptr = nullptr;
   try {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
     lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
@@ -856,7 +856,7 @@ T *manager_kernel<chnk_no, chnk_sz>::priv_generic_construct(
       ptr, [this](void *const ptr) {
         try {
           {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
             lock_guard_type guard(*m_object_directories_mutex);
 #endif
             priv_remove_attr_object_no_mutex(priv_to_offset(ptr));
