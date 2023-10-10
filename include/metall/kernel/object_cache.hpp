@@ -20,11 +20,11 @@
 #include <metall/detail/proc.hpp>
 #include <metall/detail/hash.hpp>
 
-#ifndef METALL_SINGLE_THREAD_ALLOC
+#ifndef METALL_DISABLE_CONCURRENCY
 #define METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
+#endif
 #ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
 #include <metall/detail/mutex.hpp>
-#endif
 #endif
 
 namespace metall::kernel {
@@ -58,7 +58,7 @@ class object_cache {
   // -------------------- //
 
   static constexpr std::size_t k_num_cache_per_core =
-#ifdef METALL_SINGLE_THREAD_ALLOC
+#ifdef METALL_DISABLE_CONCURRENCY
       1;
 #else
       4;
@@ -232,7 +232,7 @@ class object_cache {
   }
 
   std::size_t priv_comp_cache_no() const {
-#ifdef METALL_SINGLE_THREAD_ALLOC
+#ifdef METALL_DISABLE_CONCURRENCY
     return 0;
 #endif
 #if SUPPORT_GET_CPU_CORE_NO
@@ -252,7 +252,7 @@ class object_cache {
   /// \brief Get CPU core number.
   /// This function does not call the system call every time as it is slow.
   static std::size_t priv_get_core_no() {
-#ifdef METALL_SINGLE_THREAD_ALLOC
+#ifdef METALL_DISABLE_CONCURRENCY
         return 0;
 #endif
     thread_local static int cached_core_no = 0;
@@ -265,7 +265,7 @@ class object_cache {
   }
 
   static std::size_t get_num_cores() {
-#ifdef METALL_SINGLE_THREAD_ALLOC
+#ifdef METALL_DISABLE_CONCURRENCY
     return 1;
 #else
     return std::thread::hardware_concurrency();
