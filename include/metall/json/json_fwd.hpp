@@ -12,7 +12,7 @@
 #include <string>
 #include <variant>
 
-#if defined(DOXYGEN_SKIP)
+#ifdef DOXYGEN_SKIP
 /// \brief If defined, link with a buit Boost.JSON.
 #define METALL_LINK_WITH_BOOST_JSON
 
@@ -20,7 +20,7 @@
 #define METALL_BOOST_JSON_SRC_INCLUDED
 #endif
 
-#if METALL_LINK_WITH_BOOST_JSON
+#ifdef METALL_LINK_WITH_BOOST_JSON
 #include <boost/json.hpp>
 #else
 #ifndef METALL_BOOST_JSON_SRC_INCLUDED

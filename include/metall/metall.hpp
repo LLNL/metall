@@ -6,6 +6,7 @@
 #ifndef METALL_METALL_HPP
 #define METALL_METALL_HPP
 
+#include <metall/defs.hpp>
 #include <metall/basic_manager.hpp>
 #include <metall/logger.hpp>
 #include <metall/version.hpp>

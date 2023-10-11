@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 
@@ -82,33 +82,20 @@ option(JUST_INSTALL_METALL_HEADER "Just install Metall header files (do not buil
 option(BUILD_UTILITY "Build utility programs" OFF)
 option(BUILD_DOC "Build API documentation" OFF)
 option(BUILD_C "Build C examples and libraries" OFF)
-option(VERBOSE_SYSTEM_SUPPORT_WARNING "Show compile time warning regarding system support" OFF)
-option(DISABLE_FREE_FILE_SPACE "Disable freeing file space" OFF)
-option(DISABLE_SMALL_OBJECT_CACHE "Disable small object cache" OFF)
 option(BUILD_EXAMPLE "Build the examples" OFF)
-option(BUILD_BENCH "Build the benchmark" OFF)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
 option(RUN_BUILD_AND_TEST_WITH_CI "Perform build and basic test with CI" OFF)
-option(BUILD_VERIFICATION "Build verification directory" OFF)
-option(USE_SORTED_BIN "Use VM space aware algorithm in the bin directory" OFF)
-
-set(DEFAULT_VM_RESERVE_SIZE "0" CACHE STRING
-        "Set the default VM reserve size (use the internally defined value if 0 is specified)")
-set(MAX_SEGMENT_SIZE "0" CACHE STRING
-        "Set the max segment size (use the internally defined value if 0 is specified)")
-set(INITIAL_SEGMENT_SIZE "0" CACHE STRING
-        "Set the initial segment size (use the internally defined value if 0 is specified)")
+option(BUILD_BENCH "Build the benchmark" OFF)
+option(BUILD_VERIFICATION "Build verification programs" OFF)
+set(COMPILER_DEFS "" CACHE STRING "A list of Metall compile definitions to be added to all targets")
 
 # ---------- Experimental options ---------- #
-option(USE_ANONYMOUS_NEW_MAP "Use the anonymous map when creating a new map region" OFF)
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
 option(BUILD_NUMA "Build programs that require the NUMA policy library (numa.h)" OFF)
-set(FREE_SMALL_OBJECT_SIZE_HINT "0" CACHE STRING
-        "Try to free the associated pages and file space when objects equal to or larger than that is deallocated")
 
 # -------------------------------------------------------------------------------- #
 
@@ -153,63 +140,22 @@ endif ()
 # -------------------------------------------------------------------------------- #
 # Executables
 # -------------------------------------------------------------------------------- #
+
+# ---------- Metall Macros ---------- #
+foreach(X ${COMPILER_DEFS})
+    message(STATUS "Metall compile definition: ${X}")
+endforeach()
+
+
+# ---------- CMAKE_BUILD_TYPE ---------- #
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
     message(STATUS "CMAKE_BUILD_TYPE is set as Release")
 endif ()
 
+
 # ---------- MPI ---------- #
 find_package(MPI)
-
-# ---------- Configure Metall ---------- #
-if (FREE_SMALL_OBJECT_SIZE_HINT GREATER 0)
-    list(APPEND METALL_DEFS "METALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT}")
-    message(STATUS "Try to free space for objects >= ${FREE_SMALL_OBJECT_SIZE_HINT} bytes")
-endif ()
-
-if (VERBOSE_SYSTEM_SUPPORT_WARNING)
-    list(APPEND METALL_DEFS "METALL_VERBOSE_SYSTEM_SUPPORT_WARNING")
-    message(STATUS "Show compile time warning regarding system support")
-endif ()
-
-if (DISABLE_FREE_FILE_SPACE)
-    list(APPEND METALL_DEFS "METALL_DISABLE_FREE_FILE_SPACE")
-    message(STATUS "Disable freeing file space in Metall")
-endif ()
-
-if (DISABLE_SMALL_OBJECT_CACHE)
-    list(APPEND METALL_DEFS "METALL_DISABLE_OBJECT_CACHE")
-    message(STATUS "Disable small object cache")
-endif ()
-
-if (DEFAULT_VM_RESERVE_SIZE GREATER 0)
-    list(APPEND METALL_DEFS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
-    message(STATUS "METALL_DEFAULT_VM_RESERVE_SIZE=${DEFAULT_VM_RESERVE_SIZE}")
-endif ()
-
-if (MAX_SEGMENT_SIZE GREATER 0)
-    list(APPEND METALL_DEFS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
-    message(STATUS "METALL_MAX_SEGMENT_SIZE=${MAX_SEGMENT_SIZE}")
-endif ()
-
-if (INITIAL_SEGMENT_SIZE GREATER 0)
-    list(APPEND METALL_DEFS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
-    message(STATUS "METALL_INITIAL_SEGMENT_SIZE=${INITIAL_SEGMENT_SIZE}")
-endif ()
-
-if (USE_SORTED_BIN)
-    list(APPEND METALL_DEFS "METALL_USE_SORTED_BIN")
-    message(STATUS "Use VM space aware algorithm in the bin directory")
-endif ()
-
-if (USE_ANONYMOUS_NEW_MAP)
-    if (USE_ANONYMOUS_NEW_MAP AND UMAP_ROOT)
-        message(FATAL_ERROR "USE_ANONYMOUS_NEW_MAP and UMAP_ROOT options cannot coexist")
-    endif ()
-
-    list(APPEND METALL_DEFS "METALL_USE_ANONYMOUS_NEW_MAP")
-    message(STATUS "Use the anonymous map for new map region")
-endif ()
 
 # Requirements for GCC
 if (NOT RUN_BUILD_AND_TEST_WITH_CI)
@@ -304,8 +250,8 @@ function(common_setup_for_metall_executable name)
     # --------------------
 
     # ----- Compile Definitions ----- #
-    foreach(X IN LISTS METALL_DEFS)
-        target_compile_definitions(${name} PRIVATE ${X})
+    foreach(X ${COMPILER_DEFS})
+         target_compile_definitions(${name} PRIVATE ${X})
     endforeach()
     # --------------------
 
@@ -325,7 +271,7 @@ function(common_setup_for_metall_executable name)
         target_include_directories(${name} PRIVATE ${UMAP_ROOT}/include)
         if (LIBUMAP)
             target_link_libraries(${name} PRIVATE ${LIBUMAP})
-            target_compile_definitions(${name} PRIVATE METALL_USE_UMAP)
+            target_compile_definitions(${name} PRIVATE "METALL_USE_UMAP")
         endif ()
     endif ()
     # --------------------

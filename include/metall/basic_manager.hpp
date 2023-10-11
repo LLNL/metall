@@ -6,17 +6,6 @@
 #ifndef METALL_BASIC_MANAGER_HPP
 #define METALL_BASIC_MANAGER_HPP
 
-#ifdef DOXYGEN_SKIP
-/// \brief A macro to disable concurrency support.
-/// \details
-/// If this macro is defined, Metall disables concurrency support and optimizes
-/// the internal behavior for single-thread usage. Applications must not call
-/// any Metall functions concurrently if this macro is defined. On the other
-/// hand, Metall still may use multi-threading for internal operations, such
-/// as synchronizing data with files.
-#define METALL_DISABLE_CONCURRENCY
-#endif
-
 #include <cstddef>
 #include <memory>
 

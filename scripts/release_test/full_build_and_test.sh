@@ -53,16 +53,31 @@ main() {
   build_docs
 
   for BUILD_TYPE in Debug RelWithDebInfo Release; do
-    for DISABLE_FREE_FILE_SPACE in ON OFF; do
-      for DISABLE_SMALL_OBJECT_CACHE in ON OFF; do
+    for DISABLE_FREE_FILE_SPACE in true false; do
+      for DISABLE_SMALL_OBJECT_CACHE in true false; do
         for FREE_SMALL_OBJECT_SIZE_HINT in 0 8 4096 65536; do
-          for USE_ANONYMOUS_NEW_MAP in ON OFF; do
+          for USE_ANONYMOUS_NEW_MAP in true false; do
+
+            DEFS="METALL_VERBOSE_SYSTEM_SUPPORT_WARNING;"
+
+            if [[ "${DISABLE_FREE_FILE_SPACE}" == "true" ]]; then
+              DEFS="${DEFS}METALL_DISABLE_FREE_FILE_SPACE;"
+            fi
+
+            if [[ "${DISABLE_SMALL_OBJECT_CACHE}" == "true" ]]; then
+              DEFS="${DEFS}METALL_DISABLE_SMALL_OBJECT_CACHE;"
+            fi
+
+            if [ "${FREE_SMALL_OBJECT_SIZE_HINT}" -gt 0 ]; then
+              DEFS="${DEFS}METALL_FREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT};"
+            fi
+
+            if [[ "${USE_ANONYMOUS_NEW_MAP}" == "true" ]]; then
+              DEFS="${DEFS}METALL_USE_ANONYMOUS_NEW_MAP;"
+            fi
+
             run_build_and_test_kernel \
               -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-              -DDISABLE_FREE_FILE_SPACE=${DISABLE_FREE_FILE_SPACE} \
-              -DDISABLE_SMALL_OBJECT_CACHE=${DISABLE_SMALL_OBJECT_CACHE} \
-              -DFREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT} \
-              -DUSE_ANONYMOUS_NEW_MAP=${USE_ANONYMOUS_NEW_MAP} \
               -DBUILD_BENCH=ON \
               -DBUILD_TEST=ON \
               -DRUN_LARGE_SCALE_TEST=ON \
@@ -72,7 +87,7 @@ main() {
               -DBUILD_EXAMPLE=ON \
               -DRUN_BUILD_AND_TEST_WITH_CI=OFF \
               -DBUILD_VERIFICATION=OFF \
-              -DVERBOSE_SYSTEM_SUPPORT_WARNING=ON
+              -DCOMPILER_DEFS="${DEFS}"
             done
         done
       done
