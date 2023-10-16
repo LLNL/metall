@@ -23,7 +23,6 @@
 #include <metall/offset_ptr.hpp>
 #include <metall/version.hpp>
 #include <metall/kernel/manager_kernel_fwd.hpp>
-#include <metall/kernel/manager_kernel_defs.hpp>
 #include <metall/kernel/segment_header.hpp>
 #include <metall/kernel/segment_allocator.hpp>
 #include <metall/kernel/attributed_object_directory.hpp>
@@ -85,17 +84,26 @@ class manager_kernel {
   static constexpr const char *k_datastore_segment_dir_name = "segment";
 
   // For segment
+#ifndef METALL_DEFAULT_CAPACITY
+#error "METALL_DEFAULT_CAPACITY is not defined."
+#endif
   static constexpr size_type k_default_vm_reserve_size =
-      METALL_DEFAULT_VM_RESERVE_SIZE;
+      METALL_DEFAULT_CAPACITY;
   static_assert(k_chunk_size <= k_default_vm_reserve_size,
                 "Chunk size must be <= k_default_vm_reserve_size");
 
-  static constexpr size_type k_max_segment_size = METALL_MAX_SEGMENT_SIZE;
+#ifndef METALL_MAX_CAPACITY
+#error "METALL_MAX_CAPACITY is not defined."
+#endif
+  static constexpr size_type k_max_segment_size = METALL_MAX_CAPACITY;
   static_assert(k_default_vm_reserve_size <= k_max_segment_size,
                 "k_default_vm_reserve_size must be <= k_max_segment_size");
 
+#ifndef METALL_SEGMENT_BLOCK_SIZE
+#error "METALL_SEGMENT_BLOCK_SIZE is not defined."
+#endif
   static constexpr size_type k_initial_segment_size =
-      METALL_INITIAL_SEGMENT_SIZE;
+      METALL_SEGMENT_BLOCK_SIZE;
   static_assert(k_initial_segment_size <= k_default_vm_reserve_size,
                 "k_initial_segment_size must be <= k_default_vm_reserve_size");
   static_assert(k_chunk_size <= k_initial_segment_size,
