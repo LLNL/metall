@@ -17,10 +17,10 @@ add_metall_test_executable(snapshot_test snapshot_test.cpp)
 
 add_metall_test_executable(copy_file_test copy_file_test.cpp)
 
-find_package(OpenMP)
+include(setup_omp)
 if (OpenMP_CXX_FOUND)
     add_metall_test_executable(manager_multithread_test manager_multithread_test.cpp)
-    target_link_libraries(manager_multithread_test PRIVATE OpenMP::OpenMP_CXX)
+    setup_omp_target(manager_multithread_test)
 else()
     MESSAGE(STATUS "OpenMP is not found. Will not run multi-thread test.")
 endif()
