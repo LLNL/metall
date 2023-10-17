@@ -141,6 +141,15 @@ endif ()
 # Executables
 # -------------------------------------------------------------------------------- #
 
+# Requirements for GCC
+if (NOT RUN_BUILD_AND_TEST_WITH_CI)
+    if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.1)
+            message(FATAL_ERROR "GCC version must be at least 8.1")
+        endif ()
+    endif ()
+endif ()
+
 # ---------- Metall Macros ---------- #
 foreach(X ${COMPILER_DEFS})
     message(STATUS "Metall compile definition: ${X}")
@@ -151,19 +160,6 @@ endforeach()
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
     message(STATUS "CMAKE_BUILD_TYPE is set as Release")
-endif ()
-
-
-# ---------- MPI ---------- #
-find_package(MPI)
-
-# Requirements for GCC
-if (NOT RUN_BUILD_AND_TEST_WITH_CI)
-    if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.1)
-            message(FATAL_ERROR "GCC version must be at least 8.1")
-        endif ()
-    endif ()
 endif ()
 
 
