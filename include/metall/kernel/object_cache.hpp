@@ -63,11 +63,13 @@ class object_cache {
 #else
       4;
 #endif
+  // The size of each cache bin in bytes.
   static constexpr std::size_t k_cache_bin_size = 1ULL << 20ULL;
-  static constexpr std::size_t k_max_cache_block_size =
-      64;  // Add and remove caches by up to this size
+  // Add and remove cache objects with this number of objects at a time.
+  static constexpr std::size_t k_max_num_objects_in_block = 64;
+  // The maximum object size to cache in byte.
   static constexpr std::size_t k_max_cache_object_size =
-      k_cache_bin_size / k_max_cache_block_size / 2;
+      k_cache_bin_size / k_max_num_objects_in_block / 2;
   static constexpr bin_no_type k_max_bin_no =
       bin_no_manager::to_bin_no(k_max_cache_object_size);
   static constexpr std::size_t k_cpu_core_no_cache_duration = 4;
@@ -107,13 +109,7 @@ class object_cache {
   object_cache &operator=(const object_cache &) = default;
   object_cache &operator=(object_cache &&) noexcept = default;
 
-  // -------------------- //
-  // Public methods
-  // -------------------- //
-
-  /// \brief
-  /// \param bin_no
-  /// \return
+  /// \brief Pop an object offset from the cache.
   difference_type pop(const bin_no_type bin_no,
                       object_allocator_type *const allocator_instance,
                       object_allocate_func_type allocator_function) {
@@ -123,9 +119,11 @@ class object_cache {
 #ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
     lock_guard_type guard(m_mutex[cache_no]);
 #endif
+    // If the cache is empty, allocate objects
     if (m_cache_table[cache_no].empty(bin_no)) {
-      difference_type allocated_offsets[k_max_cache_block_size];
+      difference_type allocated_offsets[k_max_num_objects_in_block];
       const auto block_size = priv_get_cache_block_size(bin_no);
+      assert(block_size <= k_max_num_objects_in_block);
       (allocator_instance->*allocator_function)(bin_no, block_size,
                                                 allocated_offsets);
       for (std::size_t i = 0; i < block_size; ++i) {
@@ -138,9 +136,9 @@ class object_cache {
     return offset;
   }
 
-  /// \brief
-  /// \param bin_no
-  /// \param object_offset
+  /// \brief Cache an object.
+  /// If the cache is full, multiple objects are deallocated at a time.
+  /// Return false if an error occurs.
   bool push(const bin_no_type bin_no, const difference_type object_offset,
             object_allocator_type *const allocator_instance,
             object_deallocate_func_type deallocator_function) {
@@ -153,10 +151,12 @@ class object_cache {
 #endif
     m_cache_table[cache_no].push(bin_no, object_offset);
 
+    // If the cache is full, deallocate objects
     if (m_cache_table[cache_no].full(bin_no)) {
       const auto block_size = priv_get_cache_block_size(bin_no);
       assert(m_cache_table[cache_no].size(bin_no) >= block_size);
-      difference_type offsets[k_max_cache_object_size];
+      difference_type offsets[k_max_num_objects_in_block];
+      assert(block_size <= k_max_num_objects_in_block);
       for (std::size_t i = 0; i < block_size; ++i) {
         offsets[i] = m_cache_table[cache_no].front(bin_no);
         m_cache_table[cache_no].pop(bin_no);
@@ -199,8 +199,8 @@ class object_cache {
   static constexpr std::size_t priv_get_cache_block_size(
       const bin_no_type bin_no) noexcept {
     const auto object_size = bin_no_manager::to_object_size(bin_no);
-    // Returns a value on the interval [8, k_max_cache_block_size].
-    return std::max(std::min(4096 / object_size, k_max_cache_block_size),
+    // Returns a value on the interval [8, k_max_num_objects_in_block].
+    return std::max(std::min(4096 / object_size, k_max_num_objects_in_block),
                     static_cast<std::size_t>(8));
   }
 
@@ -253,7 +253,7 @@ class object_cache {
   /// This function does not call the system call every time as it is slow.
   static std::size_t priv_get_core_no() {
 #ifdef METALL_DISABLE_CONCURRENCY
-        return 0;
+    return 0;
 #endif
     thread_local static int cached_core_no = 0;
     thread_local static int cached_count = 0;
@@ -268,7 +268,7 @@ class object_cache {
 #ifdef METALL_DISABLE_CONCURRENCY
     return 1;
 #else
-    return std::thread::hardware_concurrency();
+    return mdtl::get_num_cpu_cores();
 #endif
   }
 
