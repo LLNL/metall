@@ -8,14 +8,16 @@
 
 #include <sched.h>
 
-#include <thread>
-
-namespace metall::mtlldetail {
 #ifdef _GNU_SOURCE
+#include <sys/sysinfo.h>
 #define SUPPORT_GET_CPU_CORE_NO true
 #else
 #define SUPPORT_GET_CPU_CORE_NO false
 #endif
+
+#include <thread>
+
+namespace metall::mtlldetail {
 
 /// \brief Returns the number of the logical CPU core on which the calling
 /// thread is currently executing.
