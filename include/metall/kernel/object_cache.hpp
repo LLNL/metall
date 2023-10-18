@@ -33,7 +33,7 @@ namespace {
 namespace mdtl = metall::mtlldetail;
 }
 
-template <std::size_t _k_num_bins, typename _size_type,
+template <typename _size_type,
           typename _difference_type, typename _bin_no_manager,
           typename _object_allocator_type>
 class object_cache {
@@ -41,7 +41,6 @@ class object_cache {
   // -------------------- //
   // Public types and static values
   // -------------------- //
-  static constexpr unsigned int k_num_bins = _k_num_bins;
   using size_type = _size_type;
   using difference_type = _difference_type;
   using bin_no_manager = _bin_no_manager;
@@ -57,14 +56,15 @@ class object_cache {
   // Private types and static values
   // -------------------- //
 
-  static constexpr std::size_t k_num_cache_per_core =
+  static constexpr std::size_t k_num_cache_per_cpu =
 #ifdef METALL_DISABLE_CONCURRENCY
       1;
 #else
-      4;
+      METALL_NUM_CACHES_PER_CPU;
 #endif
+
   // The size of each cache bin in bytes.
-  static constexpr std::size_t k_cache_bin_size = 1ULL << 20ULL;
+  static constexpr std::size_t k_cache_bin_size = METALL_CACHE_BIN_SIZE;
   // Add and remove cache objects with this number of objects at a time.
   static constexpr std::size_t k_max_num_objects_in_block = 64;
   // The maximum object size to cache in byte.
@@ -72,7 +72,7 @@ class object_cache {
       k_cache_bin_size / k_max_num_objects_in_block / 2;
   static constexpr bin_no_type k_max_bin_no =
       bin_no_manager::to_bin_no(k_max_cache_object_size);
-  static constexpr std::size_t k_cpu_core_no_cache_duration = 4;
+  static constexpr std::size_t k_cpu_no_cache_duration = 4;
 
   using single_cache_type =
       object_cache_container<k_cache_bin_size, k_max_bin_no + 1,
@@ -94,7 +94,7 @@ class object_cache {
   // Constructor & assign operator
   // -------------------- //
   object_cache()
-      : m_cache_table(get_num_cores() * k_num_cache_per_core)
+      : m_cache_table(mdtl::get_num_cpus() * k_num_cache_per_cpu)
 #ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
         ,
         m_mutex(m_cache_table.size())
@@ -205,14 +205,14 @@ class object_cache {
   }
 
   void priv_const_helper() {
-    if (get_num_cores() == 0) {
+    if (mdtl::get_num_cpus() == 0) {
       logger::out(logger::level::critical, __FILE__, __LINE__,
-                  "The achieved number of cores is zero");
+                  "The achieved number of cpus is zero");
       return;
     }
     {
       std::stringstream ss;
-      ss << "The number of cores: " << get_num_cores();
+      ss << "The number of cpus: " << mdtl::get_num_cpus();
       logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
     }
     {
@@ -235,12 +235,12 @@ class object_cache {
 #ifdef METALL_DISABLE_CONCURRENCY
     return 0;
 #endif
-#if SUPPORT_GET_CPU_CORE_NO
+#if SUPPORT_GET_CPU_NO
     thread_local static const auto sub_cache_no =
         std::hash<std::thread::id>{}(std::this_thread::get_id()) %
-        k_num_cache_per_core;
-    const std::size_t core_num = priv_get_core_no();
-    return mdtl::hash<>{}(core_num * k_num_cache_per_core + sub_cache_no) %
+        k_num_cache_per_cpu;
+    const std::size_t cpu_no = priv_get_cpu_no();
+    return mdtl::hash<>{}(cpu_no * k_num_cache_per_cpu + sub_cache_no) %
            m_cache_table.size();
 #else
     thread_local static const auto hashed_thread_id = mdtl::hash<>{}(
@@ -249,27 +249,19 @@ class object_cache {
 #endif
   }
 
-  /// \brief Get CPU core number.
+  /// \brief Get CPU number.
   /// This function does not call the system call every time as it is slow.
-  static std::size_t priv_get_core_no() {
+  static std::size_t priv_get_cpu_no() {
 #ifdef METALL_DISABLE_CONCURRENCY
     return 0;
 #endif
-    thread_local static int cached_core_no = 0;
+    thread_local static int cached_cpu_no = 0;
     thread_local static int cached_count = 0;
-    if (cached_core_no == 0) {
-      cached_core_no = mdtl::get_cpu_core_no();
+    if (cached_cpu_no == 0) {
+      cached_cpu_no = mdtl::get_cpu_no();
     }
-    cached_count = (cached_count + 1) % k_cpu_core_no_cache_duration;
-    return cached_core_no;
-  }
-
-  static std::size_t get_num_cores() {
-#ifdef METALL_DISABLE_CONCURRENCY
-    return 1;
-#else
-    return mdtl::get_num_cpu_cores();
-#endif
+    cached_count = (cached_count + 1) % k_cpu_no_cache_duration;
+    return cached_cpu_no;
   }
 
   // -------------------- //

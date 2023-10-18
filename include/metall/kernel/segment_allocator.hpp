@@ -93,8 +93,7 @@ class segment_allocator {
   // For object cache
 #ifndef METALL_DISABLE_OBJECT_CACHE
   using small_object_cache_type =
-      object_cache<k_num_small_bins, size_type, difference_type, bin_no_mngr,
-                   myself>;
+      object_cache<size_type, difference_type, bin_no_mngr, myself>;
 #endif
 
 #ifdef METALL_ENABLE_MUTEX_IN_SEGMENT_ALLOCATOR
