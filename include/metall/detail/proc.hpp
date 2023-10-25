@@ -21,7 +21,7 @@ namespace metall::mtlldetail {
 
 /// \brief Returns the number of the logical CPU core on which the calling
 /// thread is currently executing.
-inline int get_cpu_no() {
+inline unsigned int get_cpu_no() {
 #if SUPPORT_GET_CPU_NO
 
   const int cpu = ::sched_getcpu();
@@ -41,11 +41,11 @@ inline int get_cpu_no() {
 }
 
 /// \brief Returns the number of the logical CPU cores on the system.
-inline int get_num_cpus() {
+inline unsigned int get_num_cpus() {
 #if SUPPORT_GET_CPU_NO
-  return get_nprocs_conf();
+  return ::get_nprocs_conf();
 #else
-  return int(std::thread::hardware_concurrency());
+  return std::thread::hardware_concurrency();
 #endif
 }
 

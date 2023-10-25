@@ -8,6 +8,8 @@ add_metall_test_executable(multilayer_bitset_test multilayer_bitset_test.cpp)
 
 add_metall_test_executable(chunk_directory_test chunk_directory_test.cpp)
 
+add_metall_test_executable(object_cache_test object_cache_test.cpp)
+
 add_metall_test_executable(manager_test manager_test.cpp)
 
 add_metall_test_executable(manager_test_single_thread manager_test.cpp)

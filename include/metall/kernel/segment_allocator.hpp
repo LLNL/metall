@@ -371,9 +371,10 @@ class segment_allocator {
   // ---------- For allocation ---------- //
   difference_type priv_allocate_small_object(const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
-    if (bin_no <= small_object_cache_type::max_bin_no()) {
+    if (bin_no <= m_object_cache.max_bin_no()) {
       const auto offset = m_object_cache.pop(
-          bin_no, this, &myself::priv_allocate_small_objects_from_global);
+          bin_no, this, &myself::priv_allocate_small_objects_from_global,
+          &myself::priv_deallocate_small_objects_from_global);
       assert(offset >= 0 || offset == k_null_offset);
       return offset;
     }
@@ -523,7 +524,7 @@ class segment_allocator {
   void priv_deallocate_small_object(const difference_type offset,
                                     const bin_no_type bin_no) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
-    if (bin_no <= small_object_cache_type::max_bin_no()) {
+    if (bin_no <= m_object_cache.max_bin_no()) {
       [[maybe_unused]] const bool ret = m_object_cache.push(
           bin_no, offset, this,
           &myself::priv_deallocate_small_objects_from_global);
@@ -661,17 +662,8 @@ class segment_allocator {
   // ---------- For object cache ---------- //
 #ifndef METALL_DISABLE_OBJECT_CACHE
   void priv_clear_object_cache() {
-    for (unsigned int c = 0; c < m_object_cache.num_caches(); ++c) {
-      for (bin_no_type b = 0; b <= m_object_cache.max_bin_no(); ++b) {
-        for (auto itr = m_object_cache.begin(c, b),
-                  end = m_object_cache.end(c, b);
-             itr != end; ++itr) {
-          const auto offset = *itr;
-          priv_deallocate_small_objects_from_global(b, 1, &offset);
-        }
-      }
-    }
-    m_object_cache.clear();
+    m_object_cache.clear(this,
+                         &myself::priv_deallocate_small_objects_from_global);
   }
 #endif
 

@@ -63,16 +63,16 @@
 #define METALL_DISABLE_CONCURRENCY
 #endif
 
-/// \def METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
-/// Cache size per bin in bytes.
-#ifndef METALL_CACHE_BIN_SIZE
-#define METALL_CACHE_BIN_SIZE (1ULL << 20ULL)
+/// \def METALL_MAX_PER_CPU_CACHE_SIZE
+/// The maximum size of the per CPU (logical CPU core) cache in bytes.
+#ifndef METALL_MAX_PER_CPU_CACHE_SIZE
+#define METALL_MAX_PER_CPU_CACHE_SIZE (1ULL << 20ULL)
 #endif
 
 /// \def METALL_NUM_CACHES_PER_CPU
 /// The number of caches per CPU (logical CPU core).
 #ifndef METALL_NUM_CACHES_PER_CPU
-#define METALL_NUM_CACHES_PER_CPU 4
+#define METALL_NUM_CACHES_PER_CPU 2
 #endif
 
 #endif  // METALL_DEFS_HPP
