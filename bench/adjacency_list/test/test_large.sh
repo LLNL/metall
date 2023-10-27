@@ -11,7 +11,6 @@ a=0.57
 b=0.19
 c=0.19
 seed=123
-e=$((2**$((${v}+4)))) # The number of edges to generate
 
 # The default path to store data.
 # This value is overwritten if '-d' option is specified
@@ -77,6 +76,8 @@ main() {
   # Contains edges generated directly from the edge generator
   ref_edge_dump_file1="${out_dir_path}/ref_edge_list1"
   ref_edge_dump_file2="${out_dir_path}/ref_edge_list2"
+
+  local e=$((2**$((${v}+4)))) # The number of edges to generate
 
   ./run_adj_list_bench_metall -o ${data_store_path} -d ${adj_list_dump_file} -s ${seed} -v ${v} -e ${e} -a ${a} -b ${b} -c ${c} -r 1 -u 1 -D ${ref_edge_dump_file1}
   check_program_exit_status
