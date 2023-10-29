@@ -38,14 +38,22 @@ namespace mdtl = metall::mtlldetail;
 
 namespace obcdetail {
 
-template <typename difference_type>
+/// A cache block is a unit of memory that contains cached objects
+/// (specifically, a cached object is difference_type).
+/// Cache blocks are members of two linked-lists.
+/// One is a linked-list of all cache blocks in the cache.
+/// The other is a linked-list of cache blocks in the same bin.
+/// The linked-lists are used to manage the order of cache blocks.
+/// The order of cache blocks is used to determine which cache block is
+/// evicted when the cache is full.
+template <typename difference_type, typename bin_no_type>
 struct cache_block {
   static constexpr unsigned int k_capacity = 64;
 
   cache_block() = delete;
 
   inline void clear() {
-    bin_no = std::numeric_limits<unsigned int>::max();
+    bin_no = std::numeric_limits<bin_no_type>::max();
     older_block = nullptr;
     newer_block = nullptr;
     bin_older_block = nullptr;
@@ -80,8 +88,7 @@ struct cache_block {
     }
   }
 
-  // TODO: take bin_no from outside
-  unsigned int bin_no;
+  bin_no_type bin_no;
   cache_block *older_block;
   cache_block *newer_block;
   cache_block *bin_older_block;
@@ -89,10 +96,14 @@ struct cache_block {
   difference_type cache[k_capacity];
 };
 
-template <typename difference_type>
+/// A bin header is a unit of memory that contains information about a bin
+/// within a cache. Specifically, it contains the active block and the number of
+/// objects in the active block. The active block is the block that is currently
+/// used to cache objects. Non-active blocks are always full.
+template <typename difference_type, typename bin_no_type>
 class bin_header {
  public:
-  using cache_block_type = cache_block<difference_type>;
+  using cache_block_type = cache_block<difference_type, bin_no_type>;
 
   bin_header() { clear(); }
 
@@ -105,8 +116,7 @@ class bin_header {
   inline void move_to_next_active_block() {
     if (!m_active_block) return;
     m_active_block = m_active_block->bin_older_block;
-    m_active_block_size =
-        (m_active_block) ? cache_block<difference_type>::k_capacity : 0;
+    m_active_block_size = (m_active_block) ? cache_block_type::k_capacity : 0;
   }
 
   inline void update_active_block(const cache_block_type *const block,
@@ -132,14 +142,23 @@ class bin_header {
   }
 
  private:
+  // The number of objects in the active block
   std::size_t m_active_block_size{0};
   const cache_block_type *m_active_block{nullptr};
 };
 
-template <typename difference_type>
+/// A free blocks list is a linked-list of free blocks.
+/// It is used to manage free blocks.
+/// Cache blocks are located in a contiguous memory region.
+/// All cache blocks are uninitialized at the beginning ---
+/// thus, they do not consume physical memory.
+/// This free list is designed such that it does not touch uninitialized blocks
+/// until they are used. This design is crucial to reduce Metall manager
+/// construction time.
+template <typename difference_type, typename bin_no_type>
 class free_blocks_list {
  public:
-  using cache_block_type = cache_block<difference_type>;
+  using cache_block_type = cache_block<difference_type, bin_no_type>;
 
   free_blocks_list(const cache_block_type *uninit_top, std::size_t num_blocks)
       : m_blocks(nullptr),
@@ -185,18 +204,26 @@ class free_blocks_list {
   }
 
  private:
+  // Blocks that were used and became empty
   const cache_block_type *m_blocks;
-  const cache_block_type *m_uninit_top;  // uninitialized block top
+  // The top block of the uninitialized blocks.
+  // Uninitialized blocks are located in a contiguous memory region.
+  const cache_block_type *m_uninit_top;
   const cache_block_type *m_last_block;
 };
 
-template <typename difference_type>
+/// A cache header is a unit of memory that contains information about a cache.
+/// Specifically, it contains the total size of objects in the cache,
+/// the oldest and newest active blocks, and a free blocks list.
+template <typename difference_type, typename bin_no_type>
 struct cache_header {
- public:
-  using cache_block_type = cache_block<difference_type>;
+ private:
+  using free_blocks_list_type = free_blocks_list<difference_type, bin_no_type>;
 
-  cache_header(const cache_block<difference_type> *const blocks,
-               std::size_t num_blocks)
+ public:
+  using cache_block_type = cache_block<difference_type, bin_no_type>;
+
+  cache_header(const cache_block_type *const blocks, std::size_t num_blocks)
       : m_total_size_byte(0), m_free_blocks(blocks, num_blocks) {
     assert(blocks);
     assert(num_blocks > 0);
@@ -247,11 +274,9 @@ struct cache_header {
     return m_oldest_active_block;
   }
 
-  inline free_blocks_list<difference_type> &free_blocks() noexcept {
-    return m_free_blocks;
-  }
+  inline free_blocks_list_type &free_blocks() noexcept { return m_free_blocks; }
 
-  inline const free_blocks_list<difference_type> &free_blocks() const noexcept {
+  inline const free_blocks_list_type &free_blocks() const noexcept {
     return m_free_blocks;
   }
 
@@ -259,15 +284,17 @@ struct cache_header {
   std::size_t m_total_size_byte;
   const cache_block_type *m_oldest_active_block{nullptr};
   const cache_block_type *m_newest_active_block{nullptr};
-  free_blocks_list<difference_type> m_free_blocks;
+  free_blocks_list_type m_free_blocks;
 };
 
-template <typename difference_type, std::size_t max_bin_no,
-          std::size_t num_blocks_per_cache>
+/// A cache container is a unit of memory that contains all data structures that
+/// constitute a cache.
+template <typename difference_type, typename bin_no_type,
+          std::size_t max_bin_no, std::size_t num_blocks_per_cache>
 struct cache_container {
-  using cache_heaer_type = cache_header<difference_type>;
-  using bin_header_type = bin_header<difference_type>;
-  using cacbe_block_type = cache_block<difference_type>;
+  using cache_heaer_type = cache_header<difference_type, bin_no_type>;
+  using bin_header_type = bin_header<difference_type, bin_no_type>;
+  using cacbe_block_type = cache_block<difference_type, bin_no_type>;
 
   void init() {
     new (&header) cache_heaer_type(blocks, num_blocks_per_cache);
@@ -276,6 +303,7 @@ struct cache_container {
     for (std::size_t i = 0; i <= max_bin_no; ++i) {
       new (&bin_headers[i]) bin_header_type();
     }
+    // Do not initialize blocks on purpose to reduce the construction time
   }
 
   void clear_headers() {
@@ -290,20 +318,22 @@ struct cache_container {
   cacbe_block_type blocks[num_blocks_per_cache];
 };
 
-// The maximum number of objects in a cache block for the bin number.
+// Allocate new objects by this size
 template <typename difference_type, typename bin_no_manager>
 inline constexpr unsigned int comp_chunk_size(
     const typename bin_no_manager::bin_no_type bin_no) noexcept {
+  using cache_block_type =
+      cache_block<difference_type, typename bin_no_manager::bin_no_type>;
   const auto object_size = bin_no_manager::to_object_size(bin_no);
   // 4096 is meant for page size so that we do not move memory larger than a
   // page.
   // 8 is meant for the minimum number of objects to cache within a block.
   return std::max(std::min((unsigned int)(4096 / object_size),
-                           cache_block<difference_type>::k_capacity),
+                           cache_block_type ::k_capacity),
                   (unsigned int)(8));
 }
 
-// Calculate the max bin number can be cached
+// Calculate the max bin number that can be cached,
 // considering the internal implementation.
 template <typename difference_type, typename bin_no_manager>
 inline constexpr typename bin_no_manager::bin_no_type comp_max_bin_no(
@@ -341,9 +371,12 @@ inline constexpr std::size_t comp_max_num_objects_per_cache(
 template <typename difference_type, typename bin_no_manager>
 inline constexpr std::size_t comp_num_blocks_per_cache(
     const std::size_t max_per_cpu_cache_size) noexcept {
+  using cache_block_type =
+      cache_block<difference_type, typename bin_no_manager::bin_no_type>;
+
   return comp_max_num_objects_per_cache<difference_type, bin_no_manager>(
              max_per_cpu_cache_size) /
-         cache_block<difference_type>::k_capacity;
+         cache_block_type::k_capacity;
 }
 
 }  // namespace obcdetail
@@ -401,7 +434,7 @@ class object_cache {
 #endif
 
   using cache_storage_type =
-      obcdetail::cache_container<difference_type, k_max_bin_no,
+      obcdetail::cache_container<difference_type, bin_no_type, k_max_bin_no,
                                  k_num_blocks_per_cache>;
   using cache_block_type = typename cache_storage_type::cacbe_block_type;
 
@@ -442,71 +475,8 @@ class object_cache {
                       object_allocator_type *const allocator_instance,
                       object_allocate_func_type allocator_function,
                       object_deallocate_func_type deallocator_function) {
-    assert(bin_no <= max_bin_no());
-
-    const auto cache_no = priv_cache_no();
-#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
-    lock_guard_type guard(m_mutex[cache_no]);
-#endif
-
-    auto &cache = m_cache[cache_no];
-    auto &cache_header = cache.header;
-    auto &bin_header = cache.bin_headers[bin_no];
-    const auto object_size = bin_no_manager::to_object_size(bin_no);
-
-    if (bin_header.active_block_size() == 0) {  // Active block is empty
-
-      if (bin_header.active_block()) {
-        // Move to next active block if that is available
-        auto *const empty_block = bin_header.active_block();
-        bin_header.move_to_next_active_block();
-        cache_header.unregister(empty_block);
-        empty_block->disconnect();
-        cache_header.free_blocks().push(empty_block);
-      }
-
-      if (bin_header.active_block_size() == 0) {
-        assert(!bin_header.active_block());
-
-        // There is no cached objects for the bin.
-        // Allocate some objects and cache them to a free block.
-        const auto num_new_objects =
-            obcdetail::comp_chunk_size<difference_type, bin_no_manager>(bin_no);
-        const auto new_objects_size = num_new_objects * object_size;
-
-        // Make sure that the cache has enough space to allocate objects.
-        priv_make_room_for_new_blocks(cache_no, new_objects_size,
-                                      allocator_instance, deallocator_function);
-        assert(!cache_header.free_blocks().empty());
-
-        // allocate objects to the new block
-        auto *new_block = cache_header.free_blocks().pop();
-        assert(new_block);
-        new_block->clear();
-        new_block->bin_no = bin_no;
-        (allocator_instance->*allocator_function)(bin_no, num_new_objects,
-                                                  new_block->cache);
-
-        // Link the new block to the existing blocks
-        new_block->link_to_older(cache_header.newest_active_block(),
-                                 bin_header.active_block());
-
-        // Update headers
-        cache_header.register_new_block(new_block);
-        cache_header.total_size_byte() += new_objects_size;
-        assert(cache_header.total_size_byte() <= k_max_per_cpu_cache_size);
-        bin_header.update_active_block(new_block, num_new_objects);
-      }
-    }
-    assert(bin_header.active_block_size() > 0);
-
-    // Pop an object from the active block
-    --bin_header.active_block_size();
-    const auto object_offset =
-        bin_header.active_block()->cache[bin_header.active_block_size()];
-    assert(cache_header.total_size_byte() >= object_size);
-    cache_header.total_size_byte() -= object_size;
-    return object_offset;
+    return priv_pop(bin_no, allocator_instance, allocator_function,
+                    deallocator_function);
   }
 
   /// \brief Cache an object.
@@ -515,48 +485,8 @@ class object_cache {
   bool push(const bin_no_type bin_no, const difference_type object_offset,
             object_allocator_type *const allocator_instance,
             object_deallocate_func_type deallocator_function) {
-    assert(object_offset >= 0);
-    assert(bin_no <= max_bin_no());
-
-    const auto cache_no = priv_cache_no();
-#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
-    lock_guard_type guard(m_mutex[cache_no]);
-#endif
-
-    auto &cache = m_cache[cache_no];
-    auto &cache_header = cache.header;
-    auto &bin_header = cache.bin_headers[bin_no];
-    const auto object_size = bin_no_manager::to_object_size(bin_no);
-
-    // Make sure that the cache has enough space to allocate objects.
-    // TODO: This is not efficient. We do not have to make a free block always.
-    priv_make_room_for_new_blocks(cache_no, object_size, allocator_instance,
-                                  deallocator_function);
-
-    if (!bin_header.active_block() ||
-        bin_header.active_block_size() == cache_block_type::k_capacity) {
-      // There is no cached objects for the bin or
-      // the active block is full.
-      assert(!cache_header.free_blocks().empty());
-
-      auto *free_block = cache_header.free_blocks().pop();
-      assert(free_block);
-      free_block->clear();
-      free_block->bin_no = bin_no;
-      free_block->link_to_older(cache_header.newest_active_block(),
-                                bin_header.active_block());
-      cache_header.register_new_block(free_block);
-      bin_header.update_active_block(free_block, 0);
-    }
-
-    // push an object to the active block
-    bin_header.active_block()->cache[bin_header.active_block_size()] =
-        object_offset;
-    ++bin_header.active_block_size();
-    cache_header.total_size_byte() += object_size;
-    assert(cache_header.total_size_byte() <= k_max_per_cpu_cache_size);
-
-    return true;
+    return priv_push(bin_no, object_offset, allocator_instance,
+                     deallocator_function);
   }
 
   /// \brief Clear all cached objects.
@@ -666,6 +596,123 @@ class object_cache {
     return true;
   }
 
+  difference_type priv_pop(const bin_no_type bin_no,
+                           object_allocator_type *const allocator_instance,
+                           object_allocate_func_type allocator_function,
+                           object_deallocate_func_type deallocator_function) {
+    assert(bin_no <= max_bin_no());
+
+    const auto cache_no = priv_cache_no();
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
+    lock_guard_type guard(m_mutex[cache_no]);
+#endif
+
+    auto &cache = m_cache[cache_no];
+    auto &cache_header = cache.header;
+    auto &bin_header = cache.bin_headers[bin_no];
+    const auto object_size = bin_no_manager::to_object_size(bin_no);
+
+    if (bin_header.active_block_size() == 0) {  // Active block is empty
+
+      if (bin_header.active_block()) {
+        // Move to next active block if that is available
+        auto *const empty_block = bin_header.active_block();
+        bin_header.move_to_next_active_block();
+        cache_header.unregister(empty_block);
+        empty_block->disconnect();
+        cache_header.free_blocks().push(empty_block);
+      }
+
+      if (bin_header.active_block_size() == 0) {
+        assert(!bin_header.active_block());
+
+        // There is no cached objects for the bin.
+        // Allocate some objects and cache them to a free block.
+        const auto num_new_objects =
+            obcdetail::comp_chunk_size<difference_type, bin_no_manager>(bin_no);
+        const auto new_objects_size = num_new_objects * object_size;
+
+        // Make sure that the cache has enough space to allocate objects.
+        priv_make_room_for_new_blocks(cache_no, new_objects_size,
+                                      allocator_instance, deallocator_function);
+        assert(!cache_header.free_blocks().empty());
+
+        // allocate objects to the new block
+        auto *new_block = cache_header.free_blocks().pop();
+        assert(new_block);
+        new_block->clear();
+        new_block->bin_no = bin_no;
+        (allocator_instance->*allocator_function)(bin_no, num_new_objects,
+                                                  new_block->cache);
+
+        // Link the new block to the existing blocks
+        new_block->link_to_older(cache_header.newest_active_block(),
+                                 bin_header.active_block());
+
+        // Update headers
+        cache_header.register_new_block(new_block);
+        cache_header.total_size_byte() += new_objects_size;
+        assert(cache_header.total_size_byte() <= k_max_per_cpu_cache_size);
+        bin_header.update_active_block(new_block, num_new_objects);
+      }
+    }
+    assert(bin_header.active_block_size() > 0);
+
+    // Pop an object from the active block
+    --bin_header.active_block_size();
+    const auto object_offset =
+        bin_header.active_block()->cache[bin_header.active_block_size()];
+    assert(cache_header.total_size_byte() >= object_size);
+    cache_header.total_size_byte() -= object_size;
+    return object_offset;
+  }
+
+  bool priv_push(const bin_no_type bin_no, const difference_type object_offset,
+                 object_allocator_type *const allocator_instance,
+                 object_deallocate_func_type deallocator_function) {
+    assert(object_offset >= 0);
+    assert(bin_no <= max_bin_no());
+
+    const auto cache_no = priv_cache_no();
+#ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
+    lock_guard_type guard(m_mutex[cache_no]);
+#endif
+
+    auto &cache = m_cache[cache_no];
+    auto &cache_header = cache.header;
+    auto &bin_header = cache.bin_headers[bin_no];
+    const auto object_size = bin_no_manager::to_object_size(bin_no);
+
+    // Make sure that the cache has enough space to allocate objects.
+    priv_make_room_for_new_blocks(cache_no, object_size, allocator_instance,
+                                  deallocator_function);
+
+    if (!bin_header.active_block() ||
+        bin_header.active_block_size() == cache_block_type::k_capacity) {
+      // There is no cached objects for the bin or
+      // the active block is full.
+      assert(!cache_header.free_blocks().empty());
+
+      auto *free_block = cache_header.free_blocks().pop();
+      assert(free_block);
+      free_block->clear();
+      free_block->bin_no = bin_no;
+      free_block->link_to_older(cache_header.newest_active_block(),
+                                bin_header.active_block());
+      cache_header.register_new_block(free_block);
+      bin_header.update_active_block(free_block, 0);
+    }
+
+    // push an object to the active block
+    bin_header.active_block()->cache[bin_header.active_block_size()] =
+        object_offset;
+    ++bin_header.active_block_size();
+    cache_header.total_size_byte() += object_size;
+    assert(cache_header.total_size_byte() <= k_max_per_cpu_cache_size);
+
+    return true;
+  }
+
   void priv_make_room_for_new_blocks(
       const size_type cache_no, const size_type new_objects_size,
       object_allocator_type *const allocator_instance,
@@ -674,12 +721,12 @@ class object_cache {
     auto &cache_header = cache.header;
     auto &free_blocks = cache_header.free_blocks();
     auto &bin_headers = cache.bin_headers;
+    auto &total_size = cache_header.total_size_byte();
 
     // Make sure that the cache has enough space to allocate objects.
-    while (cache_header.total_size_byte() + new_objects_size >
-               k_max_per_cpu_cache_size ||
+    while (total_size + new_objects_size > k_max_per_cpu_cache_size ||
            free_blocks.empty()) {
-      auto *oldest_block = cache_header.oldest_active_block();
+      auto *const oldest_block = cache_header.oldest_active_block();
       assert(oldest_block);
 
       // Deallocate objects from the oldest block
@@ -692,8 +739,8 @@ class object_cache {
                                    : cache_block_type::k_capacity;
       (allocator_instance->*deallocator_function)(bin_no, num_objects,
                                                   oldest_block->cache);
-      assert(cache_header.total_size_byte() >= num_objects * object_size);
-      cache_header.total_size_byte() -= num_objects * object_size;
+      assert(total_size >= num_objects * object_size);
+      total_size -= num_objects * object_size;
 
       cache_header.unregister(oldest_block);
       if (bin_header.active_block() == oldest_block) {
