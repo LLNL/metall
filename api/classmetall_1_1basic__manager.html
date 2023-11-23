@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.26</span>
+   &#160;<span id="projectnumber">v0.27</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -273,13 +273,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ad246a8d9ecd8f6f468a186fb97f6f5b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a constant iterator to the index storing the unique objects.  <a href="classmetall_1_1basic__manager.html#ad246a8d9ecd8f6f468a186fb97f6f5b3">More...</a><br /></td></tr>
 <tr class="separator:ad246a8d9ecd8f6f468a186fb97f6f5b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85f5e9425c520764d43c9afaea4cf732"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1basic__manager.html#a6ac7b6423046445a8aa58b3d8d267720">const_unique_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html#a85f5e9425c520764d43c9afaea4cf732">unique_end</a> () const noexcept</td></tr>
-<tr class="memdesc:a85f5e9425c520764d43c9afaea4cf732"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a constant iterator to the end of the index storing the unique allocations. NOT thread-safe. Never throws.  <a href="classmetall_1_1basic__manager.html#a85f5e9425c520764d43c9afaea4cf732">More...</a><br /></td></tr>
+<tr class="memdesc:a85f5e9425c520764d43c9afaea4cf732"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a constant iterator to the end of the index storing the unique allocations.  <a href="classmetall_1_1basic__manager.html#a85f5e9425c520764d43c9afaea4cf732">More...</a><br /></td></tr>
 <tr class="separator:a85f5e9425c520764d43c9afaea4cf732"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56d110ce0188fbe9e1ff573419b8710e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1basic__manager.html#aafe466a3ab9fc8a6ad32ebe29deeafee">const_anonymous_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html#a56d110ce0188fbe9e1ff573419b8710e">anonymous_begin</a> () const noexcept</td></tr>
 <tr class="memdesc:a56d110ce0188fbe9e1ff573419b8710e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a constant iterator to the index storing the anonymous objects.  <a href="classmetall_1_1basic__manager.html#a56d110ce0188fbe9e1ff573419b8710e">More...</a><br /></td></tr>
 <tr class="separator:a56d110ce0188fbe9e1ff573419b8710e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41a3b3de6dfd6ed06fd6a1e9a5e0c021"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1basic__manager.html#aafe466a3ab9fc8a6ad32ebe29deeafee">const_anonymous_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html#a41a3b3de6dfd6ed06fd6a1e9a5e0c021">anonymous_end</a> () const noexcept</td></tr>
-<tr class="memdesc:a41a3b3de6dfd6ed06fd6a1e9a5e0c021"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a constant iterator to the end of the index storing the anonymous allocations. NOT thread-safe. Never throws.  <a href="classmetall_1_1basic__manager.html#a41a3b3de6dfd6ed06fd6a1e9a5e0c021">More...</a><br /></td></tr>
+<tr class="memdesc:a41a3b3de6dfd6ed06fd6a1e9a5e0c021"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a constant iterator to the end of the index storing the anonymous allocations.  <a href="classmetall_1_1basic__manager.html#a41a3b3de6dfd6ed06fd6a1e9a5e0c021">More...</a><br /></td></tr>
 <tr class="separator:a41a3b3de6dfd6ed06fd6a1e9a5e0c021"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86580eab94bcf8aa5a7aeeff13bc97df"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html#a86580eab94bcf8aa5a7aeeff13bc97df">allocate</a> (<a class="el" href="classmetall_1_1basic__manager.html#a81bcb1cb53a0c5a33b02ef3f32ca513d">size_type</a> nbytes) noexcept</td></tr>
 <tr class="memdesc:a86580eab94bcf8aa5a7aeeff13bc97df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates nbytes bytes.  <a href="classmetall_1_1basic__manager.html#a86580eab94bcf8aa5a7aeeff13bc97df">More...</a><br /></td></tr>
@@ -1100,7 +1100,9 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Allocates an object of type T. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <p>If T's constructor throws, the function throws that exception. Memory is freed automatically if T's constructor throws and if an array was being constructed, destructors of created objects are called before freeing the memory.</p>
 <p>Example: </p><div class="fragment"><div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.construct&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)(arg1, arg2...);</div>
 <div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.construct&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)[count](arg1, arg2...);</div>
@@ -1151,7 +1153,9 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Tries to find an already constructed object. If not exist, constructs an object of type T. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <p>If T's constructor throws, the function throws that exception. Memory is freed automatically if T's constructor throws and if an array was being constructed, destructors of created objects are called before freeing the memory.</p>
 <p>Example: </p><div class="fragment"><div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.find_or_construct&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)(arg1, arg2...);</div>
 <div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.find_or_construct&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)[count](arg1, arg2...);</div>
@@ -1201,7 +1205,9 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Allocates an array of objects of type T, receiving arguments from iterators. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <p>If T's constructor throws, the function throws that exception. Memory is freed automatically if T's constructor throws and if an array was being constructed, destructors of created objects are called before freeing the memory.</p>
 <p>Example: </p><div class="fragment"><div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.construct_it&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)[count](it1, it2...);</div>
 </div><!-- fragment --><p> Each object receives parameters returned with the expression (*it1++, *it2++,... ).</p>
@@ -1250,7 +1256,9 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Tries to find an already constructed object. If not exist, constructs an array of objects of type T, receiving arguments from iterators. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <p>If T's constructor throws, the function throws that exception. Memory is freed automatically if T's constructor throws and if an array was being constructed, destructors of created objects are called before freeing the memory.</p>
 <p>Example: </p><div class="fragment"><div class="line">T *ptr = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.find_or_construct_it&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>)[count](it1,</div>
 <div class="line">it2...); </div>
@@ -1300,7 +1308,9 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Tries to find a previously created object. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). </p><dl class="section warning"><dt>Warning</dt><dd>There is no mutex inside. Calling this function with other construct/destroy methods that updates an object directory simultaneously will cause a concurrent issue.</dd></dl>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line">std::pair&lt;T *, std::size_t&gt; ret = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.find&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>);</div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
@@ -1347,7 +1357,9 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Destroys a previously created object. Calls the destructor and frees the memory. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <dl class="section note"><dt>Note</dt><dd>If T's destructor throws: 1) the exception will be thrown (propagated); 2) the memory will won't be freed; 3) the object entry will be still removed from the attributed object directory. Therefore, it is not recommended to throw exception in a destructor.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keywordtype">bool</span> destroyed = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.destroy&lt;T&gt;(<span class="stringliteral">&quot;Name&quot;</span>);</div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -1395,7 +1407,9 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Destroys a unique object of type T. Calls the destructor and frees the memory. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <dl class="section note"><dt>Note</dt><dd>If T's destructor throws: 1) the exception will be thrown (propagated); 2) the memory will won't be freed; 3) the object entry will be still removed from the attributed object directory. Therefore, it is not recommended to throw exception in a destructor.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keywordtype">bool</span> destroyed = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.destroy&lt;T&gt;(metall::unique_instance);</div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -1437,7 +1451,9 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Destroys a object (named, unique, or anonymous) by its address. Calls the destructor and frees the memory. Cannot destroy an object not allocated by construct/find_or_construct functions. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <dl class="section note"><dt>Note</dt><dd>If T's destructor throws: 1) the exception will be thrown (propagated); 2) the memory will won't be freed; 3) the object entry will be still removed from the attributed object directory. Therefore, it is not recommended to throw exception in a destructor.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keywordtype">bool</span> destroyed = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.destroy_ptr&lt;T&gt;(ptr);</div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -1485,6 +1501,9 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Returns the name of an object created with construct/find_or_construct functions. </p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="classmetall_1_1basic__manager.html#a6a734b956eabae70adae4a1432f599cf">char_type</a> name = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.get_instance_name&lt;T&gt;(ptr);</div>
 <div class="ttc" id="aclassmetall_1_1basic__manager_html_a6a734b956eabae70adae4a1432f599cf"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a6a734b956eabae70adae4a1432f599cf">metall::basic_manager::char_type</a></div><div class="ttdeci">typename manager_kernel_type::char_type char_type</div><div class="ttdoc">Char type.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:45</div></div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -1532,6 +1551,9 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Returns the kind of an object created with construct/find_or_construct functions. </p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="classmetall_1_1basic__manager.html#a2bb6a68e50275402ecf183c8ad00bc29">instance_kind</a> t = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.get_instance_kind&lt;T&gt;(ptr);</div>
 <div class="ttc" id="aclassmetall_1_1basic__manager_html_a2bb6a68e50275402ecf183c8ad00bc29"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a2bb6a68e50275402ecf183c8ad00bc29">metall::basic_manager::instance_kind</a></div><div class="ttdeci">typename manager_kernel_type::instance_kind instance_kind</div><div class="ttdoc">An value that describes the type of the instance constructed in memory.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:75</div></div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -1579,6 +1601,9 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Returns the length of an object created with construct/find_or_construct functions (1 if is a single element, &gt;=1 if it's an array). </p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="classmetall_1_1basic__manager.html#a81bcb1cb53a0c5a33b02ef3f32ca513d">size_type</a> length = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.get_instance_length&lt;T&gt;(ptr);</div>
 <div class="ttc" id="aclassmetall_1_1basic__manager_html_a81bcb1cb53a0c5a33b02ef3f32ca513d"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a81bcb1cb53a0c5a33b02ef3f32ca513d">metall::basic_manager::size_type</a></div><div class="ttdeci">typename manager_kernel_type::size_type size_type</div><div class="ttdoc">Size type.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:48</div></div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -1626,6 +1651,7 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Checks if the type of an object, which was created with construct/find_or_construct functions, is T. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><span class="keyword">const</span> <span class="keywordtype">bool</span> correct_type = <a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.type&lt;T&gt;(ptr);</div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
@@ -1682,6 +1708,7 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Gets the description of an object created with construct/find_or_construct. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> description;</div>
 <div class="line"><a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.get_instance_description&lt;T&gt;(ptr, &amp;description);</div>
 <div class="ttc" id="anamespacemetall_1_1container_html_a5fe499903b179ed596cd8c2bd6892009"><div class="ttname"><a href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">metall::container::string</a></div><div class="ttdeci">basic_string&lt; char &gt; string</div><div class="ttdoc">A string container that uses char as its character type and Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:23</div></div>
@@ -1741,6 +1768,7 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Sets a description to an object created with construct/find_or_construct. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <p>Example: </p><div class="fragment"><div class="line"><a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> description;</div>
 <div class="line"><a class="code" href="classmetall_1_1basic__manager.html#aeb6da3d6be384f15482f90673c67007e">basic_manager</a>.set_instance_description&lt;T&gt;(ptr, description);</div>
 </div><!-- fragment --><dl class="tparams"><dt>Template Parameters</dt><dd>
@@ -1786,7 +1814,11 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns Returns the number of named objects stored in the managed segment. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>The number of named objects stored in the managed segment. </dd></dl>
 
 </div>
@@ -1817,7 +1849,9 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns Returns the number of unique objects stored in the managed segment. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>The number of unique objects stored in the managed segment. </dd></dl>
 
 </div>
@@ -1848,6 +1882,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns Returns the number of anonymous objects (objects constructed with metall::anonymous_instance) stored in the managed segment. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>The number of anonymous objects stored in the managed segment. </dd></dl>
 
 </div>
@@ -1878,7 +1913,9 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns a constant iterator to the index storing the named objects. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A constant iterator to the index storing the named objects. </dd></dl>
 
 </div>
@@ -1909,7 +1946,9 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns a constant iterator to the end of the index storing the named allocations. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A constant iterator. </dd></dl>
 
 </div>
@@ -1940,7 +1979,9 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns a constant iterator to the index storing the unique objects. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A constant iterator to the index storing the unique objects. </dd></dl>
 
 </div>
@@ -1970,8 +2011,10 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </table>
 </div><div class="memdoc">
 
-<p>Returns a constant iterator to the end of the index storing the unique allocations. NOT thread-safe. Never throws. </p>
-<p>Object construction API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a> A named object must be associated with non-empty name. The name of an unique object is typeid(T).name().</p>
+<p>Returns a constant iterator to the end of the index storing the unique allocations. </p>
+<p>Attributed object construction family API developed by Boost.Interprocess <a href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">(see details). </a></p>
+<p>A named object must be associated with non-empty name. The name of an unique object is typeid(T).name(). An anonymous object has no name. </p><dl class="section warning"><dt>Warning</dt><dd>Constructing or destroying attributed objects breaks attributed object iterators.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A constant iterator. </dd></dl>
 
 </div>
@@ -2002,6 +2045,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns a constant iterator to the index storing the anonymous objects. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A constant iterator to the index storing the anonymous objects. </dd></dl>
 
 </div>
@@ -2031,7 +2075,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </table>
 </div><div class="memdoc">
 
-<p>Returns a constant iterator to the end of the index storing the anonymous allocations. NOT thread-safe. Never throws. </p>
+<p>Returns a constant iterator to the end of the index storing the anonymous allocations. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>A constant iterator. </dd></dl>
 
 </div>
@@ -2063,6 +2108,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Allocates nbytes bytes. </p>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">nbytes</td><td>Number of bytes to allocate. </td></tr>
@@ -2110,6 +2156,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Allocates nbytes bytes. The address of the allocated memory will be a multiple of alignment. </p>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">nbytes</td><td>Number of bytes to allocate. Must be a multiple alignment.</td></tr>
@@ -2148,6 +2195,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Deallocates the allocated memory. </p>
+<p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">addr</td><td>A pointer to the allocated memory to be deallocated. </td></tr>
@@ -2183,7 +2231,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Check if all allocated memory has been deallocated. </p>
-<dl class="section return"><dt>Returns</dt><dd>Returns true if all allocated memory has been deallocated; otherwise, false. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads allocate or deallocates memory at the same time.</dd></dl>
+<p>This function is not cheap if many objects has not been deallocated. </p><dl class="section return"><dt>Returns</dt><dd>Returns true if all allocated memory has been deallocated; otherwise, false. </dd></dl>
 
 </div>
 </div>
@@ -2214,6 +2263,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Flush data to persistent memory. </p>
+<dl class="section warning"><dt>Warning</dt><dd>This function is not thread-safe and must be called by a single thread at a time.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">synchronous</td><td>If true, performs synchronous operation; otherwise, performs asynchronous operation. </td></tr>
@@ -2266,6 +2316,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Takes a snapshot of the current data. The snapshot has a new UUID. </p>
+<dl class="section warning"><dt>Warning</dt><dd>This function is not thread-safe and must be called by a single thread at a time.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">destination_dir_path</td><td>Path to store a snapshot. </td></tr>
@@ -2327,6 +2378,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Copies data store synchronously. The behavior of copying a data store that is open without the read-only mode is undefined. </p>
+<p>This function is thread-safe.</p>
+<p>Copying to the same path simultaneously is prohibited.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">source_dir_path</td><td>Source data store path.</td></tr>
@@ -2389,6 +2442,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Copies data store asynchronously. The behavior of copying a data store that is open without the read-only mode is undefined. </p>
+<p>This function is thread-safe.</p>
+<p>Copying to the same path simultaneously is prohibited.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">source_dir_path</td><td>Source data store path.</td></tr>
@@ -2429,6 +2484,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Removes data store synchronously. </p>
+<p>This function is thread-safe.</p>
+<p>Must not remove the same data store simultaneously.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store to remove. </td></tr>
@@ -2466,6 +2523,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Remove data store asynchronously. </p>
+<p>This function is thread-safe.</p>
+<p>Must not remove the same data store simultaneously.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store to remove. </td></tr>
@@ -2503,7 +2562,8 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Check if a data store exists and is consistent (i.e., it was closed properly in the previous run). </p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>This function is thread-safe.</p>
+<p>Calling this function against a data store that is open without the read-only mode is undefined. If the data store is not consistent, it is recommended to remove the data store and create a new one. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
   </table>
@@ -2541,6 +2601,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns a UUID of the data store. </p>
+<p>This function is thread-safe.</p>
 <dl class="section return"><dt>Returns</dt><dd>UUID in the std::string format; returns an empty string on error. </dd></dl>
 
 </div>
@@ -2572,6 +2633,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns a UUID of the data store. </p>
+<p>This function is thread-safe.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
@@ -2608,6 +2670,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Gets the version of the Metall that created the backing data store. </p>
+<p>This function is thread-safe.</p>
 <dl class="section return"><dt>Returns</dt><dd>Returns a version number; returns 0 on error. </dd></dl>
 
 </div>
@@ -2639,6 +2702,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Gets the version of the Metall that created the backing data store. </p>
+<p>This function is thread-safe.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
@@ -2676,7 +2740,9 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Sets a description to a Metall data store. An existing description is overwritten (only one description per data store). </p>
-<dl class="section warning"><dt>Warning</dt><dd>This method is not thread-safe.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This function is not thread-safe and must be called by a single thread at a time.</dd>
+<dd>
+This function is not thread-safe and must be called by a single thread at a time. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">description</td><td>An std::string object that holds a description. </td></tr>
@@ -2726,7 +2792,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Sets a description to a Metall data store. An existing description is overwritten (only one description per data store). </p>
-<dl class="section warning"><dt>Warning</dt><dd>This function is not thread-safe. Updating the same data store with multiple threads simultaneously could cause an issue.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads modify the same datastore simultaneously.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store.</td></tr>
@@ -2765,6 +2831,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Gets a description. If there is no description, nothing to happen to the given description object. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads modify the same datastore simultaneously.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">description</td><td>A pointer to an std::string object to store a description if it exists. </td></tr>
@@ -2814,6 +2881,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Gets a description. If there is no description, nothing to happen to the given description object. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads modify the same datastore simultaneously.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store.</td></tr>
@@ -2852,6 +2920,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns an instance that provides access to the attribute of named objects. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
@@ -2891,6 +2960,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns an instance that provides access to the attribute of unique object. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
@@ -2930,6 +3000,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns an instance that provides access to the attribute of anonymous object. </p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe as long as no other threads call non-const attributed object construction functions simultaneously.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dir_path</td><td>Path to a data store. </td></tr>
@@ -2970,6 +3041,7 @@ template&lt;typename T  = std::byte&gt; </div>
 </div><div class="memdoc">
 
 <p>Returns a STL compatible allocator object. </p>
+<p>This function is thread-safe.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>Type of the object. </td></tr>
@@ -3006,6 +3078,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns the internal chunk size. </p>
+<p>This function is thread-safe.</p>
 <dl class="section return"><dt>Returns</dt><dd>The size of internal chunk size. </dd></dl>
 
 </div>
@@ -3036,6 +3109,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns the address of the application data segment. </p>
+<p>This function is thread-safe.</p>
 <dl class="section return"><dt>Returns</dt><dd>The address of the application data segment. </dd></dl>
 
 </div>
@@ -3066,6 +3140,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Returns the size (i.e., the maximum total allocation size) of the application data segment. This is a theoretical value. The actual total allocation size Metall can handle will be less than that. </p>
+<p>This function is thread-safe.</p>
 <dl class="section return"><dt>Returns</dt><dd>The size of the application data segment. </dd></dl>
 
 </div>
@@ -3096,6 +3171,7 @@ template&lt;typename chunk_no_type  = uint32_t, std::size_t k_chunk_size = (1ULL
 </div><div class="memdoc">
 
 <p>Checks the sanity. </p>
+<p>This function is thread-safe.</p>
 <dl class="section return"><dt>Returns</dt><dd>Returns true if there is no issue; otherwise, returns false. </dd></dl>
 
 </div>

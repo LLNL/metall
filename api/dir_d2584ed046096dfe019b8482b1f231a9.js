@@ -7,6 +7,7 @@ var dir_d2584ed046096dfe019b8482b1f231a9 =
     [ "basic_manager.hpp", "basic__manager_8hpp.html", [
       [ "basic_manager", "classmetall_1_1basic__manager.html", "classmetall_1_1basic__manager" ]
     ] ],
+    [ "defs.hpp", "defs_8hpp.html", "defs_8hpp" ],
     [ "logger.hpp", "logger_8hpp.html", [
       [ "logger", "classmetall_1_1logger.html", "classmetall_1_1logger" ]
     ] ],

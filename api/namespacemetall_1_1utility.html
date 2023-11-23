@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.26</span>
+   &#160;<span id="projectnumber">v0.27</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -108,6 +108,8 @@ $(document).ready(function(){initNavTree('namespacemetall_1_1utility.html',''); 
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
+<tr class="memitem:namespacemetall_1_1utility_1_1filesystem"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility_1_1filesystem.html">filesystem</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacemetall_1_1utility_1_1mpi"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility_1_1mpi.html">mpi</a></td></tr>
 <tr class="memdesc:namespacemetall_1_1utility_1_1mpi"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for MPI utilities. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -135,14 +137,14 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:a3ded00e1f031af1f986412a9b090da8a"><td class="memTemplParams" colspan="2">template&lt;typename T , unsigned int seed = 123&gt; </td></tr>
-<tr class="memitem:a3ded00e1f031af1f986412a9b090da8a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#a3ded00e1f031af1f986412a9b090da8a">hash</a> = metall::mtlldetail::hash&lt; T, seed &gt;</td></tr>
-<tr class="memdesc:a3ded00e1f031af1f986412a9b090da8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hash a value of type T.  <a href="namespacemetall_1_1utility.html#a3ded00e1f031af1f986412a9b090da8a">More...</a><br /></td></tr>
-<tr class="separator:a3ded00e1f031af1f986412a9b090da8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11db75f62bf44aea3f6e830a704706d9"><td class="memTemplParams" colspan="2">template&lt;typename string_type , unsigned int seed = 123&gt; </td></tr>
-<tr class="memitem:a11db75f62bf44aea3f6e830a704706d9"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#a11db75f62bf44aea3f6e830a704706d9">string_hash</a> = metall::mtlldetail::string_hash&lt; string_type, seed &gt;</td></tr>
-<tr class="memdesc:a11db75f62bf44aea3f6e830a704706d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hash string data.  <a href="namespacemetall_1_1utility.html#a11db75f62bf44aea3f6e830a704706d9">More...</a><br /></td></tr>
-<tr class="separator:a11db75f62bf44aea3f6e830a704706d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26de7059de72fa91b2a7d2d0d92e433c"><td class="memTemplParams" colspan="2">template&lt;typename T  = void, unsigned int seed = 123&gt; </td></tr>
+<tr class="memitem:a26de7059de72fa91b2a7d2d0d92e433c"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#a26de7059de72fa91b2a7d2d0d92e433c">hash</a> = metall::mtlldetail::hash&lt; seed &gt;</td></tr>
+<tr class="memdesc:a26de7059de72fa91b2a7d2d0d92e433c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hash a value of type T.  <a href="namespacemetall_1_1utility.html#a26de7059de72fa91b2a7d2d0d92e433c">More...</a><br /></td></tr>
+<tr class="separator:a26de7059de72fa91b2a7d2d0d92e433c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4b3834177438cf8d8d34572c1848d1f"><td class="memTemplParams" colspan="2">template&lt;unsigned int seed = 123&gt; </td></tr>
+<tr class="memitem:ac4b3834177438cf8d8d34572c1848d1f"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#ac4b3834177438cf8d8d34572c1848d1f">str_hash</a> = metall::mtlldetail::str_hash&lt; seed &gt;</td></tr>
+<tr class="memdesc:ac4b3834177438cf8d8d34572c1848d1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hash function for std::string-compatible string container.  <a href="namespacemetall_1_1utility.html#ac4b3834177438cf8d8d34572c1848d1f">More...</a><br /></td></tr>
+<tr class="separator:ac4b3834177438cf8d8d34572c1848d1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbf405f40b797c4475eeb0f29816e8ec"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#afbf405f40b797c4475eeb0f29816e8ec">rand_512</a> = detail::base_rand_xoshiro&lt; detail::xoshiro512pp &gt;</td></tr>
 <tr class="memdesc:afbf405f40b797c4475eeb0f29816e8ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">pseudo-random number generator that has a similar interface as the ones in STL The actual algorithm is uses xoshiro512++ whose period is 2^(512-1)  <a href="namespacemetall_1_1utility.html#afbf405f40b797c4475eeb0f29816e8ec">More...</a><br /></td></tr>
 <tr class="separator:afbf405f40b797c4475eeb0f29816e8ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,16 +176,16 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Namespace for utility items. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
-<a id="a3ded00e1f031af1f986412a9b090da8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ded00e1f031af1f986412a9b090da8a">&#9670;&nbsp;</a></span>hash</h2>
+<a id="a26de7059de72fa91b2a7d2d0d92e433c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26de7059de72fa91b2a7d2d0d92e433c">&#9670;&nbsp;</a></span>hash</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T , unsigned int seed = 123&gt; </div>
+template&lt;typename T  = void, unsigned int seed = 123&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacemetall_1_1utility.html#a3ded00e1f031af1f986412a9b090da8a">metall::utility::hash</a> = typedef metall::mtlldetail::hash&lt;T, seed&gt;</td>
+          <td class="memname">using <a class="el" href="namespacemetall_1_1utility.html#a26de7059de72fa91b2a7d2d0d92e433c">metall::utility::hash</a> = typedef metall::mtlldetail::hash&lt;seed&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -191,33 +193,32 @@ template&lt;typename T , unsigned int seed = 123&gt; </div>
 <p>Hash a value of type T. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">T</td><td>The type of a value to hash </td></tr>
-    <tr><td class="paramname">seed</td><td>A seed value used for hashing </td></tr>
+    <tr><td class="paramname">T</td><td>Data type to hash. If void is specified, the hash data type is determined by () operator. </td></tr>
+    <tr><td class="paramname">seed</td><td>A seed value used for hashing. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="a11db75f62bf44aea3f6e830a704706d9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a11db75f62bf44aea3f6e830a704706d9">&#9670;&nbsp;</a></span>string_hash</h2>
+<a id="ac4b3834177438cf8d8d34572c1848d1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4b3834177438cf8d8d34572c1848d1f">&#9670;&nbsp;</a></span>str_hash</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename string_type , unsigned int seed = 123&gt; </div>
+template&lt;unsigned int seed = 123&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacemetall_1_1utility.html#a11db75f62bf44aea3f6e830a704706d9">metall::utility::string_hash</a> = typedef metall::mtlldetail::string_hash&lt;string_type, seed&gt;</td>
+          <td class="memname">using <a class="el" href="namespacemetall_1_1utility.html#ac4b3834177438cf8d8d34572c1848d1f">metall::utility::str_hash</a> = typedef metall::mtlldetail::str_hash&lt;seed&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Hash string data. </p>
+<p>Hash function for std::string-compatible string container. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">string_type</td><td>A string class </td></tr>
-    <tr><td class="paramname">seed</td><td>A seed value used for hashing </td></tr>
+    <tr><td class="paramname">seed</td><td>A seed value used for hashing. </td></tr>
   </table>
   </dd>
 </dl>

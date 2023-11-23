@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.26</span>
+   &#160;<span id="projectnumber">v0.27</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -109,13 +109,13 @@ $(document).ready(function(){initNavTree('json__fwd_8hpp_source.html',''); initR
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;variant&gt;</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#if defined(DOXYGEN_SKIP)</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#ifdef DOXYGEN_SKIP</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="json__fwd_8hpp.html#ab819b71da7116cd116ec786e71b0a2f9">   17</a></span>&#160;<span class="preprocessor">#define METALL_LINK_WITH_BOOST_JSON</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
 <div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="json__fwd_8hpp.html#a394f4939c2eac749ccaa8dadf1156895">   20</a></span>&#160;<span class="preprocessor">#define METALL_BOOST_JSON_SRC_INCLUDED</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#if METALL_LINK_WITH_BOOST_JSON</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#ifdef METALL_LINK_WITH_BOOST_JSON</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &lt;boost/json.hpp&gt;</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#ifndef METALL_BOOST_JSON_SRC_INCLUDED</span></div>
@@ -324,7 +324,7 @@ $(document).ready(function(){initNavTree('json__fwd_8hpp_source.html',''); initR
 <div class="ttc" id="anamespacemetall_1_1json_html_a816157f70acd9faf9b9eb840c8637512"><div class="ttname"><a href="namespacemetall_1_1json.html#a816157f70acd9faf9b9eb840c8637512">metall::json::operator&lt;&lt;</a></div><div class="ttdeci">std::ostream &amp; operator&lt;&lt;(std::ostream &amp;os, const value&lt; allocator_type &gt; &amp;val)</div><div class="ttdef"><b>Definition:</b> serialize.hpp:51</div></div>
 <div class="ttc" id="anamespacemetall_1_1json_html_a91d42278355ace1da859d8ff1fb20363"><div class="ttname"><a href="namespacemetall_1_1json.html#a91d42278355ace1da859d8ff1fb20363">metall::json::parse</a></div><div class="ttdeci">value&lt; allocator_type &gt; parse(std::string_view input_json_string, const allocator_type &amp;allocator=allocator_type())</div><div class="ttdoc">Parses a JSON represented as a string.</div><div class="ttdef"><b>Definition:</b> parse.hpp:28</div></div>
 <div class="ttc" id="anamespacemetall_1_1json_html_acdabfd95b87e90dc3430f8db43c2ea4f"><div class="ttname"><a href="namespacemetall_1_1json.html#acdabfd95b87e90dc3430f8db43c2ea4f">metall::json::value_to</a></div><div class="ttdeci">T value_to(const mj::value&lt; allocator_type &gt; &amp;value)</div><div class="ttdoc">Convert a JSON value to another data type.</div><div class="ttdef"><b>Definition:</b> value_to.hpp:72</div></div>
-<div class="ttc" id="anamespacemetall_1_1json_html_aeb151ad4176ec42f1a4626ae0072ae39"><div class="ttname"><a href="namespacemetall_1_1json.html#aeb151ad4176ec42f1a4626ae0072ae39">metall::json::value_from</a></div><div class="ttdeci">value&lt; allocator_type &gt; value_from(T &amp;&amp;input_data, const allocator_type &amp;allocator=allocator_type())</div><div class="ttdoc">Convert an input data and construct a JSON value.</div><div class="ttdef"><b>Definition:</b> value_from.hpp:70</div></div>
+<div class="ttc" id="anamespacemetall_1_1json_html_aeb151ad4176ec42f1a4626ae0072ae39"><div class="ttname"><a href="namespacemetall_1_1json.html#aeb151ad4176ec42f1a4626ae0072ae39">metall::json::value_from</a></div><div class="ttdeci">value&lt; allocator_type &gt; value_from(T &amp;&amp;input_data, const allocator_type &amp;allocator=allocator_type())</div><div class="ttdoc">Convert an input data and construct a JSON value.</div><div class="ttdef"><b>Definition:</b> value_from.hpp:71</div></div>
 <div class="ttc" id="anamespacemetall_1_1json_html_af78c2b26acaea7245fcde5b14ff76b1e"><div class="ttname"><a href="namespacemetall_1_1json.html#af78c2b26acaea7245fcde5b14ff76b1e">metall::json::string</a></div><div class="ttdeci">basic_string&lt; char, std::char_traits&lt; char &gt;, allocator_type &gt; string</div><div class="ttdoc">JSON string.</div><div class="ttdef"><b>Definition:</b> json_fwd.hpp:48</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
