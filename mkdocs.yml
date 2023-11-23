@@ -1,6 +1,3 @@
-# Required
-version: 2
-
 site_name: Metall
 site_author: 'Keita Iwabuchi (LLNL), Roger A Pearce (LLNL), and Maya B Gokhale (LLNL)'
 copyright: Copyright 2023 Lawrence Livermore National Security, LLC
