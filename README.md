@@ -5,22 +5,23 @@
 Metall: A Persistent Memory Allocator for Data-Centric Analytics
 ===============================================
 
-* Provides rich memory allocation interfaces for C++ applications that
-  use persistent memory devices to persistently store heap data on such
-  devices.
-* Creates files in persistent memory and maps them into virtual memory
-  space so that users can access the mapped region just as normal memory
-  regions allocated in DRAM.
-* Actual persistent memory hardware could be any non-volatile memory (NVM) with file system support.
-* To provide persistent memory allocation, Metall employs concepts and
-  APIs developed by
-  [Boost.Interprocess](https://www.boost.org/doc/libs/1_69_0/doc/html/interprocess.html).
-* Supports multi-thread
-* Also provides a space-efficient snapshot/versioning, leveraging reflink
-  copy mechanism in filesystem. In case reflink is not supported, Metall
-  automatically falls back to regular copy.
-* See details: [Metall overview slides](docs/publications/metall_101.pdf).
-  
+- A memory allocator enables applications to transparently allocate data into a file system.
+
+  - From applications, Metall looks like a normal heap allocator.
+
+  - Applications can keep their data beyond single process life cycles and reattach the data in succeeding runs.
+
+  - Leverages the memory-mapped file mechanism (i.e., [mmap(2)](https://man7.org/linux/man-pages/man2/mmap.2.html)) to _map_ application data in files to the main memory.
+
+- Employs the API developed by [Boost.Interprocess](https://www.boost.org/doc/libs/1_69_0/doc/html/interprocess.html).
+
+  - Useful for allocating C++ data structures (including STL containers).
+
+- Incorporates state-of-the-art allocation algorithms.
+
+- Provides a space-efficient snapshot/versioning, leveraging the reflink copy mechanism in file systems.
+
+- See details: [Metall overview slides](docs/publications/metall_101.pdf).
 
 # Getting Started
 
@@ -62,7 +63,9 @@ However, we haven't tested it intensively.
 Also, Boost C++ Libraries 1.69 or more may be required
 if one wants to build Metall with Clang + CUDA.
 
-## Metall with Spack
+## Package Manager Support
+
+### Metall with Spack
 
 Metall package is also available on [Spack](https://spack.io/).
 
@@ -81,6 +84,11 @@ spack load metall
 # Please note that one has to put 'include' at the end of BOOST_ROOT and METALL_ROOT
 g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT}/include -I${METALL_ROOT}/include
 ```
+
+### Metall with Connan
+
+Metall is also available on [Conan](https://conan.io/), thanks to the [DICE](https://github.com/dice-group) research group.
+Conan Metall package information is [here](https://conan.io/center/recipes/metall).
 
 
 ## Use Metall from Another CMake Project
