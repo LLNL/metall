@@ -193,14 +193,10 @@ class basic_manager {
   // Public methods
   // -------------------- //
 
-  // Attributed object construction function family
-  // Each function also works with '[ ]' operator to generate an array,
-  // leveraging the proxy class (construct_proxy)
-
   /// \private
-  /// \class common_doc_const_find
-  /// \brief
-  /// Object construction API developed by Boost.Interprocess
+  /// \class doc_object_attrb_obj_family
+  /// \details
+  /// Attributed object construction family API developed by Boost.Interprocess
   /// <a
   /// href="https://www.boost.org/doc/libs/release/doc/html/interprocess/managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_features.allocation_types">
   /// (see details).
@@ -208,9 +204,44 @@ class basic_manager {
   ///
   /// A named object must be associated with non-empty name.
   /// The name of an unique object is typeid(T).name().
+  /// An anonymous object has no name.
+  /// \warning
+  /// Constructing or destroying attributed objects breaks attributed object
+  /// iterators.
+
+  /// \private
+  /// \class doc_thread_safe
+  /// \details This function is thread-safe.
+
+  /// \private
+  /// \class doc_single_thread
+  /// \warning This function is not thread-safe and must be called by a single
+  /// thread at a time.
+
+  /// \private
+  /// \class doc_thread_safe_alloc
+  /// \details This function is thread-safe. Other threads can also call the
+  /// attributed object construction functions and allocate functions
+  /// simultaneously.
+
+  /// \private
+  /// \class doc_object_attrb_obj_const_thread_safe
+  /// \note This function is thread-safe as long as no other threads call
+  /// non-const attributed object construction functions simultaneously.
+
+  /// \private
+  /// \class doc_no_alloc_thread_safe
+  /// \note This function is thread-safe as long as no other threads allocate
+  /// or deallocates memory at the same time.
+
+  /// \private
+  /// \class doc_const_datastore_thread_safe
+  /// \note This function is thread-safe as long as no other threads modify
+  /// the same datastore simultaneously.
 
   /// \brief Allocates an object of type T.
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_thread_safe_alloc
   ///
   /// \details
   /// If T's constructor throws, the function throws that exception.
@@ -237,7 +268,9 @@ class basic_manager {
   }
 
   /// \brief Tries to find an already constructed object. If not exist,
-  /// constructs an object of type T. \copydoc common_doc_const_find
+  /// constructs an object of type T.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_thread_safe_alloc
   ///
   /// \details
   /// If T's constructor throws, the function throws that exception.
@@ -264,7 +297,9 @@ class basic_manager {
   }
 
   /// \brief Allocates an array of objects of type T, receiving arguments from
-  /// iterators. \copydoc common_doc_const_find
+  /// iterators.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_thread_safe_alloc
   ///
   /// \details
   /// If T's constructor throws, the function throws that exception.
@@ -289,7 +324,9 @@ class basic_manager {
 
   /// \brief Tries to find an already constructed object.
   /// If not exist, constructs an array of objects of type T, receiving
-  /// arguments from iterators. \copydoc common_doc_const_find
+  /// arguments from iterators.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_thread_safe_alloc
   ///
   /// \details
   /// If T's constructor throws, the function throws that exception.
@@ -313,10 +350,8 @@ class basic_manager {
   }
 
   /// \brief Tries to find a previously created object.
-  /// \copydoc common_doc_const_find
-  /// \warning There is no mutex inside.
-  /// Calling this function with other construct/destroy methods that updates an
-  /// object directory simultaneously will cause a concurrent issue.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
   /// Example:
@@ -346,7 +381,8 @@ class basic_manager {
 
   /// \brief Destroys a previously created object.
   /// Calls the destructor and frees the memory.
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_thread_safe_alloc
   ///
   /// \details
   ///
@@ -376,7 +412,8 @@ class basic_manager {
 
   /// \brief Destroys a unique object of type T.
   /// Calls the destructor and frees the memory.
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_thread_safe_alloc
   ///
   /// \details
   ///
@@ -406,7 +443,9 @@ class basic_manager {
   /// \brief Destroys a object (named, unique, or anonymous) by its address.
   /// Calls the destructor and frees the memory.
   /// Cannot destroy an object not allocated by construct/find_or_construct
-  /// functions. \copydoc common_doc_const_find
+  /// functions.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_thread_safe_alloc
   ///
   /// \details
   ///
@@ -438,6 +477,8 @@ class basic_manager {
 
   /// \brief Returns the name of an object created with
   /// construct/find_or_construct functions.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
   /// Example:
@@ -467,6 +508,8 @@ class basic_manager {
 
   /// \brief Returns the kind of an object created with
   /// construct/find_or_construct functions.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
   /// Example:
@@ -494,6 +537,8 @@ class basic_manager {
   /// \brief Returns the length of an object created with
   /// construct/find_or_construct functions (1 if is a single element, >=1 if
   /// it's an array).
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
   /// Example:
@@ -520,6 +565,7 @@ class basic_manager {
 
   /// \brief Checks if the type of an object, which was created with
   /// construct/find_or_construct functions, is T.
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
   /// Example:
@@ -546,6 +592,7 @@ class basic_manager {
 
   /// \brief Gets the description of an object created with
   /// construct/find_or_construct
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
   /// Example:
@@ -575,6 +622,7 @@ class basic_manager {
 
   /// \brief Sets a description to an object created with
   /// construct/find_or_construct
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
   /// Example:
@@ -605,9 +653,11 @@ class basic_manager {
 
   /// \brief Returns Returns the number of named objects stored in the managed
   /// segment.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \details
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
   ///
   /// \return The number of named objects stored in the managed segment.
   size_type get_num_named_objects() const noexcept {
@@ -625,9 +675,8 @@ class basic_manager {
 
   /// \brief Returns Returns the number of unique objects stored in the managed
   /// segment.
-  ///
-  /// \details
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \return The number of unique objects stored in the managed segment.
   size_type get_num_unique_objects() const noexcept {
@@ -645,8 +694,10 @@ class basic_manager {
 
   /// \brief Returns Returns the number of anonymous objects (objects
   /// constructed with metall::anonymous_instance) stored in the managed
-  /// segment. \return The number of anonymous objects stored in the managed
   /// segment.
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
+  ///
+  /// \return The number of anonymous objects stored in the managed segment.
   size_type get_num_anonymous_objects() const noexcept {
     if (!check_sanity()) {
       return 0;
@@ -661,9 +712,8 @@ class basic_manager {
   }
 
   /// \brief Returns a constant iterator to the index storing the named objects.
-  ///
-  /// \details
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \return A constant iterator to the index storing the named objects.
   const_named_iterator named_begin() const noexcept {
@@ -681,9 +731,8 @@ class basic_manager {
 
   /// \brief Returns a constant iterator to the end of the index storing the
   /// named allocations.
-  ///
-  /// \details
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \return A constant iterator.
   const_named_iterator named_end() const noexcept {
@@ -701,9 +750,8 @@ class basic_manager {
 
   /// \brief Returns a constant iterator to the index storing the unique
   /// objects.
-  ///
-  /// \details
-  /// \copydoc common_doc_const_find
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \return A constant iterator to the index storing the unique objects.
   const_unique_iterator unique_begin() const noexcept {
@@ -720,10 +768,9 @@ class basic_manager {
   }
 
   /// \brief Returns a constant iterator to the end of the index
-  /// storing the unique allocations. NOT thread-safe. Never throws.
-  ///
-  /// \details
-  /// \copydoc common_doc_const_find
+  /// storing the unique allocations.
+  /// \copydoc doc_object_attrb_obj_family
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
   /// \return A constant iterator.
   const_unique_iterator unique_end() const noexcept {
@@ -740,7 +787,10 @@ class basic_manager {
   }
 
   /// \brief Returns a constant iterator to the index storing the anonymous
-  /// objects. \return A constant iterator to the index storing the anonymous
+  /// objects.
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
+  ///
+  /// \return A constant iterator to the index storing the anonymous
   /// objects.
   const_anonymous_iterator anonymous_begin() const noexcept {
     if (!check_sanity()) {
@@ -756,7 +806,9 @@ class basic_manager {
   }
 
   /// \brief Returns a constant iterator to the end of the index
-  /// storing the anonymous allocations. NOT thread-safe. Never throws.
+  /// storing the anonymous allocations.
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
+  ///
   /// \return A constant iterator.
   const_anonymous_iterator anonymous_end() const noexcept {
     if (!check_sanity()) {
@@ -775,7 +827,10 @@ class basic_manager {
   // bool belongs_to_segment (const void *ptr) const;
 
   // ---------- Allocate memory by size ---------- //
+
   /// \brief Allocates nbytes bytes.
+  /// \copydoc doc_thread_safe_alloc
+  ///
   /// \param nbytes Number of bytes to allocate.
   /// \return Returns a pointer to the allocated memory.
   void *allocate(size_type nbytes) noexcept {
@@ -793,7 +848,10 @@ class basic_manager {
   }
 
   /// \brief Allocates nbytes bytes. The address of the allocated memory will be
-  /// a multiple of alignment. \param nbytes Number of bytes to allocate. Must
+  /// a multiple of alignment.
+  /// \copydoc doc_thread_safe_alloc
+  ///
+  /// \param nbytes Number of bytes to allocate. Must
   /// be a multiple alignment. \param alignment Alignment size. Alignment must
   /// be a power of two and satisfy [min allocation size, chunk size]. \return
   /// Returns a pointer to the allocated memory.
@@ -815,6 +873,8 @@ class basic_manager {
   // size_type n_elements, multiallocation_chain &chain);
 
   /// \brief Deallocates the allocated memory.
+  /// \copydoc doc_thread_safe_alloc
+  ///
   /// \param addr A pointer to the allocated memory to be deallocated.
   void deallocate(void *addr) noexcept {
     if (!check_sanity()) {
@@ -832,8 +892,12 @@ class basic_manager {
   // void deallocate_many(multiallocation_chain &chain);
 
   /// \brief Check if all allocated memory has been deallocated.
-  /// \return Returns true if all allocated memory has been deallocated;
-  /// otherwise, false.
+  /// \copydoc doc_no_alloc_thread_safe
+  ///
+  /// \details
+  /// This function is not cheap if many objects has not been deallocated.
+  /// \return Returns
+  /// true if all allocated memory has been deallocated; otherwise, false.
   bool all_memory_deallocated() const noexcept {
     if (!check_sanity()) {
       return false;
@@ -850,6 +914,8 @@ class basic_manager {
 
   // ---------- Flush ---------- //
   /// \brief Flush data to persistent memory.
+  /// \copydoc doc_single_thread
+  ///
   /// \param synchronous If true, performs synchronous operation;
   /// otherwise, performs asynchronous operation.
   void flush(const bool synchronous = true) noexcept {
@@ -867,6 +933,8 @@ class basic_manager {
 
   // -------- Snapshot, copy, data store management -------- //
   /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
+  /// \copydoc doc_single_thread
+  ///
   /// \param destination_dir_path Path to store a snapshot.
   /// \param clone Use the file clone mechanism (reflink) instead of normal copy
   /// if it is available. \param num_max_copy_threads The maximum number of copy
@@ -890,7 +958,11 @@ class basic_manager {
 
   /// \brief Copies data store synchronously.
   /// The behavior of copying a data store that is open without the read-only
-  /// mode is undefined. \param source_dir_path Source data store path. \param
+  /// mode is undefined.
+  /// \copydoc doc_thread_safe
+  /// \details Copying to the same path simultaneously is prohibited.
+  ///
+  /// \param source_dir_path Source data store path.\param
   /// destination_dir_path Destination data store path. \param clone Use the
   /// file clone mechanism (reflink) instead of normal copy if it is available.
   /// \param num_max_copy_threads The maximum number of copy threads to use.
@@ -912,7 +984,11 @@ class basic_manager {
 
   /// \brief Copies data store asynchronously.
   /// The behavior of copying a data store that is open without the read-only
-  /// mode is undefined. \param source_dir_path Source data store path. \param
+  /// mode is undefined.
+  /// \copydoc doc_thread_safe
+  /// \details Copying to the same path simultaneously is prohibited.
+  ///
+  /// \param source_dir_path Source data store path. \param
   /// destination_dir_path Destination data store path. \param clone Use the
   /// file clone mechanism (reflink) instead of normal copy if it is available.
   /// \param num_max_copy_threads The maximum number of copy threads to use.
@@ -934,8 +1010,11 @@ class basic_manager {
   }
 
   /// \brief Removes data store synchronously.
-  /// \param dir_path Path to a data store to remove.
-  /// \return If succeeded, returns true; other false.
+  /// \copydoc doc_thread_safe
+  /// \details Must not remove the same data store simultaneously.
+  ///
+  /// \param dir_path Path to a data store to remove. \return If
+  /// succeeded, returns true; other false.
   static bool remove(const char_type *dir_path) noexcept {
     try {
       return manager_kernel_type::remove(dir_path);
@@ -947,6 +1026,9 @@ class basic_manager {
   }
 
   /// \brief Remove data store asynchronously.
+  /// \copydoc doc_thread_safe
+  /// \details Must not remove the same data store simultaneously.
+  ///
   /// \param dir_path Path to a data store to remove.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns true; other false
@@ -961,7 +1043,15 @@ class basic_manager {
   }
 
   /// \brief Check if a data store exists and is consistent (i.e., it was closed
-  /// properly in the previous run). \param dir_path Path to a data store.
+  /// properly in the previous run).
+  /// \copydoc doc_thread_safe
+  ///
+  /// \details
+  /// Calling this function against a data store that is open without the
+  /// read-only mode is undefined.
+  /// If the data store is not consistent, it is recommended to remove
+  /// the data store and create a new one.
+  /// \param dir_path Path to a data store.
   /// \return Returns true if it exists and is consistent; otherwise, returns
   /// false.
   static bool consistent(const char_type *dir_path) noexcept {
@@ -975,6 +1065,8 @@ class basic_manager {
   }
 
   /// \brief Returns a UUID of the data store.
+  /// \copydoc doc_thread_safe
+  ///
   /// \return UUID in the std::string format; returns an empty string on error.
   std::string get_uuid() const noexcept {
     if (!check_sanity()) {
@@ -990,6 +1082,8 @@ class basic_manager {
   }
 
   /// \brief Returns a UUID of the data store.
+  /// \copydoc doc_thread_safe
+  ///
   /// \param dir_path Path to a data store.
   /// \return UUID in the std::string format; returns an empty string on error.
   static std::string get_uuid(const char_type *dir_path) noexcept {
@@ -1003,6 +1097,8 @@ class basic_manager {
   }
 
   /// \brief Gets the version of the Metall that created the backing data store.
+  /// \copydoc doc_thread_safe
+  ///
   /// \return Returns a version number; returns 0 on error.
   version_type get_version() const noexcept {
     if (!check_sanity()) {
@@ -1018,6 +1114,8 @@ class basic_manager {
   }
 
   /// \brief Gets the version of the Metall that created the backing data store.
+  /// \copydoc doc_thread_safe
+  ///
   /// \param dir_path Path to a data store.
   /// \return Returns a version number; returns 0 on error.
   static version_type get_version(const char_type *dir_path) noexcept {
@@ -1034,7 +1132,11 @@ class basic_manager {
 
   /// \brief Sets a description to a Metall data store.
   /// An existing description is overwritten (only one description per data
-  /// store). \warning This method is not thread-safe. \param description An
+  /// store).
+  /// \copydoc doc_single_thread
+  ///
+  /// \copydoc doc_single_thread
+  /// \param description An
   /// std::string object that holds a description. \return Returns true on
   /// success; otherwise, false.
   bool set_description(const std::string &description) noexcept {
@@ -1053,11 +1155,12 @@ class basic_manager {
 
   /// \brief Sets a description to a Metall data store.
   /// An existing description is overwritten (only one description per data
-  /// store). \warning This function is not thread-safe. Updating the same data
-  /// store with multiple threads simultaneously could cause an issue. \param
-  /// dir_path Path to a data store. \param description An std::string object
-  /// that holds a description. \return Returns true on success; otherwise,
-  /// false.
+  /// store).
+  /// \copydoc doc_const_datastore_thread_safe
+  ///
+  /// \param dir_path Path to a data store. \param description An std::string
+  /// object that holds a description. \return Returns true on success;
+  /// otherwise, false.
   static bool set_description(const char *dir_path,
                               const std::string &description) noexcept {
     try {
@@ -1071,7 +1174,10 @@ class basic_manager {
 
   /// \brief Gets a description.
   /// If there is no description, nothing to happen to the given description
-  /// object. \param description A pointer to an std::string object to store a
+  /// object.
+  /// \copydoc doc_const_datastore_thread_safe
+  ///
+  /// \param description A pointer to an std::string object to store a
   /// description if it exists. \return Returns true on success; returns false
   /// on error. Trying to get a non-existent description is not considered as an
   /// error.
@@ -1090,7 +1196,10 @@ class basic_manager {
 
   /// \brief Gets a description.
   /// If there is no description, nothing to happen to the given description
-  /// object. \param dir_path Path to a data store. \param description A pointer
+  /// object.
+  /// \copydoc doc_const_datastore_thread_safe
+  ///
+  /// \param dir_path Path to a data store. \param description A pointer
   /// to an std::string object to store a description if it exists. \return
   /// Returns true on success; returns false on error. Trying to get a
   /// non-existent description is not considered as an error.
@@ -1107,7 +1216,10 @@ class basic_manager {
 
   // ---------- Object attribute ---------- //
   /// \brief Returns an instance that provides access to the attribute of named
-  /// objects. \param dir_path Path to a data store. \return Returns an instance
+  /// objects.
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
+  ///
+  /// \param dir_path Path to a data store. \return Returns an instance
   /// of named_object_attribute_accessor_type.
   static named_object_attribute_accessor_type access_named_object_attribute(
       const char *dir_path) noexcept {
@@ -1121,7 +1233,10 @@ class basic_manager {
   }
 
   /// \brief Returns an instance that provides access to the attribute of unique
-  /// object. \param dir_path Path to a data store. \return Returns an instance
+  /// object.
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
+  ///
+  /// \param dir_path Path to a data store. \return Returns an instance
   /// of unique_object_attribute_accessor_type.
   static unique_object_attribute_accessor_type access_unique_object_attribute(
       const char *dir_path) noexcept {
@@ -1135,7 +1250,10 @@ class basic_manager {
   }
 
   /// \brief Returns an instance that provides access to the attribute of
-  /// anonymous object. \param dir_path Path to a data store. \return Returns an
+  /// anonymous object.
+  /// \copydoc doc_object_attrb_obj_const_thread_safe
+  ///
+  /// \param dir_path Path to a data store. \return Returns an
   /// instance of anonymous_object_attribute_accessor_type.
   static anonymous_object_attribute_accessor_type
   access_anonymous_object_attribute(const char *dir_path) noexcept {
@@ -1150,6 +1268,8 @@ class basic_manager {
 
   // ---------- etc ---------- //
   /// \brief Returns a STL compatible allocator object.
+  /// \copydoc doc_thread_safe
+  ///
   /// \tparam T Type of the object.
   /// \return Returns a STL compatible allocator object.
   template <typename T = std::byte>
@@ -1168,10 +1288,14 @@ class basic_manager {
   }
 
   /// \brief Returns the internal chunk size.
+  /// \copydoc doc_thread_safe
+  ///
   /// \return The size of internal chunk size.
   static constexpr size_type chunk_size() noexcept { return k_chunk_size; }
 
   /// \brief Returns the address of the application data segment.
+  /// \copydoc doc_thread_safe
+  ///
   /// \return The address of the application data segment.
   const void *get_address() const noexcept {
     if (!check_sanity()) {
@@ -1188,8 +1312,10 @@ class basic_manager {
 
   /// \brief Returns the size (i.e., the maximum total allocation size) of the
   /// application data segment. This is a theoretical value. The actual total
-  /// allocation size Metall can handle will be less than that. \return The size
-  /// of the application data segment.
+  /// allocation size Metall can handle will be less than that.
+  /// \copydoc doc_thread_safe
+  ///
+  /// \return The size of the application data segment.
   size_type get_size() const noexcept {
     if (!check_sanity()) {
       return 0;
@@ -1206,6 +1332,8 @@ class basic_manager {
   // bool belongs_to_segment (const void *ptr) const
 
   /// \brief Checks the sanity.
+  /// \copydoc doc_thread_safe
+  ///
   /// \return Returns true if there is no issue; otherwise, returns false.
   bool check_sanity() const noexcept { return !!m_kernel && m_kernel->good(); }
 

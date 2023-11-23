@@ -21,7 +21,7 @@ manager_kernel<chnk_no, chnk_sz>::manager_kernel()
   if (!m_manager_metadata) {
     return;
   }
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
   m_object_directories_mutex = std::make_unique<mutex_type>();
   if (!m_object_directories_mutex) {
     return;
@@ -58,13 +58,14 @@ bool manager_kernel<chnk_no, chnk_sz>::open(
 
 template <typename chnk_no, std::size_t chnk_sz>
 void manager_kernel<chnk_no, chnk_sz>::close() {
-  // Update m_good
-  if (priv_initialized()) {
+  if (m_vm_region) {
+    priv_sanity_check();
     if (!m_segment_storage.read_only()) {
       priv_serialize_management_data();
       m_segment_storage.sync(true);
     }
 
+    m_good = false;
     m_segment_storage.destroy();
     priv_deallocate_segment_header();
     priv_release_vm_region();
@@ -78,14 +79,14 @@ void manager_kernel<chnk_no, chnk_sz>::close() {
 
 template <typename chnk_no, std::size_t chnk_sz>
 void manager_kernel<chnk_no, chnk_sz>::flush(const bool synchronous) {
-  assert(priv_initialized());
+  priv_sanity_check();
   m_segment_storage.sync(synchronous);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 void *manager_kernel<chnk_no, chnk_sz>::allocate(
     const manager_kernel<chnk_no, chnk_sz>::size_type nbytes) {
-  assert(priv_initialized());
+  priv_sanity_check();
   if (m_segment_storage.read_only()) return nullptr;
 
   const auto offset = m_segment_memory_allocator.allocate(nbytes);
@@ -93,7 +94,7 @@ void *manager_kernel<chnk_no, chnk_sz>::allocate(
     return nullptr;
   }
   assert(offset >= 0);
-  assert(offset + nbytes <= m_segment_storage.size());
+
   return priv_to_address(offset);
 }
 
@@ -101,7 +102,7 @@ template <typename chnk_no, std::size_t chnk_sz>
 void *manager_kernel<chnk_no, chnk_sz>::allocate_aligned(
     const manager_kernel<chnk_no, chnk_sz>::size_type nbytes,
     const manager_kernel<chnk_no, chnk_sz>::size_type alignment) {
-  assert(priv_initialized());
+  priv_sanity_check();
   if (m_segment_storage.read_only()) return nullptr;
 
   // This requirement could be removed, but it would need some work to do
@@ -113,7 +114,6 @@ void *manager_kernel<chnk_no, chnk_sz>::allocate_aligned(
     return nullptr;
   }
   assert(offset >= 0);
-  assert(offset + nbytes <= m_segment_storage.size());
 
   auto *addr = priv_to_address(offset);
   assert((uint64_t)addr % alignment == 0);
@@ -122,7 +122,7 @@ void *manager_kernel<chnk_no, chnk_sz>::allocate_aligned(
 
 template <typename chnk_no, std::size_t chnk_sz>
 void manager_kernel<chnk_no, chnk_sz>::deallocate(void *addr) {
-  assert(priv_initialized());
+  priv_sanity_check();
   if (m_segment_storage.read_only()) return;
   if (!addr) return;
   m_segment_memory_allocator.deallocate(priv_to_offset(addr));
@@ -130,7 +130,7 @@ void manager_kernel<chnk_no, chnk_sz>::deallocate(void *addr) {
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::all_memory_deallocated() const {
-  assert(priv_initialized());
+  priv_sanity_check();
   return m_segment_memory_allocator.all_memory_deallocated();
 }
 
@@ -138,7 +138,7 @@ template <typename chnk_no, std::size_t chnk_sz>
 template <typename T>
 std::pair<T *, typename manager_kernel<chnk_no, chnk_sz>::size_type>
 manager_kernel<chnk_no, chnk_sz>::find(char_ptr_holder_type name) const {
-  assert(priv_initialized());
+  priv_sanity_check();
 
   if (name.is_anonymous()) {
     return std::make_pair(nullptr, 0);
@@ -166,7 +166,7 @@ manager_kernel<chnk_no, chnk_sz>::find(char_ptr_holder_type name) const {
 template <typename chnk_no, std::size_t chnk_sz>
 template <typename T>
 bool manager_kernel<chnk_no, chnk_sz>::destroy(char_ptr_holder_type name) {
-  assert(priv_initialized());
+  priv_sanity_check();
   if (m_segment_storage.read_only()) return false;
 
   if (name.is_anonymous()) {
@@ -177,7 +177,7 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy(char_ptr_holder_type name) {
   size_type length = 0;
 
   {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
     lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
@@ -199,12 +199,12 @@ bool manager_kernel<chnk_no, chnk_sz>::destroy(char_ptr_holder_type name) {
 template <typename chnk_no, std::size_t chnk_sz>
 template <typename T>
 bool manager_kernel<chnk_no, chnk_sz>::destroy_ptr(const T *ptr) {
-  assert(priv_initialized());
+  priv_sanity_check();
   if (m_segment_storage.read_only()) return false;
 
   size_type length = 0;
   {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
     lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
@@ -425,7 +425,7 @@ template <typename T>
 T *manager_kernel<chnk_no, chnk_sz>::generic_construct(
     char_ptr_holder_type name, const size_type num, const bool try2find,
     [[maybe_unused]] const bool do_throw, mdtl::in_place_interface &table) {
-  assert(priv_initialized());
+  priv_sanity_check();
   return priv_generic_construct<T>(name, num, try2find, table);
 }
 
@@ -658,11 +658,15 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_init_datastore_directory(
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::priv_initialized() const {
+void manager_kernel<chnk_no, chnk_sz>::priv_sanity_check() const {
+  assert(m_good);
   assert(!m_base_dir_path.empty());
+  assert(m_vm_region_size > 0);
+  assert(m_vm_region);
+  assert(m_segment_header);
+  // TODO: add sanity check functions in other classes
   assert(m_segment_storage.get_segment());
-  return (m_vm_region && m_vm_region_size > 0 && m_segment_header &&
-          m_segment_storage.size() > 0);
+  assert(m_manager_metadata);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
@@ -816,7 +820,7 @@ T *manager_kernel<chnk_no, chnk_sz>::priv_generic_construct(
 
   void *ptr = nullptr;
   try {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
     lock_guard_type guard(*m_object_directories_mutex);
 #endif
 
@@ -852,7 +856,7 @@ T *manager_kernel<chnk_no, chnk_sz>::priv_generic_construct(
       ptr, [this](void *const ptr) {
         try {
           {
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
             lock_guard_type guard(*m_object_directories_mutex);
 #endif
             priv_remove_attr_object_no_mutex(priv_to_offset(ptr));
@@ -1076,7 +1080,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_create(
 // ---------- For serializing/deserializing ---------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_serialize_management_data() {
-  assert(priv_initialized());
+  priv_sanity_check();
 
   if (m_segment_storage.read_only()) return true;
 
@@ -1157,7 +1161,7 @@ template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(
     const char *destination_base_dir_path, const bool clone,
     const int num_max_copy_threads) {
-  assert(priv_initialized());
+  priv_sanity_check();
   m_segment_storage.sync(true);
   priv_serialize_management_data();
 

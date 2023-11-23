@@ -37,7 +37,7 @@ install_boost:
   script:
     - echo "=== build section ==="
     - module load gcc/${GCC_VERSION}
-    - spack load boost@${BOOST_VERSION} arch=$(spack arch)
+    - spack load --first boost@${BOOST_VERSION} arch=$(spack arch)
     - export METALL_TEST_DIR="/dev/shm/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
     - srun -N1 -ppdebug bash ./scripts/CI/build_and_test.sh
 

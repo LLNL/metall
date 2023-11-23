@@ -112,10 +112,10 @@ class attributed_object_directory {
   // Following tables hold the index of the corresponding entry of each key
   using offset_index_table_type =
       boost::unordered_map<offset_type, typename entry_table_type::iterator,
-                           mdtl::hash<offset_type>>;
+                           mdtl::hash<>>;
   using name_index_table_type =
       boost::unordered_map<name_type, typename entry_table_type::iterator,
-                           mdtl::string_hash<name_type>>;
+                           mdtl::str_hash<>>;
 
  public:
   // -------------------- //

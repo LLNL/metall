@@ -330,12 +330,13 @@ class mmap_segment_storage {
     if (is_open())
       return false;  // Cannot open multiple segments simultaneously.
 
-    std::string s("Open a segment under: " + base_path);
-    logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+    {
+      std::string s("Open a segment under: " + base_path);
+      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+    }
 
     m_base_path = base_path;
     m_vm_region_size = mdtl::round_down(vm_region_size, page_size());
-    ;
     m_segment = reinterpret_cast<char *>(
         mdtl::round_up(reinterpret_cast<uintptr_t>(vm_region), page_size()));
     m_read_only = read_only;

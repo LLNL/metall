@@ -8,16 +8,21 @@ add_metall_test_executable(multilayer_bitset_test multilayer_bitset_test.cpp)
 
 add_metall_test_executable(chunk_directory_test chunk_directory_test.cpp)
 
+add_metall_test_executable(object_cache_test object_cache_test.cpp)
+
 add_metall_test_executable(manager_test manager_test.cpp)
+
+add_metall_test_executable(manager_test_single_thread manager_test.cpp)
+target_compile_definitions(manager_test_single_thread PRIVATE "METALL_DISABLE_CONCURRENCY")
 
 add_metall_test_executable(snapshot_test snapshot_test.cpp)
 
 add_metall_test_executable(copy_file_test copy_file_test.cpp)
 
-find_package(OpenMP)
+include(setup_omp)
 if (OpenMP_CXX_FOUND)
     add_metall_test_executable(manager_multithread_test manager_multithread_test.cpp)
-    target_link_libraries(manager_multithread_test PRIVATE OpenMP::OpenMP_CXX)
+    setup_omp_target(manager_multithread_test)
 else()
     MESSAGE(STATUS "OpenMP is not found. Will not run multi-thread test.")
 endif()

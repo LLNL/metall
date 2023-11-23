@@ -8,17 +8,21 @@
 
 #include <sched.h>
 
-namespace metall::mtlldetail {
 #ifdef _GNU_SOURCE
-#define SUPPORT_GET_CPU_CORE_NO true
+#include <sys/sysinfo.h>
+#define SUPPORT_GET_CPU_NO true
 #else
-#define SUPPORT_GET_CPU_CORE_NO false
+#define SUPPORT_GET_CPU_NO false
 #endif
 
-/// \brief Returns the number of the CPU core on which the calling thread is
-/// currently executing \return Returns a non-negative CPU core number
-inline int get_cpu_core_no() {
-#if SUPPORT_GET_CPU_CORE_NO
+#include <thread>
+
+namespace metall::mtlldetail {
+
+/// \brief Returns the number of the logical CPU core on which the calling
+/// thread is currently executing.
+inline unsigned int get_cpu_no() {
+#if SUPPORT_GET_CPU_NO
 
   const int cpu = ::sched_getcpu();
   if (cpu == -1) {
@@ -29,10 +33,19 @@ inline int get_cpu_core_no() {
 #else
 
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
-#warning "CPU core number is always 0"
+#warning "CPU number is always 0"
 #endif
   return 0;
 
+#endif
+}
+
+/// \brief Returns the number of the logical CPU cores on the system.
+inline unsigned int get_num_cpus() {
+#if SUPPORT_GET_CPU_NO
+  return ::get_nprocs_conf();
+#else
+  return std::thread::hardware_concurrency();
 #endif
 }
 

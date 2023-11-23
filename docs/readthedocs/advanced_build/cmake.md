@@ -17,7 +17,7 @@ cmake build_doc  # option; BUILD_DOC must be ON when running cmake
 
 ## Required
 
- - CMake 3.10 or more.
+ - CMake 3.12 or more.
  - GCC 8.1 or more.
  - Boost C++ Libraries 1.64 or more (build is not required; needs only their header files).
 

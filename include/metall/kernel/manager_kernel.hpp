@@ -23,7 +23,6 @@
 #include <metall/offset_ptr.hpp>
 #include <metall/version.hpp>
 #include <metall/kernel/manager_kernel_fwd.hpp>
-#include <metall/kernel/manager_kernel_defs.hpp>
 #include <metall/kernel/segment_header.hpp>
 #include <metall/kernel/segment_allocator.hpp>
 #include <metall/kernel/attributed_object_directory.hpp>
@@ -43,8 +42,10 @@
 #include <metall/kernel/segment_storage/mmap_segment_storage.hpp>
 #endif
 
-#define ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL 1
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifndef METALL_DISABLE_CONCURRENCY
+#define METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
+#endif
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
 #include <metall/detail/mutex.hpp>
 #endif
 
@@ -83,17 +84,26 @@ class manager_kernel {
   static constexpr const char *k_datastore_segment_dir_name = "segment";
 
   // For segment
+#ifndef METALL_DEFAULT_CAPACITY
+#error "METALL_DEFAULT_CAPACITY is not defined."
+#endif
   static constexpr size_type k_default_vm_reserve_size =
-      METALL_DEFAULT_VM_RESERVE_SIZE;
+      METALL_DEFAULT_CAPACITY;
   static_assert(k_chunk_size <= k_default_vm_reserve_size,
                 "Chunk size must be <= k_default_vm_reserve_size");
 
-  static constexpr size_type k_max_segment_size = METALL_MAX_SEGMENT_SIZE;
+#ifndef METALL_MAX_CAPACITY
+#error "METALL_MAX_CAPACITY is not defined."
+#endif
+  static constexpr size_type k_max_segment_size = METALL_MAX_CAPACITY;
   static_assert(k_default_vm_reserve_size <= k_max_segment_size,
                 "k_default_vm_reserve_size must be <= k_max_segment_size");
 
+#ifndef METALL_SEGMENT_BLOCK_SIZE
+#error "METALL_SEGMENT_BLOCK_SIZE is not defined."
+#endif
   static constexpr size_type k_initial_segment_size =
-      METALL_INITIAL_SEGMENT_SIZE;
+      METALL_SEGMENT_BLOCK_SIZE;
   static_assert(k_initial_segment_size <= k_default_vm_reserve_size,
                 "k_initial_segment_size must be <= k_default_vm_reserve_size");
   static_assert(k_chunk_size <= k_initial_segment_size,
@@ -140,7 +150,7 @@ class manager_kernel {
 
   using json_store = mdtl::ptree::node_type;
 
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
   using mutex_type = mdtl::mutex;
   using lock_guard_type = mdtl::mutex_lock_guard;
 #endif
@@ -486,7 +496,7 @@ class manager_kernel {
   // Private methods
   // -------------------- //
 
-  bool priv_initialized() const;
+  void priv_sanity_check() const;
   bool priv_validate_runtime_configuration() const;
   difference_type priv_to_offset(const void *const ptr) const;
   void *priv_to_address(difference_type offset) const;
@@ -585,7 +595,6 @@ class manager_kernel {
   // Private fields
   // -------------------- //
   bool m_good{false};
-  bool m_open{false};
   std::string m_base_dir_path{};
   size_type m_vm_region_size{0};
   void *m_vm_region{nullptr};
@@ -597,7 +606,7 @@ class manager_kernel {
   segment_memory_allocator m_segment_memory_allocator{nullptr};
   std::unique_ptr<json_store> m_manager_metadata{nullptr};
 
-#if ENABLE_MUTEX_IN_METALL_MANAGER_KERNEL
+#ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
   std::unique_ptr<mutex_type> m_object_directories_mutex{nullptr};
 #endif
 };

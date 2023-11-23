@@ -56,13 +56,13 @@ TEST(ChunkDirectoryTest, EraseChunk) {
   ASSERT_GT(directory.size(), 0);
 
   directory.erase(chno0);
-  ASSERT_TRUE(directory.empty_chunk(chno0));
+  ASSERT_TRUE(chno0 >= directory.size() || directory.unused_chunk(chno0));
   directory.erase(chno1);
-  ASSERT_TRUE(directory.empty_chunk(chno1));
+  ASSERT_TRUE(chno1 >= directory.size() || directory.unused_chunk(chno1));
   directory.erase(chno2);
-  ASSERT_TRUE(directory.empty_chunk(chno2));
+  ASSERT_TRUE(chno2 >= directory.size() || directory.unused_chunk(chno2));
   directory.erase(chno3);
-  ASSERT_TRUE(directory.empty_chunk(chno3));
+  ASSERT_TRUE(chno3 >= directory.size() || directory.unused_chunk(chno3));
   ASSERT_EQ(directory.size(), 0);
 }
 
@@ -79,10 +79,10 @@ TEST(ChunkDirectoryTest, MarkSlot) {
     auto chunk_no = static_cast<chunk_no_type>(i);
     const std::size_t object_size = bin_no_mngr::to_object_size(bin_no);
     for (uint64_t k = 0; k < k_chunk_size / object_size; ++k) {
-      ASSERT_FALSE(directory.slot_marked(chunk_no, k));
+      ASSERT_FALSE(directory.marked_slot(chunk_no, k));
       ASSERT_FALSE(directory.all_slots_marked(chunk_no));
       ASSERT_EQ(directory.find_and_mark_slot(chunk_no), k);
-      ASSERT_TRUE(directory.slot_marked(chunk_no, k));
+      ASSERT_TRUE(directory.marked_slot(chunk_no, k));
     }
     ASSERT_TRUE(directory.all_slots_marked(chunk_no));
   }
@@ -104,9 +104,9 @@ TEST(ChunkDirectoryTest, UnmarkSlot) {
       directory.find_and_mark_slot(chunk_no);
     }
     for (uint64_t k = 0; k < k_chunk_size / object_size; ++k) {
-      ASSERT_TRUE(directory.slot_marked(chunk_no, k));
+      ASSERT_TRUE(directory.marked_slot(chunk_no, k));
       directory.unmark_slot(chunk_no, k);
-      ASSERT_FALSE(directory.slot_marked(chunk_no, k));
+      ASSERT_FALSE(directory.marked_slot(chunk_no, k));
       ASSERT_EQ(directory.find_and_mark_slot(chunk_no), k);
     }
   }

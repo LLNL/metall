@@ -10,17 +10,17 @@
 
 namespace metall::utility {
 
-/// \brief Hash a value of type T
-/// \tparam T The type of a value to hash
-/// \tparam seed A seed value used for hashing
-template <typename T, unsigned int seed = 123>
-using hash = metall::mtlldetail::hash<T, seed>;
+/// \brief Hash a value of type T.
+/// \tparam T Data type to hash.
+/// If void is specified, the hash data type is determined by () operator.
+/// \tparam seed A seed value used for hashing.
+template <typename T = void, unsigned int seed = 123>
+using hash = metall::mtlldetail::hash<seed>;
 
-/// \brief Hash string data
-/// \tparam string_type A string class
-/// \tparam seed A seed value used for hashing
-template <typename string_type, unsigned int seed = 123>
-using string_hash = metall::mtlldetail::string_hash<string_type, seed>;
+/// \brief Hash function for std::string-compatible string container.
+/// \tparam seed A seed value used for hashing.
+template <unsigned int seed = 123>
+using str_hash = metall::mtlldetail::str_hash<seed>;
 
 }  // namespace metall::utility
 

@@ -55,27 +55,17 @@ main() {
   fi
 
   for BUILD_TYPE in "${BUILD_TYPES[@]}"; do
-    for DISABLE_FREE_FILE_SPACE in OFF; do
-      for DISABLE_SMALL_OBJECT_CACHE in OFF; do
-        for FREE_SMALL_OBJECT_SIZE_HINT in 0; do
-          run_build_and_test_kernel \
-            -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-            -DDISABLE_FREE_FILE_SPACE=${DISABLE_FREE_FILE_SPACE} \
-            -DDISABLE_SMALL_OBJECT_CACHE=${DISABLE_SMALL_OBJECT_CACHE} \
-            -DFREE_SMALL_OBJECT_SIZE_HINT=${FREE_SMALL_OBJECT_SIZE_HINT} \
-            -DBUILD_BENCH=ON \
-            -DBUILD_TEST=ON \
-            -DRUN_LARGE_SCALE_TEST=ON \
-            -DBUILD_DOC=OFF \
-            -DBUILD_C=ON \
-            -DBUILD_UTILITY=ON \
-            -DBUILD_EXAMPLE=ON \
-            -DRUN_BUILD_AND_TEST_WITH_CI=ON \
-            -DBUILD_VERIFICATION=OFF \
-            -DVERBOSE_SYSTEM_SUPPORT_WARNING=OFF
-        done
-      done
-    done
+      run_build_and_test_kernel \
+        -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -DBUILD_BENCH=ON \
+        -DBUILD_TEST=ON \
+        -DRUN_LARGE_SCALE_TEST=ON \
+        -DBUILD_DOC=OFF \
+        -DBUILD_C=ON \
+        -DBUILD_UTILITY=ON \
+        -DBUILD_EXAMPLE=ON \
+        -DRUN_BUILD_AND_TEST_WITH_CI=ON \
+        -DBUILD_VERIFICATION=OFF
   done
 }
 
