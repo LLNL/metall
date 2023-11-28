@@ -36,6 +36,8 @@ add_metall_executable(allocator_aware_type allocator_aware_type.cpp)
 
 add_metall_executable(logger logger.cpp)
 
+add_metall_executable(concurrent concurrent.cpp)
+
 if (BUILD_C)
     add_c_executable(c_api c_api.c)
     target_link_libraries(c_api PRIVATE metall_c)
