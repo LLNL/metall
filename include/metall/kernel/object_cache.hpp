@@ -544,6 +544,10 @@ class object_cache {
   }
 
  private:
+  struct free_deleter {
+    void operator()(void *const p) const noexcept { std::free(p); }
+  };
+
   inline static unsigned int priv_get_num_cpus() {
     return mdtl::get_num_cpus();
   }
@@ -755,7 +759,7 @@ class object_cache {
 #ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
   std::vector<mutex_type> m_mutex;
 #endif
-  std::unique_ptr<cache_storage_type[]> m_cache{nullptr};
+  std::unique_ptr<cache_storage_type[], free_deleter> m_cache{nullptr};
 };
 
 // const_bin_iterator
