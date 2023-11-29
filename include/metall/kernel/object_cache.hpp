@@ -38,19 +38,17 @@ namespace mdtl = metall::mtlldetail;
 
 namespace obcdetail {
 
-/// A cache block is a unit of memory that contains cached objects
-/// (specifically, a cached object is difference_type).
-/// Cache blocks are members of two linked-lists.
-/// One is a linked-list of all cache blocks in the cache.
-/// The other is a linked-list of cache blocks in the same bin.
-/// The linked-lists are used to manage the order of cache blocks.
-/// The order of cache blocks is used to determine which cache block is
-/// evicted when the cache is full.
+/// A cache block contains offsets of cached objects of the same bin (object
+/// size). The maximum number of objects in a cache block is 'k_capacity'. Cache
+/// blocks compose two double-linked lists: 1) a linked list of cache blocks of
+/// the same bin. 2) a linked list of cache blocks of any bin.
 template <typename difference_type, typename bin_no_type>
 struct cache_block {
   static constexpr unsigned int k_capacity = 64;
 
+  // Disable them to avoid unexpected calls.
   cache_block() = delete;
+  ~cache_block() = delete;
 
   inline void clear() {
     bin_no = std::numeric_limits<bin_no_type>::max();
@@ -96,10 +94,10 @@ struct cache_block {
   difference_type cache[k_capacity];
 };
 
-/// A bin header is a unit of memory that contains information about a bin
-/// within a cache. Specifically, it contains the active block and the number of
-/// objects in the active block. The active block is the block that is currently
-/// used to cache objects. Non-active blocks are always full.
+/// A bin header contains a pointer to the active block of the corresponding bin
+/// and the number of objects in the active block.
+/// Inserting and removing objects are done only to the active block. Non-active
+/// blocks are always full.
 template <typename difference_type, typename bin_no_type>
 class bin_header {
  public:
@@ -112,7 +110,7 @@ class bin_header {
     m_active_block = nullptr;
   }
 
-  // Move the active block to the next block
+  // Move the active block to the next (older) block
   inline void move_to_next_active_block() {
     if (!m_active_block) return;
     m_active_block = m_active_block->bin_older_block;
@@ -147,14 +145,12 @@ class bin_header {
   const cache_block_type *m_active_block{nullptr};
 };
 
-/// A free blocks list is a linked-list of free blocks.
-/// It is used to manage free blocks.
-/// Cache blocks are located in a contiguous memory region.
-/// All cache blocks are uninitialized at the beginning ---
-/// thus, they do not consume physical memory.
-/// This free list is designed such that it does not touch uninitialized blocks
-/// until they are used. This design is crucial to reduce Metall manager
-/// construction time.
+/// A free blocks list contains a linked-list of free blocks.
+/// This class assumes that A) bocks are located in a contiguous memory region
+/// and B) all cache blocks are uninitialized at the beginning so that they do
+/// not consume physical memory. This free list is designed such that it does
+/// not touch uninitialized blocks until they are used. This design is crucial
+/// to reduce Metall manager construction time.
 template <typename difference_type, typename bin_no_type>
 class free_blocks_list {
  public:
@@ -207,14 +203,13 @@ class free_blocks_list {
   // Blocks that were used and became empty
   const cache_block_type *m_blocks;
   // The top block of the uninitialized blocks.
-  // Uninitialized blocks are located in a contiguous memory region.
   const cache_block_type *m_uninit_top;
   const cache_block_type *m_last_block;
 };
 
-/// A cache header is a unit of memory that contains information about a cache.
-/// Specifically, it contains the total size of objects in the cache,
-/// the oldest and newest active blocks, and a free blocks list.
+/// A cache header contains some metadata of a single cache.
+/// Specifically, it contains the total size (byte) of objects in the cache,
+/// the pointers to the oldest and the newest blocks, and a free blocks list.
 template <typename difference_type, typename bin_no_type>
 struct cache_header {
  private:
@@ -231,24 +226,24 @@ struct cache_header {
 
   void clear() {
     m_total_size_byte = 0;
-    m_oldest_active_block = nullptr;
-    m_newest_active_block = nullptr;
+    m_oldest_block = nullptr;
+    m_newest_block = nullptr;
     m_free_blocks.clear();
   }
 
   inline void unregister(const cache_block_type *const block) {
-    if (block == m_newest_active_block) {
-      m_newest_active_block = block->older_block;
+    if (block == m_newest_block) {
+      m_newest_block = block->older_block;
     }
-    if (block == m_oldest_active_block) {
-      m_oldest_active_block = block->newer_block;
+    if (block == m_oldest_block) {
+      m_oldest_block = block->newer_block;
     }
   }
 
   inline void register_new_block(const cache_block_type *const block) {
-    m_newest_active_block = block;
-    if (!m_oldest_active_block) {
-      m_oldest_active_block = block;
+    m_newest_block = block;
+    if (!m_oldest_block) {
+      m_oldest_block = block;
     }
   }
 
@@ -258,20 +253,20 @@ struct cache_header {
     return m_total_size_byte;
   }
 
-  inline cache_block_type *newest_active_block() noexcept {
-    return const_cast<cache_block_type *>(m_newest_active_block);
+  inline cache_block_type *newest_block() noexcept {
+    return const_cast<cache_block_type *>(m_newest_block);
   }
 
-  inline const cache_block_type *newest_active_block() const noexcept {
-    return m_newest_active_block;
+  inline const cache_block_type *newest_block() const noexcept {
+    return m_newest_block;
   }
 
-  inline cache_block_type *oldest_active_block() noexcept {
-    return const_cast<cache_block_type *>(m_oldest_active_block);
+  inline cache_block_type *oldest_block() noexcept {
+    return const_cast<cache_block_type *>(m_oldest_block);
   }
 
-  inline const cache_block_type *oldest_active_block() const noexcept {
-    return m_oldest_active_block;
+  inline const cache_block_type *oldest_block() const noexcept {
+    return m_oldest_block;
   }
 
   inline free_blocks_list_type &free_blocks() noexcept { return m_free_blocks; }
@@ -282,13 +277,14 @@ struct cache_header {
 
  private:
   std::size_t m_total_size_byte;
-  const cache_block_type *m_oldest_active_block{nullptr};
-  const cache_block_type *m_newest_active_block{nullptr};
+  const cache_block_type *m_oldest_block{nullptr};
+  const cache_block_type *m_newest_block{nullptr};
   free_blocks_list_type m_free_blocks;
 };
 
-/// A cache container is a unit of memory that contains all data structures that
-/// constitute a cache.
+/// A cache container contains all data that constitute a cache.
+/// This cache container holds a cache header, bin headers, and cache blocks in
+/// a contiguous memory region.
 template <typename difference_type, typename bin_no_type,
           std::size_t max_bin_no, std::size_t num_blocks_per_cache>
 struct cache_container {
@@ -296,6 +292,13 @@ struct cache_container {
   using bin_header_type = bin_header<difference_type, bin_no_type>;
   using cacbe_block_type = cache_block<difference_type, bin_no_type>;
 
+  // Disable the default constructor to avoid unexpected initialization.
+  cache_container() = delete;
+
+  // Disable the copy constructor to avoid unexpected destructor call.
+  ~cache_container() = delete;
+
+  // This data structure must be initialized first using this function.
   void init() {
     new (&header) cache_heaer_type(blocks, num_blocks_per_cache);
     // Memo: The in-place an array construction may not be supported by some
@@ -381,7 +384,12 @@ inline constexpr std::size_t comp_num_blocks_per_cache(
 
 }  // namespace obcdetail
 
-/// \brief A cache for small objects.
+/// A cache for small objects.
+/// This class manages per-'CPU' (i.e., CPU-core rather than 'socket') caches
+/// internally. Actually stored data is the offsets of cached objects. This
+/// cache push and pop objects using a LIFO policy. When the cache is full
+/// (exceeds a pre-defined threshold), it deallocates some oldest objects first
+/// before caching new ones.
 template <typename _size_type, typename _difference_type,
           typename _bin_no_manager, typename _object_allocator_type>
 class object_cache {
@@ -469,7 +477,7 @@ class object_cache {
   object_cache &operator=(const object_cache &) = default;
   object_cache &operator=(object_cache &&) noexcept = default;
 
-  /// \brief Pop an object offset from the cache.
+  /// Pop an object offset from the cache.
   /// If the cache is empty, allocate objects and cache them first.
   difference_type pop(const bin_no_type bin_no,
                       object_allocator_type *const allocator_instance,
@@ -479,8 +487,8 @@ class object_cache {
                     deallocator_function);
   }
 
-  /// \brief Cache an object.
-  /// If the cache is full, deallocate some cached objects first.
+  /// Cache an object.
+  /// If the cache is full, deallocate some oldest cached objects first.
   /// Return false if an error occurs.
   bool push(const bin_no_type bin_no, const difference_type object_offset,
             object_allocator_type *const allocator_instance,
@@ -489,7 +497,7 @@ class object_cache {
                      deallocator_function);
   }
 
-  /// \brief Clear all cached objects.
+  /// Clear all cached objects.
   /// Cached objects are going to be deallocated.
   void clear(object_allocator_type *const allocator_instance,
              object_deallocate_func_type deallocator_function) {
@@ -544,6 +552,10 @@ class object_cache {
   }
 
  private:
+  struct free_deleter {
+    void operator()(void *const p) const noexcept { std::free(p); }
+  };
+
   inline static unsigned int priv_get_num_cpus() {
     return mdtl::get_num_cpus();
   }
@@ -565,7 +577,7 @@ class object_cache {
 #endif
   }
 
-  /// \brief Get CPU number.
+  /// Get CPU number.
   /// This function does not call the system call every time as it is slow.
   inline static size_type priv_get_cpu_no() {
 #ifdef METALL_DISABLE_CONCURRENCY
@@ -646,7 +658,7 @@ class object_cache {
                                                   new_block->cache);
 
         // Link the new block to the existing blocks
-        new_block->link_to_older(cache_header.newest_active_block(),
+        new_block->link_to_older(cache_header.newest_block(),
                                  bin_header.active_block());
 
         // Update headers
@@ -697,7 +709,7 @@ class object_cache {
       assert(free_block);
       free_block->clear();
       free_block->bin_no = bin_no;
-      free_block->link_to_older(cache_header.newest_active_block(),
+      free_block->link_to_older(cache_header.newest_block(),
                                 bin_header.active_block());
       cache_header.register_new_block(free_block);
       bin_header.update_active_block(free_block, 0);
@@ -726,7 +738,7 @@ class object_cache {
     // Make sure that the cache has enough space to allocate objects.
     while (total_size + new_objects_size > k_max_per_cpu_cache_size ||
            free_blocks.empty()) {
-      auto *const oldest_block = cache_header.oldest_active_block();
+      auto *const oldest_block = cache_header.oldest_block();
       assert(oldest_block);
 
       // Deallocate objects from the oldest block
@@ -755,10 +767,10 @@ class object_cache {
 #ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
   std::vector<mutex_type> m_mutex;
 #endif
-  std::unique_ptr<cache_storage_type[]> m_cache{nullptr};
+  std::unique_ptr<cache_storage_type[], free_deleter> m_cache{nullptr};
 };
 
-// const_bin_iterator
+/// An iterator to iterate over cached objects of the same bin.
 template <typename _size_type, typename _difference_type,
           typename _bin_no_manager, typename _object_allocator_type>
 class object_cache<_size_type, _difference_type, _bin_no_manager,
