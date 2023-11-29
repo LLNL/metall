@@ -1,6 +1,8 @@
+// Copyright 2023 Lawrence Livermore National Security, LLC and other Metall
+// Project Developers. See the top-level COPYRIGHT file for details.
 //
-// Created by Iwabuchi, Keita on 9/25/20.
-//
+// SPDX-License-Identifier: (Apache-2.0 OR MIT)
+
 
 #include <iostream>
 #include <thread>
