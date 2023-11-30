@@ -45,7 +45,7 @@ namespace mdtl = metall::mtlldetail;
 
 template <typename _chunk_no_type, typename _size_type,
           typename _difference_type, std::size_t _chunk_size,
-          std::size_t _max_size, typename _segment_storage_type>
+          std::size_t _max_size, typename _data_store_type>
 class segment_allocator {
  public:
   // -------------------- //
@@ -58,7 +58,7 @@ class segment_allocator {
   static constexpr size_type k_max_size = _max_size;
   static constexpr difference_type k_null_offset =
       std::numeric_limits<difference_type>::max();
-  using segment_storage_type = _segment_storage_type;
+  using data_store_type = _data_store_type;
 
  private:
   // -------------------- //
@@ -67,9 +67,8 @@ class segment_allocator {
   static_assert(k_max_size < std::numeric_limits<size_type>::max(),
                 "Max allocation size is too big");
 
-  using myself =
-      segment_allocator<_chunk_no_type, size_type, difference_type, _chunk_size,
-                        _max_size, _segment_storage_type>;
+  using myself = segment_allocator<_chunk_no_type, size_type, difference_type,
+                                   _chunk_size, _max_size, _data_store_type>;
 
   // For bin
   using bin_no_mngr = bin_number_manager<k_chunk_size, k_max_size>;
@@ -108,10 +107,10 @@ class segment_allocator {
   // -------------------- //
   // Constructor & assign operator
   // -------------------- //
-  explicit segment_allocator(segment_storage_type *segment_storage)
+  explicit segment_allocator(data_store_type *data_store)
       : m_non_full_chunk_bin(),
         m_chunk_directory(k_max_size / k_chunk_size),
-        m_segment_storage(segment_storage)
+        m_data_store(data_store)
 #ifndef METALL_DISABLE_OBJECT_CACHE
         ,
         m_object_cache()
@@ -505,11 +504,11 @@ class segment_allocator {
                                         const size_type num_chunks) {
     const size_type required_segment_size =
         (head_chunk_no + num_chunks) * k_chunk_size;
-    if (required_segment_size <= m_segment_storage->size()) {
+    if (required_segment_size <= m_data_store->size()) {
       return true;  // Has an enough segment size already
     }
 
-    if (!m_segment_storage->extend(required_segment_size)) {
+    if (!m_data_store->extend(required_segment_size)) {
       std::stringstream ss;
       ss << "Failed to extend the segment to " << required_segment_size
          << " bytes";
@@ -585,8 +584,8 @@ class segment_allocator {
                                        const size_type min_free_size_hint) {
     // To simplify the implementation, free slots only when object_size is at
     // least double of the page size
-    const size_type min_free_size = std::max(
-        (size_type)m_segment_storage->page_size() * 2, min_free_size_hint);
+    const size_type min_free_size =
+        std::max((size_type)m_data_store->page_size() * 2, min_free_size_hint);
     if (object_size < min_free_size) return;
 
     // This function assumes that small objects are equal to or smaller than the
@@ -597,47 +596,45 @@ class segment_allocator {
         chunk_no * k_chunk_size + slot_no * object_size;
 
     // Adjust the beginning of the range to free if it is not page aligned
-    if (range_begin % m_segment_storage->page_size() != 0) {
+    if (range_begin % m_data_store->page_size() != 0) {
       assert(slot_no > 0);  // Assume that chunk is page aligned
 
       if (m_chunk_directory.marked_slot(chunk_no, slot_no - 1)) {
         // Round up to the next multiple of page size
         // The left region will be freed when the previous slot is freed
-        range_begin =
-            mdtl::round_up(range_begin, m_segment_storage->page_size());
+        range_begin = mdtl::round_up(range_begin, m_data_store->page_size());
       } else {
         // The previous slot is not used, so round down the range_begin to align
         // it with the page size
-        range_begin =
-            mdtl::round_down(range_begin, m_segment_storage->page_size());
+        range_begin = mdtl::round_down(range_begin, m_data_store->page_size());
       }
     }
-    assert(range_begin % m_segment_storage->page_size() == 0);
+    assert(range_begin % m_data_store->page_size() == 0);
     assert(range_begin / k_chunk_size == chunk_no);
 
     difference_type range_end =
         chunk_no * k_chunk_size + slot_no * object_size + object_size;
     // Adjust the end of the range to free if it is not page aligned
     // Use the same logic as range_begin
-    if (range_end % m_segment_storage->page_size() != 0) {
+    if (range_end % m_data_store->page_size() != 0) {
       // If this is the last slot of the chunk, the end position must be page
       // aligned
       assert(object_size * (slot_no + 1) < k_chunk_size);
 
       if (m_chunk_directory.marked_slot(chunk_no, slot_no + 1)) {
-        range_end = mdtl::round_down(range_end, m_segment_storage->page_size());
+        range_end = mdtl::round_down(range_end, m_data_store->page_size());
       } else {
-        range_end = mdtl::round_up(range_end, m_segment_storage->page_size());
+        range_end = mdtl::round_up(range_end, m_data_store->page_size());
       }
     }
-    assert(range_end % m_segment_storage->page_size() == 0);
+    assert(range_end % m_data_store->page_size() == 0);
     assert((range_end - 1) / k_chunk_size == chunk_no);
 
     assert(range_begin < range_end);
     const size_type free_size = range_end - range_begin;
-    assert(free_size % m_segment_storage->page_size() == 0);
+    assert(free_size % m_data_store->page_size() == 0);
 
-    m_segment_storage->free_region(range_begin, free_size);
+    m_data_store->free_region(range_begin, free_size);
   }
 
   void priv_deallocate_large_object(const chunk_no_type chunk_no,
@@ -655,8 +652,8 @@ class segment_allocator {
                        const size_type num_chunks) {
     const off_t offset = head_chunk_no * k_chunk_size;
     const size_type length = num_chunks * k_chunk_size;
-    assert(offset + length <= m_segment_storage->size());
-    m_segment_storage->free_region(offset, length);
+    assert(offset + length <= m_data_store->size());
+    m_data_store->free_region(offset, length);
   }
 
   // ---------- For object cache ---------- //
@@ -705,7 +702,7 @@ class segment_allocator {
   // -------------------- //
   non_full_chunk_bin_type m_non_full_chunk_bin;
   chunk_directory_type m_chunk_directory;
-  segment_storage_type *m_segment_storage{nullptr};
+  data_store_type *m_data_store{nullptr};
 
 #ifndef METALL_DISABLE_OBJECT_CACHE
   small_object_cache_type m_object_cache;
