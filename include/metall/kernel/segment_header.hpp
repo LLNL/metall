@@ -9,8 +9,9 @@
 namespace metall::kernel {
 
 struct segment_header {
-  void *manager_kernel_address;
+  void *manager_kernel_address{nullptr};
 
+  segment_header() = default;
   ~segment_header() noexcept { manager_kernel_address = nullptr; }
 };
 

@@ -11,13 +11,28 @@
 #include <metall/logger.hpp>
 #include <metall/version.hpp>
 
+#if defined(METALL_USE_UMAP) && defined(METALL_USE_PRIVATEER)
+#error \
+    "METALL_USE_UMAP and METALL_USE_PRIVATEER cannot be defined at the same time"
+#endif
+
+#ifdef METALL_USE_PRIVATEER
+#include <metall/ext/privateer.hpp>
+#endif
+
+#ifdef METALL_USE_UMAP
+#include <metall/ext/umap.hpp>
+#endif
+
 /// \namespace metall
 /// \brief The top level of namespace of Metall
 namespace metall {
 
+#if !(defined(METALL_USE_PRIVATEER) || defined(METALL_USE_UMAP))
 /// \brief Default Metall manager class which is an alias of basic_manager with
 /// the default template parameters.
 using manager = basic_manager<>;
+#endif
 
 }  // namespace metall
 
