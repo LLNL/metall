@@ -183,6 +183,11 @@ if (UMAP_ROOT)
     endif ()
 endif ()
 
+# ---------- Privateer ---------- #
+message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
+if (PRIVATEER_ROOT)
+    find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+endif ()
 
 # ---------- Boost ---------- #
 # Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
@@ -271,6 +276,37 @@ function(common_setup_for_metall_executable name)
         endif ()
     endif ()
     # --------------------
+
+
+    if (PRIVATEER_ROOT)
+        #message(STATUS "Link with Privaeer")
+        target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
+        if (LIBPRIVATEER)
+            # 1) Privateer Dependencies
+            FIND_PACKAGE(OpenSSL)
+            target_link_libraries(${name} PRIVATE OpenSSL::SSL)
+            target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
+            target_link_libraries(${name} PRIVATE rt)
+            FIND_PACKAGE( OpenMP REQUIRED )
+            if(OPENMP_FOUND)
+                target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
+            else()
+                message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
+            endif()
+            if (ZSTD_ROOT)
+                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
+                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
+                target_link_libraries(${name} PRIVATE ${LIBZSTD})
+                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
+            endif()
+            # ------------------------------------------
+
+            # 2) Link Privateer
+            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
+            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
+            # ------------------------------------------
+        endif ()
+    endif ()
 endfunction()
 
 function(add_metall_executable name source)

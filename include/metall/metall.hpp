@@ -11,13 +11,20 @@
 #include <metall/logger.hpp>
 #include <metall/version.hpp>
 
+#ifdef METALL_USE_PRIVATEER
+#warning "Use Privateer"
+#include <metall/ext/privateer.hpp>
+#endif
+
 /// \namespace metall
 /// \brief The top level of namespace of Metall
 namespace metall {
 
+#ifndef METALL_USE_PRIVATEER
 /// \brief Default Metall manager class which is an alias of basic_manager with
 /// the default template parameters.
 using manager = basic_manager<>;
+#endif
 
 }  // namespace metall
 
