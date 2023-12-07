@@ -1121,7 +1121,6 @@ bool manager_kernel<st, sst, cn, cs>::priv_snapshot(
     const path_type &destination_base_path, const bool clone,
     const int num_max_copy_threads) {
   priv_sanity_check();
-  m_segment_storage.sync(true);
   priv_serialize_management_data();
 
   if (!priv_create_datastore_directory(destination_base_path)) {
