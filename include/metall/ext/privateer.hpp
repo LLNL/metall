@@ -200,9 +200,9 @@ class privateer_segment_storage {
               void *const vm_region,
               [[maybe_unused]] const std::size_t initial_segment_size_hint) {
     assert(!priv_inited());
-    m_base_path = parse_path(base_path).first;
+    init_privateer_datastore(base_path);
 
-    init_privateer_datastore(m_base_path);
+    m_base_path = parse_path(base_path).first;
 
     // TODO: align those values to the page size instead of aborting
     if (vm_region_size % page_size() != 0 ||
@@ -243,12 +243,12 @@ class privateer_segment_storage {
       std::abort();  // Fatal error
     }
 
+    init_privateer_datastore(base_path);
+
     m_base_path = parse_path(base_path).first;
     m_vm_region_size = vm_region_size;
     m_segment = vm_region;
     m_read_only = read_only;
-
-    init_privateer_datastore(m_base_path);
 
     const auto file_name = m_base_path;  // priv_make_file_name(m_base_path);
     if (!mdtl::file_exist(file_name)) {
