@@ -33,14 +33,10 @@ TEST(MultifileSegmentStorageTest, PageSize) {
 
 TEST(MultifileSegmentStorageTest, Create) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
-  ASSERT_NE(addr, nullptr);
-
   {
     prepare_test_dir();
     segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(data_storage.create(test_file_prefix(), vm_size));
     ASSERT_TRUE(data_storage.is_open());
     ASSERT_TRUE(data_storage.check_sanity());
     ASSERT_NE(data_storage.get_segment(), nullptr);
@@ -54,8 +50,7 @@ TEST(MultifileSegmentStorageTest, Create) {
   {
     prepare_test_dir();
     segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size * 2));
+    ASSERT_TRUE(data_storage.create(test_file_prefix(), vm_size));
     ASSERT_TRUE(data_storage.is_open());
     ASSERT_TRUE(data_storage.check_sanity());
     ASSERT_NE(data_storage.get_segment(), nullptr);
@@ -65,94 +60,57 @@ TEST(MultifileSegmentStorageTest, Create) {
       ASSERT_EQ(buf[i], '1');
     }
   }
-
-  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 
 TEST(MultifileSegmentStorageTest, GetSize) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
-  ASSERT_NE(addr, nullptr);
 
   // vm_size < single_file_size
   {
     prepare_test_dir();
     segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(data_storage.create(test_file_prefix(), vm_size));
     ASSERT_GE(data_storage.size(), vm_size / 2);
-    ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size / 2);
   }
 
   // vm_size > single_file_size
   {
     prepare_test_dir();
     segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size * 2));
+    ASSERT_TRUE(data_storage.create(test_file_prefix(), vm_size));
     ASSERT_GE(data_storage.size(), vm_size);
-    ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size);
   }
-
-  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 
 TEST(MultifileSegmentStorageTest, Extend) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
-  ASSERT_NE(addr, nullptr);
-
   {
     prepare_test_dir();
     segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(data_storage.create(test_file_prefix(), vm_size));
 
     // Has enough space already
     ASSERT_TRUE(data_storage.extend(vm_size / 2));
     ASSERT_GE(data_storage.size(), vm_size / 2);
-    ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size / 2);
 
     // Extend the space
     ASSERT_TRUE(data_storage.extend(vm_size));
     ASSERT_GE(data_storage.size(), vm_size);
-    ASSERT_GE(segment_storage_type::get_size(test_file_prefix()), vm_size);
     auto buf = static_cast<char *>(data_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
       buf[i] = '1';
       ASSERT_EQ(buf[i], '1');
     }
   }
-
-  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
-}
-
-TEST(MultifileSegmentStorageTest, Openable) {
-  constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
-  ASSERT_NE(addr, nullptr);
-  {
-    prepare_test_dir();
-    segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size));
-  }
-  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
-
-  ASSERT_TRUE(segment_storage_type::openable(test_file_prefix()));
-  ASSERT_FALSE(segment_storage_type::openable(test_file_prefix() + "_dummy"));
 }
 
 TEST(MultifileSegmentStorageTest, Open) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
-  ASSERT_NE(addr, nullptr);
 
   {
     prepare_test_dir();
     segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size));
+    ASSERT_TRUE(data_storage.create(test_file_prefix(), vm_size));
     auto buf = static_cast<char *>(data_storage.get_segment());
     for (std::size_t i = 0; i < vm_size; ++i) {
       buf[i] = '1';
@@ -163,7 +121,7 @@ TEST(MultifileSegmentStorageTest, Open) {
   // Open and Update
   {
     segment_storage_type data_storage;
-    ASSERT_TRUE(data_storage.open(test_file_prefix(), vm_size, addr, false));
+    ASSERT_TRUE(data_storage.open(test_file_prefix(), vm_size, false));
     ASSERT_TRUE(data_storage.is_open());
     ASSERT_TRUE(data_storage.check_sanity());
     ASSERT_FALSE(data_storage.read_only());
@@ -177,7 +135,7 @@ TEST(MultifileSegmentStorageTest, Open) {
   // Read only
   {
     segment_storage_type data_storage;
-    ASSERT_TRUE(data_storage.open(test_file_prefix(), vm_size, addr, true));
+    ASSERT_TRUE(data_storage.open(test_file_prefix(), vm_size, true));
     ASSERT_TRUE(data_storage.is_open());
     ASSERT_TRUE(data_storage.check_sanity());
     ASSERT_TRUE(data_storage.read_only());
@@ -186,20 +144,16 @@ TEST(MultifileSegmentStorageTest, Open) {
       ASSERT_EQ(buf[i], '2');
     }
   }
-  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 
 TEST(MultifileSegmentStorageTest, Sync) {
   constexpr std::size_t vm_size = 1ULL << 22ULL;
-  auto addr = metall::mtlldetail::reserve_vm_region(vm_size);
-  ASSERT_NE(addr, nullptr);
 
   {
     prepare_test_dir();
 
     segment_storage_type data_storage;
-    ASSERT_TRUE(
-        data_storage.create(test_file_prefix(), vm_size, addr, vm_size / 2));
+    ASSERT_TRUE(data_storage.create(test_file_prefix(), vm_size));
     auto buf = static_cast<char *>(data_storage.get_segment());
     for (std::size_t i = 0; i < vm_size / 2; ++i) {
       buf[i] = '1';
@@ -221,7 +175,5 @@ TEST(MultifileSegmentStorageTest, Sync) {
       ASSERT_EQ(buf[i], '2');
     }
   }
-
-  ASSERT_TRUE(metall::mtlldetail::munmap(addr, vm_size, true));
 }
 }  // namespace

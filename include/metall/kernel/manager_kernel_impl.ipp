@@ -8,8 +8,7 @@
 
 #include <metall/kernel/manager_kernel_fwd.hpp>
 
-namespace metall {
-namespace kernel {
+namespace metall::kernel {
 
 // -------------------- //
 // Constructor
@@ -58,17 +57,15 @@ bool manager_kernel<st, sst, cn, cs>::open(
 
 template <typename st, typename sst, typename cn, std::size_t cs>
 void manager_kernel<st, sst, cn, cs>::close() {
-  if (m_vm_region) {
-    priv_sanity_check();
+  if (m_segment_storage.is_open()) {
+    priv_check_sanity();
     if (!m_segment_storage.read_only()) {
       priv_serialize_management_data();
       m_segment_storage.sync(true);
     }
 
     m_good = false;
-    m_segment_storage.destroy();
-    priv_deallocate_segment_header();
-    priv_release_vm_region();
+    m_segment_storage.release();
 
     if (!m_segment_storage.read_only()) {
       // This function must be called at the end
@@ -79,14 +76,14 @@ void manager_kernel<st, sst, cn, cs>::close() {
 
 template <typename st, typename sst, typename cn, std::size_t cs>
 void manager_kernel<st, sst, cn, cs>::flush(const bool synchronous) {
-  priv_sanity_check();
+  priv_check_sanity();
   m_segment_storage.sync(synchronous);
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
 void *manager_kernel<st, sst, cn, cs>::allocate(
     const manager_kernel<st, sst, cn, cs>::size_type nbytes) {
-  priv_sanity_check();
+  priv_check_sanity();
   if (m_segment_storage.read_only()) return nullptr;
 
   const auto offset = m_segment_memory_allocator.allocate(nbytes);
@@ -102,7 +99,7 @@ template <typename st, typename sst, typename cn, std::size_t cs>
 void *manager_kernel<st, sst, cn, cs>::allocate_aligned(
     const manager_kernel<st, sst, cn, cs>::size_type nbytes,
     const manager_kernel<st, sst, cn, cs>::size_type alignment) {
-  priv_sanity_check();
+  priv_check_sanity();
   if (m_segment_storage.read_only()) return nullptr;
 
   // This requirement could be removed, but it would need some work to do
@@ -122,7 +119,7 @@ void *manager_kernel<st, sst, cn, cs>::allocate_aligned(
 
 template <typename st, typename sst, typename cn, std::size_t cs>
 void manager_kernel<st, sst, cn, cs>::deallocate(void *const addr) {
-  priv_sanity_check();
+  priv_check_sanity();
   if (m_segment_storage.read_only()) return;
   if (!addr) return;
   m_segment_memory_allocator.deallocate(priv_to_offset(addr));
@@ -130,7 +127,7 @@ void manager_kernel<st, sst, cn, cs>::deallocate(void *const addr) {
 
 template <typename st, typename sst, typename cn, std::size_t cs>
 bool manager_kernel<st, sst, cn, cs>::all_memory_deallocated() const {
-  priv_sanity_check();
+  priv_check_sanity();
   return m_segment_memory_allocator.all_memory_deallocated();
 }
 
@@ -138,7 +135,7 @@ template <typename st, typename sst, typename cn, std::size_t cs>
 template <typename T>
 std::pair<T *, typename manager_kernel<st, sst, cn, cs>::size_type>
 manager_kernel<st, sst, cn, cs>::find(char_ptr_holder_type name) const {
-  priv_sanity_check();
+  priv_check_sanity();
 
   if (name.is_anonymous()) {
     return std::make_pair(nullptr, 0);
@@ -166,7 +163,7 @@ manager_kernel<st, sst, cn, cs>::find(char_ptr_holder_type name) const {
 template <typename st, typename sst, typename cn, std::size_t cs>
 template <typename T>
 bool manager_kernel<st, sst, cn, cs>::destroy(char_ptr_holder_type name) {
-  priv_sanity_check();
+  priv_check_sanity();
   if (m_segment_storage.read_only()) return false;
 
   if (name.is_anonymous()) {
@@ -199,7 +196,7 @@ bool manager_kernel<st, sst, cn, cs>::destroy(char_ptr_holder_type name) {
 template <typename st, typename sst, typename cn, std::size_t cs>
 template <typename T>
 bool manager_kernel<st, sst, cn, cs>::destroy_ptr(const T *ptr) {
-  priv_sanity_check();
+  priv_check_sanity();
   if (m_segment_storage.read_only()) return false;
 
   size_type length = 0;
@@ -425,14 +422,14 @@ template <typename T>
 T *manager_kernel<st, sst, cn, cs>::generic_construct(
     char_ptr_holder_type name, const size_type num, const bool try2find,
     [[maybe_unused]] const bool do_throw, mdtl::in_place_interface &table) {
-  priv_sanity_check();
+  priv_check_sanity();
   return priv_generic_construct<T>(name, num, try2find, table);
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
-const typename manager_kernel<st, sst, cn, cs>::segment_header_type *
+const typename manager_kernel<st, sst, cn, cs>::segment_header_type &
 manager_kernel<st, sst, cn, cs>::get_segment_header() const {
-  return reinterpret_cast<segment_header_type *>(m_segment_header);
+  return m_segment_storage.get_segment_header();
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
@@ -613,14 +610,11 @@ bool manager_kernel<st, sst, cn, cs>::priv_create_datastore_directory(
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
-void manager_kernel<st, sst, cn, cs>::priv_sanity_check() const {
+void manager_kernel<st, sst, cn, cs>::priv_check_sanity() const {
   assert(m_good);
   assert(!m_base_path.empty());
-  assert(m_vm_region_size > 0);
-  assert(m_vm_region);
-  assert(m_segment_header);
+  assert(m_segment_storage.check_sanity());
   // TODO: add sanity check functions in other classes
-  assert(m_segment_storage.get_segment());
   assert(m_manager_metadata);
 }
 
@@ -691,76 +685,6 @@ bool manager_kernel<st, sst, cn, cs>::priv_unmark_properly_closed(
     const path_type &base_path) {
   return mdtl::remove_file(
       storage::get_path(base_path, k_properly_closed_mark_file_name));
-}
-
-template <typename st, typename sst, typename cn, std::size_t cs>
-bool manager_kernel<st, sst, cn, cs>::priv_reserve_vm_region(
-    const size_type nbytes) {
-  // Align the VM region to the page size to decrease the implementation cost of
-  // some features, such as supporting Umap and aligned allocation
-  const auto alignment = k_chunk_size;
-
-  assert(alignment > 0);
-  m_vm_region_size = mdtl::round_up((int64_t)nbytes, alignment);
-  m_vm_region = mdtl::reserve_aligned_vm_region(alignment, m_vm_region_size);
-  if (!m_vm_region) {
-    std::stringstream ss;
-    ss << "Cannot reserve a VM region " << nbytes << " bytes";
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
-    m_vm_region_size = 0;
-    return false;
-  }
-  assert(reinterpret_cast<uint64_t>(m_vm_region) % alignment == 0);
-
-  return true;
-}
-
-template <typename st, typename sst, typename cn, std::size_t cs>
-bool manager_kernel<st, sst, cn, cs>::priv_release_vm_region() {
-  if (!mdtl::munmap(m_vm_region, m_vm_region_size, false)) {
-    std::stringstream ss;
-    ss << "Cannot release a VM region " << (uint64_t)m_vm_region << ", "
-       << m_vm_region_size << " bytes.";
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
-    return false;
-  }
-  m_vm_region = nullptr;
-  m_vm_region_size = 0;
-
-  return true;
-}
-
-template <typename st, typename sst, typename cn, std::size_t cs>
-bool manager_kernel<st, sst, cn, cs>::priv_allocate_segment_header(
-    void *const addr) {
-  if (!addr) {
-    return false;
-  }
-
-  if (mdtl::map_anonymous_write_mode(addr, k_segment_header_size, MAP_FIXED) !=
-      addr) {
-    logger::out(logger::level::error, __FILE__, __LINE__,
-                "Cannot allocate segment header");
-    return false;
-  }
-  m_segment_header = reinterpret_cast<segment_header_type *>(addr);
-
-  new (m_segment_header) segment_header_type();
-  m_segment_header->manager_kernel_address = this;
-
-  return true;
-}
-
-template <typename st, typename sst, typename cn, std::size_t cs>
-bool manager_kernel<st, sst, cn, cs>::priv_deallocate_segment_header() {
-  std::destroy_at(&m_segment_header);
-  const auto ret = mdtl::munmap(m_segment_header, k_segment_header_size, false);
-  m_segment_header = nullptr;
-  if (!ret) {
-    logger::out(logger::level::error, __FILE__, __LINE__,
-                "Failed to deallocate segment header");
-  }
-  return ret;
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
@@ -929,42 +853,23 @@ bool manager_kernel<st, sst, cn, cs>::priv_open(
 
   m_base_path = base_path;
 
-  const size_type segment_size = segment_storage::get_size(m_base_path);
-  const size_type vm_reserve_size =
-      (read_only) ? segment_size + k_segment_header_size
-                  : std::max(segment_size + k_segment_header_size,
-                             vm_reserve_size_request);
-  if (!priv_reserve_vm_region(vm_reserve_size)) {
-    return false;
-  }
-
-  if (!priv_allocate_segment_header(m_vm_region)) {
-    priv_release_vm_region();
-    return false;
-  }
-
   // Clear the consistent mark before opening with the write mode
   if (!read_only && !priv_unmark_properly_closed(m_base_path)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to erase the properly close mark before opening");
-    priv_deallocate_segment_header();
-    priv_release_vm_region();
     return false;
   }
 
-  if (!m_segment_storage.open(
-          m_base_path, m_vm_region_size - k_segment_header_size,
-          static_cast<char *>(m_vm_region) + k_segment_header_size,
-          read_only)) {
-    priv_deallocate_segment_header();
-    priv_release_vm_region();
+  if (!m_segment_storage.open(m_base_path, vm_reserve_size_request,
+                              read_only)) {
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Failed to open the application data segment");
     return false;
   }
+  m_segment_storage.get_segment_header().manager_kernel_address = this;
 
   if (!priv_deserialize_management_data()) {
-    m_segment_storage.destroy();
-    priv_deallocate_segment_header();
-    priv_release_vm_region();
+    m_segment_storage.release();
     return false;
   }
 
@@ -1000,34 +905,19 @@ bool manager_kernel<st, sst, cn, cs>::priv_create(
     return false;
   }
 
-  if (!priv_reserve_vm_region(vm_reserve_size)) {
-    return false;
-  }
-
-  if (!priv_allocate_segment_header(m_vm_region)) {
-    priv_release_vm_region();
-    return false;
-  }
-
   m_base_path = base_path;
 
-  if (!m_segment_storage.create(
-          m_base_path, m_vm_region_size - k_segment_header_size,
-          static_cast<char *>(m_vm_region) + k_segment_header_size,
-          k_initial_segment_size)) {
+  if (!m_segment_storage.create(m_base_path, vm_reserve_size)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
-                "Cannot create application data segment");
-    priv_deallocate_segment_header();
-    priv_release_vm_region();
+                "Cannot create an application data segment");
     return false;
   }
+  m_segment_storage.get_segment_header().manager_kernel_address = this;
 
   if (!priv_set_uuid(m_manager_metadata.get()) ||
       !priv_set_version(m_manager_metadata.get()) ||
       !priv_write_management_metadata(m_base_path, *m_manager_metadata)) {
-    m_segment_storage.destroy();
-    priv_deallocate_segment_header();
-    priv_release_vm_region();
+    m_segment_storage.release();
     return false;
   }
 
@@ -1037,7 +927,7 @@ bool manager_kernel<st, sst, cn, cs>::priv_create(
 // ---------- For serializing/deserializing ---------- //
 template <typename st, typename sst, typename cn, std::size_t cs>
 bool manager_kernel<st, sst, cn, cs>::priv_serialize_management_data() {
-  priv_sanity_check();
+  priv_check_sanity();
 
   if (m_segment_storage.read_only()) return true;
 
@@ -1120,7 +1010,7 @@ template <typename st, typename sst, typename cn, std::size_t cs>
 bool manager_kernel<st, sst, cn, cs>::priv_snapshot(
     const path_type &destination_base_path, const bool clone,
     const int num_max_copy_threads) {
-  priv_sanity_check();
+  priv_check_sanity();
   priv_serialize_management_data();
 
   if (!priv_create_datastore_directory(destination_base_path)) {
@@ -1380,7 +1270,6 @@ bool manager_kernel<st, sst, cn, cs>::priv_write_description(
   return true;
 }
 
-}  // namespace kernel
-}  // namespace metall
+}  // namespace metall::kernel
 
 #endif  // METALL_DETAIL_KERNEL_MANAGER_KERNEL_IMPL_IPP

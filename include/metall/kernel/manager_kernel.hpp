@@ -93,15 +93,6 @@ class manager_kernel {
   static_assert(k_default_vm_reserve_size <= k_max_segment_size,
                 "k_default_vm_reserve_size must be <= k_max_segment_size");
 
-#ifndef METALL_SEGMENT_BLOCK_SIZE
-#error "METALL_SEGMENT_BLOCK_SIZE is not defined."
-#endif
-  static constexpr size_type k_initial_segment_size = METALL_SEGMENT_BLOCK_SIZE;
-  static_assert(k_initial_segment_size <= k_default_vm_reserve_size,
-                "k_initial_segment_size must be <= k_default_vm_reserve_size");
-  static_assert(k_chunk_size <= k_initial_segment_size,
-                "Chunk size must be <= k_initial_segment_size");
-
   using segment_header_type = segment_header;
   static constexpr size_type k_segment_header_size =
       mdtl::round_up(sizeof(segment_header_type), k_chunk_size);
@@ -344,9 +335,9 @@ class manager_kernel {
   T *generic_construct(char_ptr_holder_type name, size_type num, bool try2find,
                        bool do_throw, mdtl::in_place_interface &table);
 
-  /// \brief Get the address of the segment header.
-  /// \return Returns the address of the segment header.
-  const segment_header_type *get_segment_header() const;
+  /// \brief Return a reference to the segment header.
+  /// \return A reference to the segment header.
+  const segment_header_type &get_segment_header() const;
 
   /// \brief Get the address of the application segment segment.
   /// \return Returns the address of the application segment segment.
@@ -481,7 +472,7 @@ class manager_kernel {
   // Private methods
   // -------------------- //
 
-  void priv_sanity_check() const;
+  void priv_check_sanity() const;
   bool priv_validate_runtime_configuration() const;
   difference_type priv_to_offset(const void *ptr) const;
   void *priv_to_address(difference_type offset) const;
@@ -521,11 +512,6 @@ class manager_kernel {
   void priv_destruct_and_free_memory(difference_type offset, size_type length);
 
   // ---------- For segment  ---------- //
-  bool priv_reserve_vm_region(size_type nbytes);
-  bool priv_release_vm_region();
-  bool priv_allocate_segment_header(void *addr);
-  bool priv_deallocate_segment_header();
-
   bool priv_open(const path_type &base_path, bool read_only,
                  size_type vm_reserve_size_request = 0);
   bool priv_create(const path_type &base_path, size_type vm_reserve_size);
@@ -571,9 +557,6 @@ class manager_kernel {
   // -------------------- //
   bool m_good{false};
   path_type m_base_path{};
-  size_type m_vm_region_size{0};
-  void *m_vm_region{nullptr};
-  segment_header_type *m_segment_header{nullptr};
   attributed_object_directory_type m_named_object_directory{};
   attributed_object_directory_type m_unique_object_directory{};
   attributed_object_directory_type m_anonymous_object_directory{};

@@ -168,8 +168,12 @@ class basic_manager {
   }
 
   /// \brief Creates a new data store (an existing data store will be
-  /// overwritten). \param base_path Path to create a data store. \param
-  /// capacity Maximum total allocation size.
+  /// overwritten).
+  /// \param base_path Path to create a data store.
+  /// \param capacity Total allocation size. Metall uses this value as a hint.
+  // The actual limit could be smaller or larger than this value, depending on
+  // the internal implementation. However, a close minimum capacity should be
+  // available.
   basic_manager(create_only_t, const path_type &base_path,
                 const size_type capacity) noexcept {
     try {
@@ -1291,7 +1295,7 @@ class basic_manager {
     }
     try {
       return allocator_type<T>(reinterpret_cast<manager_kernel_type *const *>(
-          &(m_kernel->get_segment_header()->manager_kernel_address)));
+          &(m_kernel->get_segment_header().manager_kernel_address)));
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
