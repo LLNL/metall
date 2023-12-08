@@ -19,6 +19,7 @@
 #include <filesystem>
 #include <thread>
 #include <mutex>
+#include <sstream>
 
 #include <privateer/privateer.hpp>
 
@@ -144,16 +145,33 @@ class privateer_segment_storage {
 
   bool snapshot(std::string destination_path, [[maybe_unused]] const bool clone,
                 [[maybe_unused]] const int max_num_threads) {
-    std::pair<std::string, std::string> parsed_path =
-        priv_parse_path(parse_path(destination_path).first);
+    sync(true);
+    auto path = parse_path(destination_path).first;
+
+    // Because Privateer wants to create the destination directory,
+    // delete it beforehand.
+    try {
+      std::filesystem::remove_all(path);
+    } catch (std::filesystem::filesystem_error const& ex) {
+      std::stringstream ss;
+      ss << "what():  " << ex.what() << '\n'
+                << "path1(): " << ex.path1() << '\n'
+                << "path2(): " << ex.path2() << '\n'
+                << "code().value():    " << ex.code().value() << '\n'
+                << "code().message():  " << ex.code().message() << '\n'
+                << "code().category(): " << ex.code().category().name() << '\n';
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+      return false;
+    }
+    std::pair<std::string, std::string> parsed_path = priv_parse_path(path);
     std::string version_path = parsed_path.second;
     if (!privateer->snapshot(version_path.c_str())) {
       return false;
     }
-    if (!mtlldetail::copy_files_in_directory_in_parallel(
-            m_base_path, parse_path(destination_path).first, max_num_threads)) {
+    if (!copy(m_base_path, path, clone, max_num_threads)) {
       return false;
     }
+    return true;
   }
 
   bool create(const path_type &base_path, const std::size_t capacity) {
