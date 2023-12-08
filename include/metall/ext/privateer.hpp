@@ -131,13 +131,12 @@ class privateer_segment_storage {
   static bool copy(const std::string &source_path,
                    const std::string &destination_path,
                    [[maybe_unused]] const bool clone,
-                   [[maybe_unused]] const int max_num_threads) {
-    // FIXME: need to implement
-    if (!mdtl::directory_exist(destination_path)) {
-      if (!mdtl::create_directory(destination_path)) {
-        std::string s("Cannot create a directory: " + destination_path);
-        logger::out(logger::level::critical, __FILE__, __LINE__, s.c_str());
-      }
+                   const int max_num_threads) {
+    if (!mtlldetail::copy_files_in_directory_in_parallel(
+      parse_path(source_path).first,
+      parse_path(destination_path).first,
+      max_num_threads)) {
+      return false;
     }
 
     return true;
@@ -146,9 +145,15 @@ class privateer_segment_storage {
   bool snapshot(std::string destination_path, [[maybe_unused]] const bool clone,
                 [[maybe_unused]] const int max_num_threads) {
     std::pair<std::string, std::string> parsed_path =
-        priv_parse_path(destination_path);
+        priv_parse_path(parse_path(destination_path).first);
     std::string version_path = parsed_path.second;
-    return privateer->snapshot(version_path.c_str());
+    if (!privateer->snapshot(version_path.c_str())) {
+      return false;
+    }
+    if (!mtlldetail::copy_files_in_directory_in_parallel(
+            m_base_path, parse_path(destination_path).first, max_num_threads)) {
+      return false;
+    }
   }
 
   bool create(const path_type &base_path, const std::size_t capacity) {
@@ -157,18 +162,17 @@ class privateer_segment_storage {
 
     m_base_path = parse_path(base_path).first;
 
-    const auto header_size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto header_size = priv_aligned_header_size();
     const auto vm_region_size = header_size + capacity;
     if (!priv_reserve_vm(vm_region_size)) {
       return false;
     }
     m_segment = reinterpret_cast<char *>(m_vm_region) + header_size;
     priv_construct_segment_header(m_vm_region);
-
     m_read_only = false;
 
     const auto segment_size = vm_region_size - header_size;
+
     if (!priv_create_and_map_file(m_base_path, segment_size, m_segment)) {
       priv_reset();
       return false;
@@ -177,7 +181,7 @@ class privateer_segment_storage {
     return true;
   }
 
-  bool open(const std::string &base_path, const std::size_t capacity,
+  bool open(const std::string &base_path, const std::size_t,
             const bool read_only) {
     assert(!priv_inited());
     init_privateer_datastore(base_path);
@@ -185,9 +189,9 @@ class privateer_segment_storage {
     m_base_path = parse_path(base_path).first;
     m_read_only = read_only;
 
-    const auto header_size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
-    const auto vm_size = header_size + capacity;
+    const auto header_size = priv_aligned_header_size();
+    const auto segment_size = Privateer::version_capacity(m_base_path.c_str());
+    const auto vm_size = header_size + segment_size;
     if (!priv_reserve_vm(vm_size)) {
       return false;
     }
@@ -202,7 +206,7 @@ class privateer_segment_storage {
     return true;
   }
 
-  bool extend(const std::size_t request_size) {
+  bool extend(const std::size_t) {
     // TODO: check erros
     return true;
   }
@@ -365,9 +369,13 @@ class privateer_segment_storage {
       delete privateer;
       privateer = nullptr;
     }
-    mdtl::map_with_prot_none(m_segment, m_current_segment_size);
-    mdtl::munmap(m_vm_region, m_vm_region_size, false);
     priv_reset();
+  }
+
+  std::size_t priv_aligned_header_size() {
+    const auto size =
+    mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    return size;
   }
 
   bool priv_construct_segment_header(void *const addr) {
@@ -375,8 +383,7 @@ class privateer_segment_storage {
       return false;
     }
 
-    const auto size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto size = priv_aligned_header_size();
     if (mdtl::map_anonymous_write_mode(addr, size, MAP_FIXED) != addr) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "Cannot allocate segment header");
@@ -391,8 +398,7 @@ class privateer_segment_storage {
 
   bool priv_deallocate_segment_header() {
     std::destroy_at(&m_segment_header);
-    const auto size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto size = priv_aligned_header_size();
     const auto ret = mdtl::munmap(m_segment_header, size, false);
     m_segment_header = nullptr;
     if (!ret) {
