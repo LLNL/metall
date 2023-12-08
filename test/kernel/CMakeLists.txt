@@ -17,7 +17,7 @@ target_compile_definitions(manager_test_single_thread PRIVATE "METALL_DISABLE_CO
 
 add_metall_test_executable(snapshot_test snapshot_test.cpp)
 
-add_metall_test_executable(copy_file_test copy_file_test.cpp)
+add_metall_test_executable(copy_datastore_test copy_datastore_test.cpp)
 
 include(setup_omp)
 if (OpenMP_CXX_FOUND)

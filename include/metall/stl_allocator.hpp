@@ -165,7 +165,7 @@ class stl_allocator {
                   "nullptr: cannot access to manager kernel");
       throw std::bad_alloc();
     }
-    auto manager_kernel = *get_pointer_to_manager_kernel();
+    auto* manager_kernel = *get_pointer_to_manager_kernel();
     if (!manager_kernel) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "nullptr: cannot access to manager kernel");

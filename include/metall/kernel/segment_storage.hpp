@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#ifndef METALL_KERNEL_MMAP_DATA_STORAGE_HPP
-#define METALL_KERNEL_MMAP_DATA_STORAGE_HPP
+#ifndef METALL_KERNEL_SEGMENT_STORAGE_HPP
+#define METALL_KERNEL_SEGMENT_STORAGE_HPP
 
 #include <string>
 #include <iostream>
@@ -13,15 +13,16 @@
 #include <atomic>
 #include <memory>
 
+#include "metall/defs.hpp"
 #include "metall/detail/file.hpp"
 #include "metall/detail/file_clone.hpp"
 #include "metall/detail/mmap.hpp"
 #include "metall/detail/utilities.hpp"
 #include "metall/logger.hpp"
 #include "metall/kernel/storage.hpp"
+#include "metall/kernel/segment_header.hpp"
 
-namespace metall {
-namespace kernel {
+namespace metall::kernel {
 
 namespace {
 namespace mdtl = metall::mtlldetail;
@@ -31,8 +32,15 @@ class segment_storage {
  private:
   static constexpr const char *k_dir_name = "segment";
 
+#ifndef METALL_SEGMENT_BLOCK_SIZE
+#error "METALL_SEGMENT_BLOCK_SIZE is not defined."
+#endif
+  // TODO: check block size is a multiple of page size
+  static constexpr std::size_t k_block_size = METALL_SEGMENT_BLOCK_SIZE;
+
  public:
   using path_type = storage::path_type;
+  using segment_header_type = segment_header;
 
   segment_storage() {
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
@@ -50,7 +58,7 @@ class segment_storage {
     if (is_open()) {
       ret &= sync(true);
       if (!ret) {
-        ret &= destroy();
+        ret &= release();
       }
     }
 
@@ -68,12 +76,13 @@ class segment_storage {
         m_num_blocks(other.m_num_blocks),
         m_vm_region_size(other.m_vm_region_size),
         m_current_segment_size(other.m_current_segment_size),
+        m_vm_region(other.m_vm_region),
         m_segment(other.m_segment),
+        m_segment_header(other.m_segment_header),
         m_top_path(other.m_top_path),
         m_read_only(other.m_read_only),
         m_free_file_space(other.m_free_file_space),
-        m_block_fd_list(std::move(other.m_block_fd_list)),
-        m_block_size(other.m_block_size)
+        m_block_fd_list(std::move(other.m_block_fd_list))
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
         ,
         m_anonymous_map_flag_list(other.m_anonymous_map_flag_list)
@@ -87,31 +96,18 @@ class segment_storage {
     m_num_blocks = other.m_num_blocks;
     m_vm_region_size = other.m_vm_region_size;
     m_current_segment_size = other.m_current_segment_size;
+    m_vm_region = other.m_vm_region;
+    m_segment_header = other.m_segment_header;
     m_segment = other.m_segment;
     m_top_path = std::move(other.m_top_path);
     m_read_only = other.m_read_only;
     m_free_file_space = other.m_free_file_space;
     m_block_fd_list = std::move(other.m_block_fd_list);
-    m_block_size = other.m_block_size;
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
     m_anonymous_map_flag_list = std::move(other.m_anonymous_map_flag_list);
 #endif
     other.priv_set_broken_status();
     return (*this);
-  }
-
-  /// \brief Gets the size of an existing segment.
-  /// This is a static version of size() method.
-  /// \param base_path A path to a segment.
-  static std::size_t get_size(const path_type &base_path) {
-    return priv_get_size(priv_top_dir_path(base_path));
-  }
-
-  /// \brief Checks if a segment is openable.
-  /// \param base_path A path to a segment.
-  /// \return Return true if success; otherwise, false.
-  static bool openable(const path_type &base_path) {
-    return priv_openable(priv_top_dir_path(base_path));
   }
 
   /// \brief Copies segment to another location.
@@ -131,26 +127,25 @@ class segment_storage {
 
   /// \brief Creates a new segment.
   /// Calling this function fails if this class already manages an opened
-  /// segment. \base_path A base directory path to create a segment. \param
-  /// vm_region_size The size of a reserved VM region. \param vm_region The
-  /// address of a reserved VM region. \block_size The block size. \return
+  /// segment.
+  /// \base_path A base directory path to create a segment.
+  /// \param capacity A segment capacity to reserve.
   /// Return true if success; otherwise, false.
-  bool create(const path_type &base_path, const std::size_t vm_region_size,
-              void *const vm_region, const std::size_t block_size) {
-    return priv_create(priv_top_dir_path(base_path), vm_region_size, vm_region,
-                       block_size);
+  bool create(const path_type &base_path, const std::size_t capacity) {
+    return priv_create(priv_top_dir_path(base_path), capacity);
   }
 
   /// \brief Opens an existing segment.
   /// Calling this function fails if this class already manages an opened
-  /// segment. \base_path A base directory path to create a segment. \param
-  /// vm_region_size The size of a VM region. \param vm_region The address of a
-  /// VM region. \param read_only If true, this segment is read only. \return
-  /// Return true if success; otherwise, false.
-  bool open(const path_type &base_path, const std::size_t vm_region_size,
-            void *const vm_region, const bool read_only) {
-    return priv_open(priv_top_dir_path(base_path), vm_region_size, vm_region,
-                     read_only);
+  /// segment.
+  /// \param base_path A base directory path to open a segment.
+  /// \param capacity A segment capacity to reserve.
+  /// This value will is ignored if read_only is true.
+  /// \param read_only If true, this segment is read only.
+  /// \return Return true if success; otherwise, false.
+  bool open(const path_type &base_path, const std::size_t capacity,
+            const bool read_only) {
+    return priv_open(priv_top_dir_path(base_path), capacity, read_only);
   }
 
   /// \brief Extends the currently opened segment if necessary.
@@ -161,9 +156,9 @@ class segment_storage {
     return priv_extend(request_size);
   }
 
-  /// \brief Destroys the segment --- the data will be lost.
+  /// \brief Releases the segment --- the data will be lost.
   /// To save data to files, sync() must be called beforehand.
-  bool destroy() { return priv_destroy_segment(); }
+  bool release() { return priv_release_segment(); }
 
   /// \brief Syncs the segment with backing files.
   /// \param sync If false is specified, this function returns before finishing
@@ -195,6 +190,18 @@ class segment_storage {
   /// \brief Returns the address of the segment.
   /// \return The address of the segment.
   void *get_segment() const { return m_segment; }
+
+  /// \brief Returns a reference to the segment header.
+  /// \return A reference to the segment header.
+  segment_header_type &get_segment_header() {
+    return *reinterpret_cast<segment_header_type *>(m_vm_region);
+  }
+
+  /// \brief Returns a reference to the segment header.
+  /// \return A reference to the segment header.
+  const segment_header_type &get_segment_header() const {
+    return *reinterpret_cast<const segment_header_type *>(m_vm_region);
+  }
 
   /// \brief Returns the current size.
   /// \return The current segment size.
@@ -249,12 +256,18 @@ class segment_storage {
     return total_file_size;
   }
 
+  std::size_t priv_aligment() const {
+    return std::max((size_t)m_system_page_size, (size_t)k_block_size);
+  }
+
   void priv_clear_status() {
     m_system_page_size = 0;
     m_num_blocks = 0;
     m_vm_region_size = 0;
     m_current_segment_size = 0;
+    m_vm_region = nullptr;
     m_segment = nullptr;
+    m_segment_header = nullptr;
     // m_read_only must not be modified here.
   }
 
@@ -265,9 +278,8 @@ class segment_storage {
 
   bool priv_is_open() const {
     return (check_sanity() && m_system_page_size > 0 && m_num_blocks > 0 &&
-            m_vm_region_size > 0 && m_current_segment_size > 0 && m_segment &&
-            !m_top_path.empty() && !m_block_fd_list.empty() &&
-            m_block_size > 0);
+            m_vm_region_size > 0 && m_current_segment_size > 0 && m_vm_region &&
+            m_segment && !m_top_path.empty() && !m_block_fd_list.empty());
   }
 
   static bool priv_copy(const path_type &source_path,
@@ -297,8 +309,71 @@ class segment_storage {
     return false;
   }
 
-  bool priv_create(const path_type &top_path, const std::size_t vm_region_size,
-                   void *const vm_region, const std::size_t block_size) {
+  bool priv_reserve_vm(const std::size_t nbytes) {
+    m_vm_region_size =
+        mdtl::round_up((int64_t)nbytes, (int64_t)priv_aligment());
+    m_vm_region =
+        mdtl::reserve_aligned_vm_region(priv_aligment(), m_vm_region_size);
+
+    if (!m_vm_region) {
+      std::stringstream ss;
+      ss << "Cannot reserve a VM region " << nbytes << " bytes";
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+      m_vm_region_size = 0;
+      return false;
+    }
+    assert(reinterpret_cast<uint64_t>(m_vm_region) % priv_aligment() == 0);
+
+    return true;
+  }
+
+  bool priv_release_vm_region() {
+    if (!mdtl::munmap(m_vm_region, m_vm_region_size, false)) {
+      std::stringstream ss;
+      ss << "Cannot release a VM region " << (uint64_t)m_vm_region << ", "
+         << m_vm_region_size << " bytes.";
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+      return false;
+    }
+    m_vm_region = nullptr;
+    m_vm_region_size = 0;
+
+    return true;
+  }
+
+  bool priv_construct_segment_header(void *const addr) {
+    if (!addr) {
+      return false;
+    }
+
+    const auto size =
+        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    if (mdtl::map_anonymous_write_mode(addr, size, MAP_FIXED) != addr) {
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Cannot allocate segment header");
+      return false;
+    }
+    m_segment_header = reinterpret_cast<segment_header_type *>(addr);
+
+    new (m_segment_header) segment_header_type();
+
+    return true;
+  }
+
+  bool priv_deallocate_segment_header() {
+    std::destroy_at(&m_segment_header);
+    const auto size =
+        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto ret = mdtl::munmap(m_segment_header, size, false);
+    m_segment_header = nullptr;
+    if (!ret) {
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Failed to deallocate segment header");
+    }
+    return ret;
+  }
+
+  bool priv_create(const path_type &top_path, const std::size_t capacity) {
     if (!check_sanity()) return false;
     if (is_open())
       return false;  // Cannot open multiple segments simultaneously.
@@ -317,27 +392,32 @@ class segment_storage {
       }
     }
 
-    m_block_size =
-        mdtl::round_up(std::min(vm_region_size, block_size), page_size());
+    const auto header_size =
+        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto vm_region_size = header_size + capacity;
+    if (!priv_reserve_vm(vm_region_size)) {
+      priv_set_broken_status();
+      return false;
+    }
+    m_segment = reinterpret_cast<char *>(m_vm_region) + header_size;
+    priv_construct_segment_header(m_vm_region);
+
     m_top_path = top_path;
-    m_vm_region_size = mdtl::round_down(vm_region_size, page_size());
-    m_segment = reinterpret_cast<char *>(
-        mdtl::round_up(reinterpret_cast<uintptr_t>(vm_region), page_size()));
     m_read_only = false;
 
     // Create the first block so that we can assume that there is a block always
     // in a segment.
-    if (!priv_create_new_map(m_top_path, 0, m_block_size, 0)) {
+    if (!priv_create_new_map(m_top_path, 0, k_block_size, 0)) {
       priv_set_broken_status();
       return false;
     }
-    m_current_segment_size = m_block_size;
+    m_current_segment_size = k_block_size;
     m_num_blocks = 1;
 
     if (!priv_test_file_space_free(top_path)) {
       std::string s("Failed to test file space free: " + top_path.string());
       logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-      priv_destroy_segment();
+      priv_release_segment();
       priv_set_broken_status();
       return false;
     }
@@ -345,8 +425,8 @@ class segment_storage {
     return true;
   }
 
-  bool priv_open(const path_type &top_path, const std::size_t vm_region_size,
-                 void *const vm_region, const bool read_only) {
+  bool priv_open(const path_type &top_path, const std::size_t capacity,
+                 const bool read_only) {
     if (!check_sanity()) return false;
     if (is_open())
       return false;  // Cannot open multiple segments simultaneously.
@@ -356,10 +436,18 @@ class segment_storage {
       logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
     }
 
+    const auto header_size =
+        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto vm_size =
+        header_size + ((read_only) ? priv_get_size(top_path) : capacity);
+    if (!priv_reserve_vm(vm_size)) {
+      priv_set_broken_status();
+      return false;
+    }
+    m_segment = reinterpret_cast<char *>(m_vm_region) + header_size;
+    priv_construct_segment_header(m_vm_region);
+
     m_top_path = top_path;
-    m_vm_region_size = mdtl::round_down(vm_region_size, page_size());
-    m_segment = reinterpret_cast<char *>(
-        mdtl::round_up(reinterpret_cast<uintptr_t>(vm_region), page_size()));
     m_read_only = read_only;
 
     // Maps block files one by one
@@ -372,22 +460,22 @@ class segment_storage {
 
       const auto file_size = mdtl::get_file_size(file_name);
       assert(file_size % page_size() == 0);
-      if (m_block_size > 0 && m_block_size != (std::size_t)file_size) {
+      if (k_block_size != (std::size_t)file_size) {
         logger::out(logger::level::error, __FILE__, __LINE__,
                     "File sizes are not the same");
-        priv_destroy_segment();
+        priv_release_segment();
         priv_set_broken_status();
         return false;
       }
-      m_block_size = file_size;
 
-      const auto fd = priv_map_file(file_name, m_block_size,
-                                    m_current_segment_size, read_only);
+      const auto fd =
+          priv_map_file(file_name, k_block_size,
+                        std::ptrdiff_t(m_current_segment_size), read_only);
       if (fd == -1) {
         std::stringstream ss;
         ss << "Failed to map a file " << file_name;
         logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
-        priv_destroy_segment();
+        priv_release_segment();
         priv_set_broken_status();
         return false;
       }
@@ -395,14 +483,14 @@ class segment_storage {
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
       m_anonymous_map_flag_list.push_back(false);
 #endif
-      m_current_segment_size += m_block_size;
+      m_current_segment_size += k_block_size;
       ++m_num_blocks;
     }
 
     if (!read_only && !priv_test_file_space_free(m_top_path)) {
       std::string s("Failed to test file space free: " + m_top_path.string());
       logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-      priv_destroy_segment();
+      priv_release_segment();
       priv_set_broken_status();
       return false;
     }
@@ -433,16 +521,16 @@ class segment_storage {
     }
 
     while (m_current_segment_size < request_size) {
-      if (!priv_create_new_map(m_top_path, m_num_blocks, m_block_size,
-                               m_current_segment_size)) {
+      if (!priv_create_new_map(m_top_path, m_num_blocks, k_block_size,
+                               std::ptrdiff_t(m_current_segment_size))) {
         logger::out(logger::level::error, __FILE__, __LINE__,
                     "Failed to extend the segment");
-        priv_destroy_segment();
+        priv_release_segment();
         priv_set_broken_status();
         return false;
       }
       ++m_num_blocks;
-      m_current_segment_size += m_block_size;
+      m_current_segment_size += k_block_size;
     }
 
     return true;
@@ -570,7 +658,7 @@ class segment_storage {
     return fd;
   }
 
-  bool priv_destroy_segment() {
+  bool priv_release_segment() {
     if (!is_open()) return false;
 
     int succeeded = true;
@@ -578,13 +666,21 @@ class segment_storage {
       succeeded &= mdtl::os_close(fd);
     }
 
+    succeeded &= priv_deallocate_segment_header();
+
     // Destroy the mapping region by calling mmap with PROT_NONE over the
     // region. As the unmap system call syncs the data first, this approach is
     // significantly fast.
     succeeded &= mdtl::map_with_prot_none(m_segment, m_current_segment_size);
-    // NOTE: the VM region will be unmapped by another class
+    succeeded &= priv_release_vm_region();
 
-    priv_clear_status();
+    if (!succeeded) {
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Failed to release the segment");
+      priv_set_broken_status();
+    } else {
+      priv_clear_status();
+    }
 
     return succeeded;
   }
@@ -642,8 +738,8 @@ class segment_storage {
           }
 #endif
           const auto map =
-              static_cast<char *>(m_segment) + block_no * m_block_size;
-          num_successes.fetch_add(mdtl::os_msync(map, m_block_size, sync) ? 1
+              static_cast<char *>(m_segment) + block_no * k_block_size;
+          num_successes.fetch_add(mdtl::os_msync(map, k_block_size, sync) ? 1
                                                                           : 0);
         } else {
           break;
@@ -678,7 +774,7 @@ class segment_storage {
     if (offset + nbytes > m_current_segment_size) return false;
 
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
-    const auto block_no = offset / m_block_size;
+    const auto block_no = offset / k_block_size;
     assert(m_anonymous_map_flag_list.size() > block_no);
     if (m_anonymous_map_flag_list[block_no]) {
       return priv_uncommit_private_anonymous_pages(offset, nbytes);
@@ -717,12 +813,12 @@ class segment_storage {
       logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
     }
 
-    auto *const addr = static_cast<char *>(m_segment) + block_no * m_block_size;
-    if (::write(m_block_fd_list[block_no], addr, m_block_size) !=
-        (ssize_t)m_block_size) {
+    auto *const addr = static_cast<char *>(m_segment) + block_no * k_block_size;
+    if (::write(m_block_fd_list[block_no], addr, k_block_size) !=
+        (ssize_t)k_block_size) {
       std::string s("Failed to write back a block");
       logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
-      priv_destroy_segment();
+      priv_release_segment();
       priv_set_broken_status();
       return false;
     }
@@ -740,12 +836,12 @@ class segment_storage {
         0;
 #endif
     const auto mapped_addr =
-        mdtl::map_file_write_mode(m_block_fd_list[block_no], addr, m_block_size,
+        mdtl::map_file_write_mode(m_block_fd_list[block_no], addr, k_block_size,
                                   0, MAP_FIXED | map_nosync);
     if (!mapped_addr || mapped_addr != addr) {
       std::string s("Failed to map a block");
       logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-      priv_destroy_segment();
+      priv_release_segment();
       priv_set_broken_status();
       return false;
     }
@@ -827,18 +923,19 @@ class segment_storage {
   std::size_t m_num_blocks{0};
   std::size_t m_vm_region_size{0};
   std::size_t m_current_segment_size{0};
+  void *m_vm_region{nullptr};
   void *m_segment{nullptr};
+  segment_header_type *m_segment_header{nullptr};
   path_type m_top_path;
   bool m_read_only{false};
   bool m_free_file_space{true};
   std::vector<int> m_block_fd_list;
-  std::size_t m_block_size{0};
   bool m_broken{false};
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
   std::vector<int> m_anonymous_map_flag_list;
 #endif
 };
 
-}  // namespace kernel
-}  // namespace metall
-#endif  // METALL_KERNEL_MMAP_DATA_STORAGE_HPP
+}  // namespace metall::kernel
+
+#endif  // METALL_KERNEL_SEGMENT_STORAGE_HPP
