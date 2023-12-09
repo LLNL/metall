@@ -83,18 +83,10 @@ class privateeer_storage : public metall::kernel::storage {
 
 class privateer_segment_storage {
  public:
-   using path_type = privateeer_storage::path_type;
-   using segment_header_type = metall::kernel::segment_header;
+  using path_type = privateeer_storage::path_type;
+  using segment_header_type = metall::kernel::segment_header;
 
-  privateer_segment_storage()
-      : m_system_page_size(0),
-        m_vm_region_size(0),
-        m_current_segment_size(0),
-        m_segment(nullptr),
-        m_base_path(),
-        m_read_only() {
-    priv_load_system_page_size();
-  }
+  privateer_segment_storage() { priv_load_system_page_size(); }
 
   ~privateer_segment_storage() {
     priv_sync_segment(true);
@@ -109,20 +101,29 @@ class privateer_segment_storage {
       : m_system_page_size(other.m_system_page_size),
         m_vm_region_size(other.m_vm_region_size),
         m_current_segment_size(other.m_current_segment_size),
+        m_vm_region(other.m_vm_region),
         m_segment(other.m_segment),
+        m_segment_header(other.m_segment_header),
         m_base_path(other.m_base_path),
-        m_read_only(other.m_read_only) {
+        m_read_only(other.m_read_only),
+        m_privateer(other.m_privateer),
+        m_privateer_version_name(other.m_privateer_version_name)
+         {
     other.priv_reset();
   }
 
   privateer_segment_storage &operator=(
       privateer_segment_storage &&other) noexcept {
-    m_system_page_size = other.m_system_page_size;
-    m_vm_region_size = other.m_vm_region_size;
-    m_current_segment_size = other.m_current_segment_size;
-    m_segment = other.m_segment;
-    m_base_path = other.m_base_path;
-    m_read_only = other.m_read_only;
+        m_system_page_size = std::move(other.m_system_page_size);
+        m_vm_region_size = std::move(other.m_vm_region_size);
+        m_current_segment_size = std::move(other.m_current_segment_size);
+        m_vm_region = std::move(other.m_vm_region);
+        m_segment = std::move(other.m_segment);
+        m_segment_header = std::move(other.m_segment_header);
+        m_base_path = std::move(other.m_base_path);
+        m_read_only = std::move(other.m_read_only);
+        m_privateer = std::move(other.m_privateer);
+        m_privateer_version_name = std::move(other.m_privateer_version_name);
 
     other.priv_reset();
 
@@ -134,17 +135,16 @@ class privateer_segment_storage {
                    [[maybe_unused]] const bool clone,
                    const int max_num_threads) {
     if (!mtlldetail::copy_files_in_directory_in_parallel(
-      parse_path(source_path).first,
-      parse_path(destination_path).first,
-      max_num_threads)) {
+            parse_path(source_path).first, parse_path(destination_path).first,
+            max_num_threads)) {
       return false;
     }
 
     return true;
   }
 
-  bool snapshot(std::string destination_path, [[maybe_unused]] const bool clone,
-                [[maybe_unused]] const int max_num_threads) {
+  bool snapshot(std::string destination_path, const bool clone,
+                const int max_num_threads) {
     sync(true);
     auto path = parse_path(destination_path).first;
 
@@ -152,20 +152,20 @@ class privateer_segment_storage {
     // delete it beforehand.
     try {
       std::filesystem::remove_all(path);
-    } catch (std::filesystem::filesystem_error const& ex) {
+    } catch (std::filesystem::filesystem_error const &ex) {
       std::stringstream ss;
       ss << "what():  " << ex.what() << '\n'
-                << "path1(): " << ex.path1() << '\n'
-                << "path2(): " << ex.path2() << '\n'
-                << "code().value():    " << ex.code().value() << '\n'
-                << "code().message():  " << ex.code().message() << '\n'
-                << "code().category(): " << ex.code().category().name() << '\n';
+         << "path1(): " << ex.path1() << '\n'
+         << "path2(): " << ex.path2() << '\n'
+         << "code().value():    " << ex.code().value() << '\n'
+         << "code().message():  " << ex.code().message() << '\n'
+         << "code().category(): " << ex.code().category().name() << '\n';
       logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       return false;
     }
     std::pair<std::string, std::string> parsed_path = priv_parse_path(path);
     std::string version_path = parsed_path.second;
-    if (!privateer->snapshot(version_path.c_str())) {
+    if (!m_privateer->snapshot(version_path.c_str())) {
       return false;
     }
     if (!copy(m_base_path, path, clone, max_num_threads)) {
@@ -225,28 +225,28 @@ class privateer_segment_storage {
   }
 
   bool extend(const std::size_t) {
-    // TODO: check erros
+    // TODO: check errors
     return true;
   }
 
   void init_privateer_datastore(std::string path) {
-    const std::lock_guard<std::mutex> lock(create_mutex);
+    const std::lock_guard<std::mutex> lock(m_create_mutex);
     std::pair<std::string, std::string> base_stash_pair = parse_path(path);
     std::string base_dir = base_stash_pair.first;
     std::string stash_dir = base_stash_pair.second;
     std::pair<std::string, std::string> parsed_path = priv_parse_path(base_dir);
     std::string privateer_base_path = parsed_path.first;
     std::string version_path = parsed_path.second;
-    privateer_version_name = version_path;
+    m_privateer_version_name = version_path;
     int action =
         std::filesystem::exists(std::filesystem::path(privateer_base_path))
             ? Privateer::OPEN
             : Privateer::CREATE;
     if (!stash_dir.empty()) {
-      privateer =
+      m_privateer =
           new Privateer(action, privateer_base_path.c_str(), stash_dir.c_str());
     } else {
-      privateer = new Privateer(action, privateer_base_path.c_str());
+      m_privateer = new Privateer(action, privateer_base_path.c_str());
     }
   }
 
@@ -264,12 +264,12 @@ class privateer_segment_storage {
     return std::pair<std::string, std::string>(base_dir, stash_dir);
   }
 
-  void release() { priv_release_segment(); }
+  void release() { priv_release(); }
 
   void sync(const bool sync) { priv_sync_segment(sync); }
 
-  void free_region(const std::ptrdiff_t offset, const std::size_t nbytes) {
-    priv_free_region(offset, nbytes);
+  void free_region(const std::ptrdiff_t, const std::size_t) {
+    // MEMO: Privateer does not free file region
   }
 
   void *get_segment() const { return m_segment; }
@@ -288,7 +288,7 @@ class privateer_segment_storage {
 
   bool read_only() const { return m_read_only; }
 
-  bool is_open() const { return !!privateer; }
+  bool is_open() const { return !!m_privateer; }
 
   bool check_sanity() const {
     // FIXME: implement
@@ -308,11 +308,14 @@ class privateer_segment_storage {
   }
 
   void priv_reset() {
-    m_system_page_size = 0;
     m_vm_region_size = 0;
     m_current_segment_size = 0;
+    m_vm_region = nullptr;
     m_segment = nullptr;
-    // m_read_only = false;
+    m_segment_header = nullptr;
+    m_base_path.clear();
+    m_privateer = nullptr;
+    m_privateer_version_name.clear();
   }
 
   bool priv_inited() const {
@@ -337,7 +340,7 @@ class privateer_segment_storage {
     assert(file_size > 0);
     assert(addr);
 
-    void *data = privateer->create(addr, privateer_version_name.c_str(),
+    void *data = m_privateer->create(addr, m_privateer_version_name.c_str(),
                                    file_size, true);
     if (data == nullptr) {
       return false;
@@ -356,9 +359,9 @@ class privateer_segment_storage {
 
     void *data =
         read_only
-            ? privateer->open_read_only(addr, privateer_version_name.c_str())
-            : privateer->open(addr, privateer_version_name.c_str());
-    m_current_segment_size = privateer->region_size();
+            ? m_privateer->open_read_only(addr, m_privateer_version_name.c_str())
+            : m_privateer->open(addr, m_privateer_version_name.c_str());
+    m_current_segment_size = m_privateer->region_size();
     return true;
   }
 
@@ -380,19 +383,21 @@ class privateer_segment_storage {
     return true;
   }
 
-  void priv_release_segment() {
+  void priv_release() {
     if (!priv_inited()) return;
     // priv_unmap_file();
-    if (privateer != nullptr) {
-      delete privateer;
-      privateer = nullptr;
+    if (m_privateer != nullptr) {
+      delete m_privateer;
+      m_privateer = nullptr;
     }
+    mdtl::map_with_prot_none(m_segment, m_vm_region_size);
+    mdtl::munmap(m_vm_region, m_vm_region_size, false);
     priv_reset();
   }
 
   std::size_t priv_aligned_header_size() {
     const auto size =
-    mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
     return size;
   }
 
@@ -414,24 +419,12 @@ class privateer_segment_storage {
     return true;
   }
 
-  bool priv_deallocate_segment_header() {
-    std::destroy_at(&m_segment_header);
-    const auto size = priv_aligned_header_size();
-    const auto ret = mdtl::munmap(m_segment_header, size, false);
-    m_segment_header = nullptr;
-    if (!ret) {
-      logger::out(logger::level::error, __FILE__, __LINE__,
-                  "Failed to deallocate segment header");
-    }
-    return ret;
-  }
-
-  void priv_sync_segment([[maybe_unused]] const bool sync) {
+  void priv_sync_segment(const bool) {
     if (!priv_inited() || m_read_only) return;
-    privateer->msync();
+    m_privateer->msync();
   }
 
-  bool priv_free_region(const std::ptrdiff_t offset, const std::size_t nbytes) {
+  bool priv_free_region(const std::ptrdiff_t, const std::size_t) {
     // MEMO: Privateer cannot free file region
     return true;
   }
@@ -463,11 +456,11 @@ class privateer_segment_storage {
   void *m_vm_region{nullptr};
   void *m_segment{nullptr};
   segment_header_type *m_segment_header{nullptr};
-  std::string m_base_path;
-  bool m_read_only;
-  mutable Privateer *privateer;
-  std::string privateer_version_name;
-  std::mutex create_mutex;
+  std::string m_base_path{};
+  bool m_read_only{false};
+  mutable Privateer *m_privateer{nullptr};
+  std::string m_privateer_version_name{};
+  std::mutex m_create_mutex{};
 };
 
 }  // namespace metall
