@@ -26,11 +26,8 @@
 #include <metall/detail/file.hpp>
 #include <metall/detail/mmap.hpp>
 #include <metall/detail/utilities.hpp>
-#include <metall/detail/time.hpp>
 #include <metall/defs.hpp>
-#include <metall/basic_manager.hpp>
 #include <metall/logger.hpp>
-#include <metall/version.hpp>
 #include <metall/kernel/segment_header.hpp>
 
 namespace metall {
@@ -269,7 +266,8 @@ class privateer_segment_storage {
   void sync(const bool sync) { priv_sync_segment(sync); }
 
   void free_region(const std::ptrdiff_t, const std::size_t) {
-    // MEMO: Privateer does not free file region
+    // Do nothing
+    // Privateer does not free file region
   }
 
   void *get_segment() const { return m_segment; }
@@ -291,14 +289,11 @@ class privateer_segment_storage {
   bool is_open() const { return !!m_privateer; }
 
   bool check_sanity() const {
-    // FIXME: implement
+    // TODO: implement
     return true;
   }
 
  private:
-  static std::string priv_make_file_name(const std::string &base_path) {
-    return base_path + "_privateer_datastore";
-  }
 
   std::size_t priv_aligment() const {
     // FIXME
@@ -319,8 +314,12 @@ class privateer_segment_storage {
   }
 
   bool priv_inited() const {
-    return (m_system_page_size > 0 && m_vm_region_size > 0 &&
-            m_current_segment_size > 0 && m_segment && !m_base_path.empty());
+    if (m_privateer) {
+      assert (m_system_page_size > 0 && m_vm_region_size > 0 &&
+        m_current_segment_size > 0 && m_segment && !m_base_path.empty());
+      return true;
+    }
+    return false;
   }
 
   bool priv_create_and_map_file(const std::string &file_name,
@@ -355,8 +354,6 @@ class privateer_segment_storage {
     assert(!path.empty());
     assert(addr);
 
-    // MEMO: one of the following options does not work on /tmp?
-
     void *data =
         read_only
             ? m_privateer->open_read_only(addr, m_privateer_version_name.c_str())
@@ -385,13 +382,14 @@ class privateer_segment_storage {
 
   void priv_release() {
     if (!priv_inited()) return;
-    // priv_unmap_file();
-    if (m_privateer != nullptr) {
-      delete m_privateer;
-      m_privateer = nullptr;
-    }
-    mdtl::map_with_prot_none(m_segment, m_vm_region_size);
+
+    delete m_privateer;
+    m_privateer = nullptr;
+
+    // Just erase segment header
+    mdtl::map_with_prot_none(m_vm_region, m_vm_region_size);
     mdtl::munmap(m_vm_region, m_vm_region_size, false);
+
     priv_reset();
   }
 
@@ -422,11 +420,6 @@ class privateer_segment_storage {
   void priv_sync_segment(const bool) {
     if (!priv_inited() || m_read_only) return;
     m_privateer->msync();
-  }
-
-  bool priv_free_region(const std::ptrdiff_t, const std::size_t) {
-    // MEMO: Privateer cannot free file region
-    return true;
   }
 
   bool priv_load_system_page_size() {

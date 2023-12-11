@@ -203,11 +203,11 @@ class segment_storage {
     return *reinterpret_cast<const segment_header_type *>(m_vm_region);
   }
 
-  /// \brief Returns the current size.
+  /// \brief Returns the current segment size.
   /// \return The current segment size.
   std::size_t size() const { return m_current_segment_size; }
 
-  /// \brief Returns the page size.
+  /// \brief Returns the underlying page size.
   /// \return The page size of the system.
   std::size_t page_size() const { return m_system_page_size; }
 
@@ -220,7 +220,7 @@ class segment_storage {
   /// \return Returns true if there is a segment already open.
   bool is_open() const { return priv_is_open(); }
 
-  /// \brief Checks the sanity.
+  /// \brief Checks the sanity of the instance.
   /// \return Returns true if there is no issue; otherwise, returns false.
   /// If false is returned, the instance of this class cannot be used anymore.
   bool check_sanity() const { return !m_broken; }
