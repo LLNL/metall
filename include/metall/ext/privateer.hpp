@@ -104,23 +104,22 @@ class privateer_segment_storage {
         m_base_path(other.m_base_path),
         m_read_only(other.m_read_only),
         m_privateer(other.m_privateer),
-        m_privateer_version_name(other.m_privateer_version_name)
-         {
+        m_privateer_version_name(other.m_privateer_version_name) {
     other.priv_reset();
   }
 
   privateer_segment_storage &operator=(
       privateer_segment_storage &&other) noexcept {
-        m_system_page_size = std::move(other.m_system_page_size);
-        m_vm_region_size = std::move(other.m_vm_region_size);
-        m_current_segment_size = std::move(other.m_current_segment_size);
-        m_vm_region = std::move(other.m_vm_region);
-        m_segment = std::move(other.m_segment);
-        m_segment_header = std::move(other.m_segment_header);
-        m_base_path = std::move(other.m_base_path);
-        m_read_only = std::move(other.m_read_only);
-        m_privateer = std::move(other.m_privateer);
-        m_privateer_version_name = std::move(other.m_privateer_version_name);
+    m_system_page_size = std::move(other.m_system_page_size);
+    m_vm_region_size = std::move(other.m_vm_region_size);
+    m_current_segment_size = std::move(other.m_current_segment_size);
+    m_vm_region = std::move(other.m_vm_region);
+    m_segment = std::move(other.m_segment);
+    m_segment_header = std::move(other.m_segment_header);
+    m_base_path = std::move(other.m_base_path);
+    m_read_only = std::move(other.m_read_only);
+    m_privateer = std::move(other.m_privateer);
+    m_privateer_version_name = std::move(other.m_privateer_version_name);
 
     other.priv_reset();
 
@@ -144,22 +143,6 @@ class privateer_segment_storage {
                 const int max_num_threads) {
     sync(true);
     auto path = parse_path(destination_path).first;
-
-    // Because Privateer wants to create the destination directory,
-    // delete it beforehand.
-    try {
-      std::filesystem::remove_all(path);
-    } catch (std::filesystem::filesystem_error const &ex) {
-      std::stringstream ss;
-      ss << "what():  " << ex.what() << '\n'
-         << "path1(): " << ex.path1() << '\n'
-         << "path2(): " << ex.path2() << '\n'
-         << "code().value():    " << ex.code().value() << '\n'
-         << "code().message():  " << ex.code().message() << '\n'
-         << "code().category(): " << ex.code().category().name() << '\n';
-      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
-      return false;
-    }
     std::pair<std::string, std::string> parsed_path = priv_parse_path(path);
     std::string version_path = parsed_path.second;
     if (!m_privateer->snapshot(version_path.c_str())) {
@@ -294,7 +277,6 @@ class privateer_segment_storage {
   }
 
  private:
-
   std::size_t priv_aligment() const {
     // FIXME
     return 1 << 28;
@@ -315,8 +297,8 @@ class privateer_segment_storage {
 
   bool priv_inited() const {
     if (m_privateer) {
-      assert (m_system_page_size > 0 && m_vm_region_size > 0 &&
-        m_current_segment_size > 0 && m_segment && !m_base_path.empty());
+      assert(m_system_page_size > 0 && m_vm_region_size > 0 &&
+             m_current_segment_size > 0 && m_segment && !m_base_path.empty());
       return true;
     }
     return false;
@@ -340,7 +322,7 @@ class privateer_segment_storage {
     assert(addr);
 
     void *data = m_privateer->create(addr, m_privateer_version_name.c_str(),
-                                   file_size, true);
+                                     file_size, true);
     if (data == nullptr) {
       return false;
     }
@@ -355,9 +337,9 @@ class privateer_segment_storage {
     assert(addr);
 
     void *data =
-        read_only
-            ? m_privateer->open_read_only(addr, m_privateer_version_name.c_str())
-            : m_privateer->open(addr, m_privateer_version_name.c_str());
+        read_only ? m_privateer->open_read_only(
+                        addr, m_privateer_version_name.c_str())
+                  : m_privateer->open(addr, m_privateer_version_name.c_str());
     m_current_segment_size = m_privateer->region_size();
     return true;
   }
@@ -385,6 +367,8 @@ class privateer_segment_storage {
 
     delete m_privateer;
     m_privateer = nullptr;
+
+    // another therad gets the vm region
 
     // Just erase segment header
     mdtl::map_with_prot_none(m_vm_region, m_vm_region_size);
