@@ -23,12 +23,14 @@
 
 #include <privateer/privateer.hpp>
 
+#include <metall/basic_manager.hpp>
 #include <metall/detail/file.hpp>
 #include <metall/detail/mmap.hpp>
 #include <metall/detail/utilities.hpp>
 #include <metall/defs.hpp>
 #include <metall/logger.hpp>
 #include <metall/kernel/segment_header.hpp>
+#include <metall/kernel/storage.hpp>
 
 namespace metall {
 
@@ -36,18 +38,18 @@ namespace {
 namespace mdtl = metall::mtlldetail;
 }
 
-class privateeer_storage;
+class privateer_storage;
 class privateer_segment_storage;
 
 /// \brief Metall manager with Privateer.
 using manager_privateer =
-    basic_manager<privateeer_storage, privateer_segment_storage>;
+    basic_manager<privateer_storage, privateer_segment_storage>;
 
 #ifdef METALL_USE_PRIVATEER
 using manager = manager_privateer;
 #endif
 
-class privateeer_storage : public metall::kernel::storage {
+class privateer_storage : public metall::kernel::storage {
  public:
   using path_type = std::filesystem::path;
 
@@ -80,7 +82,7 @@ class privateeer_storage : public metall::kernel::storage {
 
 class privateer_segment_storage {
  public:
-  using path_type = privateeer_storage::path_type;
+  using path_type = privateer_storage::path_type;
   using segment_header_type = metall::kernel::segment_header;
 
   privateer_segment_storage() { priv_load_system_page_size(); }

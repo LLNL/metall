@@ -5,13 +5,13 @@ include(FetchContent)
 # -------------------------------------------------------------------------------- #
 # CMake policy
 # -------------------------------------------------------------------------------- #
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
     cmake_policy(SET CMP0077 NEW)
-endif()
+endif ()
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
     cmake_policy(SET CMP0135 NEW)
-endif()
+endif ()
 
 # -------------------------------------------------------------------------------- #
 # Metall general configuration
@@ -92,6 +92,7 @@ set(COMPILER_DEFS "" CACHE STRING "A list of Metall compile definitions to be ad
 
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
+set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
@@ -113,11 +114,11 @@ endif ()
 # -------------------------------------------------------------------------------- #
 if (INSTALL_HEADER_ONLY)
     message(WARNING "INSTALL_HEADER_ONLY option has been replaced with JUST_INSTALL_METALL_HEADER.")
-endif()
+endif ()
 
 if (JUST_INSTALL_METALL_HEADER)
     return()
-endif()
+endif ()
 # -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
@@ -151,9 +152,9 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
 endif ()
 
 # ---------- Metall Macros ---------- #
-foreach(X ${COMPILER_DEFS})
+foreach (X ${COMPILER_DEFS})
     message(STATUS "Metall compile definition: ${X}")
-endforeach()
+endforeach ()
 
 
 # ---------- CMAKE_BUILD_TYPE ---------- #
@@ -184,8 +185,8 @@ if (UMAP_ROOT)
 endif ()
 
 # ---------- Privateer ---------- #
-message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
 if (PRIVATEER_ROOT)
+    message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
     find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
 endif ()
 
@@ -251,9 +252,9 @@ function(common_setup_for_metall_executable name)
     # --------------------
 
     # ----- Compile Definitions ----- #
-    foreach(X ${COMPILER_DEFS})
-         target_compile_definitions(${name} PRIVATE ${X})
-    endforeach()
+    foreach (X ${COMPILER_DEFS})
+        target_compile_definitions(${name} PRIVATE ${X})
+    endforeach ()
     # --------------------
 
     # ----- CXX17 Filesystem Lib----- #
@@ -261,10 +262,10 @@ function(common_setup_for_metall_executable name)
     if (FOUND_CXX17_FILESYSTEM_LIB)
         if (REQUIRE_LIB_STDCXX_FS)
             target_link_libraries(${name} PRIVATE stdc++fs)
-        endif()
-    elseif()
+        endif ()
+    elseif ()
         target_compile_definitions(${name} PRIVATE "METALL_DISABLE_CXX17_FILESYSTEM_LIB")
-    endif()
+    endif ()
     # --------------------
 
     # ----- Umap----- #
@@ -277,9 +278,8 @@ function(common_setup_for_metall_executable name)
     endif ()
     # --------------------
 
-
+    # ----- Privateer----- #
     if (PRIVATEER_ROOT)
-        #message(STATUS "Link with Privaeer")
         target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
         if (LIBPRIVATEER)
             # 1) Privateer Dependencies
@@ -287,28 +287,27 @@ function(common_setup_for_metall_executable name)
             if (OpenSSL_FOUND)
                 target_link_libraries(${name} PRIVATE OpenSSL::SSL)
                 target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
-            endif()
+            endif ()
             target_link_libraries(${name} PRIVATE rt)
-            FIND_PACKAGE( OpenMP REQUIRED )
-            if(OpenMP_CXX_FOUND)
+            FIND_PACKAGE(OpenMP REQUIRED)
+            if (OpenMP_CXX_FOUND)
                 target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
-            else()
+            else ()
                 message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
-            endif()
+            endif ()
             if (ZSTD_ROOT)
                 find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
                 target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
                 target_link_libraries(${name} PRIVATE ${LIBZSTD})
                 target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
-            endif()
-            # ------------------------------------------
+            endif ()
 
             # 2) Link Privateer
             target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
             target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
-            # ------------------------------------------
         endif ()
     endif ()
+    # --------------------
 endfunction()
 
 function(add_metall_executable name source)
