@@ -280,8 +280,13 @@ class privateer_segment_storage {
   std::size_t priv_aligment() const {
     // FIXME
     return 1 << 28;
-    //    return std::max((size_t)m_system_page_size,
-    //    (size_t)privateer->get_block_size());
+    // if (m_system_page_size < m_privateer->get_block_size()) {
+    //   return mdtl::round_up(int64_t(m_privateer->get_block_size()),
+    //                         int64_t(m_system_page_size));
+    // } else {
+    //   return mdtl::round_up(int64_t(m_system_page_size),
+    //                         int64_t(m_privateer->get_block_size()));
+    // }
   }
 
   void priv_reset() {
