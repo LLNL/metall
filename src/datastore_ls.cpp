@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 #include <iostream>
+#include <filesystem>
+
 #include <metall/utility/datastore_ls.hpp>
 
 int main(int argc, char *argv[]) {
@@ -12,7 +14,7 @@ int main(int argc, char *argv[]) {
     std::abort();
   }
 
-  const std::string datastore_path = argv[1];
+  const std::filesystem::path datastore_path = argv[1];
 
   metall::utility::ls_named_object(datastore_path);
   std::cout << std::endl;

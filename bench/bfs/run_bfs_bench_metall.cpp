@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     // metall::logger::set_log_level(metall::logger::level::verbose);
 
     metall::manager manager(metall::open_read_only,
-                            option.graph_file_name_list[0].c_str());
+                            option.graph_file_name_list[0]);
     auto adj_list =
         manager.find<adjacency_list_type>(option.graph_key_name.c_str()).first;
 

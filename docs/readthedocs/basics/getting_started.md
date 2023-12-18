@@ -69,22 +69,11 @@ g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT}/include -I${METALL_RO
 
 Clang (or Apple clang) could be used instead of GCC to build Metall.
 However, we haven't tested it intensively.
+To run on macOS, Metall requires macOS >= 10.15.
+
 Also, Boost C++ Libraries 1.69 or more may be required
 if one wants to build Metall with Clang + CUDA.
 
-**On macOS >= 10.15 or Linux**
-
 ```bash
-# Remove "-lstdc++fs" option
 clang++ -std=c++17 [tutorial_program.cpp] -I../../include -I${BOOST_ROOT}
-```
-
-**On macOS < 10.15**
-
-The C++17 <filesystem> library is not available on macOS < 10.15.
-One has to stop using C++17 <filesystem> library in Metall.
-If METALL_DISABLE_CXX17_FILESYSTEM_LIB macro is defined, Metall uses its own file system operation implementation.
-
-```bash
-clang++ -std=c++17 [tutorial_program.cpp] -I../../include -I${BOOST_ROOT} -DMETALL_DISABLE_CXX17_FILESYSTEM_LIB
 ```

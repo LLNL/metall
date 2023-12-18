@@ -6,6 +6,9 @@
 #ifndef METALL_DETAIL_UTILITY_PTREE_HPP
 #define METALL_DETAIL_UTILITY_PTREE_HPP
 
+#include <string>
+#include <filesystem>
+
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -14,6 +17,7 @@
 namespace metall::mtlldetail::ptree {
 
 namespace {
+namespace fs = std::filesystem;
 namespace bptree = boost::property_tree;
 }
 
@@ -117,7 +121,7 @@ inline bool push_back(const node_type &child, node_type *parent) {
   return true;
 }
 
-inline bool read_json(const std::string &file_name, node_type *root) {
+inline bool read_json(const fs::path &file_name, node_type *root) {
   try {
     bptree::read_json(file_name, *root);
   } catch (const bptree::json_parser_error &e) {
@@ -127,7 +131,7 @@ inline bool read_json(const std::string &file_name, node_type *root) {
   return true;
 }
 
-inline bool write_json(const node_type &root, const std::string &file_name) {
+inline bool write_json(const node_type &root, const fs::path &file_name) {
   try {
     bptree::write_json(file_name, root);
   } catch (const bptree::json_parser_error &e) {

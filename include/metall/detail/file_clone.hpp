@@ -23,21 +23,26 @@
 
 namespace metall::mtlldetail {
 
+namespace {
+namespace fs = std::filesystem;
+}
+
 namespace file_clone_detail {
 #ifdef __linux__
-inline bool clone_file_linux(const std::string &source_path,
-                             const std::string &destination_path) {
-  std::string command("cp --reflink=auto -R " + source_path + " " +
-                      destination_path);
+inline bool clone_file_linux(const fs::path &source_path,
+                             const fs::path &destination_path) {
+  std::string command("cp --reflink=auto -R " + source_path.string() + " " +
+                      destination_path.string());
   const int status = std::system(command.c_str());
   return (status != -1) && !!(WIFEXITED(status));
 }
 #endif
 
 #ifdef __APPLE__
-inline bool clone_file_macos(const std::string &source_path,
-                             const std::string &destination_path) {
-  std::string command("cp -cR " + source_path + " " + destination_path);
+inline bool clone_file_macos(const fs::path &source_path,
+                             const fs::path &destination_path) {
+  std::string command("cp -cR " + source_path.string() + " " +
+                      destination_path.string());
   const int status = std::system(command.c_str());
   return (status != -1) && !!(WIFEXITED(status));
 }
@@ -48,21 +53,21 @@ inline bool clone_file_macos(const std::string &source_path,
 /// normally. \param source_path A path to the file to be cloned. \param
 /// destination_path A path to copy to. \return On success, returns true. On
 /// error, returns false.
-inline bool clone_file(const std::string &source_path,
-                       const std::string &destination_path) {
+inline bool clone_file(const fs::path &source_path,
+                       const fs::path &destination_path) {
   bool ret = false;
 #if defined(__linux__)
   ret = file_clone_detail::clone_file_linux(source_path, destination_path);
   if (!ret) {
-    std::string s("On Linux, Failed to clone " + source_path + " to " +
-                  destination_path);
+    std::string s("On Linux, Failed to clone " + source_path.string() + " to " +
+                  destination_path.string());
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
   }
 #elif defined(__APPLE__)
   ret = file_clone_detail::clone_file_macos(source_path, destination_path);
   if (!ret) {
-    std::string s("On MacOS, Failed to clone " + source_path + " to " +
-                  destination_path);
+    std::string s("On MacOS, Failed to clone " + source_path.string() + " to " +
+                  destination_path.string());
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
   }
 #else
@@ -73,7 +78,8 @@ inline bool clone_file(const std::string &source_path,
               "Use normal copy instead of clone");
   ret = copy_file(source_path, destination_path);  // Copy normally
   if (!ret) {
-    std::string s("Failed to copy " + source_path + " to " + destination_path);
+    std::string s("Failed to copy " + source_path.string() + " to " +
+                  destination_path.string());
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
   }
 #endif
@@ -93,7 +99,7 @@ inline bool clone_file(const std::string &source_path,
 /// If <= 0 is given, it is automatically determined.
 /// \return  On success, returns true. On error, returns false.
 inline bool clone_files_in_directory_in_parallel(
-    const std::string &source_dir_path, const std::string &destination_dir_path,
+    const fs::path &source_dir_path, const fs::path &destination_dir_path,
     const int max_num_threads) {
   return copy_files_in_directory_in_parallel_helper(
       source_dir_path, destination_dir_path, max_num_threads, clone_file);

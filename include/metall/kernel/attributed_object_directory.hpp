@@ -15,6 +15,7 @@
 #include <tuple>
 #include <sstream>
 #include <memory>
+#include <filesystem>
 
 #include <boost/container/string.hpp>
 #include <boost/unordered_map.hpp>
@@ -28,6 +29,7 @@ namespace metall {
 namespace kernel {
 
 namespace {
+namespace fs = std::filesystem;
 namespace mdtl = metall::mtlldetail;
 namespace json = metall::mtlldetail::ptree;
 }  // namespace
@@ -429,7 +431,7 @@ class attributed_object_directory {
 
   /// \brief
   /// \param path
-  bool serialize(const char *const path) const noexcept {
+  bool serialize(const fs::path &path) const noexcept {
     try {
       return priv_serialize_throw(path);
     } catch (...) {
@@ -440,7 +442,7 @@ class attributed_object_directory {
 
   /// \brief
   /// \param path
-  bool deserialize(const char *const path) noexcept {
+  bool deserialize(const fs::path &path) noexcept {
     try {
       return priv_deserialize_throw(path);
     } catch (...) {
@@ -507,7 +509,7 @@ class attributed_object_directory {
     return true;
   }
 
-  bool priv_serialize_throw(const char *const path) const {
+  bool priv_serialize_throw(const fs::path &path) const {
     if (!good()) {
       return false;
     }
@@ -546,7 +548,7 @@ class attributed_object_directory {
     return true;
   }
 
-  bool priv_deserialize_throw(const char *const path) {
+  bool priv_deserialize_throw(const fs::path &path) {
     if (!good()) {
       return false;
     }
