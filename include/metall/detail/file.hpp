@@ -310,8 +310,8 @@ inline bool copy_file_dense(const fs::path &source_path,
 #ifdef __linux__
 inline bool copy_file_sparse_linux(const fs::path &source_path,
                                    const fs::path &destination_path) {
-  std::string command("cp --sparse=auto " + source_path + " " +
-                      destination_path);
+  std::string command("cp --sparse=auto " + source_path.string() + " " +
+                      destination_path.string());
   const int status = std::system(command.c_str());
   const bool success = (status != -1) && !!(WIFEXITED(status));
   if (!success) {
