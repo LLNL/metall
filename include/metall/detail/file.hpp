@@ -256,9 +256,8 @@ inline ssize_t get_actual_file_size(const fs::path &file_path) {
 /// \return Upon successful completion, returns true; otherwise, false is
 /// returned. If the file or directory does not exist, true is returned.
 inline bool remove_file(const fs::path &path) {
-  std::filesystem::path p(path);
   std::error_code ec;
-  [[maybe_unused]] const auto num_removed = std::filesystem::remove_all(p, ec);
+  std::filesystem::remove_all(path, ec);
   return !ec;
 }
 
@@ -331,8 +330,8 @@ inline bool copy_file_sparse_linux(const fs::path &source_path,
 /// \param destination_path A destination path.
 /// \param sparse_copy If true is specified, tries to perform sparse file copy.
 /// \return  On success, returns true. On error, returns false.
-inline bool copy_file(const std::string &source_path,
-                      const std::string &destination_path,
+inline bool copy_file(const fs::path &source_path,
+                      const fs::path &destination_path,
                       const bool sparse_copy = true) {
   if (sparse_copy) {
 #ifdef __linux__
@@ -353,8 +352,8 @@ inline bool copy_file(const std::string &source_path,
 /// \param file_list A buffer to put results.
 /// \return Returns true if there is no error (empty directory returns true as
 /// long as the operation does not fail). Returns false on error.
-inline bool get_regular_file_names(const std::string &dir_path,
-                                   std::vector<std::string> *file_list) {
+inline bool get_regular_file_names(const fs::path &dir_path,
+                                   std::vector<fs::path> *file_list) {
   if (!directory_exist(dir_path)) {
     return false;
   }
@@ -385,11 +384,10 @@ inline bool get_regular_file_names(const std::string &dir_path,
 /// \param copy_func The actual copy function.
 /// \return  On success, returns true. On error, returns false.
 inline bool copy_files_in_directory_in_parallel_helper(
-    const std::string &source_dir_path, const std::string &destination_dir_path,
+    const fs::path &source_dir_path, const fs::path &destination_dir_path,
     const int max_num_threads,
-    const std::function<bool(const std::string &, const std::string &)>
-        &copy_func) {
-  std::vector<std::string> src_file_names;
+    const std::function<bool(const fs::path &, const fs::path &)> &copy_func) {
+  std::vector<fs::path> src_file_names;
   if (!get_regular_file_names(source_dir_path, &src_file_names)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to get file list");
@@ -403,10 +401,9 @@ inline bool copy_files_in_directory_in_parallel_helper(
     while (true) {
       const auto file_no = file_no_cnt.fetch_add(1);
       if (file_no >= src_file_names.size()) break;
-      const std::string &src_file_path =
-          source_dir_path + "/" + src_file_names[file_no];
-      const std::string &dst_file_path =
-          destination_dir_path + "/" + src_file_names[file_no];
+      const fs::path &src_file_path = source_dir_path / src_file_names[file_no];
+      const fs::path &dst_file_path =
+          destination_dir_path / src_file_names[file_no];
       num_successes.fetch_add(copy_func(src_file_path, dst_file_path) ? 1 : 0);
     }
   };
@@ -436,11 +433,11 @@ inline bool copy_files_in_directory_in_parallel_helper(
 /// \param sparse_copy Performs sparse file copy.
 /// \return  On success, returns true. On error, returns false.
 inline bool copy_files_in_directory_in_parallel(
-    const std::string &source_dir_path, const std::string &destination_dir_path,
+    const fs::path &source_dir_path, const fs::path &destination_dir_path,
     const int max_num_threads, const bool sparse_copy = true) {
   return copy_files_in_directory_in_parallel_helper(
       source_dir_path, destination_dir_path, max_num_threads,
-      [&sparse_copy](const std::string &src, const std::string &dst) -> bool {
+      [&sparse_copy](const fs::path &src, const fs::path &dst) -> bool {
         return copy_file(src, dst, sparse_copy);
       });
 }
