@@ -5,6 +5,8 @@
 
 #include "gtest/gtest.h"
 
+#include <filesystem>
+
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/container/map.hpp>
@@ -130,7 +132,7 @@ TEST(ConcurrentMapTest, Persistence) {
       metall::container::concurrent_map<char, int, std::less<char>,
                                         std::hash<char>, allocator_type, 2>;
 
-  const std::string file_path(test_utility::make_test_path());
+  const std::filesystem::path file_path(test_utility::make_test_path());
 
   test_utility::create_test_dir();
   metall::mtlldetail::remove_file(file_path);

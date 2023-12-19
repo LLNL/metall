@@ -39,20 +39,20 @@ manager_kernel<chnk_no, chnk_sz>::~manager_kernel() noexcept {
 // Public methods
 // -------------------- //
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::create(const char *base_dir_path,
+bool manager_kernel<chnk_no, chnk_sz>::create(const fs::path &base_dir_path,
                                               const size_type vm_reserve_size) {
   return m_good = priv_create(base_dir_path, vm_reserve_size);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::open_read_only(
-    const char *base_dir_path) {
+    const fs::path &base_dir_path) {
   return m_good = priv_open(base_dir_path, true, 0);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::open(
-    const char *base_dir_path, const size_type vm_reserve_size_request) {
+    const fs::path &base_dir_path, const size_type vm_reserve_size_request) {
   return m_good = priv_open(base_dir_path, false, vm_reserve_size_request);
 }
 
@@ -448,40 +448,41 @@ manager_kernel<chnk_no, chnk_sz>::get_segment_size() const {
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::snapshot(
-    const char *destination_base_dir_path, const bool clone,
+    const fs::path &destination_base_dir_path, const bool clone,
     const int num_max_copy_threads) {
   return priv_snapshot(destination_base_dir_path, clone, num_max_copy_threads);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::copy(
-    const char *source_base_dir_path, const char *destination_base_dir_path,
-    const bool clone, const int num_max_copy_threads) {
+    const fs::path &source_base_dir_path,
+    const fs::path &destination_base_dir_path, const bool clone,
+    const int num_max_copy_threads) {
   return priv_copy_data_store(source_base_dir_path, destination_base_dir_path,
                               clone, num_max_copy_threads);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 std::future<bool> manager_kernel<chnk_no, chnk_sz>::copy_async(
-    const char *source_dir_path, const char *destination_dir_path,
+    const fs::path &source_dir_path, const fs::path &destination_dir_path,
     const bool clone, const int num_max_copy_threads) {
   return std::async(std::launch::async, copy, source_dir_path,
                     destination_dir_path, clone, num_max_copy_threads);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::remove(const char *base_dir_path) {
+bool manager_kernel<chnk_no, chnk_sz>::remove(const fs::path &base_dir_path) {
   return priv_remove_data_store(base_dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
 std::future<bool> manager_kernel<chnk_no, chnk_sz>::remove_async(
-    const char *base_dir_path) {
+    const fs::path &base_dir_path) {
   return std::async(std::launch::async, remove, base_dir_path);
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-bool manager_kernel<chnk_no, chnk_sz>::consistent(const char *dir_path) {
+bool manager_kernel<chnk_no, chnk_sz>::consistent(const fs::path &dir_path) {
   return priv_consistent(dir_path);
 }
 
@@ -491,7 +492,8 @@ std::string manager_kernel<chnk_no, chnk_sz>::get_uuid() const {
 }
 
 template <typename chnk_no, std::size_t chnk_sz>
-std::string manager_kernel<chnk_no, chnk_sz>::get_uuid(const char *dir_path) {
+std::string manager_kernel<chnk_no, chnk_sz>::get_uuid(
+    const fs::path &dir_path) {
   json_store meta_data;
   if (!priv_read_management_metadata(dir_path, &meta_data)) {
     std::stringstream ss;
@@ -509,7 +511,7 @@ version_type manager_kernel<chnk_no, chnk_sz>::get_version() const {
 
 template <typename chnk_no, std::size_t chnk_sz>
 version_type manager_kernel<chnk_no, chnk_sz>::get_version(
-    const char *dir_path) {
+    const fs::path &dir_path) {
   json_store meta_data;
   if (!priv_read_management_metadata(dir_path, &meta_data)) {
     std::stringstream ss;
@@ -523,7 +525,7 @@ version_type manager_kernel<chnk_no, chnk_sz>::get_version(
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::get_description(
-    const std::string &base_dir_path, std::string *description) {
+    const fs::path &base_dir_path, std::string *description) {
   return priv_read_description(base_dir_path, description);
 }
 
@@ -633,7 +635,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_init_datastore_directory(
   }
 
   // Remove existing directory to certainly create a new data store
-  if (!remove(base_dir_path.c_str())) {
+  if (!remove(base_dir_path)) {
     std::string s("Failed to remove a directory: " + base_dir_path);
     logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
     return false;
@@ -944,7 +946,7 @@ void manager_kernel<chnk_no, chnk_sz>::priv_destruct_and_free_memory(
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_open(
-    const char *base_dir_path, const bool read_only,
+    const fs::path &base_dir_path, const bool read_only,
     const size_type vm_reserve_size_request) {
   if (!priv_validate_runtime_configuration()) {
     return false;
@@ -1021,7 +1023,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_open(
 
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_create(
-    const char *base_dir_path, const size_type vm_reserve_size) {
+    const fs::path &base_dir_path, const size_type vm_reserve_size) {
   if (!priv_validate_runtime_configuration()) {
     return false;
   }
@@ -1159,7 +1161,7 @@ bool manager_kernel<chnk_no, chnk_sz>::priv_deserialize_management_data() {
 // ---------- snapshot ---------- //
 template <typename chnk_no, std::size_t chnk_sz>
 bool manager_kernel<chnk_no, chnk_sz>::priv_snapshot(
-    const char *destination_base_dir_path, const bool clone,
+    const fs::path &destination_base_dir_path, const bool clone,
     const int num_max_copy_threads) {
   priv_sanity_check();
   m_segment_storage.sync(true);

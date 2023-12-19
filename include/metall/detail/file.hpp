@@ -54,7 +54,7 @@ inline bool os_fsync(const int fd) {
   return true;
 }
 
-inline bool fsync(const std::string &path) {
+inline bool fsync(const fs::path &path) {
   const int fd = ::open(path.c_str(), O_RDONLY);
   if (fd == -1) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "open");
@@ -68,7 +68,7 @@ inline bool fsync(const std::string &path) {
   return ret;
 }
 
-inline bool fsync_recursive(const std::string &path) {
+inline bool fsync_recursive(const fs::path &path) {
   fs::path p(path);
   p = fs::canonical(p);
   while (true) {
@@ -135,8 +135,7 @@ inline bool extend_file_size(const int fd, const size_t file_size,
   return ret;
 }
 
-inline bool extend_file_size(const std::string &file_path,
-                             const size_t file_size,
+inline bool extend_file_size(const fs::path &file_path, const size_t file_size,
                              const bool fill_with_zero = false) {
   const int fd = ::open(file_path.c_str(), O_RDWR);
   if (fd == -1) {
@@ -152,22 +151,23 @@ inline bool extend_file_size(const std::string &file_path,
 
 /// \brief Check if a file, any kinds of file including directory, exists
 /// \warning This implementation could return a wrong result due to metadata
-/// cache on NFS. The following code could fail: if (mpi_rank == 1)
-/// file_exist(path); // NFS creates metadata cache mpi_barrier(); if (mpi_rank
-/// == 0) create_directory(path); mpi_barrier(); if (mpi_rank == 1)
+/// cache on NFS. The following code could fail:
+/// if (mpi_rank == 1)
+///     file_exist(path); // NFS creates metadata cache
+/// mpi_barrier();
+/// if (mpi_rank == 0)
+///     create_directory(path);
+/// mpi_barrier();
+/// if (mpi_rank == 1)
 /// assert(file_exist(path)); // Could fail due to the cached metadata.
-inline bool file_exist(const std::string &file_name) {
-  std::string fixed_string(file_name);
-  while (fixed_string.back() == '/') {
-    fixed_string.pop_back();
-  }
-  return (::access(fixed_string.c_str(), F_OK) == 0);
+inline bool file_exist(const fs::path &file_name) {
+  return fs::exists(file_name);
 }
 
 /// \brief Check if a directory exists
 /// \warning This implementation could return a wrong result due to metadata
 /// cache on NFS.
-inline bool directory_exist(const std::string &dir_path) {
+inline bool directory_exist(const fs::path &dir_path) {
   struct stat stat_buf;
   if (::stat(dir_path.c_str(), &stat_buf) == -1) {
     return false;
@@ -175,7 +175,7 @@ inline bool directory_exist(const std::string &dir_path) {
   return S_ISDIR(stat_buf.st_mode);
 }
 
-inline bool create_file(const std::string &file_path) {
+inline bool create_file(const fs::path &file_path) {
   const int fd =
       ::open(file_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
@@ -191,8 +191,8 @@ inline bool create_file(const std::string &file_path) {
 /// \brief Creates directories recursively.
 /// \return Returns true if the directory was created or already exists.
 /// Otherwise, returns false.
-inline bool create_directory(const std::string &dir_path) {
-  std::string fixed_string = dir_path;
+inline bool create_directory(const fs::path &dir_path) {
+  fs::path fixed_string = dir_path;
   // MEMO: GCC bug 87846 (fixed in v8.3)
   // "Calling std::filesystem::create_directories with a path with a trailing
   // separator (e.g. "./a/b/") does not create any directory."
@@ -227,7 +227,7 @@ inline bool create_directory(const std::string &dir_path) {
   return success;
 }
 
-inline ssize_t get_file_size(const std::string &file_path) {
+inline ssize_t get_file_size(const fs::path &file_path) {
   std::ifstream ifs(file_path, std::ifstream::binary | std::ifstream::ate);
   ssize_t size = ifs.tellg();
   if (size == -1) {
@@ -242,10 +242,10 @@ inline ssize_t get_file_size(const std::string &file_path) {
 /// \brief
 /// Note that, according to GCC,
 /// the file system may use some blocks for internal record keeping
-inline ssize_t get_actual_file_size(const std::string &file_path) {
+inline ssize_t get_actual_file_size(const fs::path &file_path) {
   struct stat stat_buf;
   if (::stat(file_path.c_str(), &stat_buf) != 0) {
-    std::string s("stat (" + file_path + ")");
+    std::string s("stat (" + file_path.string() + ")");
     logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
     return -1;
   }
@@ -255,7 +255,7 @@ inline ssize_t get_actual_file_size(const std::string &file_path) {
 /// \brief Remove a file or directory
 /// \return Upon successful completion, returns true; otherwise, false is
 /// returned. If the file or directory does not exist, true is returned.
-inline bool remove_file(const std::string &path) {
+inline bool remove_file(const fs::path &path) {
   std::filesystem::path p(path);
   std::error_code ec;
   [[maybe_unused]] const auto num_removed = std::filesystem::remove_all(p, ec);
@@ -283,8 +283,8 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 
 namespace file_copy_detail {
 
-inline bool copy_file_dense(const std::string &source_path,
-                            const std::string &destination_path) {
+inline bool copy_file_dense(const fs::path &source_path,
+                            const fs::path &destination_path) {
   bool success = true;
   try {
     if (!fs::copy_file(source_path, destination_path,
@@ -308,8 +308,8 @@ inline bool copy_file_dense(const std::string &source_path,
 }
 
 #ifdef __linux__
-inline bool copy_file_sparse_linux(const std::string &source_path,
-                                   const std::string &destination_path) {
+inline bool copy_file_sparse_linux(const fs::path &source_path,
+                                   const fs::path &destination_path) {
   std::string command("cp --sparse=auto " + source_path + " " +
                       destination_path);
   const int status = std::system(command.c_str());

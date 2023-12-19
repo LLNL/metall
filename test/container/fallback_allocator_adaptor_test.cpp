@@ -199,7 +199,7 @@ TEST(FallbackAllocatorAdaptorTest, PersistentConstructFind) {
       boost::interprocess::vector<element_type, fb_alloc_type<element_type>>;
 
   {
-    metall::manager manager(metall::create_only, dir_path().c_str(),
+    metall::manager manager(metall::create_only, dir_path(),
                             1UL << 27UL);
 
     int *a = manager.construct<int>("int")(10);
@@ -212,7 +212,7 @@ TEST(FallbackAllocatorAdaptorTest, PersistentConstructFind) {
   }
 
   {
-    metall::manager manager(metall::open_only, dir_path().c_str());
+    metall::manager manager(metall::open_only, dir_path());
 
     const auto ret1 = manager.find<int>("int");
     ASSERT_NE(ret1.first, nullptr);
