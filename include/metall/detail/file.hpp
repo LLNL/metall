@@ -89,7 +89,7 @@ inline bool extend_file_size_manually(const int fd, const off_t offset,
   for (off_t i = offset; i < file_size / 4096 + offset; ++i) {
     ::pwrite(fd, buffer, 4096, i * 4096);
   }
-  const size_t remained_size = file_size % 4096;
+  const std::size_t remained_size = file_size % 4096;
   if (remained_size > 0)
     ::pwrite(fd, buffer, remained_size, file_size - remained_size);
 
@@ -100,7 +100,7 @@ inline bool extend_file_size_manually(const int fd, const off_t offset,
   return ret;
 }
 
-inline bool extend_file_size(const int fd, const size_t file_size,
+inline bool extend_file_size(const int fd, const std::size_t file_size,
                              const bool fill_with_zero) {
   if (fill_with_zero) {
 #ifdef __APPLE__
@@ -116,8 +116,7 @@ inline bool extend_file_size(const int fd, const size_t file_size,
     }
 #endif
   } else {
-    // -----  extend the file if its size is smaller than that of mapped area
-    // ----- //
+    // extend the file if its size is smaller than that of mapped area
     struct stat stat_buf;
     if (::fstat(fd, &stat_buf) == -1) {
       logger::perror(logger::level::error, __FILE__, __LINE__, "fstat");
@@ -135,7 +134,8 @@ inline bool extend_file_size(const int fd, const size_t file_size,
   return ret;
 }
 
-inline bool extend_file_size(const fs::path &file_path, const size_t file_size,
+inline bool extend_file_size(const fs::path &file_path,
+                             const std::size_t file_size,
                              const bool fill_with_zero = false) {
   const int fd = ::open(file_path.c_str(), O_RDWR);
   if (fd == -1) {
@@ -249,7 +249,7 @@ inline ssize_t get_actual_file_size(const fs::path &file_path) {
     logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
     return -1;
   }
-  return stat_buf.st_blocks * 512LL;
+  return ssize_t(stat_buf.st_blocks) * ssize_t(stat_buf.st_blksize);
 }
 
 /// \brief Remove a file or directory
@@ -280,7 +280,7 @@ inline bool free_file_space([[maybe_unused]] const int fd,
 #endif
 }
 
-namespace file_copy_detail {
+namespace fcpdtl {
 
 inline bool copy_file_dense(const fs::path &source_path,
                             const fs::path &destination_path) {
@@ -306,6 +306,74 @@ inline bool copy_file_dense(const fs::path &source_path,
   return success;
 }
 
+inline bool copy_file_sparse_manually(const fs::path &source_path,
+                                      const fs::path &destination_path) {
+  const auto src_size = get_file_size(source_path);
+  if (src_size == -1) {
+    return false;
+  }
+  if (!extend_file_size(destination_path, src_size, false)) {
+    return false;
+  }
+
+  std::ifstream source;
+  std::ofstream dest;
+  const auto open_file = [](const auto &path, auto &file) {
+    file.open(path, std::ios::binary);
+    if (!file.is_open()) {
+      std::stringstream ss;
+      ss << "Failed to open file: " << path;
+      logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+      return false;
+    }
+    return true;
+  };
+
+  if (!open_file(source_path, source) || !open_file(destination_path, dest)) {
+    return false;
+  }
+
+  const std::size_t block_size = 512;
+  char buffer[block_size];
+
+  const auto is_sparse = [](const char *const buffer, const std::size_t size) {
+    constexpr std::size_t chunk_size = sizeof(uint64_t);
+    const std::size_t num_chunks = size / chunk_size;
+    for (std::size_t i = 0; i < num_chunks; ++i) {
+      if (*reinterpret_cast<const uint64_t *>(buffer + i * chunk_size) !=
+          uint64_t(0)) {
+        return false;
+      }
+    }
+    // Check the remaining bytes
+    for (std::size_t i = num_chunks * chunk_size; i < size; ++i) {
+      if (buffer[i] != char(0)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  while (source.read(buffer, block_size) || source.gcount() > 0) {
+    if (!is_sparse(buffer, source.gcount())) {
+      dest.write(buffer, source.gcount());
+    } else {
+      dest.seekp(source.gcount(), std::ios_base::cur);
+    }
+  }
+
+  source.close();
+  dest.close();
+  if (!dest) {
+    std::stringstream ss;
+    ss << "Failed to write file: " << destination_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    return false;
+  }
+
+  return true;
+}
+
 #ifdef __linux__
 inline bool copy_file_sparse_linux(const fs::path &source_path,
                                    const fs::path &destination_path) {
@@ -323,7 +391,7 @@ inline bool copy_file_sparse_linux(const fs::path &source_path,
 }
 #endif
 
-}  // namespace file_copy_detail
+}  // namespace fcpdtl
 
 /// \brief Copy a file.
 /// \param source_path A source file path.
@@ -335,14 +403,13 @@ inline bool copy_file(const fs::path &source_path,
                       const bool sparse_copy = true) {
   if (sparse_copy) {
 #ifdef __linux__
-    return file_copy_detail::copy_file_sparse_linux(source_path,
-                                                    destination_path);
+    return fcpdtl::copy_file_sparse_linux(source_path, destination_path);
 #else
     logger::out(logger::level::info, __FILE__, __LINE__,
                 "Sparse file copy is not available");
 #endif
   }
-  return file_copy_detail::copy_file_dense(source_path, destination_path);
+  return fcpdtl::copy_file_dense(source_path, destination_path);
 }
 
 /// \brief Get the file names in a directory.
