@@ -49,7 +49,6 @@ class umap_segment_storage {
   using segment_header_type = metall::kernel::segment_header;
 
   umap_segment_storage() {
-    // std::cout << "Umap storage Constructor" << std::endl;
     m_umap_page_size = ::umapcfg_get_umap_page_size();
     if (m_umap_page_size == -1) {
       std::cerr << "Failed to get Umap pagesize" << std::endl;
@@ -61,10 +60,8 @@ class umap_segment_storage {
   }
 
   ~umap_segment_storage() {
-    // std::cout << "UMap storage Destructor" << std::endl;
     priv_sync_segment(true);
     release();
-    // std::cout << "DONE UMap storage Destructor" << std::endl;
   }
 
   umap_segment_storage(const umap_segment_storage &) = delete;
@@ -77,8 +74,6 @@ class umap_segment_storage {
                    const path_type &destination_path,
                    [[maybe_unused]] const bool clone,
                    const int max_num_threads){
-    std::cout << "copy() source_path: " << source_path.u8string() << std::endl;
-    std::cout << "copy() destination_path: " << destination_path.u8string() << std::endl;
     /*if (clone) {
       std::string s("Clone: " + source_path.u8string());
       logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
@@ -122,8 +117,6 @@ class umap_segment_storage {
   }
 
   bool create(const path_type &base_path, const std::size_t capacity){
-    // std::cout << "Umap storage create" << std::endl;
-    // std::cout << "Capacity: " << capacity << std::endl;
     assert(!priv_inited());
 
     m_base_path = base_path;
@@ -152,7 +145,6 @@ class umap_segment_storage {
       return false;
     }
     const std::string file_name = priv_make_file_name(base_path);
-    std::cout << "sparse store dir: " << file_name << std::endl;
     /* store = new Umap::SparseStore(segment_size, page_size, file_name,
                                   page_size); */
     store = std::make_unique<Umap::SparseStore>(segment_size, page_size, file_name,
@@ -160,7 +152,6 @@ class umap_segment_storage {
 
     const int prot = PROT_READ | PROT_WRITE;
     const int flags = UMAP_PRIVATE | UMAP_FIXED;
-    // std::cout << "m_segment before umap: " << (uint64_t) m_segment << std::endl;
     m_segment =
         Umap::umap_ex(m_segment, (segment_size - m_umap_page_size), prot, flags, -1, 0, store.get());
     if (m_segment == UMAP_FAILED) {
@@ -169,14 +160,11 @@ class umap_segment_storage {
       perror(ss.str().c_str());
       return false;
     }
-    // std::cout << "m_segment after umap: " << (uint64_t) m_segment << std::endl;
-    // std::cout << "Region ends at: " << ((uint64_t) m_vm_region) + m_vm_region_size << std::endl;
     return true;
 
   }
 
   bool open(const path_type &base_path, const std::size_t, const bool read_only){
-    std::cout << "Umap storage open base_path: " << base_path.u8string() << std::endl;
     assert(!priv_inited());
     m_base_path = base_path;
 
@@ -198,11 +186,9 @@ class umap_segment_storage {
       std::cerr << "errno: " << errno << std::endl;
     }
 
-    std::cout << "sparse store dir: " << directory_name << std::endl;
 
     // store = new Umap::SparseStore(directory_name, read_only);
     store = std::make_unique<Umap::SparseStore>(directory_name, read_only);
-    // std::cout << "Umap storage created SparseStore" << std::endl;
     const int prot = PROT_READ | (read_only ? 0 : PROT_WRITE);
     const int flags = UMAP_PRIVATE | UMAP_FIXED;
     m_segment =
@@ -213,7 +199,6 @@ class umap_segment_storage {
       perror(ss.str().c_str());
       return false;
     }
-    // std::cout << "Umap storage open DONE" << std::endl;
     return true;
   }
 
@@ -267,11 +252,6 @@ class umap_segment_storage {
 
   private:
     bool priv_inited() const {
-      /* std::cout << "inited() m_umap_page_size: " << m_umap_page_size << std::endl;
-      std::cout << "inited() m_vm_region_size: " << m_vm_region_size << std::endl;
-      std::cout << "inited() m_current_segment_size: " << m_current_segment_size << std::endl;
-      std::cout << "inited() m_segment: " << (uint64_t) m_segment << std::endl;
-      std::cout << "inited() m_base_path: " << m_base_path << std::endl; */
       return (m_umap_page_size > 0 && m_vm_region_size > 0 &&
               m_current_segment_size > 0 && m_segment && !m_base_path.empty());
     }
@@ -294,9 +274,6 @@ class umap_segment_storage {
         /* return */ result = mdtl::round_up(int64_t(m_system_page_size),
                               int64_t(m_umap_page_size));
       }
-      /* std::cout << "m_umap_page_size: " << m_umap_page_size << std::endl;
-      std::cout << "m_system_page_size: " << m_system_page_size << std::endl;
-      std::cout << "ALIGNMENT: " << result << std::endl; */
       return result;
     }
     
@@ -337,7 +314,6 @@ class umap_segment_storage {
     bool priv_reserve_vm(const std::size_t nbytes) {
       m_vm_region_size =
           mdtl::round_up((int64_t)nbytes, (int64_t)priv_aligment());
-          // std::cout << "RESERVE m_vm_region_size: " << m_vm_region_size << std::endl;
       m_vm_region =
           mdtl::reserve_aligned_vm_region(priv_aligment(), m_vm_region_size);
 
@@ -355,38 +331,27 @@ class umap_segment_storage {
 
     void priv_sync_segment(const bool) {
       if (!priv_inited() || m_read_only) return;
-      // std::cout << "Before umap_flush()" << std::endl;
       if (::umap_flush() != 0) {
         std::cerr << "Failed umap_flush()" << std::endl;
         std::abort();
       }
-      // std::cout << "After umap_flush()" << std::endl;
     }
 
     void priv_release() {
-      // std::cout << "Before check" << std::endl;
       if (!priv_inited()) return;
-      // std::cout << "AFTER check" << std::endl;
 
       const auto file_name = priv_make_file_name(m_base_path);
       assert(mdtl::file_exist(file_name));
-      // std::cout << "Before UUNMAP" << std::endl;
       if (::uunmap(static_cast<char *>(m_segment), m_current_segment_size) != 0) {
         std::cerr << "Failed to unmap a Umap region" << std::endl;
         std::abort();
       }
-      // std::cout << "Done UUNMAP" << std::endl;
       m_current_segment_size = 0;
       int sparse_store_close_files = store.get()->close_files(); // store->close_files();
       if (sparse_store_close_files != 0) {
         std::cerr << "Error closing SparseStore files" << std::endl;
-        // delete store;
         std::abort();
       }
-      // delete store;
-      // store = nullptr;
-      // std::cout << "Done Delete Store" << std::endl;
-      // Just erase segment header
       mdtl::map_with_prot_none(m_vm_region, m_vm_region_size);
       mdtl::munmap(m_vm_region, m_vm_region_size, false);
 
