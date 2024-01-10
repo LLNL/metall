@@ -132,10 +132,6 @@ class privateer_segment_storage {
                    const std::string &destination_path,
                    [[maybe_unused]] const bool clone,
                    const int max_num_threads) {
-    std::cout << "copy() source_path: " << source_path << std::endl;
-    std::cout << "copy() destination_path: " << destination_path << std::endl;
-    std::cout << "copy() source_path parsed : " << parse_path(source_path).first << std::endl;
-    std::cout << "copy() destination_path_parsed: " << parse_path(destination_path).first << std::endl;
     if (!mtlldetail::copy_files_in_directory_in_parallel(
             parse_path(source_path).first, parse_path(destination_path).first,
             max_num_threads)) {
@@ -163,19 +159,14 @@ class privateer_segment_storage {
   bool create(const path_type &base_path, const std::size_t capacity) {
     assert(!priv_inited());
     init_privateer_datastore(base_path.string(), Privateer::CREATE);
-    std::cout  << "Done init" << std::endl;
     m_base_path = parse_path(base_path).first;
-    std::cout  << "Done parse path" << std::endl;
     const auto header_size = priv_aligned_header_size();
-    std::cout  << "Done aligned header size" << std::endl;
     const auto vm_region_size = header_size + capacity;
     if (!priv_reserve_vm(vm_region_size)) {
       return false;
     }
-    std::cout  << "Done reserve vm" << std::endl;
     m_segment = reinterpret_cast<char *>(m_vm_region) + header_size;
     priv_construct_segment_header(m_vm_region);
-    std::cout  << "Done construct header" << std::endl;
     m_read_only = false;
 
     const auto segment_size = vm_region_size - header_size;
@@ -184,7 +175,6 @@ class privateer_segment_storage {
       priv_reset();
       return false;
     }
-    std::cout  << "Done create and map file" << std::endl;
     return true;
   }
 
@@ -238,15 +228,11 @@ class privateer_segment_storage {
       m_privateer = new Privateer(action, privateer_base_path.c_str());
     }
     if (action == Privateer::CREATE){
-      std::cout << "ACTION CREATE" << std::endl;
       m_privateer_block_size = m_privateer->get_block_size();
-      std::cout << "GOT BLOCK SIZE: " << m_privateer_block_size << std::endl;
     }
     else{
-      std::cout << "ACTION OPEN" << std::endl;
       std::string version_full_path = privateer_base_path + "/" + version_path;
       m_privateer_block_size = Privateer::version_block_size(version_full_path);
-      std::cout << "GOT BLOCK SIZE" << std::endl;
     }
   }
 
@@ -345,10 +331,8 @@ class privateer_segment_storage {
     assert(!path.empty());
     assert(file_size > 0);
     assert(addr);
-    std::cout << "before Privateer create()" << std::endl;
     void *data = m_privateer->create(addr, m_privateer_version_name.c_str(),
                                      file_size, true);
-    std::cout << "AFTER Privateer create()" << std::endl;
     if (data == nullptr) {
       return false;
     }
