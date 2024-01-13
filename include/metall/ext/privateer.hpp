@@ -158,10 +158,8 @@ class privateer_segment_storage {
 
   bool create(const path_type &base_path, const std::size_t capacity) {
     assert(!priv_inited());
-    init_privateer_datastore(base_path.string());
-
+    init_privateer_datastore(base_path.string(), Privateer::CREATE);
     m_base_path = parse_path(base_path).first;
-
     const auto header_size = priv_aligned_header_size();
     const auto vm_region_size = header_size + capacity;
     if (!priv_reserve_vm(vm_region_size)) {
@@ -177,14 +175,13 @@ class privateer_segment_storage {
       priv_reset();
       return false;
     }
-
     return true;
   }
 
   bool open(const std::string &base_path, const std::size_t,
             const bool read_only) {
     assert(!priv_inited());
-    init_privateer_datastore(base_path);
+    init_privateer_datastore(base_path, Privateer::OPEN);
 
     m_base_path = parse_path(base_path).first;
     m_read_only = read_only;
@@ -211,7 +208,7 @@ class privateer_segment_storage {
     return true;
   }
 
-  void init_privateer_datastore(std::string path) {
+  void init_privateer_datastore(std::string path, int action) {
     const std::lock_guard<std::mutex> lock(m_create_mutex);
     std::pair<std::string, std::string> base_stash_pair = parse_path(path);
     std::string base_dir = base_stash_pair.first;
@@ -220,15 +217,22 @@ class privateer_segment_storage {
     std::string privateer_base_path = parsed_path.first;
     std::string version_path = parsed_path.second;
     m_privateer_version_name = version_path;
-    int action =
+    /* int action =
         std::filesystem::exists(std::filesystem::path(privateer_base_path))
             ? Privateer::OPEN
-            : Privateer::CREATE;
+            : Privateer::CREATE; */
     if (!stash_dir.empty()) {
       m_privateer =
           new Privateer(action, privateer_base_path.c_str(), stash_dir.c_str());
     } else {
       m_privateer = new Privateer(action, privateer_base_path.c_str());
+    }
+    if (action == Privateer::CREATE){
+      m_privateer_block_size = m_privateer->get_block_size();
+    }
+    else{
+      std::string version_full_path = privateer_base_path + "/" + version_path;
+      m_privateer_block_size = Privateer::version_block_size(version_full_path);
     }
   }
 
@@ -281,14 +285,14 @@ class privateer_segment_storage {
  private:
   std::size_t priv_aligment() const {
     // FIXME
-    return 1 << 28;
-    // if (m_system_page_size < m_privateer->get_block_size()) {
-    //   return mdtl::round_up(int64_t(m_privateer->get_block_size()),
-    //                         int64_t(m_system_page_size));
-    // } else {
-    //   return mdtl::round_up(int64_t(m_system_page_size),
-    //                         int64_t(m_privateer->get_block_size()));
-    // }
+    // return 1 << 28;
+    if (m_system_page_size < m_privateer_block_size) {
+      return mdtl::round_up(int64_t(m_privateer_block_size),
+                            int64_t(m_system_page_size));
+    } else {
+       return mdtl::round_up(int64_t(m_system_page_size),
+                             int64_t(m_privateer_block_size));
+    }
   }
 
   void priv_reset() {
@@ -327,7 +331,6 @@ class privateer_segment_storage {
     assert(!path.empty());
     assert(file_size > 0);
     assert(addr);
-
     void *data = m_privateer->create(addr, m_privateer_version_name.c_str(),
                                      file_size, true);
     if (data == nullptr) {
@@ -435,6 +438,7 @@ class privateer_segment_storage {
   }
 
   ssize_t m_system_page_size{0};
+  std::size_t m_privateer_block_size{0};
   std::size_t m_vm_region_size{0};
   std::size_t m_current_segment_size{0};
   void *m_vm_region{nullptr};
