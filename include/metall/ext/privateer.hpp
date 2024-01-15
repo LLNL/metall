@@ -227,10 +227,9 @@ class privateer_segment_storage {
     } else {
       m_privateer = new Privateer(action, privateer_base_path.c_str());
     }
-    if (action == Privateer::CREATE){
+    if (action == Privateer::CREATE) {
       m_privateer_block_size = m_privateer->get_block_size();
-    }
-    else{
+    } else {
       std::string version_full_path = privateer_base_path + "/" + version_path;
       m_privateer_block_size = Privateer::version_block_size(version_full_path);
     }
@@ -290,8 +289,8 @@ class privateer_segment_storage {
       return mdtl::round_up(int64_t(m_privateer_block_size),
                             int64_t(m_system_page_size));
     } else {
-       return mdtl::round_up(int64_t(m_system_page_size),
-                             int64_t(m_privateer_block_size));
+      return mdtl::round_up(int64_t(m_system_page_size),
+                            int64_t(m_privateer_block_size));
     }
   }
 
