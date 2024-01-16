@@ -11,6 +11,7 @@
 #include <cassert>
 #include <type_traits>
 #include <vector>
+#include <filesystem>
 
 #include <metall/detail/utilities.hpp>
 #include <metall/detail/mmap.hpp>
@@ -22,8 +23,9 @@
 namespace metall {
 namespace kernel {
 namespace {
+namespace fs = std::filesystem;
 namespace mdtl = metall::mtlldetail;
-}
+}  // namespace
 
 /// \brief Chunk directory class.
 /// Chunk directory is a table that stores information about chunks.
@@ -294,7 +296,7 @@ class chunk_directory {
 
   /// \brief
   /// \param path
-  bool serialize(const char *path) const {
+  bool serialize(const fs::path &path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
       std::stringstream ss;
@@ -358,7 +360,7 @@ class chunk_directory {
   /// \brief
   /// \param path
   /// \return
-  bool deserialize(const char *path) {
+  bool deserialize(const fs::path &path) {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
       std::stringstream ss;

@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 
 #include <string>
+#include <filesystem>
 
 #include <metall/metall.hpp>
 
@@ -13,42 +14,44 @@
 
 namespace {
 
-std::string original_dir_path() {
-  const std::string path(test_utility::make_test_path("original"));
+namespace fs = std::filesystem;
+
+fs::path original_dir_path() {
+  const fs::path path(test_utility::make_test_path("original"));
   return path;
 }
 
-std::string snapshot_dir_path() {
-  const std::string path(test_utility::make_test_path("snapshot"));
+fs::path snapshot_dir_path() {
+  const fs::path path(test_utility::make_test_path("snapshot"));
   return path;
 }
 
 TEST(SnapshotTest, Snapshot) {
-  metall::manager::remove(original_dir_path().c_str());
-  metall::manager::remove(snapshot_dir_path().c_str());
+  metall::manager::remove(original_dir_path());
+  metall::manager::remove(snapshot_dir_path());
 
   {
-    metall::manager manager(metall::create_only, original_dir_path().c_str());
+    metall::manager manager(metall::create_only, original_dir_path());
 
     [[maybe_unused]] auto a = manager.construct<uint32_t>("a")(1);
     [[maybe_unused]] auto b =
         manager.construct<uint64_t>(metall::unique_instance)(2);
 
-    ASSERT_TRUE(manager.snapshot(snapshot_dir_path().c_str()));
-    ASSERT_TRUE(metall::manager::consistent(snapshot_dir_path().c_str()));
+    ASSERT_TRUE(manager.snapshot(snapshot_dir_path()));
+    ASSERT_TRUE(metall::manager::consistent(snapshot_dir_path()));
 
     // UUID
     const auto original_uuid =
-        metall::manager::get_uuid(original_dir_path().c_str());
+        metall::manager::get_uuid(original_dir_path());
     ASSERT_FALSE(original_uuid.empty());
     const auto snapshot_uuid =
-        metall::manager::get_uuid(snapshot_dir_path().c_str());
+        metall::manager::get_uuid(snapshot_dir_path());
     ASSERT_FALSE(snapshot_uuid.empty());
     ASSERT_NE(original_uuid, snapshot_uuid);
 
     // Version
-    ASSERT_EQ(metall::manager::get_version(original_dir_path().c_str()),
-              metall::manager::get_version(snapshot_dir_path().c_str()));
+    ASSERT_EQ(metall::manager::get_version(original_dir_path()),
+              metall::manager::get_version(snapshot_dir_path()));
   }
 
   {

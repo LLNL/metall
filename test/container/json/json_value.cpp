@@ -365,10 +365,10 @@ TEST(JSONValueTest, CopyDifferentMetallAllocator) {
     {
       metall::manager manager_copy(
           metall::create_only,
-          (test_utility::make_test_path() + "_copy").c_str());
+          (test_utility::make_test_path().string() + "_copy"));
       metall::manager manager_src(
           metall::create_only,
-          (test_utility::make_test_path() + "_src").c_str());
+          (test_utility::make_test_path().string() + "_src"));
 
       auto *jv_copy =
           manager_copy.construct<valut_t>("jv")(manager_copy.get_allocator());
@@ -380,7 +380,7 @@ TEST(JSONValueTest, CopyDifferentMetallAllocator) {
     {
       metall::manager manager_copy(
           metall::open_read_only,
-          (test_utility::make_test_path() + "_copy").c_str());
+          (test_utility::make_test_path().string() + "_copy"));
       const auto *const jv_copy = manager_copy.find<valut_t>("jv").first;
       check_json_string(*jv_copy);
     }
@@ -391,10 +391,10 @@ TEST(JSONValueTest, CopyDifferentMetallAllocator) {
     {
       metall::manager manager_src(
           metall::create_only,
-          (test_utility::make_test_path() + "_src").c_str());
+          (test_utility::make_test_path().string() + "_src"));
       metall::manager manager_copy(
           metall::create_only,
-          (test_utility::make_test_path() + "_copy").c_str());
+          (test_utility::make_test_path().string() + "_copy"));
       auto json_src = mj::parse(json_string, manager_src.get_allocator());
       // Construct a new one from another instance that was allocated by another
       // allocator
@@ -406,7 +406,7 @@ TEST(JSONValueTest, CopyDifferentMetallAllocator) {
     {
       metall::manager manager_copy(
           metall::open_read_only,
-          (test_utility::make_test_path() + "_copy").c_str());
+          (test_utility::make_test_path().string() + "_copy"));
       const auto *const jv_copy = manager_copy.find<valut_t>("jv").first;
       check_json_string(*jv_copy);
     }
@@ -420,10 +420,10 @@ TEST(JSONValueTest, MoveDifferentMetallAllocator) {
     {
       metall::manager manager_move(
           metall::create_only,
-          (test_utility::make_test_path() + "_move").c_str());
+          (test_utility::make_test_path().string() + "_move"));
       metall::manager manager_src(
           metall::create_only,
-          (test_utility::make_test_path() + "_src").c_str());
+          (test_utility::make_test_path().string() + "_src"));
 
       auto *jv_move =
           manager_move.construct<valut_t>("jv")(manager_move.get_allocator());
@@ -434,7 +434,7 @@ TEST(JSONValueTest, MoveDifferentMetallAllocator) {
     {
       metall::manager manager_move(
           metall::open_read_only,
-          (test_utility::make_test_path() + "_move").c_str());
+          (test_utility::make_test_path().string() + "_move"));
       const auto *const jv_move = manager_move.find<valut_t>("jv").first;
       check_json_string(*jv_move);
     }
@@ -445,10 +445,10 @@ TEST(JSONValueTest, MoveDifferentMetallAllocator) {
     {
       metall::manager manager_src(
           metall::create_only,
-          (test_utility::make_test_path() + "_src").c_str());
+          (test_utility::make_test_path().string() + "_src"));
       metall::manager manager_move(
           metall::create_only,
-          (test_utility::make_test_path() + "_move").c_str());
+          (test_utility::make_test_path().string() + "_move"));
       // Construct a new one from another instance that was allocated by another
       // allocator
       auto *jv_move = manager_move.construct<valut_t>("jv")(
@@ -460,7 +460,7 @@ TEST(JSONValueTest, MoveDifferentMetallAllocator) {
     {
       metall::manager manager_move(
           metall::open_read_only,
-          (test_utility::make_test_path() + "_move").c_str());
+          (test_utility::make_test_path().string() + "_move"));
       const auto *const jv_move = manager_move.find<valut_t>("jv").first;
       check_json_string(*jv_move);
     }

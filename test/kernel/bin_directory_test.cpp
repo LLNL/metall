@@ -98,7 +98,7 @@ TEST(BinDirectoryTest, Serialize) {
 
   test_utility::create_test_dir();
   const auto file = test_utility::make_test_path();
-  ASSERT_TRUE(obj.serialize(file.c_str()));
+  ASSERT_TRUE(obj.serialize(file));
 }
 
 TEST(BinDirectoryTest, Deserialize) {
@@ -114,13 +114,13 @@ TEST(BinDirectoryTest, Deserialize) {
     obj.insert(num_small_bins - 1, 3);
     obj.insert(num_small_bins - 1, 4);
 
-    obj.serialize(file.c_str());
+    obj.serialize(file);
   }
 
   {
     std::allocator<char> allocator;
     directory_type obj(allocator);
-    ASSERT_TRUE(obj.deserialize(file.c_str()));
+    ASSERT_TRUE(obj.deserialize(file));
 
 #ifdef METALL_USE_SORTED_BIN
     ASSERT_EQ(obj.front(0), 1);

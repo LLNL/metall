@@ -1,0 +1,1 @@
+add_metall_executable(verify_sparse_copy verify_sparse_copy.cpp)

@@ -98,7 +98,7 @@ inline void *map_anonymous_write_mode(void *const addr, const size_t length,
 /// \return A pair of the file descriptor of the file and the starting address
 /// for the map
 inline std::pair<int, void *> map_file_read_mode(
-    const std::string &file_name, void *const addr, const size_t length,
+    const fs::path &file_name, void *const addr, const size_t length,
     const off_t offset, const int additional_flags = 0) {
   // ----- Open the file ----- //
   const int fd = ::open(file_name.c_str(), O_RDONLY);
@@ -147,7 +147,7 @@ inline void *map_file_write_mode(const int fd, void *const addr,
 /// \return A pair of the file descriptor of the file and the starting address
 /// for the map
 inline std::pair<int, void *> map_file_write_mode(
-    const std::string &file_name, void *const addr, const size_t length,
+    const fs::path &file_name, void *const addr, const size_t length,
     const off_t offset, const int additional_flags = 0) {
   // ----- Open the file ----- //
   const int fd = ::open(file_name.c_str(), O_RDWR);
@@ -197,7 +197,7 @@ inline void *map_file_write_private_mode(const int fd, void *const addr,
 /// \return A pair of the file descriptor of the file and the starting address
 /// for the map
 inline std::pair<int, void *> map_file_write_private_mode(
-    const std::string &file_name, void *const addr, const size_t length,
+    const fs::path &file_name, void *const addr, const size_t length,
     const off_t offset, const int additional_flags = 0) {
   // ----- Open the file ----- //
   const int fd = ::open(file_name.c_str(), O_RDWR);

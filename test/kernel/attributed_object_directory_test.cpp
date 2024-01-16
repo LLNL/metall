@@ -176,7 +176,7 @@ TEST(AttributedObjectDirectoryTest, Serialize) {
   test_utility::create_test_dir();
   const auto file(test_utility::make_test_path());
 
-  ASSERT_TRUE(obj.serialize(file.c_str()));
+  ASSERT_TRUE(obj.serialize(file));
 }
 
 TEST(AttributedObjectDirectoryTest, Deserialize) {
@@ -187,12 +187,12 @@ TEST(AttributedObjectDirectoryTest, Deserialize) {
     directory_type obj;
     obj.insert("item1", 1, 2, 5);
     obj.insert("item2", 3, 4, 6, "description2");
-    obj.serialize(file.c_str());
+    obj.serialize(file);
   }
 
   {
     directory_type obj;
-    ASSERT_TRUE(obj.deserialize(file.c_str()));
+    ASSERT_TRUE(obj.deserialize(file));
 
     // Get values correctly
     const auto itr1 = obj.find("item1");
