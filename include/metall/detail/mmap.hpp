@@ -250,8 +250,9 @@ inline bool munmap(const int fd, void *const addr, const size_t length,
 }
 
 inline bool map_with_prot_none(void *const addr, const size_t length) {
-  return (os_mmap(addr, length, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1,
-                  0) == addr);
+  auto flag = MAP_PRIVATE | MAP_ANONYMOUS;
+  if (addr != nullptr) flag |= MAP_FIXED;
+  return (os_mmap(addr, length, PROT_NONE, flag, -1, 0) == addr);
 }
 
 inline bool os_mprotect(void *const addr, const size_t length, const int prot) {
