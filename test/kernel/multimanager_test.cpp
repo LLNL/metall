@@ -16,10 +16,7 @@
 namespace {
 namespace omp = metall::utility::omp;
 
-using chunk_no_type = uint32_t;
-constexpr std::size_t k_chunk_size = 1UL << 21UL;
-
-using manager_type = metall::basic_manager<chunk_no_type, k_chunk_size>;
+using manager_type = metall::basic_manager<>;
 
 template <typename T>
 using metall_allocator = typename manager_type::allocator_type<T>;
@@ -34,10 +31,10 @@ TEST(MultiManagerTest, SingleThread) {
   const auto dir_path2(test_utility::make_test_path(std::to_string(2)));
 
   {
-    manager_type manager1(metall::create_only, dir_path1,
-                          k_chunk_size * 8);
-    manager_type manager2(metall::create_only, dir_path2,
-                          k_chunk_size * 8);
+    manager_type manager1(metall::create_only, dir_path1.c_str(),
+                          manager_type::chunk_size() * 8);
+    manager_type manager2(metall::create_only, dir_path2.c_str(),
+                          manager_type::chunk_size() * 8);
 
     vector_type *vector1 =
         manager1.construct<vector_type>("vector")(manager1.get_allocator<>());
@@ -52,8 +49,8 @@ TEST(MultiManagerTest, SingleThread) {
   }
 
   {
-    manager_type manager1(metall::open_only, dir_path1);
-    manager_type manager2(metall::open_only, dir_path2);
+    manager_type manager1(metall::open_only, dir_path1.c_str());
+    manager_type manager2(metall::open_only, dir_path2.c_str());
 
     vector_type *vector1;
     std::size_t n1;
@@ -73,8 +70,8 @@ TEST(MultiManagerTest, SingleThread) {
   }
 
   {
-    manager_type manager1(metall::open_only, dir_path1);
-    manager_type manager2(metall::open_only, dir_path2);
+    manager_type manager1(metall::open_only, dir_path1.c_str());
+    manager_type manager2(metall::open_only, dir_path2.c_str());
 
     vector_type *vector1;
     std::size_t n1;
@@ -111,8 +108,8 @@ TEST(MultiManagerTest, MultiThread) {
     const auto dir_path(test_utility::make_test_path(
         "/" + std::to_string(omp::get_thread_num())));
 
-    manager_type manager(metall::create_only, dir_path,
-                         k_chunk_size * 16);
+    manager_type manager(metall::create_only, dir_path.c_str(),
+                         manager_type::chunk_size() * 16);
     vector_type *vector =
         manager.construct<vector_type>("vector")(manager.get_allocator<>());
 
@@ -123,7 +120,7 @@ TEST(MultiManagerTest, MultiThread) {
 
   for (int t = 0; t < get_num_threads(); ++t) {
     const auto dir_path(test_utility::make_test_path("/" + std::to_string(t)));
-    manager_type manager(metall::open_only, dir_path);
+    manager_type manager(metall::open_only, dir_path.c_str());
 
     vector_type *vector;
     std::size_t n;

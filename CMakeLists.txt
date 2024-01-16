@@ -92,6 +92,7 @@ set(COMPILER_DEFS "" CACHE STRING "A list of Metall compile definitions to be ad
 
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
+set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
@@ -179,6 +180,11 @@ if (UMAP_ROOT)
     endif ()
 endif ()
 
+# ---------- Privateer ---------- #
+if (PRIVATEER_ROOT)
+    message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
+    find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+endif ()
 
 # ---------- Boost ---------- #
 # Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
@@ -262,6 +268,37 @@ function(common_setup_for_metall_executable name)
         if (LIBUMAP)
             target_link_libraries(${name} PRIVATE ${LIBUMAP})
             target_compile_definitions(${name} PRIVATE "METALL_USE_UMAP")
+        endif ()
+    endif ()
+    # --------------------
+
+    # ----- Privateer----- #
+    if (PRIVATEER_ROOT)
+        target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
+        if (LIBPRIVATEER)
+            # 1) Privateer Dependencies
+            FIND_PACKAGE(OpenSSL)
+            if (OpenSSL_FOUND)
+                target_link_libraries(${name} PRIVATE OpenSSL::SSL)
+                target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
+            endif ()
+            target_link_libraries(${name} PRIVATE rt)
+            FIND_PACKAGE(OpenMP REQUIRED)
+            if (OpenMP_CXX_FOUND)
+                target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
+            else ()
+                message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
+            endif ()
+            if (ZSTD_ROOT)
+                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
+                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
+                target_link_libraries(${name} PRIVATE ${LIBZSTD})
+                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
+            endif ()
+
+            # 2) Link Privateer
+            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
+            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
         endif ()
     endif ()
     # --------------------

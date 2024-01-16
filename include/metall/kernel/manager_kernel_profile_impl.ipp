@@ -11,10 +11,9 @@
 namespace metall {
 namespace kernel {
 
-template <typename chunk_no_type, std::size_t k_chunk_size>
+template <typename st, typename sst, typename cn, std::size_t cs>
 template <typename out_stream_type>
-void manager_kernel<chunk_no_type, k_chunk_size>::profile(
-    out_stream_type *log_out) {
+void manager_kernel<st, sst, cn, cs>::profile(out_stream_type *log_out) {
   m_segment_memory_allocator.profile(log_out);
 }
 

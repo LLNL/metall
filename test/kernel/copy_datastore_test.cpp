@@ -19,6 +19,15 @@ void create(const std::string &dir_path) {
   manager.construct<uint64_t>("b")(2);
 }
 
+void modify(const std::string &dir_path) {
+  metall::manager manager(metall::open_only, dir_path.c_str());
+
+  auto a = manager.find<uint32_t>("a").first;
+  *a = 10;
+  auto b = manager.find<uint64_t>("b").first;
+  *b = 20;
+}
+
 void open(const std::string &dir_path) {
   metall::manager manager(metall::open_read_only, dir_path.c_str());
 
@@ -48,6 +57,8 @@ TEST(CopyFileTest, SyncCopy) {
   ASSERT_TRUE(metall::manager::copy(original_dir_path().c_str(),
                                     copy_dir_path().c_str()));
 
+  modify(original_dir_path());
+
   open(copy_dir_path());
 }
 
@@ -60,6 +71,8 @@ TEST(CopyFileTest, AsyncCopy) {
   auto handler = metall::manager::copy_async(original_dir_path().c_str(),
                                              copy_dir_path().c_str());
   ASSERT_TRUE(handler.get());
+
+  modify(original_dir_path());
 
   open(copy_dir_path());
 }

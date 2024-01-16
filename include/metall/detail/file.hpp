@@ -179,7 +179,9 @@ inline bool create_file(const fs::path &file_path) {
   const int fd =
       ::open(file_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "open");
+    std::stringstream ss;
+    ss << "Failed to create: " << file_path;
+    logger::perror(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -456,8 +458,10 @@ inline bool copy_files_in_directory_in_parallel_helper(
     const std::function<bool(const fs::path &, const fs::path &)> &copy_func) {
   std::vector<fs::path> src_file_names;
   if (!get_regular_file_names(source_dir_path, &src_file_names)) {
+    std::stringstream ss;
+    ss << "Failed to get file list in " << source_dir_path;
     logger::out(logger::level::error, __FILE__, __LINE__,
-                "Failed to get file list");
+                ss.str().c_str());
     return false;
   }
 
