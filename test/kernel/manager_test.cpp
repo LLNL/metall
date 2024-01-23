@@ -1325,7 +1325,7 @@ TEST(ManagerTest, Description) {
 TEST(ManagerTest, CheckSanity) {
   // This test should be run at the end of this execution unless reset the
   // values below:
-  metall::logger::set_log_level(metall::logger::level::silent);
+  metall::logger::set_log_level(metall::logger::level_filter::silent);
   metall::logger::abort_on_critical_error(false);
 
   {
