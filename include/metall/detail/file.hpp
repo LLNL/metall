@@ -426,11 +426,11 @@ inline off_t prepare_file_copy_linux(const std::filesystem::path &source_path,
 }
 
 /**
- * @brief Performs an accelerated, in-kernel copy from src to dst
- * @param src source file descriptor
- * @param dst destination file descriptor
- * @param src_size size of source file as obtained by ::fstat(src)
- * @return if the operation was successful
+ * \brief Performs an accelerated, in-kernel copy from src to dst
+ * \param src source file descriptor
+ * \param dst destination file descriptor
+ * \param src_size size of source file as obtained by ::fstat(src)
+ * \return if the operation was successful
  *
  * Relevant man pages:
  *    - https://www.man7.org/linux/man-pages/man2/copy_file_range.2.html
@@ -445,10 +445,10 @@ inline bool copy_file_dense_linux(const int src, const int dst, const off_t src_
 }
 
 /**
- * @brief performs a dense copy from source_path to destionation_path
- * @param source_path path to source file
- * @param destination_path path to destination file
- * @return if the operation was successful
+ * \brief performs a dense copy from source_path to destionation_path
+ * \param source_path path to source file
+ * \param destination_path path to destination file
+ * \return if the operation was successful
  */
 inline bool copy_file_dense_linux(const std::filesystem::path &source_path,
                                   const std::filesystem::path &destination_path) {

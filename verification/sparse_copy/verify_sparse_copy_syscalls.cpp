@@ -32,15 +32,15 @@ void fill_file(int fd);
 /**
  * Randomly punches 1-9 holes into fd.
  *
- * @param hole_at_start forces a hole to be created at the start of the file
- * @param hole_at_end forces a hole to be created at the end of the file
+ * \param hole_at_start forces a hole to be created at the start of the file
+ * \param hole_at_end forces a hole to be created at the end of the file
  */
 void punch_holes(int fd, bool hole_at_start = false, bool hole_at_end = false);
 
 /**
  * Convenience wrapper around ::mmap
- * @param fd file descriptor to mmap
- * @return pair (pointer to mapped range, size of mapped range)
+ * \param fd file descriptor to mmap
+ * \return pair (pointer to mapped range, size of mapped range)
  */
 std::pair<unsigned char const *, off_t> mmap(int fd);
 
