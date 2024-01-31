@@ -1,4 +1,4 @@
-// Copyright 2019 Lawrence Livermore National Security, LLC and other Metall
+// Copyright 2024 Lawrence Livermore National Security, LLC and other Metall
 // Project Developers. See the top-level COPYRIGHT file for details.
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -6,75 +6,121 @@
 #ifndef METALL_C_API_METALL_H
 #define METALL_C_API_METALL_H
 
-#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/// \brief Tag to create the segment always.
-/// The existing segment with the same name is over written.
-#define METALL_CREATE_ONLY 1
+/**
+ * \brief Opaque struct representing a metall manager
+ * \note this type is internally represented by `::metall::manager` therefore pointers
+ *    to `::metall_manager` may be reinterpret-casted to pointers to `::metall::manager`
+ */
+typedef struct metall_manager metall_manager;
 
-/// \brief Tag to open an already created segment.
-#define METALL_OPEN_ONLY 2
+/**
+ * \brief Attempts to open the metall datastore at path
+ * \param path path to datastore
+ * \return true on success, false on failure. On failure, sets errno to one of the following values:
+ *      - ENOTRECOVERABLE if the given metall datastore is inconsistent
+ */
+metall_manager* metall_open(const char* path);
 
-/// \brief Tag to open an already created segment as read only.
-#define METALL_OPEN_READ_ONLY 3
+/**
+ * \brief Attempts to open the metall datastore at path in read only mode
+ * \param path path to datastore
+ * \return true on success, false on failure. On failure, sets errno to one of the following values:
+ *      - ENOTRECOVERABLE if the given metall datastore is inconsistent
+ */
+metall_manager* metall_open_read_only(const char* path);
 
-/// \brief Constructs a Metall manager object
-/// \param mode Open mode
-/// \param path A path to the backing data store
-/// \return On success, returns 0. On error, returns -1.
-extern int metall_open(int mode, const char *path);
+/**
+ * \brief Attempts to create a metall datastore at path
+ * \param path path at which to create a datastore
+ * \return true on success, false on failure. On failure, sets errno to one of the following values:
+ *      - EEXIST if the given path already exists
+ *      - ENOTRECOVERABLE if the datastore could not be created for some other reason
+ */
+metall_manager* metall_create(const char* path);
 
-/// \brief Destructs Metall manager object
-extern void metall_close();
+/**
+ * \brief Creates a snapshot of the metall datastore of manager and places it at dst_path
+ * \param manager manager to perform snapshot
+ * \param dst_path path where to place the snapshot
+ * \return true if the snapshot was successfully created otherwise false.
+ */
+bool metall_snapshot(metall_manager* manager, const char* dst_path);
 
-/// \brief Flush data to persistent memory
-extern void metall_flush();
+/**
+ * \brief Flushes the given manager
+ * \param manager manager to flush
+ */
+void metall_flush(metall_manager* manager);
 
-/// \brief Allocates nbytes bytes.
-/// \param nbytes The Number of bytes to allocate
-/// \return Returns a pointer to the allocated memory
-extern void *metall_malloc(uint64_t nbytes);
+/**
+ * \brief Closes a metall manager
+ */
+void metall_close(metall_manager* manager);
 
-/// \brief Frees the allocated memory
-/// \param ptr A pointer to the allocated memory to be free
-extern void metall_free(void *ptr);
+/**
+ * \brief Removes the metall datastore at path
+ * \param path path to datastore to remove
+ * \return true on successful removal, false otherwise. On failure, sets errno to one of the following values:
+ *      - EADDRINUSE if there is a metall manager open for the given path
+ *
+ * \warning Behaviour is undefined if there is still a metall manager for path open
+ */
+bool metall_remove(const char* path);
 
-/// \brief Allocates nbytes bytes and save the address of the allocated memory
-/// with name \param name A name of the allocated memory \param nbytes A size to
-/// allocate \return Returns a pointer to the allocated memory
-extern void *metall_named_malloc(const char *name, uint64_t nbytes);
+/**
+ * \brief Allocates size bytes
+ * \param manager manager to allocate with
+ * \param size number of bytes to allocate
+ * \return pointer to allocated memory if successful otherwise returns NULL and sets errno to one of the following values
+ *    - EINVAL
+ */
+void* metall_malloc(metall_manager* manager, size_t size);
 
-/// \brief Finds a saved memory
-/// \param name A name of the allocated memory to find
-/// \return Returns a pointer to the allocated memory if it exist. Otherwise,
-/// returns NULL.
-extern void *metall_find(char *name);
+/**
+ * \brief Frees memory previously allocated by metall_malloc
+ * \param manager manager from which to free
+ * \param ptr memory to free
+ */
+void metall_free(metall_manager* manager, void* ptr);
 
-/// \brief Frees memory with the name
-/// \param name A name of the allocated memory to free
-extern void metall_named_free(const char *name);
+/**
+ * \brief Allocates size bytes and associates the allocated memory with a name
+ * \param manager manager to allocate with
+ * \param name A name of the allocated memory
+ * \param size number of bytes to allocate
+ * \return pointer to the allocated memory if sucessful otherwise returns NULL and sets errno to one of the following values
+ *      - EINVAL if the given path does not have a metall datastore open
+ *      - ENOMEM if the memory could not be allocated
+ */
+void* metall_named_malloc(metall_manager* manager, const char* name,
+                          size_t size);
 
-/// \brief Snapshot the entire data.
-/// \param destination_path The path to store a snapshot.
-/// \return On success, returns 0. On error, returns -1.
-extern int snapshot(const char *destination_path);
+/**
+ * \brief Finds memory that was previously allocated using metall_named_alloc
+ * \param manager manager to find the object in
+ * \param name name of the allocated memory to find
+ * \return pointer to the allocated memory if found. Otherwise, returns NULL and sets errno to one of the following values
+ *      - EINVAL if the given path does not have a metall datastore open
+ *      - ENOTENT if the object could not be found
+ */
+void* metall_find(metall_manager* manager, const char* name);
 
-/// \brief Copies backing files synchronously.
-/// \param source_path Source data store path.
-/// \param destination_path Destination data store path.
-/// \return On success, returns 0. On error, returns -1.
-extern int copy(const char *source_path, const char *destination_path);
-
-/// \brief Check if the backing data store is consistent,
-/// i.e. it was closed properly.
-/// \param path A path to the backing data store.
-/// \return Returns a oon-zero integer if the data store is consistent;
-/// otherwise, returns 0.
-extern int consistent(const char *path);
+/**
+ * \brief Frees memory previously allocated by metall_named_malloc
+ * \param manager manager from which to free
+ * \param name name of the allocated memory to free
+ * \return true if sucessfully freed, otherwise returns false and sets errno to one of the following values
+ *      - EINVAL if the given path does not have a metall datastore open
+ *      - ENOENT if the referred to object does not exist
+ */
+bool metall_named_free(metall_manager* manager, const char* name);
 
 #ifdef __cplusplus
 }
