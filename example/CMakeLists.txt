@@ -38,6 +38,9 @@ add_metall_executable(logger logger.cpp)
 
 add_metall_executable(concurrent concurrent.cpp)
 
+add_metall_executable(custom_logger custom_logger.cpp)
+target_compile_definitions(custom_logger PRIVATE METALL_LOGGER_EXTERN_C=1)
+
 if (BUILD_C)
     add_c_executable(c_api c_api.c)
     target_link_libraries(c_api PRIVATE metall_c)

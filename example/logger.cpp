@@ -8,7 +8,7 @@
 int main() {
   // Set the log level to , for example, verbose.
   // The log level can be changed at any time.
-  metall::logger::set_log_level(metall::logger::level::verbose);
+  metall::logger::set_log_level(metall::logger::level_filter::verbose);
 
   // Enable the program to abort when a critical log message is displayed.
   metall::logger::abort_on_critical_error(true);
