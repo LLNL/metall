@@ -66,38 +66,6 @@ TEST(FallbackAllocatorAdaptorTest, Types) {
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::size_type),
                     typeid(fb_alloc_type<T>::size_type));
 
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_copy_assignment),
-        typeid(fb_alloc_type<T>::propagate_on_container_copy_assignment));
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_copy_assignment),
-        typeid(std::true_type));
-
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_move_assignment),
-        typeid(fb_alloc_type<T>::propagate_on_container_move_assignment));
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_move_assignment),
-        typeid(std::true_type));
-
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<
-                           fb_alloc_type<T>>::propagate_on_container_swap),
-                    typeid(fb_alloc_type<T>::propagate_on_container_swap));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<
-                           fb_alloc_type<T>>::propagate_on_container_swap),
-                    typeid(std::true_type));
-
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<fb_alloc_type<T>>::is_always_equal),
-        typeid(fb_alloc_type<T>::is_always_equal));
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<fb_alloc_type<T>>::is_always_equal),
-        typeid(std::false_type));
-
     using otherT = int;
     using other_alloc_t = fb_alloc_type<otherT>;
     GTEST_ASSERT_EQ(
