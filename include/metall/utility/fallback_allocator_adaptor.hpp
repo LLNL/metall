@@ -55,10 +55,6 @@ class fallback_allocator_adaptor {
       typename primary_allocator_type::const_void_pointer;
   using difference_type = typename primary_allocator_type::difference_type;
   using size_type = typename primary_allocator_type::size_type;
-  using propagate_on_container_copy_assignment = std::true_type;
-  using propagate_on_container_move_assignment = std::true_type;
-  using propagate_on_container_swap = std::true_type;
-  using is_always_equal = std::false_type;
 
   /// \brief Makes another allocator type for type T2
   template <typename T2>
@@ -203,15 +199,6 @@ class fallback_allocator_adaptor {
     } else {
       priv_fallback_destroy(ptr);
     }
-  }
-
-  /// \brief Obtains the copy-constructed version of the allocator a.
-  /// \param a Allocator used by a standard container passed as an argument to a
-  /// container copy constructor. \return The allocator to use by the
-  /// copy-constructed standard containers.
-  fallback_allocator_adaptor select_on_container_copy_construction(
-      const fallback_allocator_adaptor &a) {
-    return fallback_allocator_adaptor(a);
   }
 
   // ---------- This class's unique public functions ---------- //
