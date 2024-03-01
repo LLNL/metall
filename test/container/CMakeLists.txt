@@ -7,3 +7,5 @@ add_metall_test_executable(fallback_allocator_adaptor_test fallback_allocator_ad
 add_metall_test_executable(string_key_store_test string_key_store_test.cpp)
 
 add_subdirectory(json)
+
+add_subdirectory(string_container)

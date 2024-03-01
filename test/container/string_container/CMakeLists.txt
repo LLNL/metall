@@ -1,0 +1,1 @@
+add_metall_test_executable(string_table_test string_table_test.cpp)

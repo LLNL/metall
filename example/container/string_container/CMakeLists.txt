@@ -1,0 +1,1 @@
+add_metall_executable(string_container string_container.cpp)
