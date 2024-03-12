@@ -347,6 +347,10 @@ class manager_kernel {
   /// \return Returns the size of the application data segment.
   size_type get_segment_size() const;
 
+  /// \brief Returns if this kernel was opened as read-only
+  /// \return whether this kernel is read-only
+  bool read_only() const;
+
   /// \brief Takes a snapshot. The snapshot has a different UUID.
   /// \param destination_base_path Destination path
   /// \param clone Use clone (reflink) to copy data.

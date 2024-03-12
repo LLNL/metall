@@ -444,6 +444,11 @@ manager_kernel<st, sst, cn, cs>::get_segment_size() const {
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
+bool manager_kernel<st, sst, cn, cs>::read_only() const {
+  return m_segment_storage.read_only();
+}
+
+template <typename st, typename sst, typename cn, std::size_t cs>
 bool manager_kernel<st, sst, cn, cs>::snapshot(
     const path_type &destination_base_path, const bool clone,
     const int num_max_copy_threads) {
