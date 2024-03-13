@@ -1345,6 +1345,23 @@ class basic_manager {
     return 0;
   }
 
+  /// \brief Returns if this manager was opened as read-only
+  /// \copydoc doc_thread_safe
+  ///
+  /// \return whether or not this manager was opened as read-only
+  bool read_only() const noexcept {
+    if (!check_sanity()) {
+      return true;
+    }
+    try {
+      return m_kernel->read_only();
+    } catch (...) {
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "An exception has been thrown");
+    }
+    return true;
+  }
+
   // bool belongs_to_segment (const void *ptr) const
 
   /// \brief Checks the sanity.

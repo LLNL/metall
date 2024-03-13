@@ -36,11 +36,13 @@ TEST(ManagerTest, CreateAndOpenModes) {
     manager_type::remove(dir_path());
     {
       manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       ASSERT_NE(manager.construct<int>("int")(10), nullptr);
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
     {
       manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_EQ(ret.first, nullptr);
       ASSERT_FALSE(manager.destroy<int>("int"));
@@ -51,10 +53,12 @@ TEST(ManagerTest, CreateAndOpenModes) {
     manager_type::remove(dir_path());
     {
       manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       ASSERT_NE(manager.construct<int>("int")(10), nullptr);
     }
     {
       manager_type manager(metall::open_only, dir_path());
+      ASSERT_FALSE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
@@ -66,16 +70,19 @@ TEST(ManagerTest, CreateAndOpenModes) {
     manager_type::remove(dir_path());
     {
       manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       ASSERT_NE(manager.construct<int>("int")(10), nullptr);
     }
     {
       manager_type manager(metall::open_read_only, dir_path());
+      ASSERT_TRUE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
     }
     {
       manager_type manager(metall::open_only, dir_path());
+      ASSERT_FALSE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
@@ -1331,12 +1338,14 @@ TEST(ManagerTest, CheckSanity) {
   {
     auto *manager = new manager_type(metall::create_only, dir_path());
     ASSERT_TRUE(manager->check_sanity());
+    ASSERT_FALSE(manager->read_only());
   }
 
   {
     auto *bad_manager =
         new manager_type(metall::open_only, dir_path().string() + "-invalid");
     ASSERT_FALSE(bad_manager->check_sanity());
+    ASSERT_TRUE(bad_manager->read_only());
   }
 }
 }  // namespace
