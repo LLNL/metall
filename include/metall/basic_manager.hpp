@@ -12,6 +12,7 @@
 #include <metall/tags.hpp>
 #include <metall/stl_allocator.hpp>
 #include <metall/container/scoped_allocator.hpp>
+#include <metall/container/fallback_allocator.hpp>
 #include <metall/kernel/manager_kernel.hpp>
 #include <metall/detail/named_proxy.hpp>
 #include <metall/kernel/segment_storage.hpp>
@@ -68,6 +69,38 @@ class basic_manager {
   using scoped_allocator_type =
       container::scoped_allocator_adaptor<allocator_type<OuterT>,
                                           allocator_type<InnerT>...>;
+
+  /// \brief A STL compatible allocator which fallbacks to a heap allocator
+  /// (e.g., malloc()) if no argument is provided to construct a
+  /// allocator_type instance.
+  ///
+  /// \tparam T The type of the object to allocate
+  ///
+  /// \details
+  /// This allocator enables the following code.
+  /// \code
+  /// {
+  ///  using alloc = fallback_allocator<int>;
+  ///  // Allocate a vector object in a heap.
+  ///  vector<int, alloc> vec;
+  ///  // Allocate a vector object in a Metall space.
+  ///  vector<int, alloc> vec2(manager.get_allocator());
+  /// }
+  /// \endcode
+  /// \attention
+  /// One of the primary purposes of this allocator is to provide a way to
+  /// temporarily allocate data structures that use Metall’s STL-allocator in a
+  /// heap in addition to in Metall memory space. It is advised to use this
+  /// allocator with caution as two memory spaces are used transparently by
+  /// this allocator.
+  template <typename T>
+  using fallback_allocator =
+      container::fallback_allocator_adaptor<allocator_type<T>>;
+
+  /// \brief Fallback allocator type wrapped by scoped_allocator_adaptor.
+  template <typename T>
+  using scoped_fallback_allocator_type =
+      container::scoped_allocator_adaptor<fallback_allocator<T>>;
 
   /// \brief Construct proxy
   template <typename T>

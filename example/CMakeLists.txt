@@ -14,7 +14,7 @@ add_metall_executable(snapshot snapshot.cpp)
 
 add_metall_executable(csr_graph csr_graph.cpp)
 
-add_metall_executable(fallback_allocator_adaptor fallback_allocator_adaptor.cpp)
+add_metall_executable(fallback_allocator fallback_allocator.cpp)
 
 add_metall_executable(datastore_description datastore_description.cpp)
 

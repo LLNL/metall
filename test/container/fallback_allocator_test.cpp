@@ -10,12 +10,10 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include <metall/metall.hpp>
-#include <metall/utility/fallback_allocator_adaptor.hpp>
 #include "../test_utility.hpp"
 
 template <typename T>
-using fb_alloc_type = metall::utility::fallback_allocator_adaptor<
-    metall::manager::allocator_type<T>>;
+using fb_alloc_type = metall::manager::fallback_allocator<T>;
 
 const std::string &dir_path() {
   const static std::string path(test_utility::make_test_path());

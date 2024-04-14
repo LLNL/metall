@@ -96,9 +96,9 @@ Therefore, the data structures in the examples below are more like how to use ST
 
 ### Fallback Allocator
 
-* [fallback_allocator_adaptor.cpp](fallback_allocator_adaptor.cpp)
+* [fallback_allocator.cpp](fallback_allocator.cpp)
 
-    * How to use [fallback_allocator_adaptor](../include/metall/utility/fallback_allocator_adaptor.hpp)
+    * How to use [fallback_allocator](../include/metall/container/fallback_allocator.hpp)
 
 
 ### MPI (experimental implementation)
