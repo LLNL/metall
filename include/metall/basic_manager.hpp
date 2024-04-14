@@ -91,7 +91,7 @@ class basic_manager {
   /// One of the primary purposes of this allocator is to provide a way to
   /// temporarily allocate data structures that use Metall’s STL-allocator in a
   /// heap in addition to in Metall memory space. It is advised to use this
-  /// allocator with caution as this two memory spaces are used transparently by
+  /// allocator with caution as two memory spaces are used transparently by
   /// this allocator.
   template <typename T>
   using fallback_allocator =
@@ -99,7 +99,7 @@ class basic_manager {
 
   /// \brief Fallback allocator type wrapped by scoped_allocator_adaptor.
   template <typename T>
-  using  scoped_fallback_allocator_type =
+  using scoped_fallback_allocator_type =
       container::scoped_allocator_adaptor<fallback_allocator<T>>;
 
   /// \brief Construct proxy
