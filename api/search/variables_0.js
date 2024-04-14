@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['input_5fjson_5fstring_5flist_696',['input_json_string_list',['../jgraph_8cpp.html#a226d9548028229ed1bdf9f9dbdecd442',1,'jgraph.cpp']]]
+  ['critical_720',['critical',['../structmetall_1_1logger_1_1level__filter.html#ab6301fb2b988e86791e4f4d43f84d7d3',1,'metall::logger::level_filter']]]
 ];

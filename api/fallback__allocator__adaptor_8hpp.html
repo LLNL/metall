@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -94,29 +94,16 @@ $(document).ready(function(){initNavTree('fallback__allocator__adaptor_8hpp.html
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle">
 <div class="title">fallback_allocator_adaptor.hpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;memory&gt;</code><br />
-<code>#include &lt;cstdlib&gt;</code><br />
-<code>#include &lt;type_traits&gt;</code><br />
-<code>#include &lt;<a class="el" href="stl__allocator_8hpp_source.html">metall/stl_allocator.hpp</a>&gt;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="fallback__allocator_8hpp_source.html">metall/container/fallback_allocator.hpp</a>&quot;</code><br />
 </div>
 <p><a href="fallback__allocator__adaptor_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc) if its constructor receives no argument.  <a href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmetall_1_1utility_1_1fallback__allocator__adaptor_1_1rebind.html">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;::rebind&lt; T2 &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Makes another allocator type for type T2.  <a href="structmetall_1_1utility_1_1fallback__allocator__adaptor_1_1rebind.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacemetall"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall.html">metall</a></td></tr>
@@ -126,14 +113,11 @@ Namespaces</h2></td></tr>
 <tr class="memdesc:namespacemetall_1_1utility"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace for utility items. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a6130a4b923ff2e17615d108b2da78634"><td class="memTemplParams" colspan="2">template&lt;typename primary_allocator_type &gt; </td></tr>
-<tr class="memitem:a6130a4b923ff2e17615d108b2da78634"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#a6130a4b923ff2e17615d108b2da78634">metall::utility::operator==</a> (const fallback_allocator_adaptor&lt; primary_allocator_type &gt; &amp;rhd, const fallback_allocator_adaptor&lt; primary_allocator_type &gt; &amp;lhd)</td></tr>
-<tr class="separator:a6130a4b923ff2e17615d108b2da78634"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e9eec75212d81376cf0a142cee1b546"><td class="memTemplParams" colspan="2">template&lt;typename primary_allocator_type &gt; </td></tr>
-<tr class="memitem:a8e9eec75212d81376cf0a142cee1b546"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#a8e9eec75212d81376cf0a142cee1b546">metall::utility::operator!=</a> (const fallback_allocator_adaptor&lt; primary_allocator_type &gt; &amp;rhd, const fallback_allocator_adaptor&lt; primary_allocator_type &gt; &amp;lhd)</td></tr>
-<tr class="separator:a8e9eec75212d81376cf0a142cee1b546"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a5efc2069721af950c29c8b44f3eb5aa9"><td class="memTemplParams" colspan="2">template&lt;typename primary_alloc &gt; </td></tr>
+<tr class="memitem:a5efc2069721af950c29c8b44f3eb5aa9"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1utility.html#a5efc2069721af950c29c8b44f3eb5aa9">metall::utility::fallback_allocator_adaptor</a> = <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; primary_alloc &gt;</td></tr>
+<tr class="separator:a5efc2069721af950c29c8b44f3eb5aa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

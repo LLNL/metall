@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -97,9 +97,12 @@ $(document).ready(function(){initNavTree('functions_d.html',''); initResizable()
 
 <h3><a id="index_d"></a>- d -</h3><ul>
 <li>deallocate()
-: <a class="el" href="classmetall_1_1basic__manager.html#a4e71f9e005a4c87d0de9bc55df9db3b0">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#acf8444b4a8a137fd2b76ebb9d74ad8a3">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a663efdff17f8047afc5d4dbf45dee660">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a>
 , <a class="el" href="classmetall_1_1stl__allocator.html#a1c82cc22467583a55e729908cd0fa89f">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
-, <a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#ada9d8238071fa2add5429b8dc83ce5c4">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a>
+</li>
+<li>debug
+: <a class="el" href="structmetall_1_1logger_1_1level__filter.html#aaa019b3958b6847ae9debd17c788654e">metall::logger::level_filter</a>
 </li>
 <li>degree()
 : <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af225baf66642c0c5e7944b1a41b3134e">metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt;</a>
@@ -111,20 +114,20 @@ $(document).ready(function(){initNavTree('functions_d.html',''); initResizable()
 , <a class="el" href="classmetall_1_1unique__object__attr__accessor.html#a8c85b741fc40571c7ca503da6669a7e2">metall::unique_object_attr_accessor&lt; _offset_type, _size_type &gt;</a>
 </li>
 <li>destroy()
-: <a class="el" href="classmetall_1_1basic__manager.html#aa7b07fec3f2a459967ebfa7499f57d91">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a9800fbd65ec2a7cedf05503e6194798a">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae9f1aeaa67a03bfb4d1fdfb00b6e567b">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a>
 , <a class="el" href="classmetall_1_1stl__allocator.html#a21c3acd9666ed79f2390cbb8028e3a81">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
-, <a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#a1bb30a2f4d39c66945d7a368851c5e96">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a>
 </li>
 <li>destroy_ptr()
-: <a class="el" href="classmetall_1_1basic__manager.html#a5414147f5df62113d7a544647eb88135">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a35b49c024ec2944a9d6b4c4fa570a064">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>difference_type
-: <a class="el" href="classmetall_1_1basic__manager.html#a3e36e85d6dabf0c7561fc2a991638036">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a97b847c70cc6170acccbbae479d517a5">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html#ad5193293dda1e6da5a1543e1b1a31b6c">metall::container::experimental::jgraph::jgdtl::edge_iterator_impl&lt; adj_list_edge_list_iterator_type, storage_pointer_type &gt;</a>
 , <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html#a38fea5704eb52ba6f8a88316934bf8fe">metall::container::experimental::jgraph::jgdtl::vertex_iterator_impl&lt; storage_iterator_type &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#afd4b19ad912a2c79808c92d05c1ea218">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a>
 , <a class="el" href="classmetall_1_1stl__allocator.html#a912918ff2b1399194025ae0957a9d1b2">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
 , <a class="el" href="classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html#a1a62d11af7efd1ab94bdc52ec69af3e9">metall::utility::container_of_containers_iterator_adaptor&lt; outer_iterator_type, inner_iterator_type &gt;</a>
-, <a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#a3dcbbf523bf2418ac025828d647ccf92">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a>
 </li>
 </ul>
 </div><!-- contents -->

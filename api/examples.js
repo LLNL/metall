@@ -18,9 +18,9 @@ var examples =
     [ "offset_pointer.cpp", "offset_pointer_8cpp-example.html", null ],
     [ "c_api.c", "c_api_8c-example.html", null ],
     [ "concurrent_map.cpp", "concurrent_map_8cpp-example.html", null ],
+    [ "fallback_allocator.cpp", "fallback_allocator_8cpp-example.html", null ],
     [ "json_create.cpp", "json_create_8cpp-example.html", null ],
     [ "json_open.cpp", "json_open_8cpp-example.html", null ],
     [ "jgraph.cpp", "jgraph_8cpp-example.html", null ],
-    [ "fallback_allocator_adaptor.cpp", "fallback_allocator_adaptor_8cpp-example.html", null ],
     [ "static_mutex.cpp", "static_mutex_8cpp-example.html", null ]
 ];

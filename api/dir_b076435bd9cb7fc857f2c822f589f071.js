@@ -5,6 +5,7 @@ var dir_b076435bd9cb7fc857f2c822f589f071 =
       [ "concurrent_map", "classmetall_1_1container_1_1concurrent__map.html", "classmetall_1_1container_1_1concurrent__map" ]
     ] ],
     [ "deque.hpp", "deque_8hpp.html", "deque_8hpp" ],
+    [ "fallback_allocator.hpp", "fallback__allocator_8hpp.html", "fallback__allocator_8hpp" ],
     [ "list.hpp", "list_8hpp.html", "list_8hpp" ],
     [ "map.hpp", "map_8hpp.html", "map_8hpp" ],
     [ "priority_queue.hpp", "priority__queue_8hpp.html", "priority__queue_8hpp" ],

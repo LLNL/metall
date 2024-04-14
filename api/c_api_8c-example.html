@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -104,64 +104,84 @@ $(document).ready(function(){initNavTree('c_api_8c-example.html',''); initResiza
 <div class="line"><span class="comment">// SPDX-License-Identifier: (Apache-2.0 OR MIT)</span></div>
 <div class="line"> </div>
 <div class="line"><span class="preprocessor">#include &lt;assert.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><span class="preprocessor">#include &lt;<a class="code" href="metall_8h.html">metall/c_api/metall.h</a>&gt;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> <a name="a0"></a><a class="code" href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line">  <span class="comment">// Basic allocation</span></div>
 <div class="line">  {</div>
-<div class="line">    <a name="a1"></a><a class="code" href="metall_8h.html#a79f67c148e42f0478553973da84d314f">metall_open</a>(<a name="a2"></a><a class="code" href="metall_8h.html#aa5a03ac06563753cd30a61008d8db429">METALL_CREATE_ONLY</a>, <span class="stringliteral">&quot;/tmp/metall1&quot;</span>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>* <a name="a1"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a> = <a name="a2"></a><a class="code" href="metall_8h.html#a89f146fbfcbc89379c616636b63763cd">metall_create</a>(<span class="stringliteral">&quot;/tmp/metall1&quot;</span>);</div>
 <div class="line"> </div>
-<div class="line">    uint64_t *x = <a name="a3"></a><a class="code" href="metall_8h.html#a34d6de04bc02b10eba5af84a689f6d81">metall_malloc</a>(<span class="keyword">sizeof</span>(uint64_t));</div>
+<div class="line">    uint64_t* x = <a name="a3"></a><a class="code" href="metall_8h.html#ad2efb532f9cb17bd6d03d70b3b35876c">metall_malloc</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, <span class="keyword">sizeof</span>(uint64_t));</div>
 <div class="line">    x[0] = 1;</div>
 <div class="line"> </div>
-<div class="line">    <a name="a4"></a><a class="code" href="metall_8h.html#aa97cc63ec083101ec25b9b044f104722">metall_free</a>(x);</div>
-<div class="line"> </div>
-<div class="line">    <a name="a5"></a><a class="code" href="metall_8h.html#a3c487922d0d21571d40b8323df5bcf08">metall_close</a>();</div>
+<div class="line">    <a name="a4"></a><a class="code" href="metall_8h.html#a2997f31f1fa9e4b4830351c962491062">metall_free</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, x);</div>
+<div class="line">    <a name="a5"></a><a class="code" href="metall_8h.html#a07da802f1562a34977b689f6bffe7be7">metall_close</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>);</div>
+<div class="line">    <a name="a6"></a><a class="code" href="metall_8h.html#a6009f2966aac2e2872927593af6c9883">metall_remove</a>(<span class="stringliteral">&quot;/tmp/metall1&quot;</span>);</div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// Allocate named object</span></div>
 <div class="line">  {</div>
-<div class="line">    <a class="code" href="metall_8h.html#a79f67c148e42f0478553973da84d314f">metall_open</a>(<a class="code" href="metall_8h.html#aa5a03ac06563753cd30a61008d8db429">METALL_CREATE_ONLY</a>, <span class="stringliteral">&quot;/tmp/metall2&quot;</span>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>* <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a> = <a class="code" href="metall_8h.html#a89f146fbfcbc89379c616636b63763cd">metall_create</a>(<span class="stringliteral">&quot;/tmp/metall2&quot;</span>);</div>
 <div class="line"> </div>
-<div class="line">    uint64_t *array = <a name="a6"></a><a class="code" href="metall_8h.html#a79f648dcb741135841a7059c0e73b951">metall_named_malloc</a>(<span class="stringliteral">&quot;array&quot;</span>, <span class="keyword">sizeof</span>(uint64_t) * 10);</div>
+<div class="line">    uint64_t* array = <a name="a7"></a><a class="code" href="metall_8h.html#a2478c165146bdaf287217f77a8f5cf61">metall_named_malloc</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, <span class="stringliteral">&quot;array&quot;</span>,</div>
+<div class="line">                                          <span class="keyword">sizeof</span>(uint64_t) * 10);</div>
 <div class="line"> </div>
 <div class="line">    array[0] = 0;</div>
 <div class="line"> </div>
-<div class="line">    <a name="a7"></a><a class="code" href="metall_8h.html#ab652743ef9de6367bea41185ae0f8c2e">metall_flush</a>();</div>
+<div class="line">    <a name="a8"></a><a class="code" href="metall_8h.html#af46e72541c95e0524f6cec284da4b43d">metall_flush</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>);</div>
 <div class="line"> </div>
 <div class="line">    array[1] = 1;</div>
 <div class="line"> </div>
-<div class="line">    <a class="code" href="metall_8h.html#a3c487922d0d21571d40b8323df5bcf08">metall_close</a>();</div>
+<div class="line">    <a name="a9"></a><a class="code" href="metall_8h.html#a08951a8fdce8dd15751df4402ea6983e">metall_snapshot</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, <span class="stringliteral">&quot;/tmp/metall2-snap&quot;</span>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a07da802f1562a34977b689f6bffe7be7">metall_close</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>);</div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// Retrieve named object</span></div>
 <div class="line">  {</div>
-<div class="line">    <a class="code" href="metall_8h.html#a79f67c148e42f0478553973da84d314f">metall_open</a>(<a name="a8"></a><a class="code" href="metall_8h.html#a87976e0363f7aa838e4f16698118aee4">METALL_OPEN_ONLY</a>, <span class="stringliteral">&quot;/tmp/metall2&quot;</span>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>* <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a> = <a name="a10"></a><a class="code" href="metall_8h.html#a7343c930733c5feb171e5a35c9579b6e">metall_open</a>(<span class="stringliteral">&quot;/tmp/metall2&quot;</span>);</div>
 <div class="line"> </div>
-<div class="line">    uint64_t *array = <a name="a9"></a><a class="code" href="metall_8h.html#a46f211c486d0d48c171e30f6854f1d17">metall_find</a>(<span class="stringliteral">&quot;array&quot;</span>);</div>
+<div class="line">    uint64_t* array = <a name="a11"></a><a class="code" href="metall_8h.html#abf48dccd2850a8ed893ab1646bd2e9b8">metall_find</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, <span class="stringliteral">&quot;array&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line">    assert(array[0] == 0);</div>
 <div class="line">    assert(array[1] == 1);</div>
 <div class="line"> </div>
-<div class="line">    <a name="a10"></a><a class="code" href="metall_8h.html#a657f806e20ccb162d759252ea91f79ca">metall_named_free</a>(<span class="stringliteral">&quot;array&quot;</span>);</div>
+<div class="line">    <a name="a12"></a><a class="code" href="metall_8h.html#aea2288c9a8573eab3183269c01045f66">metall_named_free</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, <span class="stringliteral">&quot;array&quot;</span>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a07da802f1562a34977b689f6bffe7be7">metall_close</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a6009f2966aac2e2872927593af6c9883">metall_remove</a>(<span class="stringliteral">&quot;/tmp/metall2&quot;</span>);</div>
+<div class="line">  }</div>
 <div class="line"> </div>
-<div class="line">    <a class="code" href="metall_8h.html#a3c487922d0d21571d40b8323df5bcf08">metall_close</a>();</div>
+<div class="line">  <span class="comment">// Retrieve object snapshot</span></div>
+<div class="line">  {</div>
+<div class="line">    <a class="code" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>* <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a> = <a class="code" href="metall_8h.html#a7343c930733c5feb171e5a35c9579b6e">metall_open</a>(<span class="stringliteral">&quot;/tmp/metall2-snap&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line">    uint64_t* array = <a class="code" href="metall_8h.html#abf48dccd2850a8ed893ab1646bd2e9b8">metall_find</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, <span class="stringliteral">&quot;array&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line">    assert(array[0] == 0);</div>
+<div class="line">    assert(array[1] == 1);</div>
+<div class="line"> </div>
+<div class="line">    <a class="code" href="metall_8h.html#aea2288c9a8573eab3183269c01045f66">metall_named_free</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>, <span class="stringliteral">&quot;array&quot;</span>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a07da802f1562a34977b689f6bffe7be7">metall_close</a>(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>);</div>
+<div class="line">    <a class="code" href="metall_8h.html#a6009f2966aac2e2872927593af6c9883">metall_remove</a>(<span class="stringliteral">&quot;/tmp/metall2-snap&quot;</span>);</div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
 <div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:24</div></div>
 <div class="ttc" id="ametall_8h_html"><div class="ttname"><a href="metall_8h.html">metall.h</a></div></div>
-<div class="ttc" id="ametall_8h_html_a34d6de04bc02b10eba5af84a689f6d81"><div class="ttname"><a href="metall_8h.html#a34d6de04bc02b10eba5af84a689f6d81">metall_malloc</a></div><div class="ttdeci">void * metall_malloc(uint64_t nbytes)</div><div class="ttdoc">Allocates nbytes bytes.</div></div>
-<div class="ttc" id="ametall_8h_html_a3c487922d0d21571d40b8323df5bcf08"><div class="ttname"><a href="metall_8h.html#a3c487922d0d21571d40b8323df5bcf08">metall_close</a></div><div class="ttdeci">void metall_close()</div><div class="ttdoc">Destructs Metall manager object.</div></div>
-<div class="ttc" id="ametall_8h_html_a46f211c486d0d48c171e30f6854f1d17"><div class="ttname"><a href="metall_8h.html#a46f211c486d0d48c171e30f6854f1d17">metall_find</a></div><div class="ttdeci">void * metall_find(char *name)</div><div class="ttdoc">Finds a saved memory.</div></div>
-<div class="ttc" id="ametall_8h_html_a657f806e20ccb162d759252ea91f79ca"><div class="ttname"><a href="metall_8h.html#a657f806e20ccb162d759252ea91f79ca">metall_named_free</a></div><div class="ttdeci">void metall_named_free(const char *name)</div><div class="ttdoc">Frees memory with the name.</div></div>
-<div class="ttc" id="ametall_8h_html_a79f648dcb741135841a7059c0e73b951"><div class="ttname"><a href="metall_8h.html#a79f648dcb741135841a7059c0e73b951">metall_named_malloc</a></div><div class="ttdeci">void * metall_named_malloc(const char *name, uint64_t nbytes)</div><div class="ttdoc">Allocates nbytes bytes and save the address of the allocated memory with name.</div></div>
-<div class="ttc" id="ametall_8h_html_a79f67c148e42f0478553973da84d314f"><div class="ttname"><a href="metall_8h.html#a79f67c148e42f0478553973da84d314f">metall_open</a></div><div class="ttdeci">int metall_open(int mode, const char *path)</div><div class="ttdoc">Constructs a Metall manager object.</div></div>
-<div class="ttc" id="ametall_8h_html_a87976e0363f7aa838e4f16698118aee4"><div class="ttname"><a href="metall_8h.html#a87976e0363f7aa838e4f16698118aee4">METALL_OPEN_ONLY</a></div><div class="ttdeci">#define METALL_OPEN_ONLY</div><div class="ttdoc">Tag to open an already created segment.</div><div class="ttdef"><b>Definition:</b> metall.h:20</div></div>
-<div class="ttc" id="ametall_8h_html_aa5a03ac06563753cd30a61008d8db429"><div class="ttname"><a href="metall_8h.html#aa5a03ac06563753cd30a61008d8db429">METALL_CREATE_ONLY</a></div><div class="ttdeci">#define METALL_CREATE_ONLY</div><div class="ttdoc">Tag to create the segment always. The existing segment with the same name is over written.</div><div class="ttdef"><b>Definition:</b> metall.h:17</div></div>
-<div class="ttc" id="ametall_8h_html_aa97cc63ec083101ec25b9b044f104722"><div class="ttname"><a href="metall_8h.html#aa97cc63ec083101ec25b9b044f104722">metall_free</a></div><div class="ttdeci">void metall_free(void *ptr)</div><div class="ttdoc">Frees the allocated memory.</div></div>
-<div class="ttc" id="ametall_8h_html_ab652743ef9de6367bea41185ae0f8c2e"><div class="ttname"><a href="metall_8h.html#ab652743ef9de6367bea41185ae0f8c2e">metall_flush</a></div><div class="ttdeci">void metall_flush()</div><div class="ttdoc">Flush data to persistent memory.</div></div>
+<div class="ttc" id="ametall_8h_html_a07da802f1562a34977b689f6bffe7be7"><div class="ttname"><a href="metall_8h.html#a07da802f1562a34977b689f6bffe7be7">metall_close</a></div><div class="ttdeci">void metall_close(metall_manager *manager)</div><div class="ttdoc">Closes a metall manager.</div></div>
+<div class="ttc" id="ametall_8h_html_a08951a8fdce8dd15751df4402ea6983e"><div class="ttname"><a href="metall_8h.html#a08951a8fdce8dd15751df4402ea6983e">metall_snapshot</a></div><div class="ttdeci">bool metall_snapshot(metall_manager *manager, const char *dst_path)</div><div class="ttdoc">Creates a snapshot of the metall datastore of manager and places it at dst_path.</div></div>
+<div class="ttc" id="ametall_8h_html_a1d80660a9f9baed3ddf0135cfa8ffeec"><div class="ttname"><a href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a></div><div class="ttdeci">struct metall_manager metall_manager</div><div class="ttdoc">Opaque struct representing a metall manager.</div><div class="ttdef"><b>Definition:</b> metall.h:21</div></div>
+<div class="ttc" id="ametall_8h_html_a2478c165146bdaf287217f77a8f5cf61"><div class="ttname"><a href="metall_8h.html#a2478c165146bdaf287217f77a8f5cf61">metall_named_malloc</a></div><div class="ttdeci">void * metall_named_malloc(metall_manager *manager, const char *name, size_t size)</div><div class="ttdoc">Allocates size bytes and associates the allocated memory with a name.</div></div>
+<div class="ttc" id="ametall_8h_html_a2997f31f1fa9e4b4830351c962491062"><div class="ttname"><a href="metall_8h.html#a2997f31f1fa9e4b4830351c962491062">metall_free</a></div><div class="ttdeci">void metall_free(metall_manager *manager, void *ptr)</div><div class="ttdoc">Frees memory previously allocated by metall_malloc.</div></div>
+<div class="ttc" id="ametall_8h_html_a6009f2966aac2e2872927593af6c9883"><div class="ttname"><a href="metall_8h.html#a6009f2966aac2e2872927593af6c9883">metall_remove</a></div><div class="ttdeci">bool metall_remove(const char *path)</div><div class="ttdoc">Removes the metall datastore at path.</div></div>
+<div class="ttc" id="ametall_8h_html_a7343c930733c5feb171e5a35c9579b6e"><div class="ttname"><a href="metall_8h.html#a7343c930733c5feb171e5a35c9579b6e">metall_open</a></div><div class="ttdeci">metall_manager * metall_open(const char *path)</div><div class="ttdoc">Attempts to open the metall datastore at path.</div></div>
+<div class="ttc" id="ametall_8h_html_a89f146fbfcbc89379c616636b63763cd"><div class="ttname"><a href="metall_8h.html#a89f146fbfcbc89379c616636b63763cd">metall_create</a></div><div class="ttdeci">metall_manager * metall_create(const char *path)</div><div class="ttdoc">Attempts to create a metall datastore at path.</div></div>
+<div class="ttc" id="ametall_8h_html_abf48dccd2850a8ed893ab1646bd2e9b8"><div class="ttname"><a href="metall_8h.html#abf48dccd2850a8ed893ab1646bd2e9b8">metall_find</a></div><div class="ttdeci">void * metall_find(metall_manager *manager, const char *name)</div><div class="ttdoc">Finds memory that was previously allocated using metall_named_alloc.</div></div>
+<div class="ttc" id="ametall_8h_html_ad2efb532f9cb17bd6d03d70b3b35876c"><div class="ttname"><a href="metall_8h.html#ad2efb532f9cb17bd6d03d70b3b35876c">metall_malloc</a></div><div class="ttdeci">void * metall_malloc(metall_manager *manager, size_t size)</div><div class="ttdoc">Allocates size bytes.</div></div>
+<div class="ttc" id="ametall_8h_html_aea2288c9a8573eab3183269c01045f66"><div class="ttname"><a href="metall_8h.html#aea2288c9a8573eab3183269c01045f66">metall_named_free</a></div><div class="ttdeci">bool metall_named_free(metall_manager *manager, const char *name)</div><div class="ttdoc">Frees memory previously allocated by metall_named_malloc.</div></div>
+<div class="ttc" id="ametall_8h_html_af46e72541c95e0524f6cec284da4b43d"><div class="ttname"><a href="metall_8h.html#af46e72541c95e0524f6cec284da4b43d">metall_flush</a></div><div class="ttdeci">void metall_flush(metall_manager *manager)</div><div class="ttdoc">Flushes the given manager.</div></div>
+<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:34</div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

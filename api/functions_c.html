@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -109,17 +109,17 @@ $(document).ready(function(){initNavTree('functions_c.html',''); initResizable()
 : <a class="el" href="classmetall_1_1json_1_1key__value__pair.html#abd57ab7b5338a992a9f8a3e456c04fa5">metall::json::key_value_pair&lt; char_type, char_traits, Alloc &gt;</a>
 </li>
 <li>char_type
-: <a class="el" href="classmetall_1_1basic__manager.html#a6a734b956eabae70adae4a1432f599cf">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a3cfdb46ac3ee9102dcd768e593b9a696">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1json_1_1key__value__pair.html#a6776000559c3fb0131b928c7ee57b0b8">metall::json::key_value_pair&lt; char_type, char_traits, Alloc &gt;</a>
 </li>
 <li>check_sanity()
-: <a class="el" href="classmetall_1_1basic__manager.html#a38ad0f6a040457a73e9d9f0dc41ce797">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a77b408d0f8c031015235641c1117c17d">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>chunk_number_type
-: <a class="el" href="classmetall_1_1basic__manager.html#a372b54cc19bad9c79e3b397f997bf8f2">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a4d325cc1b5a88b580f9454533ea2fe6e">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>chunk_size()
-: <a class="el" href="classmetall_1_1basic__manager.html#a669faef5d9504e7c7f8aa0337b29f506">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a4ee25ee027f416bc16b06c5895d51437">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>clear()
 : <a class="el" href="classmetall_1_1container_1_1string__key__store.html#a4b5eed76d316015c4e5da9bc2d3c5325">metall::container::string_key_store&lt; _value_type, allocator_type &gt;</a>
@@ -129,11 +129,11 @@ $(document).ready(function(){initNavTree('functions_c.html',''); initResizable()
 : <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#adc1f13a6d995b36cc9b142496d17821a">metall::container::concurrent_map&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;</a>
 </li>
 <li>consistent()
-: <a class="el" href="classmetall_1_1basic__manager.html#acf7c87f6f553405e86eb4221e1972b44">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a976d19319bcc59cab74167aba6cbfe81">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a72e264c27213d27e3e81700ab08fdc0c">metall::utility::metall_mpi_adaptor</a>
 </li>
 <li>const_anonymous_iterator
-: <a class="el" href="classmetall_1_1basic__manager.html#aafe466a3ab9fc8a6ad32ebe29deeafee">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#ab27f060036d966e34fe0725058787ba6">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>const_edge_iterator
 : <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6c9211fce73add00512595cb96af8605">metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt;</a>
@@ -147,54 +147,57 @@ $(document).ready(function(){initNavTree('functions_c.html',''); initResizable()
 , <a class="el" href="classmetall_1_1unique__object__attr__accessor.html#a4165bd929fa5efe4bf619c9cbd34536e">metall::unique_object_attr_accessor&lt; _offset_type, _size_type &gt;</a>
 </li>
 <li>const_named_iterator
-: <a class="el" href="classmetall_1_1basic__manager.html#a748fe63e04d58cedb365d17f84c2e1ae">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a7ca584b4be45b2bd5f28e458e73d9439">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>const_pointer
-: <a class="el" href="classmetall_1_1stl__allocator.html#aea5ded3bdad49036d46ba787cdd6af26">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
-, <a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#a196897c01f159d9956c7ff43087270b4">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a>
+: <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a3d17aa433141f03a886c9c9539122b46">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a>
+, <a class="el" href="classmetall_1_1stl__allocator.html#aea5ded3bdad49036d46ba787cdd6af26">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
 </li>
 <li>const_reference
 : <a class="el" href="classmetall_1_1json_1_1array.html#a3acef0ff40431613f55439a402327914">metall::json::array&lt; Alloc &gt;</a>
 </li>
 <li>const_unique_iterator
-: <a class="el" href="classmetall_1_1basic__manager.html#a6ac7b6423046445a8aa58b3d8d267720">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a762dc63d6853c1eedc7dd73e1e286423">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>const_vertex_iterator
 : <a class="el" href="classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1647aabbbb70f9308fc5abfa6eea39c6">metall::container::experimental::jgraph::jgraph&lt; _allocator_type &gt;</a>
 </li>
 <li>const_void_pointer
-: <a class="el" href="classmetall_1_1stl__allocator.html#a065da16c6ef843f47b0d745c71effb88">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
-, <a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#aad9292fcc550b7c5bb42e73c9337d3d2">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a>
+: <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a816a5d81862c1dea178c574da1bea59c">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a>
+, <a class="el" href="classmetall_1_1stl__allocator.html#a065da16c6ef843f47b0d745c71effb88">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
 </li>
 <li>construct()
-: <a class="el" href="classmetall_1_1basic__manager.html#a5969e8d2fb5cd08117b3997b01e43154">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a14d1eb83452cdc20bfcb9f76bf45ddff">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
+, <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ac2b25710154d4e423d97256e9f266eb7">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a>
 , <a class="el" href="classmetall_1_1stl__allocator.html#acc87ddb892546cef46f3634dabc004b8">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>
-, <a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#a0816effdf7c00dec2c4352649bb1331e">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a>
 </li>
 <li>construct_it()
-: <a class="el" href="classmetall_1_1basic__manager.html#abf2d815b2bebb6fbb2995fedd586074f">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a3d6eb59c6e9485cf2d7d75336f34742e">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>construct_iter_proxy
-: <a class="el" href="classmetall_1_1basic__manager.html#abf749c86b4771dcf828d44d8ab41d000">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#ad7707e4a1376bd27db5df59cfbb09c52">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>construct_proxy
-: <a class="el" href="classmetall_1_1basic__manager.html#ac2a112e98756c6950dc0d88d18b70c14">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a312c54d498f9608d0b27bcaab2240e60">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>container_of_containers_iterator_adaptor()
 : <a class="el" href="classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html#aabbbfe5170a1631a9e572e1bf466c3a9">metall::utility::container_of_containers_iterator_adaptor&lt; outer_iterator_type, inner_iterator_type &gt;</a>
 </li>
 <li>copy()
-: <a class="el" href="classmetall_1_1basic__manager.html#ab721ac4255db8300c2dbcfc0686ec108">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a1664b060ef25ff9d843b69613e4c8f8e">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a12a646d2fd6139105fe90dd2673e0298">metall::utility::metall_mpi_adaptor</a>
 </li>
 <li>copy_async()
-: <a class="el" href="classmetall_1_1basic__manager.html#aba83098558d6f2dbe4892071b345bf10">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#a5e53b88496dc5e3dc46331877faaacba">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>count()
 : <a class="el" href="classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor.html#ab3ffe409a6ebd05f9f3562e5bc31711b">metall::attraccs_detail::general_named_object_attr_accessor&lt; _offset_type, _size_type &gt;</a>
 , <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a2539a330792031be748a5427311804df">metall::container::concurrent_map&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;</a>
 , <a class="el" href="classmetall_1_1container_1_1string__key__store.html#aec7f9b24e90ba262fe73bc291186624c">metall::container::string_key_store&lt; _value_type, allocator_type &gt;</a>
 , <a class="el" href="classmetall_1_1unique__object__attr__accessor.html#a052558d1ce15887e1e25aff41d71a470">metall::unique_object_attr_accessor&lt; _offset_type, _size_type &gt;</a>
+</li>
+<li>critical
+: <a class="el" href="structmetall_1_1logger_1_1level__filter.html#ab6301fb2b988e86791e4f4d43f84d7d3">metall::logger::level_filter</a>
 </li>
 <li>csr()
 : <a class="el" href="classcsr.html#ae74db287e3fbe7a654adf3b19f2fe873">csr&lt; index_t, vid_t, allocator_t &gt;</a>

@@ -1,6 +1,12 @@
 var searchData=
 [
-  ['name_5ftype_741',['name_type',['../classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor.html#af1e2e1cbe6de29fd35b4a9379cdd92b9',1,'metall::attraccs_detail::general_named_object_attr_accessor::name_type()'],['../classmetall_1_1named__object__attr__accessor.html#ac4345093b6abc9673be16635cb251ad8',1,'metall::named_object_attr_accessor::name_type()'],['../classmetall_1_1unique__object__attr__accessor.html#af00426ee3aafe33eee809e84f7c10702',1,'metall::unique_object_attr_accessor::name_type()'],['../classmetall_1_1anonymous__object__attr__accessor.html#ad982e0c2dbef6368b88fc0733a2f909b',1,'metall::anonymous_object_attr_accessor::name_type()']]],
-  ['named_5fobject_5fattribute_5faccessor_5ftype_742',['named_object_attribute_accessor_type',['../classmetall_1_1basic__manager.html#a82455b70cbf57c44cbe0a0e1957dd3e1',1,'metall::basic_manager']]],
-  ['null_5ftype_743',['null_type',['../namespacemetall_1_1json.html#a2c64ab106804731e466436b5287c7215',1,'metall::json']]]
+  ['manager_765',['manager',['../namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0',1,'metall']]],
+  ['manager_5fkernel_5ftype_766',['manager_kernel_type',['../classmetall_1_1basic__manager.html#a54d169d8e19b55f60edadd4e49b75193',1,'metall::basic_manager::manager_kernel_type()'],['../classmetall_1_1stl__allocator.html#aa28ab678518c9dccee39d63bf0196637',1,'metall::stl_allocator::manager_kernel_type()']]],
+  ['manager_5ftype_767',['manager_type',['../classmetall_1_1utility_1_1metall__mpi__adaptor.html#aae35a858ea045f18eef61d84ee0e49db',1,'metall::utility::metall_mpi_adaptor']]],
+  ['map_768',['map',['../namespacemetall_1_1container.html#ad30d7aceb6d1ba8ab22971a4baf10621',1,'metall::container']]],
+  ['mapped_5ftype_769',['mapped_type',['../classmetall_1_1container_1_1concurrent__map.html#a7112e27eba4668b8849d0036286c61c0',1,'metall::container::concurrent_map']]],
+  ['metall_5fmanager_770',['metall_manager',['../metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec',1,'metall.h']]],
+  ['metall_5fvalue_5ftype_771',['metall_value_type',['../json__open_8cpp.html#ac90768da3230ba029c5c8255e6a9d488',1,'json_open.cpp']]],
+  ['multimap_772',['multimap',['../namespacemetall_1_1container.html#ae2cd99e1d3323b5f5ee7f57e1a19e1a4',1,'metall::container']]],
+  ['multiset_773',['multiset',['../namespacemetall_1_1container.html#a1060d4465ba278f23314fac24020f2a8',1,'metall::container']]]
 ];

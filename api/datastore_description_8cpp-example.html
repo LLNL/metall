@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -126,22 +126,22 @@ $(document).ready(function(){initNavTree('datastore_description_8cpp-example.htm
 <div class="line"> </div>
 <div class="line">  <span class="comment">// ----- Static methods ----- //</span></div>
 <div class="line">  {</div>
-<div class="line">    <a name="a4"></a><a class="code" href="classmetall_1_1basic__manager.html#a412da2f484c6d5246541ee5b874de9d1">metall::manager::set_description</a>(<span class="stringliteral">&quot;/tmp/dir&quot;</span>, <span class="stringliteral">&quot;description example 2&quot;</span>);</div>
+<div class="line">    <a name="a4"></a><a class="code" href="classmetall_1_1basic__manager.html#a420e2cae534c4ab97474875d0ad7e0a6">metall::manager::set_description</a>(<span class="stringliteral">&quot;/tmp/dir&quot;</span>, <span class="stringliteral">&quot;description example 2&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line">    <a class="code" href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">std::string</a> buf;</div>
-<div class="line">    <a name="a5"></a><a class="code" href="classmetall_1_1basic__manager.html#a2e2d7866d60dd88791fd78119fa09562">metall::manager::get_description</a>(<span class="stringliteral">&quot;/tmp/dir&quot;</span>, &amp;buf);</div>
+<div class="line">    <a name="a5"></a><a class="code" href="classmetall_1_1basic__manager.html#ab663057f3a9841d76e0c0359e54f5e23">metall::manager::get_description</a>(<span class="stringliteral">&quot;/tmp/dir&quot;</span>, &amp;buf);</div>
 <div class="line">    std::cout &lt;&lt; buf &lt;&lt; std::endl;  <span class="comment">// Shows &quot;description example 2&quot;</span></div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:31</div></div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html_a2e2d7866d60dd88791fd78119fa09562"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a2e2d7866d60dd88791fd78119fa09562">metall::basic_manager::get_description</a></div><div class="ttdeci">bool get_description(std::string *description) const noexcept</div><div class="ttdoc">Gets a description. If there is no description, nothing to happen to the given description object.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:1184</div></div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html_a412da2f484c6d5246541ee5b874de9d1"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a412da2f484c6d5246541ee5b874de9d1">metall::basic_manager::set_description</a></div><div class="ttdeci">bool set_description(const std::string &amp;description) noexcept</div><div class="ttdoc">Sets a description to a Metall data store. An existing description is overwritten (only one descripti...</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:1142</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:40</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html_a420e2cae534c4ab97474875d0ad7e0a6"><div class="ttname"><a href="classmetall_1_1basic__manager.html#a420e2cae534c4ab97474875d0ad7e0a6">metall::basic_manager::set_description</a></div><div class="ttdeci">bool set_description(const std::string &amp;description) noexcept</div><div class="ttdoc">Sets a description to a Metall data store. An existing description is overwritten (only one descripti...</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:1191</div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html_ab663057f3a9841d76e0c0359e54f5e23"><div class="ttname"><a href="classmetall_1_1basic__manager.html#ab663057f3a9841d76e0c0359e54f5e23">metall::basic_manager::get_description</a></div><div class="ttdeci">bool get_description(std::string *description) const noexcept</div><div class="ttdoc">Gets a description. If there is no description, nothing to happen to the given description object.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:1233</div></div>
 <div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:24</div></div>
 <div class="ttc" id="ametall_8hpp_html"><div class="ttname"><a href="metall_8hpp.html">metall.hpp</a></div></div>
 <div class="ttc" id="anamespacemetall_1_1container_html_a5fe499903b179ed596cd8c2bd6892009"><div class="ttname"><a href="namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009">metall::container::string</a></div><div class="ttdeci">basic_string&lt; char &gt; string</div><div class="ttdoc">A string container that uses char as its character type and Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> string.hpp:23</div></div>
-<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:20</div></div>
+<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:34</div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

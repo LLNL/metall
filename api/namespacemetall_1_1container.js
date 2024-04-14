@@ -2,6 +2,7 @@ var namespacemetall_1_1container =
 [
     [ "experimental", "namespacemetall_1_1container_1_1experimental.html", "namespacemetall_1_1container_1_1experimental" ],
     [ "concurrent_map", "classmetall_1_1container_1_1concurrent__map.html", "classmetall_1_1container_1_1concurrent__map" ],
+    [ "fallback_allocator_adaptor", "classmetall_1_1container_1_1fallback__allocator__adaptor.html", "classmetall_1_1container_1_1fallback__allocator__adaptor" ],
     [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html", "classmetall_1_1container_1_1string__key__store" ],
     [ "string_key_store_locator", "classmetall_1_1container_1_1string__key__store__locator.html", "classmetall_1_1container_1_1string__key__store__locator" ],
     [ "deque", "namespacemetall_1_1container.html#a0c5339ff4df05c5ccbfef46f75bf7f0a", null ],
@@ -25,5 +26,7 @@ var namespacemetall_1_1container =
     [ "unordered_node_set", "namespacemetall_1_1container.html#a3636ca005c35447c08fa5ab0128df86f", null ],
     [ "unordered_set", "namespacemetall_1_1container.html#a7e69404c0f68aa2e313ea57a0dc053d6", null ],
     [ "unordered_multiset", "namespacemetall_1_1container.html#ac09b8143943f9ac654c0a29029a89652", null ],
-    [ "vector", "namespacemetall_1_1container.html#ab652095363b8ca308d2d39c53fe6e6ae", null ]
+    [ "vector", "namespacemetall_1_1container.html#ab652095363b8ca308d2d39c53fe6e6ae", null ],
+    [ "operator==", "namespacemetall_1_1container.html#a48ce134e75e1fe9e06a9fbc8e6632049", null ],
+    [ "operator!=", "namespacemetall_1_1container.html#aa2d92c1a0abdf1b3d1e11c40d0d1952e", null ]
 ];

@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -105,14 +105,17 @@ $(document).ready(function(){initNavTree('basic__manager_8hpp.html',''); initRes
 <code>#include &lt;<a class="el" href="tags_8hpp_source.html">metall/tags.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="stl__allocator_8hpp_source.html">metall/stl_allocator.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="scoped__allocator_8hpp_source.html">metall/container/scoped_allocator.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="fallback__allocator_8hpp_source.html">metall/container/fallback_allocator.hpp</a>&gt;</code><br />
 <code>#include &lt;metall/kernel/manager_kernel.hpp&gt;</code><br />
 <code>#include &lt;metall/detail/named_proxy.hpp&gt;</code><br />
+<code>#include &lt;metall/kernel/segment_storage.hpp&gt;</code><br />
+<code>#include &lt;metall/kernel/storage.hpp&gt;</code><br />
 </div>
 <p><a href="basic__manager_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1basic__manager.html">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A generalized Metall manager class.  <a href="classmetall_1_1basic__manager.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">

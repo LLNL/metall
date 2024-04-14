@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -100,8 +100,10 @@ $(document).ready(function(){initNavTree('classmetall_1_1logger.html',''); initR
 
 <p>This is the complete list of members for <a class="el" href="classmetall_1_1logger.html">metall::logger</a>, including all inherited members.</p>
 <table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#a69e7e39d4b837467f9673bae72508d2b">abort_on_critical_error</a>(const bool enable) noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> enum name</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#a8b127460fc56debde337e979fa499f6c">abort_on_critical_error</a>() noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classmetall_1_1logger.html#a69e7e39d4b837467f9673bae72508d2b">abort_on_critical_error</a>(const bool enable) noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> enum name</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classmetall_1_1logger.html#ac0af8742346692614938d38128ffd6a5">log_level</a>() noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#abf9054d1b0b91a18ae6573862dd9cb95">logger</a>()=delete</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classmetall_1_1logger.html#a1d6c427bb502ffa494071364ac65818d">logger</a>(const logger &amp;)=delete</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#ac9a67e3f97cceb4313f1aa8573b12c59">logger</a>(logger &amp;&amp;)=delete</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"></td></tr>
@@ -109,7 +111,7 @@ $(document).ready(function(){initNavTree('classmetall_1_1logger.html',''); initR
   <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#a26e7974f2f6e10d2c062f98e9d99856b">operator=</a>(logger &amp;&amp;)=delete</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">out</a>(const level lvl, const char *const file_name, const int line_no, const char *const message) noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#a48ca24ac09140e6800c3ba266bad314f">perror</a>(const level lvl, const char *const file_name, const int line_no, const char *const message) noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classmetall_1_1logger.html#a3600cd1fa3b883b69225d7c89a3ee340">set_log_level</a>(const level lvl) noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classmetall_1_1logger.html#a6a20bfa91ac4648072dff66e9c06de7c">set_log_level</a>(const level_filter lvl) noexcept</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classmetall_1_1logger.html#a7a3cdd97a20df44e9ffc851323591d91">~logger</a>()=delete</td><td class="entry"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td><td class="entry"></td></tr>
 </table></div><!-- contents -->
 </div><!-- doc-content -->

@@ -19,5 +19,5 @@ var searchData=
   ['equal_2ehpp_97',['equal.hpp',['../equal_8hpp.html',1,'']]],
   ['equal_5frange_98',['equal_range',['../classmetall_1_1container_1_1string__key__store.html#a5afc1bde1a13fd21fa5ff9667e19cd13',1,'metall::container::string_key_store']]],
   ['erase_99',['erase',['../classmetall_1_1container_1_1string__key__store.html#a154057de940d8ee5364132bb0622dad6',1,'metall::container::string_key_store::erase(const key_type &amp;key)'],['../classmetall_1_1container_1_1string__key__store.html#a25481727e6de6259f837bc8b721d182e',1,'metall::container::string_key_store::erase(const locator_type &amp;position)'],['../classmetall_1_1json_1_1array.html#a691ed7c7f28855033b724dbc59b3f830',1,'metall::json::array::erase(iterator position)'],['../classmetall_1_1json_1_1array.html#a9c1a166d5105623bceed5fc302c0c859',1,'metall::json::array::erase(const_iterator position)']]],
-  ['error_100',['error',['../classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282',1,'metall::logger']]]
+  ['error_100',['error',['../structmetall_1_1logger_1_1level__filter.html#aad2980601f8903ef762cdf4c7b559692',1,'metall::logger::level_filter::error()'],['../classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282',1,'metall::logger::error()']]]
 ];

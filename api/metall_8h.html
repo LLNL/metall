@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -94,427 +94,89 @@ $(document).ready(function(){initNavTree('metall_8h.html',''); initResizable(); 
 
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">metall.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stddef.h&gt;</code><br />
 </div>
 <p><a href="metall_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:aa5a03ac06563753cd30a61008d8db429"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#aa5a03ac06563753cd30a61008d8db429">METALL_CREATE_ONLY</a>&#160;&#160;&#160;1</td></tr>
-<tr class="memdesc:aa5a03ac06563753cd30a61008d8db429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag to create the segment always. The existing segment with the same name is over written.  <a href="metall_8h.html#aa5a03ac06563753cd30a61008d8db429">More...</a><br /></td></tr>
-<tr class="separator:aa5a03ac06563753cd30a61008d8db429"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87976e0363f7aa838e4f16698118aee4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a87976e0363f7aa838e4f16698118aee4">METALL_OPEN_ONLY</a>&#160;&#160;&#160;2</td></tr>
-<tr class="memdesc:a87976e0363f7aa838e4f16698118aee4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag to open an already created segment.  <a href="metall_8h.html#a87976e0363f7aa838e4f16698118aee4">More...</a><br /></td></tr>
-<tr class="separator:a87976e0363f7aa838e4f16698118aee4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0016b1607d63ff8a989a2afa45ef14e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#af0016b1607d63ff8a989a2afa45ef14e">METALL_OPEN_READ_ONLY</a>&#160;&#160;&#160;3</td></tr>
-<tr class="memdesc:af0016b1607d63ff8a989a2afa45ef14e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag to open an already created segment as read only.  <a href="metall_8h.html#af0016b1607d63ff8a989a2afa45ef14e">More...</a><br /></td></tr>
-<tr class="separator:af0016b1607d63ff8a989a2afa45ef14e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a1d80660a9f9baed3ddf0135cfa8ffeec"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a></td></tr>
+<tr class="memdesc:a1d80660a9f9baed3ddf0135cfa8ffeec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque struct representing a metall manager.  <a href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">More...</a><br /></td></tr>
+<tr class="separator:a1d80660a9f9baed3ddf0135cfa8ffeec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a79f67c148e42f0478553973da84d314f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a79f67c148e42f0478553973da84d314f">metall_open</a> (int mode, const char *path)</td></tr>
-<tr class="memdesc:a79f67c148e42f0478553973da84d314f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a Metall manager object.  <a href="metall_8h.html#a79f67c148e42f0478553973da84d314f">More...</a><br /></td></tr>
-<tr class="separator:a79f67c148e42f0478553973da84d314f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c487922d0d21571d40b8323df5bcf08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a3c487922d0d21571d40b8323df5bcf08">metall_close</a> ()</td></tr>
-<tr class="memdesc:a3c487922d0d21571d40b8323df5bcf08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructs Metall manager object.  <a href="metall_8h.html#a3c487922d0d21571d40b8323df5bcf08">More...</a><br /></td></tr>
-<tr class="separator:a3c487922d0d21571d40b8323df5bcf08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab652743ef9de6367bea41185ae0f8c2e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#ab652743ef9de6367bea41185ae0f8c2e">metall_flush</a> ()</td></tr>
-<tr class="memdesc:ab652743ef9de6367bea41185ae0f8c2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush data to persistent memory.  <a href="metall_8h.html#ab652743ef9de6367bea41185ae0f8c2e">More...</a><br /></td></tr>
-<tr class="separator:ab652743ef9de6367bea41185ae0f8c2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34d6de04bc02b10eba5af84a689f6d81"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a34d6de04bc02b10eba5af84a689f6d81">metall_malloc</a> (uint64_t nbytes)</td></tr>
-<tr class="memdesc:a34d6de04bc02b10eba5af84a689f6d81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates nbytes bytes.  <a href="metall_8h.html#a34d6de04bc02b10eba5af84a689f6d81">More...</a><br /></td></tr>
-<tr class="separator:a34d6de04bc02b10eba5af84a689f6d81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa97cc63ec083101ec25b9b044f104722"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#aa97cc63ec083101ec25b9b044f104722">metall_free</a> (void *ptr)</td></tr>
-<tr class="memdesc:aa97cc63ec083101ec25b9b044f104722"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees the allocated memory.  <a href="metall_8h.html#aa97cc63ec083101ec25b9b044f104722">More...</a><br /></td></tr>
-<tr class="separator:aa97cc63ec083101ec25b9b044f104722"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79f648dcb741135841a7059c0e73b951"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a79f648dcb741135841a7059c0e73b951">metall_named_malloc</a> (const char *name, uint64_t nbytes)</td></tr>
-<tr class="memdesc:a79f648dcb741135841a7059c0e73b951"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates nbytes bytes and save the address of the allocated memory with name.  <a href="metall_8h.html#a79f648dcb741135841a7059c0e73b951">More...</a><br /></td></tr>
-<tr class="separator:a79f648dcb741135841a7059c0e73b951"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46f211c486d0d48c171e30f6854f1d17"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a46f211c486d0d48c171e30f6854f1d17">metall_find</a> (char *name)</td></tr>
-<tr class="memdesc:a46f211c486d0d48c171e30f6854f1d17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds a saved memory.  <a href="metall_8h.html#a46f211c486d0d48c171e30f6854f1d17">More...</a><br /></td></tr>
-<tr class="separator:a46f211c486d0d48c171e30f6854f1d17"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a657f806e20ccb162d759252ea91f79ca"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a657f806e20ccb162d759252ea91f79ca">metall_named_free</a> (const char *name)</td></tr>
-<tr class="memdesc:a657f806e20ccb162d759252ea91f79ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees memory with the name.  <a href="metall_8h.html#a657f806e20ccb162d759252ea91f79ca">More...</a><br /></td></tr>
-<tr class="separator:a657f806e20ccb162d759252ea91f79ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a388bb788aaa682cec1de782e85b6b0eb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a388bb788aaa682cec1de782e85b6b0eb">snapshot</a> (const char *destination_path)</td></tr>
-<tr class="memdesc:a388bb788aaa682cec1de782e85b6b0eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Snapshot the entire data.  <a href="metall_8h.html#a388bb788aaa682cec1de782e85b6b0eb">More...</a><br /></td></tr>
-<tr class="separator:a388bb788aaa682cec1de782e85b6b0eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79dda2c48a0e286b570b4b6a21a72293"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a79dda2c48a0e286b570b4b6a21a72293">copy</a> (const char *source_path, const char *destination_path)</td></tr>
-<tr class="memdesc:a79dda2c48a0e286b570b4b6a21a72293"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies backing files synchronously.  <a href="metall_8h.html#a79dda2c48a0e286b570b4b6a21a72293">More...</a><br /></td></tr>
-<tr class="separator:a79dda2c48a0e286b570b4b6a21a72293"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac40330220b5845c2f55c0bf7b8a68ac8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#ac40330220b5845c2f55c0bf7b8a68ac8">consistent</a> (const char *path)</td></tr>
-<tr class="memdesc:ac40330220b5845c2f55c0bf7b8a68ac8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the backing data store is consistent, i.e. it was closed properly.  <a href="metall_8h.html#ac40330220b5845c2f55c0bf7b8a68ac8">More...</a><br /></td></tr>
-<tr class="separator:ac40330220b5845c2f55c0bf7b8a68ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7343c930733c5feb171e5a35c9579b6e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a7343c930733c5feb171e5a35c9579b6e">metall_open</a> (const char *path)</td></tr>
+<tr class="memdesc:a7343c930733c5feb171e5a35c9579b6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to open the metall datastore at path.  <a href="metall_8h.html#a7343c930733c5feb171e5a35c9579b6e">More...</a><br /></td></tr>
+<tr class="separator:a7343c930733c5feb171e5a35c9579b6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a541e8a7cc13530e34efc1708e16cf7dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a541e8a7cc13530e34efc1708e16cf7dc">metall_open_read_only</a> (const char *path)</td></tr>
+<tr class="memdesc:a541e8a7cc13530e34efc1708e16cf7dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to open the metall datastore at path in read only mode.  <a href="metall_8h.html#a541e8a7cc13530e34efc1708e16cf7dc">More...</a><br /></td></tr>
+<tr class="separator:a541e8a7cc13530e34efc1708e16cf7dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89f146fbfcbc89379c616636b63763cd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a89f146fbfcbc89379c616636b63763cd">metall_create</a> (const char *path)</td></tr>
+<tr class="memdesc:a89f146fbfcbc89379c616636b63763cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to create a metall datastore at path.  <a href="metall_8h.html#a89f146fbfcbc89379c616636b63763cd">More...</a><br /></td></tr>
+<tr class="separator:a89f146fbfcbc89379c616636b63763cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08951a8fdce8dd15751df4402ea6983e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a08951a8fdce8dd15751df4402ea6983e">metall_snapshot</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager, const char *dst_path)</td></tr>
+<tr class="memdesc:a08951a8fdce8dd15751df4402ea6983e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a snapshot of the metall datastore of manager and places it at dst_path.  <a href="metall_8h.html#a08951a8fdce8dd15751df4402ea6983e">More...</a><br /></td></tr>
+<tr class="separator:a08951a8fdce8dd15751df4402ea6983e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af46e72541c95e0524f6cec284da4b43d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#af46e72541c95e0524f6cec284da4b43d">metall_flush</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager)</td></tr>
+<tr class="memdesc:af46e72541c95e0524f6cec284da4b43d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flushes the given manager.  <a href="metall_8h.html#af46e72541c95e0524f6cec284da4b43d">More...</a><br /></td></tr>
+<tr class="separator:af46e72541c95e0524f6cec284da4b43d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07da802f1562a34977b689f6bffe7be7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a07da802f1562a34977b689f6bffe7be7">metall_close</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager)</td></tr>
+<tr class="memdesc:a07da802f1562a34977b689f6bffe7be7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a metall manager.  <a href="metall_8h.html#a07da802f1562a34977b689f6bffe7be7">More...</a><br /></td></tr>
+<tr class="separator:a07da802f1562a34977b689f6bffe7be7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6009f2966aac2e2872927593af6c9883"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a6009f2966aac2e2872927593af6c9883">metall_remove</a> (const char *path)</td></tr>
+<tr class="memdesc:a6009f2966aac2e2872927593af6c9883"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the metall datastore at path.  <a href="metall_8h.html#a6009f2966aac2e2872927593af6c9883">More...</a><br /></td></tr>
+<tr class="separator:a6009f2966aac2e2872927593af6c9883"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2efb532f9cb17bd6d03d70b3b35876c"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#ad2efb532f9cb17bd6d03d70b3b35876c">metall_malloc</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager, size_t size)</td></tr>
+<tr class="memdesc:ad2efb532f9cb17bd6d03d70b3b35876c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates size bytes.  <a href="metall_8h.html#ad2efb532f9cb17bd6d03d70b3b35876c">More...</a><br /></td></tr>
+<tr class="separator:ad2efb532f9cb17bd6d03d70b3b35876c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2997f31f1fa9e4b4830351c962491062"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a2997f31f1fa9e4b4830351c962491062">metall_free</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager, void *ptr)</td></tr>
+<tr class="memdesc:a2997f31f1fa9e4b4830351c962491062"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees memory previously allocated by metall_malloc.  <a href="metall_8h.html#a2997f31f1fa9e4b4830351c962491062">More...</a><br /></td></tr>
+<tr class="separator:a2997f31f1fa9e4b4830351c962491062"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2478c165146bdaf287217f77a8f5cf61"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#a2478c165146bdaf287217f77a8f5cf61">metall_named_malloc</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager, const char *name, size_t size)</td></tr>
+<tr class="memdesc:a2478c165146bdaf287217f77a8f5cf61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates size bytes and associates the allocated memory with a name.  <a href="metall_8h.html#a2478c165146bdaf287217f77a8f5cf61">More...</a><br /></td></tr>
+<tr class="separator:a2478c165146bdaf287217f77a8f5cf61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf48dccd2850a8ed893ab1646bd2e9b8"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#abf48dccd2850a8ed893ab1646bd2e9b8">metall_find</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager, const char *name)</td></tr>
+<tr class="memdesc:abf48dccd2850a8ed893ab1646bd2e9b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds memory that was previously allocated using metall_named_alloc.  <a href="metall_8h.html#abf48dccd2850a8ed893ab1646bd2e9b8">More...</a><br /></td></tr>
+<tr class="separator:abf48dccd2850a8ed893ab1646bd2e9b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea2288c9a8573eab3183269c01045f66"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="metall_8h.html#aea2288c9a8573eab3183269c01045f66">metall_named_free</a> (<a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *manager, const char *name)</td></tr>
+<tr class="memdesc:aea2288c9a8573eab3183269c01045f66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees memory previously allocated by metall_named_malloc.  <a href="metall_8h.html#aea2288c9a8573eab3183269c01045f66">More...</a><br /></td></tr>
+<tr class="separator:aea2288c9a8573eab3183269c01045f66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="aa5a03ac06563753cd30a61008d8db429"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5a03ac06563753cd30a61008d8db429">&#9670;&nbsp;</a></span>METALL_CREATE_ONLY</h2>
+<h2 class="groupheader">Typedef Documentation</h2>
+<a id="a1d80660a9f9baed3ddf0135cfa8ffeec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d80660a9f9baed3ddf0135cfa8ffeec">&#9670;&nbsp;</a></span>metall_manager</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define METALL_CREATE_ONLY&#160;&#160;&#160;1</td>
+          <td class="memname">typedef struct <a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> <a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Tag to create the segment always. The existing segment with the same name is over written. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a2">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a87976e0363f7aa838e4f16698118aee4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a87976e0363f7aa838e4f16698118aee4">&#9670;&nbsp;</a></span>METALL_OPEN_ONLY</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define METALL_OPEN_ONLY&#160;&#160;&#160;2</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Tag to open an already created segment. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a8">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="af0016b1607d63ff8a989a2afa45ef14e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af0016b1607d63ff8a989a2afa45ef14e">&#9670;&nbsp;</a></span>METALL_OPEN_READ_ONLY</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define METALL_OPEN_READ_ONLY&#160;&#160;&#160;3</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Tag to open an already created segment as read only. </p>
+<p>Opaque struct representing a metall manager. </p>
+<dl class="section note"><dt>Note</dt><dd>this type is internally represented by <code><a class="el" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0" title="Default Metall manager class which is an alias of basic_manager with the default template parameters.">metall::manager</a></code> therefore pointers to <code><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec" title="Opaque struct representing a metall manager.">metall_manager</a></code> may be reinterpret-casted to pointers to <code><a class="el" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0" title="Default Metall manager class which is an alias of basic_manager with the default template parameters.">metall::manager</a></code> </dd></dl>
 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a79f67c148e42f0478553973da84d314f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79f67c148e42f0478553973da84d314f">&#9670;&nbsp;</a></span>metall_open()</h2>
+<a id="a7343c930733c5feb171e5a35c9579b6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7343c930733c5feb171e5a35c9579b6e">&#9670;&nbsp;</a></span>metall_open()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int metall_open </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>mode</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>path</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Constructs a Metall manager object. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">mode</td><td>Open mode </td></tr>
-    <tr><td class="paramname">path</td><td>A path to the backing data store </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>On success, returns 0. On error, returns -1. </dd></dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a1">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a3c487922d0d21571d40b8323df5bcf08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c487922d0d21571d40b8323df5bcf08">&#9670;&nbsp;</a></span>metall_close()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void metall_close </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Destructs Metall manager object. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a5">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="ab652743ef9de6367bea41185ae0f8c2e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab652743ef9de6367bea41185ae0f8c2e">&#9670;&nbsp;</a></span>metall_flush()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void metall_flush </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Flush data to persistent memory. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a7">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a34d6de04bc02b10eba5af84a689f6d81"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a34d6de04bc02b10eba5af84a689f6d81">&#9670;&nbsp;</a></span>metall_malloc()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void* metall_malloc </td>
-          <td>(</td>
-          <td class="paramtype">uint64_t&#160;</td>
-          <td class="paramname"><em>nbytes</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Allocates nbytes bytes. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">nbytes</td><td>The Number of bytes to allocate </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a pointer to the allocated memory </dd></dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a3">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="aa97cc63ec083101ec25b9b044f104722"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa97cc63ec083101ec25b9b044f104722">&#9670;&nbsp;</a></span>metall_free()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void metall_free </td>
-          <td>(</td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>ptr</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Frees the allocated memory. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ptr</td><td>A pointer to the allocated memory to be free </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a4">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a79f648dcb741135841a7059c0e73b951"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79f648dcb741135841a7059c0e73b951">&#9670;&nbsp;</a></span>metall_named_malloc()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void* metall_named_malloc </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint64_t&#160;</td>
-          <td class="paramname"><em>nbytes</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Allocates nbytes bytes and save the address of the allocated memory with name. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">name</td><td>A name of the allocated memory</td></tr>
-    <tr><td class="paramname">nbytes</td><td>A size to allocate </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a pointer to the allocated memory </dd></dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a6">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a46f211c486d0d48c171e30f6854f1d17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a46f211c486d0d48c171e30f6854f1d17">&#9670;&nbsp;</a></span>metall_find()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void* metall_find </td>
-          <td>(</td>
-          <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>name</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Finds a saved memory. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">name</td><td>A name of the allocated memory to find </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a pointer to the allocated memory if it exist. Otherwise, returns NULL. </dd></dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a9">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a657f806e20ccb162d759252ea91f79ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a657f806e20ccb162d759252ea91f79ca">&#9670;&nbsp;</a></span>metall_named_free()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void metall_named_free </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>name</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Frees memory with the name. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">name</td><td>A name of the allocated memory to free </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a10">c_api.c</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a388bb788aaa682cec1de782e85b6b0eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a388bb788aaa682cec1de782e85b6b0eb">&#9670;&nbsp;</a></span>snapshot()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int snapshot </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>destination_path</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Snapshot the entire data. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">destination_path</td><td>The path to store a snapshot. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>On success, returns 0. On error, returns -1. </dd></dl>
-
-</div>
-</div>
-<a id="a79dda2c48a0e286b570b4b6a21a72293"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79dda2c48a0e286b570b4b6a21a72293">&#9670;&nbsp;</a></span>copy()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int copy </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>source_path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>destination_path</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Copies backing files synchronously. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">source_path</td><td>Source data store path. </td></tr>
-    <tr><td class="paramname">destination_path</td><td>Destination data store path. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>On success, returns 0. On error, returns -1. </dd></dl>
-
-</div>
-</div>
-<a id="ac40330220b5845c2f55c0bf7b8a68ac8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac40330220b5845c2f55c0bf7b8a68ac8">&#9670;&nbsp;</a></span>consistent()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int consistent </td>
+          <td class="memname"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>* metall_open </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>path</em></td><td>)</td>
@@ -523,14 +185,426 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Check if the backing data store is consistent, i.e. it was closed properly. </p>
+<p>Attempts to open the metall datastore at path. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">path</td><td>A path to the backing data store. </td></tr>
+    <tr><td class="paramname">path</td><td>path to datastore </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a oon-zero integer if the data store is consistent; otherwise, returns 0. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success, false on failure. On failure, sets errno to one of the following values:<ul>
+<li>ENOTRECOVERABLE if the given metall datastore is inconsistent </li>
+</ul>
+</dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a10">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a541e8a7cc13530e34efc1708e16cf7dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a541e8a7cc13530e34efc1708e16cf7dc">&#9670;&nbsp;</a></span>metall_open_read_only()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>* metall_open_read_only </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Attempts to open the metall datastore at path in read only mode. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>path to datastore </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success, false on failure. On failure, sets errno to one of the following values:<ul>
+<li>ENOTRECOVERABLE if the given metall datastore is inconsistent </li>
+</ul>
+</dd></dl>
+
+</div>
+</div>
+<a id="a89f146fbfcbc89379c616636b63763cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89f146fbfcbc89379c616636b63763cd">&#9670;&nbsp;</a></span>metall_create()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a>* metall_create </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Attempts to create a metall datastore at path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>path at which to create a datastore </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success, false on failure. On failure, sets errno to one of the following values:<ul>
+<li>EEXIST if the given path already exists</li>
+<li>ENOTRECOVERABLE if the datastore could not be created for some other reason </li>
+</ul>
+</dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a2">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a08951a8fdce8dd15751df4402ea6983e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08951a8fdce8dd15751df4402ea6983e">&#9670;&nbsp;</a></span>metall_snapshot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool metall_snapshot </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>dst_path</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates a snapshot of the metall datastore of manager and places it at dst_path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">manager</td><td>manager to perform snapshot </td></tr>
+    <tr><td class="paramname">dst_path</td><td>path where to place the snapshot </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the snapshot was successfully created otherwise false. </dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a9">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="af46e72541c95e0524f6cec284da4b43d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af46e72541c95e0524f6cec284da4b43d">&#9670;&nbsp;</a></span>metall_flush()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void metall_flush </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Flushes the given manager. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">manager</td><td>manager to flush </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a8">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a07da802f1562a34977b689f6bffe7be7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07da802f1562a34977b689f6bffe7be7">&#9670;&nbsp;</a></span>metall_close()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void metall_close </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closes a metall manager. </p>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a5">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a6009f2966aac2e2872927593af6c9883"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6009f2966aac2e2872927593af6c9883">&#9670;&nbsp;</a></span>metall_remove()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool metall_remove </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes the metall datastore at path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>path to datastore to remove </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on successful removal, false otherwise. On failure, sets errno to one of the following values:<ul>
+<li>EADDRINUSE if there is a metall manager open for the given path</li>
+</ul>
+</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Behaviour is undefined if there is still a metall manager for path open </dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a6">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="ad2efb532f9cb17bd6d03d70b3b35876c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2efb532f9cb17bd6d03d70b3b35876c">&#9670;&nbsp;</a></span>metall_malloc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void* metall_malloc </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allocates size bytes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">manager</td><td>manager to allocate with </td></tr>
+    <tr><td class="paramname">size</td><td>number of bytes to allocate </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to allocated memory if successful otherwise returns NULL and sets errno to one of the following values<ul>
+<li>EINVAL </li>
+</ul>
+</dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a3">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a2997f31f1fa9e4b4830351c962491062"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2997f31f1fa9e4b4830351c962491062">&#9670;&nbsp;</a></span>metall_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void metall_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ptr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Frees memory previously allocated by metall_malloc. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">manager</td><td>manager from which to free </td></tr>
+    <tr><td class="paramname">ptr</td><td>memory to free </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a4">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a2478c165146bdaf287217f77a8f5cf61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2478c165146bdaf287217f77a8f5cf61">&#9670;&nbsp;</a></span>metall_named_malloc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void* metall_named_malloc </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allocates size bytes and associates the allocated memory with a name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">manager</td><td>manager to allocate with </td></tr>
+    <tr><td class="paramname">name</td><td>A name of the allocated memory </td></tr>
+    <tr><td class="paramname">size</td><td>number of bytes to allocate </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to the allocated memory if sucessful otherwise returns NULL and sets errno to one of the following values<ul>
+<li>EINVAL if the given path does not have a metall datastore open</li>
+<li>ENOMEM if the memory could not be allocated </li>
+</ul>
+</dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a7">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="abf48dccd2850a8ed893ab1646bd2e9b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf48dccd2850a8ed893ab1646bd2e9b8">&#9670;&nbsp;</a></span>metall_find()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void* metall_find </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Finds memory that was previously allocated using metall_named_alloc. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">manager</td><td>manager to find the object in </td></tr>
+    <tr><td class="paramname">name</td><td>name of the allocated memory to find </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to the allocated memory if found. Otherwise, returns NULL and sets errno to one of the following values<ul>
+<li>EINVAL if the given path does not have a metall datastore open</li>
+<li>ENOTENT if the object could not be found </li>
+</ul>
+</dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a11">c_api.c</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="aea2288c9a8573eab3183269c01045f66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aea2288c9a8573eab3183269c01045f66">&#9670;&nbsp;</a></span>metall_named_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool metall_named_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="metall_8h.html#a1d80660a9f9baed3ddf0135cfa8ffeec">metall_manager</a> *&#160;</td>
+          <td class="paramname"><em>manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Frees memory previously allocated by metall_named_malloc. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">manager</td><td>manager from which to free </td></tr>
+    <tr><td class="paramname">name</td><td>name of the allocated memory to free </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if sucessfully freed, otherwise returns false and sets errno to one of the following values<ul>
+<li>EINVAL if the given path does not have a metall datastore open</li>
+<li>ENOENT if the referred to object does not exist </li>
+</ul>
+</dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="c_api_8c-example.html#a12">c_api.c</a>.</dd>
+</dl>
 
 </div>
 </div>

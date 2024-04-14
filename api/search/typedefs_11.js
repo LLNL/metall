@@ -1,12 +1,13 @@
 var searchData=
 [
-  ['unique_5fobject_5fattribute_5faccessor_5ftype_767',['unique_object_attribute_accessor_type',['../classmetall_1_1basic__manager.html#af4cd2592146b8a4737e22e4fd21fa1e2',1,'metall::basic_manager']]],
-  ['unordered_5fflat_5fmap_768',['unordered_flat_map',['../namespacemetall_1_1container.html#a690b36ae19f87241ea3500ec31602fe6',1,'metall::container']]],
-  ['unordered_5fflat_5fset_769',['unordered_flat_set',['../namespacemetall_1_1container.html#a64610e40cedd482892f0390cd569410f',1,'metall::container']]],
-  ['unordered_5fmap_770',['unordered_map',['../namespacemetall_1_1container.html#ad6538b68ed07639523fd7313e407881a',1,'metall::container']]],
-  ['unordered_5fmultimap_771',['unordered_multimap',['../namespacemetall_1_1container.html#ae46d3b3ceb781a5b55e5070639919a02',1,'metall::container']]],
-  ['unordered_5fmultiset_772',['unordered_multiset',['../namespacemetall_1_1container.html#ac09b8143943f9ac654c0a29029a89652',1,'metall::container']]],
-  ['unordered_5fnode_5fmap_773',['unordered_node_map',['../namespacemetall_1_1container.html#aef865664a84a8897e375b1fc47fd89a8',1,'metall::container']]],
-  ['unordered_5fnode_5fset_774',['unordered_node_set',['../namespacemetall_1_1container.html#a3636ca005c35447c08fa5ab0128df86f',1,'metall::container']]],
-  ['unordered_5fset_775',['unordered_set',['../namespacemetall_1_1container.html#a7e69404c0f68aa2e313ea57a0dc053d6',1,'metall::container']]]
+  ['scoped_5fallocator_5fadaptor_789',['scoped_allocator_adaptor',['../namespacemetall_1_1container.html#aece4cdd0d20737ad97bb9fccac276bc5',1,'metall::container']]],
+  ['scoped_5fallocator_5ftype_790',['scoped_allocator_type',['../classmetall_1_1basic__manager.html#a9d1ffa85cdf0b52371a3f401c75e6229',1,'metall::basic_manager']]],
+  ['scoped_5ffallback_5fallocator_5ftype_791',['scoped_fallback_allocator_type',['../classmetall_1_1basic__manager.html#ae890b76027335cee42c2c3f9c5f1c621',1,'metall::basic_manager']]],
+  ['set_792',['set',['../namespacemetall_1_1container.html#a94b644504f948016762c0d431162ab10',1,'metall::container']]],
+  ['size_5ftype_793',['size_type',['../classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027',1,'metall::container::fallback_allocator_adaptor::size_type()'],['../classmetall_1_1json_1_1key__value__pair.html#ada0aeb4ab0ac59d43e086b905aeb656a',1,'metall::json::key_value_pair::size_type()'],['../classmetall_1_1container_1_1concurrent__map.html#aee97aacbd0863538359b28a9d9d028d1',1,'metall::container::concurrent_map::size_type()'],['../classmetall_1_1stl__allocator.html#a9e6eae5aeb74fccae7e236f20bb73364',1,'metall::stl_allocator::size_type()'],['../classmetall_1_1anonymous__object__attr__accessor.html#a116d51963e7178934e930d9d9064a83b',1,'metall::anonymous_object_attr_accessor::size_type()'],['../classmetall_1_1unique__object__attr__accessor.html#af882be9e5c5f0ed370910309c6cf031b',1,'metall::unique_object_attr_accessor::size_type()'],['../classmetall_1_1named__object__attr__accessor.html#a57367eef2164f2f5cec2332419e3362b',1,'metall::named_object_attr_accessor::size_type()'],['../classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor.html#ae7cc52cc57dde63507f548db24845f13',1,'metall::attraccs_detail::general_named_object_attr_accessor::size_type()'],['../classmetall_1_1basic__manager.html#a9bed532efbe211f064b741fd8efdaacf',1,'metall::basic_manager::size_type()']]],
+  ['stack_794',['stack',['../namespacemetall_1_1container.html#a45d843f18b46802f391c12875aa14f2a',1,'metall::container']]],
+  ['stateful_5fallocatorator_5ftype_795',['stateful_allocatorator_type',['../classmetall_1_1container_1_1fallback__allocator__adaptor.html#a73eefd397adafa18d71412c29d162bcf',1,'metall::container::fallback_allocator_adaptor']]],
+  ['str_5fhash_796',['str_hash',['../namespacemetall_1_1utility.html#ac4b3834177438cf8d8d34572c1848d1f',1,'metall::utility']]],
+  ['string_797',['string',['../namespacemetall_1_1container.html#a5fe499903b179ed596cd8c2bd6892009',1,'metall::container::string()'],['../namespacemetall_1_1json.html#af78c2b26acaea7245fcde5b14ff76b1e',1,'metall::json::string()']]],
+  ['string_5ftype_798',['string_type',['../classmetall_1_1json_1_1value.html#aceb1e74b12a7a854659dac38d3aea487',1,'metall::json::value']]]
 ];

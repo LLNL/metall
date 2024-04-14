@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -94,6 +94,7 @@ $(document).ready(function(){initNavTree('classmetall_1_1logger.html',''); initR
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
@@ -105,17 +106,22 @@ $(document).ready(function(){initNavTree('classmetall_1_1logger.html',''); initR
 
 <p><code>#include &lt;<a class="el" href="logger_8hpp_source.html">/home/runner/work/metall/metall/include/metall/logger.hpp</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmetall_1_1logger_1_1level__filter.html">level_filter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">determines the minimum level of messages that should be loggged  <a href="structmetall_1_1logger_1_1level__filter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:ad1d016cea9e8d387a81380125fe9a133"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> { <br />
-&#160;&#160;<a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133a73be252ca82217b1458a25e6b4e99f15">silent</a> = 10
-, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133a7e85bcb66fb9a809d5ab4f62a8b8bea8">critical</a> = 5
-, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">error</a> = 4
-, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133a7b83d3f08fa392b79e3f553b585971cd">warning</a> = 3
+&#160;&#160;<a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133a7e85bcb66fb9a809d5ab4f62a8b8bea8">critical</a> = metall_critical
+, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282">error</a> = metall_error
+, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133a7b83d3f08fa392b79e3f553b585971cd">warning</a> = metall_warning
+, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acaf9b6b99962bf5c2264824231d7a40c">info</a> = metall_info
 , <br />
-&#160;&#160;<a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133acaf9b6b99962bf5c2264824231d7a40c">info</a> = 2
-, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133aad42f6697b035b7580e4fef93be20b4d">debug</a> = 1
-, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133a2c7aea4237e25b4f8ee3b0bf77d6fed0">verbose</a> = 0
+&#160;&#160;<a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133aad42f6697b035b7580e4fef93be20b4d">debug</a> = metall_debug
+, <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133a2c7aea4237e25b4f8ee3b0bf77d6fed0">verbose</a> = metall_verbose
 <br />
  }</td></tr>
 <tr class="memdesc:ad1d016cea9e8d387a81380125fe9a133"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log message level.  <a href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">More...</a><br /></td></tr>
@@ -138,18 +144,22 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a3600cd1fa3b883b69225d7c89a3ee340"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#a3600cd1fa3b883b69225d7c89a3ee340">set_log_level</a> (const <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> lvl) noexcept</td></tr>
-<tr class="memdesc:a3600cd1fa3b883b69225d7c89a3ee340"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the minimum logger level to show message.  <a href="classmetall_1_1logger.html#a3600cd1fa3b883b69225d7c89a3ee340">More...</a><br /></td></tr>
-<tr class="separator:a3600cd1fa3b883b69225d7c89a3ee340"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc35cedb9f627804a0c278aea6127bcd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">out</a> (const <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> lvl, const char *const file_name, const int line_no, const char *const message) noexcept</td></tr>
+<tr class="memdesc:abc35cedb9f627804a0c278aea6127bcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message.  <a href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">More...</a><br /></td></tr>
+<tr class="separator:abc35cedb9f627804a0c278aea6127bcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48ca24ac09140e6800c3ba266bad314f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#a48ca24ac09140e6800c3ba266bad314f">perror</a> (const <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> lvl, const char *const file_name, const int line_no, const char *const message) noexcept</td></tr>
+<tr class="memdesc:a48ca24ac09140e6800c3ba266bad314f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message about errno.  <a href="classmetall_1_1logger.html#a48ca24ac09140e6800c3ba266bad314f">More...</a><br /></td></tr>
+<tr class="separator:a48ca24ac09140e6800c3ba266bad314f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0af8742346692614938d38128ffd6a5"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structmetall_1_1logger_1_1level__filter.html">level_filter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#ac0af8742346692614938d38128ffd6a5">log_level</a> () noexcept</td></tr>
+<tr class="separator:ac0af8742346692614938d38128ffd6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a20bfa91ac4648072dff66e9c06de7c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#a6a20bfa91ac4648072dff66e9c06de7c">set_log_level</a> (const <a class="el" href="structmetall_1_1logger_1_1level__filter.html">level_filter</a> lvl) noexcept</td></tr>
+<tr class="memdesc:a6a20bfa91ac4648072dff66e9c06de7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the minimum logger level to show message.  <a href="classmetall_1_1logger.html#a6a20bfa91ac4648072dff66e9c06de7c">More...</a><br /></td></tr>
+<tr class="separator:a6a20bfa91ac4648072dff66e9c06de7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b127460fc56debde337e979fa499f6c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#a8b127460fc56debde337e979fa499f6c">abort_on_critical_error</a> () noexcept</td></tr>
+<tr class="separator:a8b127460fc56debde337e979fa499f6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a69e7e39d4b837467f9673bae72508d2b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#a69e7e39d4b837467f9673bae72508d2b">abort_on_critical_error</a> (const bool enable) noexcept</td></tr>
 <tr class="memdesc:a69e7e39d4b837467f9673bae72508d2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">If true is specified, enable an abort at a critical logger message.  <a href="classmetall_1_1logger.html#a69e7e39d4b837467f9673bae72508d2b">More...</a><br /></td></tr>
 <tr class="separator:a69e7e39d4b837467f9673bae72508d2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc35cedb9f627804a0c278aea6127bcd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">out</a> (const <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> lvl, const char *const file_name, const int line_no, const char *const message) noexcept</td></tr>
-<tr class="memdesc:abc35cedb9f627804a0c278aea6127bcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message to std::cerr if the specified logger level is equal to or higher than the pre-set logger level.  <a href="classmetall_1_1logger.html#abc35cedb9f627804a0c278aea6127bcd">More...</a><br /></td></tr>
-<tr class="separator:abc35cedb9f627804a0c278aea6127bcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48ca24ac09140e6800c3ba266bad314f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html#a48ca24ac09140e6800c3ba266bad314f">perror</a> (const <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a> lvl, const char *const file_name, const int line_no, const char *const message) noexcept</td></tr>
-<tr class="memdesc:a48ca24ac09140e6800c3ba266bad314f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message about errno if the specified logger level is equal to or higher than the pre-set logger level.  <a href="classmetall_1_1logger.html#a48ca24ac09140e6800c3ba266bad314f">More...</a><br /></td></tr>
-<tr class="separator:a48ca24ac09140e6800c3ba266bad314f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="ad1d016cea9e8d387a81380125fe9a133"></a>
@@ -174,9 +184,7 @@ Static Public Member Functions</h2></td></tr>
 
 <p>Log message level. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad1d016cea9e8d387a81380125fe9a133a73be252ca82217b1458a25e6b4e99f15"></a>silent&#160;</td><td class="fielddoc"><p>Silent logger message — never show logger message. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ad1d016cea9e8d387a81380125fe9a133a7e85bcb66fb9a809d5ab4f62a8b8bea8"></a>critical&#160;</td><td class="fielddoc"><p>Critical logger message — abort the execution unless disabled. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad1d016cea9e8d387a81380125fe9a133a7e85bcb66fb9a809d5ab4f62a8b8bea8"></a>critical&#160;</td><td class="fielddoc"><p>Critical logger message — with default logger implementation abort the execution unless disabled. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ad1d016cea9e8d387a81380125fe9a133acb5e100e5a9a3e7f6d1fd97512215282"></a>error&#160;</td><td class="fielddoc"><p>Error logger message. </p>
 </td></tr>
@@ -296,66 +304,6 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a3600cd1fa3b883b69225d7c89a3ee340"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3600cd1fa3b883b69225d7c89a3ee340">&#9670;&nbsp;</a></span>set_log_level()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void metall::logger::set_log_level </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1logger.html#ad1d016cea9e8d387a81380125fe9a133">level</a>&#160;</td>
-          <td class="paramname"><em>lvl</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Set the minimum logger level to show message. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="logger_8cpp-example.html#a1">logger.cpp</a>.</dd>
-</dl>
-
-</div>
-</div>
-<a id="a69e7e39d4b837467f9673bae72508d2b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a69e7e39d4b837467f9673bae72508d2b">&#9670;&nbsp;</a></span>abort_on_critical_error()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void metall::logger::abort_on_critical_error </td>
-          <td>(</td>
-          <td class="paramtype">const bool&#160;</td>
-          <td class="paramname"><em>enable</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>If true is specified, enable an abort at a critical logger message. </p>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="logger_8cpp-example.html#a3">logger.cpp</a>.</dd>
-</dl>
-
-</div>
-</div>
 <a id="abc35cedb9f627804a0c278aea6127bcd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abc35cedb9f627804a0c278aea6127bcd">&#9670;&nbsp;</a></span>out()</h2>
 
@@ -402,7 +350,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Log a message to std::cerr if the specified logger level is equal to or higher than the pre-set logger level. </p>
+<p>Log a message. </p>
 
 </div>
 </div>
@@ -452,7 +400,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Log a message about errno if the specified logger level is equal to or higher than the pre-set logger level. </p>
+<p>Log a message about errno. </p>
 
 </div>
 </div>
@@ -505,6 +453,118 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac0af8742346692614938d38128ffd6a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0af8742346692614938d38128ffd6a5">&#9670;&nbsp;</a></span>log_level()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="structmetall_1_1logger_1_1level__filter.html">level_filter</a> metall::logger::log_level </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>the current minimum logger level </dd></dl>
+
+</div>
+</div>
+<a id="a6a20bfa91ac4648072dff66e9c06de7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a20bfa91ac4648072dff66e9c06de7c">&#9670;&nbsp;</a></span>set_log_level()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void metall::logger::set_log_level </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structmetall_1_1logger_1_1level__filter.html">level_filter</a>&#160;</td>
+          <td class="paramname"><em>lvl</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the minimum logger level to show message. </p>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="logger_8cpp-example.html#a1">logger.cpp</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a8b127460fc56debde337e979fa499f6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b127460fc56debde337e979fa499f6c">&#9670;&nbsp;</a></span>abort_on_critical_error() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool metall::logger::abort_on_critical_error </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>if the program should abort when a critical message is logged </dd></dl>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="logger_8cpp-example.html#a3">logger.cpp</a>.</dd>
+</dl>
+
+</div>
+</div>
+<a id="a69e7e39d4b837467f9673bae72508d2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69e7e39d4b837467f9673bae72508d2b">&#9670;&nbsp;</a></span>abort_on_critical_error() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void metall::logger::abort_on_critical_error </td>
+          <td>(</td>
+          <td class="paramtype">const bool&#160;</td>
+          <td class="paramname"><em>enable</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>If true is specified, enable an abort at a critical logger message. </p>
 
 </div>
 </div>

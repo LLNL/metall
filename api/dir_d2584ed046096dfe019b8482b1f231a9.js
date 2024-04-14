@@ -8,9 +8,8 @@ var dir_d2584ed046096dfe019b8482b1f231a9 =
       [ "basic_manager", "classmetall_1_1basic__manager.html", "classmetall_1_1basic__manager" ]
     ] ],
     [ "defs.hpp", "defs_8hpp.html", "defs_8hpp" ],
-    [ "logger.hpp", "logger_8hpp.html", [
-      [ "logger", "classmetall_1_1logger.html", "classmetall_1_1logger" ]
-    ] ],
+    [ "logger.hpp", "logger_8hpp.html", "logger_8hpp" ],
+    [ "logger_interface.h", "logger__interface_8h.html", "logger__interface_8h" ],
     [ "metall.hpp", "metall_8hpp.html", "metall_8hpp" ],
     [ "object_attribute_accessor.hpp", "object__attribute__accessor_8hpp.html", [
       [ "general_named_object_attr_accessor", "classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor.html", "classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor" ],

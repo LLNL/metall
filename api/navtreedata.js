@@ -53,6 +53,8 @@ var NAVTREE =
         [ "Functions", "globals_func.html", null ],
         [ "Variables", "globals_vars.html", null ],
         [ "Typedefs", "globals_type.html", null ],
+        [ "Enumerations", "globals_enum.html", null ],
+        [ "Enumerator", "globals_eval.html", null ],
         [ "Macros", "globals_defs.html", null ]
       ] ]
     ] ],
@@ -63,9 +65,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "adjacency__list_8hpp.html",
-"classmetall_1_1json_1_1array.html",
-"classmetall_1_1utility_1_1metall__mpi__adaptor.html#af97ebd454ad2a2623c668523156de4c6",
-"namespacemetall_1_1container.html#ac4ebbafd91c00bc0bf0db55a75a5c091"
+"classmetall_1_1container_1_1string__key__store.html#a37ab4c010ed5f14f0d44944e33bf09af",
+"concurrent__map_8hpp.html",
+"namespacemetall_1_1container.html#a0c5339ff4df05c5ccbfef46f75bf7f0a"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

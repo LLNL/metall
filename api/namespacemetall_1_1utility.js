@@ -27,8 +27,8 @@ var namespacemetall_1_1utility =
       [ "set_num_threads", "namespacemetall_1_1utility_1_1omp.html#a0c6baa11faea548d5ebe4f3b7a92c228", null ]
     ] ],
     [ "container_of_containers_iterator_adaptor", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor" ],
-    [ "fallback_allocator_adaptor", "classmetall_1_1utility_1_1fallback__allocator__adaptor.html", "classmetall_1_1utility_1_1fallback__allocator__adaptor" ],
     [ "metall_mpi_adaptor", "classmetall_1_1utility_1_1metall__mpi__adaptor.html", "classmetall_1_1utility_1_1metall__mpi__adaptor" ],
+    [ "fallback_allocator_adaptor", "namespacemetall_1_1utility.html#a5efc2069721af950c29c8b44f3eb5aa9", null ],
     [ "hash", "namespacemetall_1_1utility.html#a26de7059de72fa91b2a7d2d0d92e433c", null ],
     [ "str_hash", "namespacemetall_1_1utility.html#ac4b3834177438cf8d8d34572c1848d1f", null ],
     [ "rand_512", "namespacemetall_1_1utility.html#afbf405f40b797c4475eeb0f29816e8ec", null ],
@@ -37,7 +37,5 @@ var namespacemetall_1_1utility =
     [ "operator!=", "namespacemetall_1_1utility.html#a322194910adc28c76d79ba3ca964c242", null ],
     [ "ls_named_object", "namespacemetall_1_1utility.html#ad94f62a80519c79291e337545debe76a", null ],
     [ "ls_unique_object", "namespacemetall_1_1utility.html#a588f4ac1c8d042b24569bf1594de3fc7", null ],
-    [ "ls_anonymous_object", "namespacemetall_1_1utility.html#a2d0a2cd909185f4a35466f36d551fa44", null ],
-    [ "operator==", "namespacemetall_1_1utility.html#a6130a4b923ff2e17615d108b2da78634", null ],
-    [ "operator!=", "namespacemetall_1_1utility.html#a8e9eec75212d81376cf0a142cee1b546", null ]
+    [ "ls_anonymous_object", "namespacemetall_1_1utility.html#a2d0a2cd909185f4a35466f36d551fa44", null ]
 ];

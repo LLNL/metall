@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -95,15 +95,17 @@ $(document).ready(function(){initNavTree('logger_8hpp.html',''); initResizable()
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a>  </div>
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">logger.hpp File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;iostream&gt;</code><br />
-<code>#include &lt;string&gt;</code><br />
-<code>#include &lt;cassert&gt;</code><br />
-<code>#include &lt;cstdio&gt;</code><br />
+<div class="textblock"><code>#include &lt;cstring&gt;</code><br />
+<code>#include &lt;optional&gt;</code><br />
+<code>#include &lt;sstream&gt;</code><br />
+<code>#include &lt;<a class="el" href="logger__interface_8h_source.html">metall/logger_interface.h</a>&gt;</code><br />
+<code>#include &lt;iostream&gt;</code><br />
 </div>
 <p><a href="logger_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -111,13 +113,75 @@ $(document).ready(function(){initNavTree('logger_8hpp.html',''); initResizable()
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1logger.html">metall::logger</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmetall_1_1logger_1_1level__filter.html">metall::logger::level_filter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">determines the minimum level of messages that should be loggged  <a href="structmetall_1_1logger_1_1level__filter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacemetall"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemetall.html">metall</a></td></tr>
 <tr class="memdesc:namespacemetall"><td class="mdescLeft">&#160;</td><td class="mdescRight">The top level of namespace of Metall. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ae197b1767bd16df06091ba033cb888f5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="logger_8hpp.html#ae197b1767bd16df06091ba033cb888f5">metall_log</a> (<a class="el" href="logger__interface_8h.html#a008908f192f62d5f058d56f9061964f8">metall_log_level</a> lvl_, const char *file_name, size_t line_no, const char *message)</td></tr>
+<tr class="memdesc:ae197b1767bd16df06091ba033cb888f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implementation of logging behaviour.  <a href="logger_8hpp.html#ae197b1767bd16df06091ba033cb888f5">More...</a><br /></td></tr>
+<tr class="separator:ae197b1767bd16df06091ba033cb888f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ae197b1767bd16df06091ba033cb888f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae197b1767bd16df06091ba033cb888f5">&#9670;&nbsp;</a></span>metall_log()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void metall_log </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="logger__interface_8h.html#a008908f192f62d5f058d56f9061964f8">metall_log_level</a>&#160;</td>
+          <td class="paramname"><em>lvl</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>file_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>line_no</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>message</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implementation of logging behaviour. </p>
+<p>If METALL_LOGGER_EXTERN_C is defined this function does not have an implementation and is intended to be implemented by consuming applications.</p>
+<p>If it is not defined the default implementation is in <a class="el" href="logger_8hpp.html">metall/logger.hpp</a>. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

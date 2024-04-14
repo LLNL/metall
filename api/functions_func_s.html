@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -99,20 +99,20 @@ $(document).ready(function(){initNavTree('functions_func_s.html',''); initResiza
 <li>scoped_edit()
 : <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#a92c8a96d0cde5a00a5be1ce6406e15c6">metall::container::concurrent_map&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;</a>
 </li>
-<li>select_on_container_copy_construction()
-: <a class="el" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html#a2b07b6634397acbfb2f14d3ffe235426">metall::utility::fallback_allocator_adaptor&lt; primary_alloc &gt;</a>
-</li>
 <li>set_description()
 : <a class="el" href="classmetall_1_1anonymous__object__attr__accessor.html#a56d8ce9b3f6537e0e1c2b5b2501dd408">metall::anonymous_object_attr_accessor&lt; _offset_type, _size_type &gt;</a>
 , <a class="el" href="classmetall_1_1attraccs__detail_1_1general__named__object__attr__accessor.html#a8fbbf8c7938c1da3c6d43ce6792fd545">metall::attraccs_detail::general_named_object_attr_accessor&lt; _offset_type, _size_type &gt;</a>
-, <a class="el" href="classmetall_1_1basic__manager.html#a412da2f484c6d5246541ee5b874de9d1">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+, <a class="el" href="classmetall_1_1basic__manager.html#a88514ce1a74b52247e96e575aee824df">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1unique__object__attr__accessor.html#a642ae49fe7c2436bbf4fc1ac4ba84e45">metall::unique_object_attr_accessor&lt; _offset_type, _size_type &gt;</a>
 </li>
 <li>set_instance_description()
-: <a class="el" href="classmetall_1_1basic__manager.html#a1fa7a3ceca561100d782dd867260c31a">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#aa662835a1039b16aeaf59cd1de1b459c">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 </li>
 <li>set_log_level()
-: <a class="el" href="classmetall_1_1logger.html#a3600cd1fa3b883b69225d7c89a3ee340">metall::logger</a>
+: <a class="el" href="classmetall_1_1logger.html#a6a20bfa91ac4648072dff66e9c06de7c">metall::logger</a>
+</li>
+<li>should_log()
+: <a class="el" href="structmetall_1_1logger_1_1level__filter.html#a739a5cb1039723a0f48e21132e29bdf3">metall::logger::level_filter</a>
 </li>
 <li>size()
 : <a class="el" href="classmetall_1_1container_1_1concurrent__map.html#ae9823111485c792cded41d7bb49a8c22">metall::container::concurrent_map&lt; _key_type, _mapped_type, _compare, _bank_no_hasher, _allocator, k_num_banks &gt;</a>
@@ -120,8 +120,11 @@ $(document).ready(function(){initNavTree('functions_func_s.html',''); initResiza
 , <a class="el" href="classmetall_1_1json_1_1array.html#ab3ecc0887428a6fa2a5af20a907bee00">metall::json::array&lt; Alloc &gt;</a>
 </li>
 <li>snapshot()
-: <a class="el" href="classmetall_1_1basic__manager.html#a9116d586f8c86b04c355953f5efc3264">metall::basic_manager&lt; chunk_no_type, k_chunk_size &gt;</a>
+: <a class="el" href="classmetall_1_1basic__manager.html#ab483d61fda3f7acc91a22bfaddca0686">metall::basic_manager&lt; storage, segment_storage, chunk_no_type, k_chunk_size &gt;</a>
 , <a class="el" href="classmetall_1_1utility_1_1metall__mpi__adaptor.html#a847e252f3966edd422c04b4078b34809">metall::utility::metall_mpi_adaptor</a>
+</li>
+<li>stateful_allocatorator()
+: <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a68b68bd65d9499cfca1ad5ddae60eea6">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a>
 </li>
 <li>stl_allocator()
 : <a class="el" href="classmetall_1_1stl__allocator.html#a11ced6c847edb62a21a12cb0431482ec">metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</a>

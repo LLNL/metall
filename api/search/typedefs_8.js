@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['key_5ftype_729',['key_type',['../classmetall_1_1container_1_1concurrent__map.html#a0eca3a6229fcb4959de8a648d08e0956',1,'metall::container::concurrent_map::key_type()'],['../classmetall_1_1container_1_1string__key__store.html#af2d91d0be1075fa4ea9e7cf59bebeb31',1,'metall::container::string_key_store::key_type()'],['../classmetall_1_1json_1_1key__value__pair.html#a59a2d33f78d97b35d9aa93c41e1212b0',1,'metall::json::key_value_pair::key_type()']]]
+  ['id_5ftype_757',['id_type',['../classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1826403d1f812649cf36c44e14ebd417',1,'metall::container::experimental::jgraph::jgraph']]],
+  ['instance_5fkind_758',['instance_kind',['../classmetall_1_1basic__manager.html#a4787bd6efa19807d37ab4ae101e3ca7b',1,'metall::basic_manager']]],
+  ['iterator_759',['iterator',['../classmetall_1_1json_1_1array.html#abede3db47363ca08f754102ee32ed617',1,'metall::json::array']]],
+  ['iterator_5fcategory_760',['iterator_category',['../classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html#a067243afaa9d8a6ec66b83ac08cafa50',1,'metall::utility::container_of_containers_iterator_adaptor']]]
 ];

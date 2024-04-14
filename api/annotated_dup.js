@@ -15,6 +15,7 @@ var annotated_dup =
           ] ]
         ] ],
         [ "concurrent_map", "classmetall_1_1container_1_1concurrent__map.html", "classmetall_1_1container_1_1concurrent__map" ],
+        [ "fallback_allocator_adaptor", "classmetall_1_1container_1_1fallback__allocator__adaptor.html", "classmetall_1_1container_1_1fallback__allocator__adaptor" ],
         [ "string_key_store", "classmetall_1_1container_1_1string__key__store.html", "classmetall_1_1container_1_1string__key__store" ],
         [ "string_key_store_locator", "classmetall_1_1container_1_1string__key__store__locator.html", "classmetall_1_1container_1_1string__key__store__locator" ]
       ] ],
@@ -26,7 +27,6 @@ var annotated_dup =
       ] ],
       [ "utility", "namespacemetall_1_1utility.html", [
         [ "container_of_containers_iterator_adaptor", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor" ],
-        [ "fallback_allocator_adaptor", "classmetall_1_1utility_1_1fallback__allocator__adaptor.html", "classmetall_1_1utility_1_1fallback__allocator__adaptor" ],
         [ "metall_mpi_adaptor", "classmetall_1_1utility_1_1metall__mpi__adaptor.html", "classmetall_1_1utility_1_1metall__mpi__adaptor" ]
       ] ],
       [ "basic_manager", "classmetall_1_1basic__manager.html", "classmetall_1_1basic__manager" ],

@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -197,7 +197,7 @@ class metall::stl_allocator&lt; T, metall_manager_kernel_type &gt;</h3>
   </dd>
 </dl>
 <dl class="section warning"><dt>Warning</dt><dd>This allocator does not define propagate_on_* types, as same as Boost.Interprocess. Those types are going to be std::false_type in std::allocator_traits. Therefore, this allocator is not propagated during containers' copy assignment, move assignment, or swap. This configuration enables users to copy containers between different Metall managers easier. On the other hand, performing the move assignment between two containers allocated by different Metall managers invokes copy operations instead of move operations. Also, swapping containers allocated by different Metall managers will result in undefined behavior. </dd></dl>
-<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="allocator_aware_type_8cpp-example.html#_a0">allocator_aware_type.cpp</a>, <a class="el" href="concurrent_map_8cpp-example.html#_a1">concurrent_map.cpp</a>, <a class="el" href="fallback_allocator_adaptor_8cpp-example.html#_a1">fallback_allocator_adaptor.cpp</a>, <a class="el" href="multilevel_containers_8cpp-example.html#_a4">multilevel_containers.cpp</a>, <a class="el" href="string_8cpp-example.html#_a0">string.cpp</a>, <a class="el" href="string_map_8cpp-example.html#_a0">string_map.cpp</a>, and <a class="el" href="vector_of_vectors_8cpp-example.html#_a0">vector_of_vectors.cpp</a>.</dd>
+<dl class="section examples"><dt>Examples</dt><dd><a class="el" href="allocator_aware_type_8cpp-example.html#_a0">allocator_aware_type.cpp</a>, <a class="el" href="concurrent_map_8cpp-example.html#_a1">concurrent_map.cpp</a>, <a class="el" href="multilevel_containers_8cpp-example.html#_a4">multilevel_containers.cpp</a>, <a class="el" href="string_8cpp-example.html#_a0">string.cpp</a>, <a class="el" href="string_map_8cpp-example.html#_a0">string_map.cpp</a>, and <a class="el" href="vector_of_vectors_8cpp-example.html#_a0">vector_of_vectors.cpp</a>.</dd>
 </dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a923213c36315bcde1a38794b633a0d80"></a>

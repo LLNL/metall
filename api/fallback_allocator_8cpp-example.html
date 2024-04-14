@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Metall: fallback_allocator_adaptor.cpp</title>
+<title>Metall: fallback_allocator.cpp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.27</span>
+   &#160;<span id="projectnumber">v0.28</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -74,7 +74,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search','.html');
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(document).ready(function(){initNavTree('fallback_allocator_adaptor_8cpp-example.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('fallback_allocator_8cpp-example.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -94,10 +94,10 @@ $(document).ready(function(){initNavTree('fallback_allocator_adaptor_8cpp-exampl
 
 <div class="header">
   <div class="headertitle">
-<div class="title">fallback_allocator_adaptor.cpp</div>  </div>
+<div class="title">fallback_allocator.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<p>This is an example of how to use fallback_allocator_adaptor.</p>
+<p>This is an example of how to use fallback_allocator.</p>
 <div class="fragment"><div class="line"><span class="comment">// Copyright 2020 Lawrence Livermore National Security, LLC and other Metall</span></div>
 <div class="line"><span class="comment">// Project Developers. See the top-level COPYRIGHT file for details.</span></div>
 <div class="line"><span class="comment">//</span></div>
@@ -105,47 +105,38 @@ $(document).ready(function(){initNavTree('fallback_allocator_adaptor_8cpp-exampl
 <div class="line"> </div>
 <div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="preprocessor">#include &lt;boost/container/vector.hpp&gt;</span></div>
-<div class="line"> </div>
 <div class="line"><span class="preprocessor">#include &lt;<a class="code" href="metall_8hpp.html">metall/metall.hpp</a>&gt;</span></div>
-<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="fallback__allocator__adaptor_8hpp.html">metall/utility/fallback_allocator_adaptor.hpp</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="vector_8hpp.html">metall/container/vector.hpp</a>&gt;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="comment">// The line below is the only change required to use fallback_allocator_adaptor.</span></div>
-<div class="line"><span class="comment">// Wraps up &#39;metall::manager::allocator_type&lt;..&gt;&#39; with</span></div>
-<div class="line"><span class="comment">// fallback_allocator_adaptor.</span></div>
-<div class="line"><span class="keyword">using</span> allocator_t = <a name="_a0"></a><a class="code" href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html">metall::utility::fallback_allocator_adaptor</a>&lt;</div>
-<div class="line">    <a name="_a1"></a><a class="code" href="classmetall_1_1stl__allocator.html">metall::manager::allocator_type&lt;int&gt;</a>&gt;;</div>
+<div class="line"><span class="keyword">using</span> vector_t =</div>
+<div class="line">    <a class="code" href="namespacemetall_1_1container.html#ab652095363b8ca308d2d39c53fe6e6ae">metall::container::vector&lt;int, metall::manager::fallback_allocator&lt;int&gt;</a>&gt;;</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">using</span> vector_t = boost::container::vector&lt;int, allocator_t&gt;;</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">int</span> <a name="a2"></a><a class="code" href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>() {</div>
-<div class="line">  <span class="comment">// Allocation with Metall</span></div>
-<div class="line">  <span class="comment">// The code below works with both &#39;fallback_allocator_adaptor&lt;..&gt;&#39; and</span></div>
-<div class="line">  <span class="comment">// &#39;metall::manager::allocator_type&lt;...&gt;&#39;.</span></div>
+<div class="line"><span class="keywordtype">int</span> <a name="a0"></a><a class="code" href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>() {</div>
+<div class="line">  <span class="comment">// Allocation using Metall</span></div>
 <div class="line">  {</div>
-<div class="line">    <a name="_a3"></a><a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a name="a4"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::create_only, <span class="stringliteral">&quot;/tmp/dir&quot;</span>);</div>
+<div class="line">    <a name="_a1"></a><a class="code" href="classmetall_1_1basic__manager.html">metall::manager</a> <a name="a2"></a><a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>(metall::create_only, <span class="stringliteral">&quot;/tmp/dir&quot;</span>);</div>
 <div class="line">    <span class="keyword">auto</span> pvec = <a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.construct&lt;vector_t&gt;(<span class="stringliteral">&quot;vec&quot;</span>)(<a class="code" href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">manager</a>.get_allocator());</div>
 <div class="line">    pvec-&gt;push_back(1);</div>
 <div class="line">    std::cout &lt;&lt; (*pvec)[0] &lt;&lt; std::endl;</div>
 <div class="line">  }</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">// Allocation w/o Metall, i.e., uses a heap allocator such as malloc().</span></div>
-<div class="line">  <span class="comment">// This code causes a build error if fallback_allocator_adaptor is not used.</span></div>
+<div class="line">  <span class="comment">// Allocation not using Metall, i.e., uses a heap allocator (malloc()).</span></div>
+<div class="line">  <span class="comment">// This code would cause a build error if fallback_allocator were not used.</span></div>
 <div class="line">  {</div>
-<div class="line">    vector_t vec;</div>
+<div class="line">    vector_t vec;  <span class="comment">// As no metall allocator argument is passed, the fallback</span></div>
+<div class="line">                   <span class="comment">// allocator uses malloc() internally.</span></div>
 <div class="line">    vec.push_back(2);</div>
 <div class="line">    std::cout &lt;&lt; vec[0] &lt;&lt; std::endl;</div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:31</div></div>
-<div class="ttc" id="aclassmetall_1_1stl__allocator_html"><div class="ttname"><a href="classmetall_1_1stl__allocator.html">metall::stl_allocator</a></div><div class="ttdoc">A STL compatible allocator.</div><div class="ttdef"><b>Definition:</b> stl_allocator.hpp:34</div></div>
-<div class="ttc" id="aclassmetall_1_1utility_1_1fallback__allocator__adaptor_html"><div class="ttname"><a href="classmetall_1_1utility_1_1fallback__allocator__adaptor.html">metall::utility::fallback_allocator_adaptor</a></div><div class="ttdoc">A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc) if its constructor rece...</div><div class="ttdef"><b>Definition:</b> fallback_allocator_adaptor.hpp:37</div></div>
-<div class="ttc" id="afallback__allocator__adaptor_8hpp_html"><div class="ttname"><a href="fallback__allocator__adaptor_8hpp.html">fallback_allocator_adaptor.hpp</a></div></div>
+<div class="ttc" id="aclassmetall_1_1basic__manager_html"><div class="ttname"><a href="classmetall_1_1basic__manager.html">metall::basic_manager</a></div><div class="ttdoc">A generalized Metall manager class.</div><div class="ttdef"><b>Definition:</b> basic_manager.hpp:40</div></div>
 <div class="ttc" id="ajgraph_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="jgraph_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition:</b> jgraph.cpp:24</div></div>
 <div class="ttc" id="ametall_8hpp_html"><div class="ttname"><a href="metall_8hpp.html">metall.hpp</a></div></div>
-<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:20</div></div>
+<div class="ttc" id="anamespacemetall_1_1container_html_ab652095363b8ca308d2d39c53fe6e6ae"><div class="ttname"><a href="namespacemetall_1_1container.html#ab652095363b8ca308d2d39c53fe6e6ae">metall::container::vector</a></div><div class="ttdeci">boost::container::vector&lt; T, Allocator &gt; vector</div><div class="ttdoc">A vector container that uses Metall as its default allocator.</div><div class="ttdef"><b>Definition:</b> vector.hpp:17</div></div>
+<div class="ttc" id="anamespacemetall_html_a0128ebca3d3d10b4d2db0525e8a74cf0"><div class="ttname"><a href="namespacemetall.html#a0128ebca3d3d10b4d2db0525e8a74cf0">metall::manager</a></div><div class="ttdeci">basic_manager&lt;&gt; manager</div><div class="ttdoc">Default Metall manager class which is an alias of basic_manager with the default template parameters.</div><div class="ttdef"><b>Definition:</b> metall.hpp:34</div></div>
+<div class="ttc" id="avector_8hpp_html"><div class="ttname"><a href="vector_8hpp.html">vector.hpp</a></div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
