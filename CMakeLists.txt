@@ -5,19 +5,19 @@ include(FetchContent)
 # -------------------------------------------------------------------------------- #
 # CMake policy
 # -------------------------------------------------------------------------------- #
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
     cmake_policy(SET CMP0077 NEW)
-endif()
+endif ()
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
     cmake_policy(SET CMP0135 NEW)
-endif()
+endif ()
 
 # -------------------------------------------------------------------------------- #
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.27
+        VERSION 0.28
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 
@@ -92,6 +92,7 @@ set(COMPILER_DEFS "" CACHE STRING "A list of Metall compile definitions to be ad
 
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
+set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
@@ -113,11 +114,11 @@ endif ()
 # -------------------------------------------------------------------------------- #
 if (INSTALL_HEADER_ONLY)
     message(WARNING "INSTALL_HEADER_ONLY option has been replaced with JUST_INSTALL_METALL_HEADER.")
-endif()
+endif ()
 
 if (JUST_INSTALL_METALL_HEADER)
     return()
-endif()
+endif ()
 # -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
@@ -138,7 +139,7 @@ endif ()
 # -------------------------------------------------------------------------------- #
 
 # -------------------------------------------------------------------------------- #
-# Executables
+# Set up for building executables
 # -------------------------------------------------------------------------------- #
 
 # Requirements for GCC
@@ -151,9 +152,9 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
 endif ()
 
 # ---------- Metall Macros ---------- #
-foreach(X ${COMPILER_DEFS})
+foreach (X ${COMPILER_DEFS})
     message(STATUS "Metall compile definition: ${X}")
-endforeach()
+endforeach ()
 
 
 # ---------- CMAKE_BUILD_TYPE ---------- #
@@ -168,12 +169,8 @@ find_package(Threads REQUIRED)
 
 
 # ---------- filesystem ---------- #
-include(include_cxx_filesystem_library)
-include_cxx_filesystem_library()
-
-# Xcode 11 Beta Release Notes
-# Clang now supports the C++17 <filesystem> library for iOS 13, macOS 10.15, watchOS 6, and tvOS 13. (50988273)
-# https://developer.apple.com/documentation/xcode_release_notes/xcode_11_beta_release_notes?language=objc
+include(check_cxx_filesystem_library)
+check_cxx_filesystem_library()
 
 
 # ---------- UMap ---------- #
@@ -183,6 +180,11 @@ if (UMAP_ROOT)
     endif ()
 endif ()
 
+# ---------- Privateer ---------- #
+if (PRIVATEER_ROOT)
+    message(STATUS "Privateer Root is: ${PRIVATEER_ROOT}")
+    find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+endif ()
 
 # ---------- Boost ---------- #
 # Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
@@ -192,7 +194,7 @@ set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost 1.64 QUIET)
 if (NOT Boost_FOUND)
     FetchContent_Declare(Boost
-            URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2)
+            URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2)
     FetchContent_GetProperties(Boost)
     if (NOT Boost_POPULATED)
         FetchContent_Populate(Boost)
@@ -212,7 +214,7 @@ function(add_common_compile_options name)
     target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Og>)
     target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-g3>)
     target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Wextra>)
-    if (Linux)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-pg>)
     endif ()
 
@@ -223,7 +225,7 @@ function(add_common_compile_options name)
     # Release with debug info
     target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-Ofast>)
     target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-g3>)
-    if (Linux)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-pg>)
     endif ()
 endfunction()
@@ -246,20 +248,18 @@ function(common_setup_for_metall_executable name)
     # --------------------
 
     # ----- Compile Definitions ----- #
-    foreach(X ${COMPILER_DEFS})
-         target_compile_definitions(${name} PRIVATE ${X})
-    endforeach()
+    foreach (X ${COMPILER_DEFS})
+        target_compile_definitions(${name} PRIVATE ${X})
+    endforeach ()
     # --------------------
 
     # ----- CXX17 Filesystem Lib----- #
-    # include_cxx_filesystem_library module must be executed first
-    if (FOUND_CXX17_FILESYSTEM_LIB)
-        if (REQUIRE_LIB_STDCXX_FS)
+    # GNU compilers prior to 9.1 requires linking with stdc++fs
+    if (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1)
             target_link_libraries(${name} PRIVATE stdc++fs)
-        endif()
-    elseif()
-        target_compile_definitions(${name} PRIVATE "METALL_DISABLE_CXX17_FILESYSTEM_LIB")
-    endif()
+        endif ()
+    endif ()
     # --------------------
 
     # ----- Umap----- #
@@ -268,6 +268,37 @@ function(common_setup_for_metall_executable name)
         if (LIBUMAP)
             target_link_libraries(${name} PRIVATE ${LIBUMAP})
             target_compile_definitions(${name} PRIVATE "METALL_USE_UMAP")
+        endif ()
+    endif ()
+    # --------------------
+
+    # ----- Privateer----- #
+    if (PRIVATEER_ROOT)
+        target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
+        if (LIBPRIVATEER)
+            # 1) Privateer Dependencies
+            FIND_PACKAGE(OpenSSL)
+            if (OpenSSL_FOUND)
+                target_link_libraries(${name} PRIVATE OpenSSL::SSL)
+                target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
+            endif ()
+            target_link_libraries(${name} PRIVATE rt)
+            FIND_PACKAGE(OpenMP REQUIRED)
+            if (OpenMP_CXX_FOUND)
+                target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
+            else ()
+                message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
+            endif ()
+            if (ZSTD_ROOT)
+                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
+                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
+                target_link_libraries(${name} PRIVATE ${LIBZSTD})
+                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
+            endif ()
+
+            # 2) Link Privateer
+            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
+            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
         endif ()
     endif ()
     # --------------------

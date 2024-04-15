@@ -10,12 +10,10 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include <metall/metall.hpp>
-#include <metall/utility/fallback_allocator_adaptor.hpp>
 #include "../test_utility.hpp"
 
 template <typename T>
-using fb_alloc_type = metall::utility::fallback_allocator_adaptor<
-    metall::manager::allocator_type<T>>;
+using fb_alloc_type = metall::manager::fallback_allocator<T>;
 
 const std::string &dir_path() {
   const static std::string path(test_utility::make_test_path());
@@ -65,38 +63,6 @@ TEST(FallbackAllocatorAdaptorTest, Types) {
 
     GTEST_ASSERT_EQ(typeid(std::allocator_traits<fb_alloc_type<T>>::size_type),
                     typeid(fb_alloc_type<T>::size_type));
-
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_copy_assignment),
-        typeid(fb_alloc_type<T>::propagate_on_container_copy_assignment));
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_copy_assignment),
-        typeid(std::true_type));
-
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_move_assignment),
-        typeid(fb_alloc_type<T>::propagate_on_container_move_assignment));
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<
-               fb_alloc_type<T>>::propagate_on_container_move_assignment),
-        typeid(std::true_type));
-
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<
-                           fb_alloc_type<T>>::propagate_on_container_swap),
-                    typeid(fb_alloc_type<T>::propagate_on_container_swap));
-    GTEST_ASSERT_EQ(typeid(std::allocator_traits<
-                           fb_alloc_type<T>>::propagate_on_container_swap),
-                    typeid(std::true_type));
-
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<fb_alloc_type<T>>::is_always_equal),
-        typeid(fb_alloc_type<T>::is_always_equal));
-    GTEST_ASSERT_EQ(
-        typeid(std::allocator_traits<fb_alloc_type<T>>::is_always_equal),
-        typeid(std::false_type));
 
     using otherT = int;
     using other_alloc_t = fb_alloc_type<otherT>;
@@ -199,7 +165,7 @@ TEST(FallbackAllocatorAdaptorTest, PersistentConstructFind) {
       boost::interprocess::vector<element_type, fb_alloc_type<element_type>>;
 
   {
-    metall::manager manager(metall::create_only, dir_path().c_str(),
+    metall::manager manager(metall::create_only, dir_path(),
                             1UL << 27UL);
 
     int *a = manager.construct<int>("int")(10);
@@ -212,7 +178,7 @@ TEST(FallbackAllocatorAdaptorTest, PersistentConstructFind) {
   }
 
   {
-    metall::manager manager(metall::open_only, dir_path().c_str());
+    metall::manager manager(metall::open_only, dir_path());
 
     const auto ret1 = manager.find<int>("int");
     ASSERT_NE(ret1.first, nullptr);

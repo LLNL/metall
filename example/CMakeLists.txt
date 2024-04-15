@@ -14,7 +14,7 @@ add_metall_executable(snapshot snapshot.cpp)
 
 add_metall_executable(csr_graph csr_graph.cpp)
 
-add_metall_executable(fallback_allocator_adaptor fallback_allocator_adaptor.cpp)
+add_metall_executable(fallback_allocator fallback_allocator.cpp)
 
 add_metall_executable(datastore_description datastore_description.cpp)
 
@@ -37,6 +37,9 @@ add_metall_executable(allocator_aware_type allocator_aware_type.cpp)
 add_metall_executable(logger logger.cpp)
 
 add_metall_executable(concurrent concurrent.cpp)
+
+add_metall_executable(custom_logger custom_logger.cpp)
+target_compile_definitions(custom_logger PRIVATE METALL_LOGGER_EXTERN_C=1)
 
 if (BUILD_C)
     add_c_executable(c_api c_api.c)

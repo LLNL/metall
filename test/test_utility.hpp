@@ -10,20 +10,26 @@
 
 #include <string>
 #include <cstdlib>
+#include_next <sstream>
+#include <filesystem>
 
 #include <metall/detail/file.hpp>
 
 namespace test_utility {
 
+namespace {
+namespace fs = std::filesystem;
+}
+
 const char *k_test_dir_env_name = "METALL_TEST_DIR";
 const char *k_default_test_dir = "/tmp/metall_test_dir";
 
 namespace detail {
-inline std::string get_test_dir() {
+inline fs::path get_test_dir() {
   if (const char *env_p = std::getenv(k_test_dir_env_name)) {
-    return std::string(env_p);
+    return fs::path(env_p);
   }
-  return std::string(k_default_test_dir);
+  return fs::path(k_default_test_dir);
 }
 }  // namespace detail
 
@@ -33,11 +39,14 @@ inline bool create_test_dir() {
   return true;
 }
 
-inline std::string make_test_path(const std::string &name = std::string()) {
-  return detail::get_test_dir() + "/metalltest" + "-" +
-         ::testing::UnitTest::GetInstance()->current_test_case()->name() + "-" +
-         ::testing::UnitTest::GetInstance()->current_test_info()->name() + "-" +
-         name;
+inline fs::path make_test_path(const fs::path &name = fs::path()) {
+  std::stringstream file_name;
+  file_name << "metalltest-"
+            << ::testing::UnitTest::GetInstance()->current_test_case()->name()
+            << "-"
+            << ::testing::UnitTest::GetInstance()->current_test_info()->name()
+            << "-" << name.string();
+  return detail::get_test_dir() / file_name.str();
 }
 
 }  // namespace test_utility

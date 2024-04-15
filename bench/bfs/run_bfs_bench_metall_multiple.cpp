@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     std::vector<metall::manager *> managers;
     for (const auto &file_name : option.graph_file_name_list) {
       managers.emplace_back(
-          new metall::manager(metall::open_read_only, file_name.c_str()));
+          new metall::manager(metall::open_read_only, file_name));
     }
 
     auto adj_list = adjacency_list_type(option.graph_key_name, managers.begin(),

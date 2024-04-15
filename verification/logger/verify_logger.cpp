@@ -9,7 +9,6 @@
 using namespace metall;
 
 void log_cerr() {
-  logger::out(logger::level::silent, __FILE__, __LINE__, "silent logger");
   logger::out(logger::level::critical, __FILE__, __LINE__, "critical logger");
   logger::out(logger::level::error, __FILE__, __LINE__, "error logger");
   logger::out(logger::level::warning, __FILE__, __LINE__, "warning logger");
@@ -19,7 +18,6 @@ void log_cerr() {
 }
 
 void log_perror() {
-  logger::perror(logger::level::silent, __FILE__, __LINE__, "silent logger");
   logger::perror(logger::level::critical, __FILE__, __LINE__,
                  "critical logger");
   logger::perror(logger::level::error, __FILE__, __LINE__, "error logger");
@@ -37,37 +35,37 @@ int main() {
   log_perror();
 
   std::cerr << "\n--- Log level : silent ---" << std::endl;
-  logger::set_log_level(logger::level::silent);
+  logger::set_log_level(logger::level_filter::silent);
   log_cerr();
   log_perror();
 
   std::cerr << "\n--- Log level : critical ---" << std::endl;
-  logger::set_log_level(logger::level::critical);
+  logger::set_log_level(logger::level_filter::critical);
   log_cerr();
   log_perror();
 
   std::cerr << "\n--- Log level : error ---" << std::endl;
-  logger::set_log_level(logger::level::error);
+  logger::set_log_level(logger::level_filter::error);
   log_cerr();
   log_perror();
 
   std::cerr << "\n--- Log level : warning ---" << std::endl;
-  logger::set_log_level(logger::level::warning);
+  logger::set_log_level(logger::level_filter::warning);
   log_cerr();
   log_perror();
 
   std::cerr << "\n--- Log level : info ---" << std::endl;
-  logger::set_log_level(logger::level::info);
+  logger::set_log_level(logger::level_filter::info);
   log_cerr();
   log_perror();
 
   std::cerr << "\n--- Log level : debug ---" << std::endl;
-  logger::set_log_level(logger::level::debug);
+  logger::set_log_level(logger::level_filter::debug);
   log_cerr();
   log_perror();
 
   std::cerr << "\n--- Log level : verbose ---" << std::endl;
-  logger::set_log_level(logger::level::verbose);
+  logger::set_log_level(logger::level_filter::verbose);
   log_cerr();
   log_perror();
 

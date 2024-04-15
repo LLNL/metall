@@ -12,21 +12,30 @@
 #include <metall/tags.hpp>
 #include <metall/stl_allocator.hpp>
 #include <metall/container/scoped_allocator.hpp>
+#include <metall/container/fallback_allocator.hpp>
 #include <metall/kernel/manager_kernel.hpp>
 #include <metall/detail/named_proxy.hpp>
+#include <metall/kernel/segment_storage.hpp>
+#include <metall/kernel/storage.hpp>
+#include <metall/kernel/segment_storage.hpp>
 
 namespace metall {
 
 #if !defined(DOXYGEN_SKIP)
 // Forward declaration
-template <typename chunk_no_type, std::size_t k_chunk_size>
+template <typename storage, typename segment_storage, typename chunk_no_type,
+          std::size_t k_chunk_size>
 class basic_manager;
 #endif  // DOXYGEN_SKIP
 
 /// \brief A generalized Metall manager class
-/// \tparam chunk_no_type
-/// \tparam k_chunk_size
-template <typename chunk_no_type = uint32_t,
+/// \tparam storage Storage manager.
+/// \tparam segment_storage Segment storage manager.
+/// \tparam chunk_no_type Type of chunk number.
+/// \tparam k_chunk_size Size of single chunk in byte.
+template <typename storage = kernel::storage,
+          typename segment_storage = kernel::segment_storage,
+          typename chunk_no_type = uint32_t,
           std::size_t k_chunk_size = (1ULL << 21ULL)>
 class basic_manager {
  public:
@@ -36,7 +45,8 @@ class basic_manager {
 
   /// \brief Manager kernel type
   using manager_kernel_type =
-      kernel::manager_kernel<chunk_no_type, k_chunk_size>;
+      kernel::manager_kernel<storage, segment_storage, chunk_no_type,
+                             k_chunk_size>;
 
   /// \brief Void pointer type
   using void_pointer = typename manager_kernel_type::void_pointer;
@@ -59,6 +69,38 @@ class basic_manager {
   using scoped_allocator_type =
       container::scoped_allocator_adaptor<allocator_type<OuterT>,
                                           allocator_type<InnerT>...>;
+
+  /// \brief A STL compatible allocator which fallbacks to a heap allocator
+  /// (e.g., malloc()) if no argument is provided to construct a
+  /// allocator_type instance.
+  ///
+  /// \tparam T The type of the object to allocate
+  ///
+  /// \details
+  /// This allocator enables the following code.
+  /// \code
+  /// {
+  ///  using alloc = fallback_allocator<int>;
+  ///  // Allocate a vector object in a heap.
+  ///  vector<int, alloc> vec;
+  ///  // Allocate a vector object in a Metall space.
+  ///  vector<int, alloc> vec2(manager.get_allocator());
+  /// }
+  /// \endcode
+  /// \attention
+  /// One of the primary purposes of this allocator is to provide a way to
+  /// temporarily allocate data structures that use Metall’s STL-allocator in a
+  /// heap in addition to in Metall memory space. It is advised to use this
+  /// allocator with caution as two memory spaces are used transparently by
+  /// this allocator.
+  template <typename T>
+  using fallback_allocator =
+      container::fallback_allocator_adaptor<allocator_type<T>>;
+
+  /// \brief Fallback allocator type wrapped by scoped_allocator_adaptor.
+  template <typename T>
+  using scoped_fallback_allocator_type =
+      container::scoped_allocator_adaptor<fallback_allocator<T>>;
 
   /// \brief Construct proxy
   template <typename T>
@@ -101,13 +143,17 @@ class basic_manager {
   /// \brief Chunk number type (= chunk_no_type)
   using chunk_number_type = chunk_no_type;
 
+  /// \brief Path type
+  using path_type = typename manager_kernel_type::path_type;
+
  private:
   // -------------------- //
   // Private types and static values
   // -------------------- //
   using char_ptr_holder_type =
       typename manager_kernel_type::char_ptr_holder_type;
-  using self_type = basic_manager<chunk_no_type, k_chunk_size>;
+  using self_type =
+      basic_manager<storage, segment_storage, chunk_no_type, k_chunk_size>;
 
  public:
   // -------------------- //
@@ -116,7 +162,7 @@ class basic_manager {
 
   /// \brief Opens an existing data store.
   /// \param base_path Path to a data store.
-  basic_manager(open_only_t, const char *base_path) noexcept {
+  basic_manager(open_only_t, const path_type &base_path) noexcept {
     try {
       m_kernel = std::make_unique<manager_kernel_type>();
       m_kernel->open(base_path);
@@ -130,7 +176,7 @@ class basic_manager {
   /// \brief Opens an existing data store with the read only mode.
   /// Write accesses will cause segmentation fault.
   /// \param base_path Path to a data store.
-  basic_manager(open_read_only_t, const char *base_path) noexcept {
+  basic_manager(open_read_only_t, const path_type &base_path) noexcept {
     try {
       m_kernel = std::make_unique<manager_kernel_type>();
       m_kernel->open_read_only(base_path);
@@ -143,7 +189,7 @@ class basic_manager {
 
   /// \brief Creates a new data store (an existing data store will be
   /// overwritten). \param base_path Path to create a data store.
-  basic_manager(create_only_t, const char *base_path) noexcept {
+  basic_manager(create_only_t, const path_type &base_path) noexcept {
     try {
       m_kernel = std::make_unique<manager_kernel_type>();
       m_kernel->create(base_path);
@@ -155,9 +201,13 @@ class basic_manager {
   }
 
   /// \brief Creates a new data store (an existing data store will be
-  /// overwritten). \param base_path Path to create a data store. \param
-  /// capacity Maximum total allocation size.
-  basic_manager(create_only_t, const char *base_path,
+  /// overwritten).
+  /// \param base_path Path to create a data store.
+  /// \param capacity Total allocation size. Metall uses this value as a hint.
+  // The actual limit could be smaller or larger than this value, depending on
+  // the internal implementation. However, a close minimum capacity should be
+  // available.
+  basic_manager(create_only_t, const path_type &base_path,
                 const size_type capacity) noexcept {
     try {
       m_kernel = std::make_unique<manager_kernel_type>();
@@ -935,19 +985,18 @@ class basic_manager {
   /// \brief Takes a snapshot of the current data. The snapshot has a new UUID.
   /// \copydoc doc_single_thread
   ///
-  /// \param destination_dir_path Path to store a snapshot.
+  /// \param destination_path Path to store a snapshot.
   /// \param clone Use the file clone mechanism (reflink) instead of normal copy
   /// if it is available. \param num_max_copy_threads The maximum number of copy
   /// threads to use. If <= 0 is given, the value is automatically determined.
   /// \return Returns true on success; other false.
-  bool snapshot(const char_type *destination_dir_path, const bool clone = true,
+  bool snapshot(const path_type &destination_path, const bool clone = true,
                 const int num_max_copy_threads = 0) noexcept {
     if (!check_sanity()) {
       return false;
     }
     try {
-      return m_kernel->snapshot(destination_dir_path, clone,
-                                num_max_copy_threads);
+      return m_kernel->snapshot(destination_path, clone, num_max_copy_threads);
     } catch (...) {
       m_kernel.reset(nullptr);
       logger::out(logger::level::error, __FILE__, __LINE__,
@@ -962,19 +1011,18 @@ class basic_manager {
   /// \copydoc doc_thread_safe
   /// \details Copying to the same path simultaneously is prohibited.
   ///
-  /// \param source_dir_path Source data store path.\param
-  /// destination_dir_path Destination data store path. \param clone Use the
-  /// file clone mechanism (reflink) instead of normal copy if it is available.
-  /// \param num_max_copy_threads The maximum number of copy threads to use.
-  /// If <= 0 is given, the value is automatically determined.
+  /// \param source_path Source data store path.
+  /// \param destination_path Destination data store path.
+  /// \param clone Use the file clone mechanism (reflink) instead of normal copy
+  /// if it is available. \param num_max_copy_threads The maximum number of copy
+  /// threads to use. If <= 0 is given, the value is automatically determined.
   /// \return If succeeded, returns true; other false.
-  static bool copy(const char_type *source_dir_path,
-                   const char_type *destination_dir_path,
-                   const bool clone = true,
+  static bool copy(const path_type &source_path,
+                   const path_type &destination_path, const bool clone = true,
                    const int num_max_copy_threads = 0) noexcept {
     try {
-      return manager_kernel_type::copy(source_dir_path, destination_dir_path,
-                                       clone, num_max_copy_threads);
+      return manager_kernel_type::copy(source_path, destination_path, clone,
+                                       num_max_copy_threads);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -988,20 +1036,21 @@ class basic_manager {
   /// \copydoc doc_thread_safe
   /// \details Copying to the same path simultaneously is prohibited.
   ///
-  /// \param source_dir_path Source data store path. \param
-  /// destination_dir_path Destination data store path. \param clone Use the
-  /// file clone mechanism (reflink) instead of normal copy if it is available.
-  /// \param num_max_copy_threads The maximum number of copy threads to use.
-  /// If <= 0 is given, the value is automatically determined.
-  /// \return Returns an object of std::future.
-  /// If succeeded, its get() returns true; other false.
-  static auto copy_async(const char_type *source_dir_path,
-                         const char_type *destination_dir_path,
+  /// \param source_path Source data store path.
+  /// \param destination_path Destination data store path.
+  /// \param clone Use the file clone mechanism (reflink) instead of normal copy
+  /// if it is available.
+  /// \param num_max_copy_threads The maximum number of copy threads to use. If
+  /// <= 0 is given, the value is automatically determined.
+  /// \return Returns an object of std::future. If succeeded, its get() returns
+  /// true; other false.
+  static auto copy_async(const path_type source_path,
+                         const path_type destination_path,
                          const bool clone = true,
                          const int num_max_copy_threads = 0) noexcept {
     try {
-      return manager_kernel_type::copy_async(
-          source_dir_path, destination_dir_path, clone, num_max_copy_threads);
+      return manager_kernel_type::copy_async(source_path, destination_path,
+                                             clone, num_max_copy_threads);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1013,11 +1062,11 @@ class basic_manager {
   /// \copydoc doc_thread_safe
   /// \details Must not remove the same data store simultaneously.
   ///
-  /// \param dir_path Path to a data store to remove. \return If
+  /// \param path Path to a data store to remove. \return If
   /// succeeded, returns true; other false.
-  static bool remove(const char_type *dir_path) noexcept {
+  static bool remove(const path_type &path) noexcept {
     try {
-      return manager_kernel_type::remove(dir_path);
+      return manager_kernel_type::remove(path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1029,12 +1078,12 @@ class basic_manager {
   /// \copydoc doc_thread_safe
   /// \details Must not remove the same data store simultaneously.
   ///
-  /// \param dir_path Path to a data store to remove.
+  /// \param path Path to the data store to remove.
   /// \return Returns an object of std::future.
   /// If succeeded, its get() returns true; other false
-  static std::future<bool> remove_async(const char_type *dir_path) noexcept {
+  static std::future<bool> remove_async(const path_type &path) noexcept {
     try {
-      return std::async(std::launch::async, remove, dir_path);
+      return std::async(std::launch::async, remove, path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1051,12 +1100,12 @@ class basic_manager {
   /// read-only mode is undefined.
   /// If the data store is not consistent, it is recommended to remove
   /// the data store and create a new one.
-  /// \param dir_path Path to a data store.
+  /// \param path Path to a data store.
   /// \return Returns true if it exists and is consistent; otherwise, returns
   /// false.
-  static bool consistent(const char_type *dir_path) noexcept {
+  static bool consistent(const path_type &path) noexcept {
     try {
-      return manager_kernel_type::consistent(dir_path);
+      return manager_kernel_type::consistent(path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1084,11 +1133,11 @@ class basic_manager {
   /// \brief Returns a UUID of the data store.
   /// \copydoc doc_thread_safe
   ///
-  /// \param dir_path Path to a data store.
+  /// \param path Path to a data store.
   /// \return UUID in the std::string format; returns an empty string on error.
-  static std::string get_uuid(const char_type *dir_path) noexcept {
+  static std::string get_uuid(const path_type &path) noexcept {
     try {
-      return manager_kernel_type::get_uuid(dir_path);
+      return manager_kernel_type::get_uuid(path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1116,11 +1165,11 @@ class basic_manager {
   /// \brief Gets the version of the Metall that created the backing data store.
   /// \copydoc doc_thread_safe
   ///
-  /// \param dir_path Path to a data store.
+  /// \param path Path to a data store.
   /// \return Returns a version number; returns 0 on error.
-  static version_type get_version(const char_type *dir_path) noexcept {
+  static version_type get_version(const path_type &path) noexcept {
     try {
-      return manager_kernel_type::get_version(dir_path);
+      return manager_kernel_type::get_version(path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1158,13 +1207,13 @@ class basic_manager {
   /// store).
   /// \copydoc doc_const_datastore_thread_safe
   ///
-  /// \param dir_path Path to a data store. \param description An std::string
+  /// \param path Path to a data store. \param description An std::string
   /// object that holds a description. \return Returns true on success;
   /// otherwise, false.
-  static bool set_description(const char *dir_path,
+  static bool set_description(const path_type &path,
                               const std::string &description) noexcept {
     try {
-      return manager_kernel_type::set_description(dir_path, description);
+      return manager_kernel_type::set_description(path, description);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1199,14 +1248,14 @@ class basic_manager {
   /// object.
   /// \copydoc doc_const_datastore_thread_safe
   ///
-  /// \param dir_path Path to a data store. \param description A pointer
+  /// \param path Path to a data store. \param description A pointer
   /// to an std::string object to store a description if it exists. \return
   /// Returns true on success; returns false on error. Trying to get a
   /// non-existent description is not considered as an error.
-  static bool get_description(const char *dir_path,
+  static bool get_description(const path_type &path,
                               std::string *description) noexcept {
     try {
-      return manager_kernel_type::get_description(dir_path, description);
+      return manager_kernel_type::get_description(path, description);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1219,12 +1268,12 @@ class basic_manager {
   /// objects.
   /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
-  /// \param dir_path Path to a data store. \return Returns an instance
+  /// \param path Path to a data store. \return Returns an instance
   /// of named_object_attribute_accessor_type.
   static named_object_attribute_accessor_type access_named_object_attribute(
-      const char *dir_path) noexcept {
+      const path_type &path) noexcept {
     try {
-      return manager_kernel_type::access_named_object_attribute(dir_path);
+      return manager_kernel_type::access_named_object_attribute(path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1236,12 +1285,12 @@ class basic_manager {
   /// object.
   /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
-  /// \param dir_path Path to a data store. \return Returns an instance
+  /// \param path Path to a data store. \return Returns an instance
   /// of unique_object_attribute_accessor_type.
   static unique_object_attribute_accessor_type access_unique_object_attribute(
-      const char *dir_path) noexcept {
+      const path_type &path) noexcept {
     try {
-      return manager_kernel_type::access_unique_object_attribute(dir_path);
+      return manager_kernel_type::access_unique_object_attribute(path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1253,12 +1302,12 @@ class basic_manager {
   /// anonymous object.
   /// \copydoc doc_object_attrb_obj_const_thread_safe
   ///
-  /// \param dir_path Path to a data store. \return Returns an
+  /// \param path Path to a data store. \return Returns an
   /// instance of anonymous_object_attribute_accessor_type.
   static anonymous_object_attribute_accessor_type
-  access_anonymous_object_attribute(const char *dir_path) noexcept {
+  access_anonymous_object_attribute(const path_type &path) noexcept {
     try {
-      return manager_kernel_type::access_anonymous_object_attribute(dir_path);
+      return manager_kernel_type::access_anonymous_object_attribute(path);
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1279,7 +1328,7 @@ class basic_manager {
     }
     try {
       return allocator_type<T>(reinterpret_cast<manager_kernel_type *const *>(
-          &(m_kernel->get_segment_header()->manager_kernel_address)));
+          &(m_kernel->get_segment_header().manager_kernel_address)));
     } catch (...) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "An exception has been thrown");
@@ -1327,6 +1376,23 @@ class basic_manager {
                   "An exception has been thrown");
     }
     return 0;
+  }
+
+  /// \brief Returns if this manager was opened as read-only
+  /// \copydoc doc_thread_safe
+  ///
+  /// \return whether or not this manager was opened as read-only
+  bool read_only() const noexcept {
+    if (!check_sanity()) {
+      return true;
+    }
+    try {
+      return m_kernel->read_only();
+    } catch (...) {
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "An exception has been thrown");
+    }
+    return true;
   }
 
   // bool belongs_to_segment (const void *ptr) const

@@ -124,7 +124,7 @@ TEST(ChunkDirectoryTest, Serialize) {
 
   test_utility::create_test_dir();
   const auto file(test_utility::make_test_path());
-  ASSERT_TRUE(directory.serialize(file.c_str()));
+  ASSERT_TRUE(directory.serialize(file));
 }
 
 TEST(ChunkDirectoryTest, Deserialize) {
@@ -146,13 +146,13 @@ TEST(ChunkDirectoryTest, Deserialize) {
     directory.insert(bin_no_mngr::num_small_bins());      // 1 chunk
     directory.insert(bin_no_mngr::num_small_bins() + 1);  // 2 chunks
 
-    directory.serialize(file.c_str());
+    directory.serialize(file);
   }
 
   {
     chunk_directory_type directory(bin_no_mngr::num_small_bins() + 4);
 
-    ASSERT_TRUE(directory.deserialize(file.c_str()));
+    ASSERT_TRUE(directory.deserialize(file));
     for (uint64_t i = 0; i < bin_no_mngr::num_small_bins(); ++i) {
       const auto bin_no = static_cast<typename bin_no_mngr::bin_no_type>(i);
       const auto chunk_no = static_cast<chunk_no_type>(i);

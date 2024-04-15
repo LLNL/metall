@@ -1,4 +1,4 @@
-if (MPI_CXX_FOUND)
+if (NOT MPI_CXX_FOUND)
     find_package(MPI)
 endif ()
 

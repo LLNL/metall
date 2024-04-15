@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <limits>
 #include <set>
+#include <filesystem>
 
 #include <metall/kernel/bin_number_manager.hpp>
 #include <metall/kernel/bin_directory.hpp>
@@ -40,8 +41,9 @@ namespace metall {
 namespace kernel {
 
 namespace {
+namespace fs = std::filesystem;
 namespace mdtl = metall::mtlldetail;
-}
+}  // namespace
 
 template <typename _chunk_no_type, typename _size_type,
           typename _difference_type, std::size_t _chunk_size,
@@ -246,21 +248,19 @@ class segment_allocator {
   /// \brief
   /// \param base_path
   /// \return
-  bool serialize(const std::string &base_path) {
+  bool serialize(const fs::path &base_path) {
 #ifndef METALL_DISABLE_OBJECT_CACHE
     priv_clear_object_cache();
 #endif
 
     if (!m_non_full_chunk_bin.serialize(
-            priv_make_file_name(base_path, k_non_full_chunk_bin_file_name)
-                .c_str())) {
+            priv_make_file_name(base_path, k_non_full_chunk_bin_file_name))) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "Failed to serialize bin directory");
       return false;
     }
     if (!m_chunk_directory.serialize(
-            priv_make_file_name(base_path, k_chunk_directory_file_name)
-                .c_str())) {
+            priv_make_file_name(base_path, k_chunk_directory_file_name))) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "Failed to serialize chunk directory");
       return false;
@@ -271,17 +271,15 @@ class segment_allocator {
   /// \brief
   /// \param base_path
   /// \return
-  bool deserialize(const std::string &base_path) {
+  bool deserialize(const fs::path &base_path) {
     if (!m_non_full_chunk_bin.deserialize(
-            priv_make_file_name(base_path, k_non_full_chunk_bin_file_name)
-                .c_str())) {
+            priv_make_file_name(base_path, k_non_full_chunk_bin_file_name))) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "Failed to deserialize bin directory");
       return false;
     }
     if (!m_chunk_directory.deserialize(
-            priv_make_file_name(base_path, k_chunk_directory_file_name)
-                .c_str())) {
+            priv_make_file_name(base_path, k_chunk_directory_file_name))) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "Failed to deserialize chunk directory");
       return false;
@@ -363,9 +361,9 @@ class segment_allocator {
     return bin_no < k_num_small_bins;
   }
 
-  std::string priv_make_file_name(const std::string &base_name,
-                                  const std::string &item_name) {
-    return base_name + "_" + item_name;
+  fs::path priv_make_file_name(const fs::path &base_name,
+                               const std::string &item_name) {
+    return base_name.string() + "_" + item_name;
   }
 
   // ---------- For allocation ---------- //

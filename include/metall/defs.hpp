@@ -49,7 +49,7 @@
 #endif
 
 // --------------------
-// Macros for the default segment storage manager
+// Macros for the default segment storage
 // --------------------
 
 /// \def METALL_SEGMENT_BLOCK_SIZE

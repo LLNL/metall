@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS "-Wall -pthread")
 
 # Debug
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
-if (Linux)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
 endif ()
 

@@ -29,10 +29,8 @@ namespace omp = metall::utility::omp;
 // -------------------- //
 // Manage Type
 // -------------------- //
-using chunk_no_type = uint32_t;
-static constexpr std::size_t k_chunk_size = 1ULL << 21;
 constexpr std::size_t k_min_object_size = 8;  // TODO: take from the file
-using manager_type = metall::basic_manager<chunk_no_type, k_chunk_size>;
+using manager_type = metall::basic_manager<>;
 template <typename T>
 using allocator_type = typename manager_type::allocator_type<T>;
 
@@ -94,12 +92,12 @@ int get_num_threads() {
 
 /// \brief
 /// This validation fails if the total allocation size of any size is less than
-/// k_chunk_size
+/// manager_type::chunk_size()
 template <typename list_type>
 void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
   // Allocate manager
   const auto dir(test_utility::make_test_path());
-  manager_type manager(metall::create_only, dir.c_str());
+  manager_type manager(metall::create_only, dir);
 
   // Main loop
   std::pair<void *, void *> previous_allocation_rage(nullptr, nullptr);
@@ -128,13 +126,13 @@ void run_alloc_dealloc_separated_test(const list_type &allocation_size_list) {
 
 /// \brief
 /// This validation fails if the total allocation size of any size is less than
-/// k_chunk_size
+/// manager_type::chunk_size()
 template <typename list_type>
 void run_alloc_dealloc_mixed_and_write_value_test(
     const list_type &allocation_size_list) {
   // Allocate manager
   const auto dir(test_utility::make_test_path());
-  manager_type manager(metall::create_only, dir.c_str());
+  manager_type manager(metall::create_only, dir);
 
   // Main loop
   std::vector<std::pair<void *, std::size_t>> previous_addr_and_size_array(
@@ -209,13 +207,13 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocSeparated) {
 
   std::vector<std::size_t> allocation_size_list;
   allocation_size_list.insert(allocation_size_list.end(),
-                              num_allocations_per_size, k_chunk_size);
+                              num_allocations_per_size, manager_type::chunk_size());
   allocation_size_list.insert(allocation_size_list.end(),
-                              num_allocations_per_size, k_chunk_size * 2);
+                              num_allocations_per_size, manager_type::chunk_size() * 2);
   allocation_size_list.insert(allocation_size_list.end(),
-                              num_allocations_per_size, k_chunk_size * 4);
+                              num_allocations_per_size, manager_type::chunk_size() * 4);
   allocation_size_list.insert(allocation_size_list.end(),
-                              num_allocations_per_size, k_chunk_size * 8);
+                              num_allocations_per_size, manager_type::chunk_size() * 8);
 
   shuffle_list(&allocation_size_list);
 
@@ -230,13 +228,13 @@ TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocSeparated) {
                               k_min_object_size * 1);
   allocation_size_list.insert(allocation_size_list.end(), 1024,
                               k_min_object_size * 2);
-  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, manager_type::chunk_size());
   allocation_size_list.insert(allocation_size_list.end(), 1024,
-                              k_chunk_size * 2);
+                              manager_type::chunk_size() * 2);
   allocation_size_list.insert(allocation_size_list.end(), 1024,
-                              k_chunk_size * 4);
+                              manager_type::chunk_size() * 4);
   allocation_size_list.insert(allocation_size_list.end(), 1024,
-                              k_chunk_size * 8);
+                              manager_type::chunk_size() * 8);
 
   shuffle_list(&allocation_size_list);
 
@@ -262,11 +260,11 @@ TEST(ManagerMultithreadsTest, LargeAllocDeallocMixed) {
 
   std::vector<std::size_t> allocation_size_list;
   allocation_size_list.insert(allocation_size_list.end(),
-                              num_allocations_per_size, k_chunk_size);
+                              num_allocations_per_size, manager_type::chunk_size());
   allocation_size_list.insert(allocation_size_list.end(),
-                              num_allocations_per_size, k_chunk_size * 2);
+                              num_allocations_per_size, manager_type::chunk_size() * 2);
   allocation_size_list.insert(allocation_size_list.end(),
-                              num_allocations_per_size, k_chunk_size * 4);
+                              num_allocations_per_size, manager_type::chunk_size() * 4);
 
   shuffle_list(&allocation_size_list);
 
@@ -281,9 +279,9 @@ TEST(ManagerMultithreadsTest, SizeMixedAllocDeallocMixed) {
                               k_min_object_size);
   allocation_size_list.insert(allocation_size_list.end(), 1024,
                               k_min_object_size * 4);
-  allocation_size_list.insert(allocation_size_list.end(), 1024, k_chunk_size);
+  allocation_size_list.insert(allocation_size_list.end(), 1024, manager_type::chunk_size());
   allocation_size_list.insert(allocation_size_list.end(), 1024,
-                              k_chunk_size * 4);
+                              manager_type::chunk_size() * 4);
   shuffle_list(&allocation_size_list);
 
   run_alloc_dealloc_mixed_and_write_value_test(allocation_size_list);
@@ -295,7 +293,7 @@ TEST(ManagerMultithreadsTest, ConstructAndFind) {
   constexpr std::size_t num_allocates = 1024;
 
   const auto dir(test_utility::make_test_path());
-  manager_type manager(metall::create_only, dir.c_str());
+  manager_type manager(metall::create_only, dir);
 
   std::vector<std::string> keys;
   for (std::size_t i = 0; i < num_allocates; ++i) {

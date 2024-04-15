@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 
+#include <filesystem>
 #include <unordered_set>
 
 #include <metall/metall.hpp>
@@ -12,6 +13,8 @@
 #include "../test_utility.hpp"
 
 namespace {
+namespace fs = std::filesystem;
+
 using namespace metall::mtlldetail;
 
 using manager_type = metall::manager;
@@ -23,23 +26,23 @@ using object_size_mngr =
     metall::kernel::object_size_manager<k_chunk_size, 1ULL << 48>;
 constexpr std::size_t k_min_object_size = object_size_mngr::at(0);
 
-const std::string &dir_path() {
-  const static std::string path(test_utility::make_test_path());
+const fs::path &dir_path() {
+  const static fs::path path(test_utility::make_test_path());
   return path;
 }
 
 TEST(ManagerTest, CreateAndOpenModes) {
   {
-    manager_type::remove(dir_path().c_str());
+    manager_type::remove(dir_path());
     {
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       ASSERT_NE(manager.construct<int>("int")(10), nullptr);
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
     {
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_EQ(ret.first, nullptr);
       ASSERT_FALSE(manager.destroy<int>("int"));
@@ -47,14 +50,15 @@ TEST(ManagerTest, CreateAndOpenModes) {
   }
 
   {
-    manager_type::remove(dir_path().c_str());
+    manager_type::remove(dir_path());
     {
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       ASSERT_NE(manager.construct<int>("int")(10), nullptr);
     }
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
+      ASSERT_FALSE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
@@ -63,20 +67,22 @@ TEST(ManagerTest, CreateAndOpenModes) {
   }
 
   {
-    manager_type::remove(dir_path().c_str());
+    manager_type::remove(dir_path());
     {
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
+      ASSERT_FALSE(manager.read_only());
       ASSERT_NE(manager.construct<int>("int")(10), nullptr);
     }
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
+      ASSERT_TRUE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
     }
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
+      ASSERT_FALSE(manager.read_only());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(*(static_cast<int *>(ret.first)), 10);
@@ -88,14 +94,13 @@ TEST(ManagerTest, CreateAndOpenModes) {
 TEST(ManagerTest, ConstructArray) {
   {
     {
-      manager_type::remove(dir_path().c_str());
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type::remove(dir_path());
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
       ASSERT_NE(manager.construct<int>("int")[2](10), nullptr);
     }
 
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(ret.second, 2);
@@ -105,7 +110,7 @@ TEST(ManagerTest, ConstructArray) {
     }
 
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
   }
@@ -114,20 +119,19 @@ TEST(ManagerTest, ConstructArray) {
 TEST(ManagerTest, findOrConstruct) {
   {
     {
-      manager_type::remove(dir_path().c_str());
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type::remove(dir_path());
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
       ASSERT_NE(manager.find_or_construct<int>("int")(10), nullptr);
     }
 
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
       int *a = manager.find_or_construct<int>("int")(20);
       ASSERT_EQ(*a, 10);
     }
 
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
   }
@@ -136,21 +140,20 @@ TEST(ManagerTest, findOrConstruct) {
 TEST(ManagerTest, findOrConstructArray) {
   {
     {
-      manager_type::remove(dir_path().c_str());
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type::remove(dir_path());
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
       ASSERT_NE(manager.find_or_construct<int>("int")[2](10), nullptr);
     }
 
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
       int *a = manager.find_or_construct<int>("int")[2](20);
       ASSERT_EQ(a[0], 10);
       ASSERT_EQ(a[1], 10);
     }
 
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
   }
@@ -160,16 +163,15 @@ TEST(ManagerTest, ConstructContainers) {
   {
     using vec_t = std::vector<int, metall::manager::allocator_type<int>>;
     {
-      manager_type::remove(dir_path().c_str());
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type::remove(dir_path());
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
       ASSERT_NE(manager.construct<vec_t>("vecs")[2](
                     2, 10, manager.get_allocator<int>()),
                 nullptr);
     }
 
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
       auto ret = manager.find<vec_t>("vecs");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(ret.second, 2);
@@ -183,7 +185,7 @@ TEST(ManagerTest, ConstructContainers) {
     }
 
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
       ASSERT_TRUE(manager.destroy<vec_t>("vecs"));
       ASSERT_TRUE(manager.all_memory_deallocated());
     }
@@ -193,15 +195,14 @@ TEST(ManagerTest, ConstructContainers) {
 TEST(ManagerTest, ConstructWithIterator) {
   {
     {
-      manager_type::remove(dir_path().c_str());
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type::remove(dir_path());
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
       int values[2] = {10, 20};
       ASSERT_NE(manager.construct_it<int>("int")[2](&values[0]), nullptr);
     }
 
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
       auto ret = manager.find<int>("int");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(ret.second, 2);
@@ -211,7 +212,7 @@ TEST(ManagerTest, ConstructWithIterator) {
     }
 
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
   }
@@ -226,9 +227,8 @@ TEST(ManagerTest, ConstructObjectsWithIterator) {
 
   {
     {
-      manager_type::remove(dir_path().c_str());
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type::remove(dir_path());
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
       int values1[2] = {10, 20};
       float values2[2] = {0.1, 0.2};
       ASSERT_NE(manager.construct_it<data>("data")[2](&values1[0], &values2[0]),
@@ -236,7 +236,7 @@ TEST(ManagerTest, ConstructObjectsWithIterator) {
     }
 
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
       auto ret = manager.find<data>("data");
       ASSERT_NE(ret.first, nullptr);
       ASSERT_EQ(ret.second, 2);
@@ -248,7 +248,7 @@ TEST(ManagerTest, ConstructObjectsWithIterator) {
     }
 
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
       ASSERT_TRUE(manager.destroy<data>("data"));
     }
   }
@@ -257,16 +257,15 @@ TEST(ManagerTest, ConstructObjectsWithIterator) {
 TEST(ManagerTest, FindOrConstructWithIterator) {
   {
     {
-      manager_type::remove(dir_path().c_str());
-      manager_type manager(metall::create_only, dir_path().c_str(),
-                           1UL << 30UL);
+      manager_type::remove(dir_path());
+      manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
       int values[2] = {10, 20};
       ASSERT_NE(manager.find_or_construct_it<int>("int")[2](&values[0]),
                 nullptr);
     }
 
     {
-      manager_type manager(metall::open_read_only, dir_path().c_str());
+      manager_type manager(metall::open_read_only, dir_path());
       int values[2] = {30, 40};
       int *a = manager.find_or_construct_it<int>("int")[2](&values[0]);
       ASSERT_NE(a, nullptr);
@@ -275,7 +274,7 @@ TEST(ManagerTest, FindOrConstructWithIterator) {
     }
 
     {
-      manager_type manager(metall::open_only, dir_path().c_str());
+      manager_type manager(metall::open_only, dir_path());
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
   }
@@ -283,8 +282,8 @@ TEST(ManagerTest, FindOrConstructWithIterator) {
 
 TEST(ManagerTest, Destroy) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     ASSERT_FALSE(manager.destroy<int>("named_obj"));
     ASSERT_FALSE(manager.destroy<int>(metall::unique_instance));
@@ -307,8 +306,8 @@ TEST(ManagerTest, Destroy) {
   }
 
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     manager.construct<int>("named_obj")();
     manager.construct<int>(metall::unique_instance)();
@@ -317,7 +316,7 @@ TEST(ManagerTest, Destroy) {
 
   // Destroy after restoring
   {
-    manager_type manager(metall::open_only, dir_path().c_str());
+    manager_type manager(metall::open_only, dir_path());
 
     ASSERT_TRUE(manager.destroy<int>("named_obj"));
     ASSERT_TRUE(manager.destroy<int>(metall::unique_instance));
@@ -329,8 +328,8 @@ TEST(ManagerTest, Destroy) {
 
 TEST(ManagerTest, DestroyPtr) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     int *named_obj = manager.construct<int>("named_obj")();
     int *unique_obj = manager.construct<int>(metall::unique_instance)();
@@ -351,8 +350,8 @@ TEST(ManagerTest, DestroyPtr) {
   }
 
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     manager.construct<int>("named_obj")();
     manager.construct<int>(metall::unique_instance)();
@@ -364,7 +363,7 @@ TEST(ManagerTest, DestroyPtr) {
 
   // Destroy after restoring
   {
-    manager_type manager(metall::open_only, dir_path().c_str());
+    manager_type manager(metall::open_only, dir_path());
 
     ASSERT_TRUE(manager.destroy_ptr(manager.find<int>("named_obj").first));
     ASSERT_TRUE(
@@ -385,8 +384,8 @@ TEST(ManagerTest, DestroyDestruct) {
 
   // -- Check if destructors are called in destroy() -- //
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     int count = 3;
     auto *data_obj = manager.construct<data>("named_obj")();
@@ -406,8 +405,8 @@ TEST(ManagerTest, DestroyDestruct) {
 
 TEST(ManagerTest, GetInstanceName) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     ASSERT_STREQ(
         manager.get_instance_name(manager.construct<int>("named_obj")()),
@@ -424,7 +423,7 @@ TEST(ManagerTest, GetInstanceName) {
   }
 
   {
-    manager_type manager(metall::open_read_only, dir_path().c_str());
+    manager_type manager(metall::open_read_only, dir_path());
     ASSERT_STREQ(
         manager.get_instance_name(manager.find<int>("named_obj").first),
         "named_obj");
@@ -453,9 +452,9 @@ TEST(ManagerTest, ConstructException) {
     }
   };
 
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
   {
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
     bool do_throw[2] = {false, true};
     bool wrong_destroy = false;
     bool *flags[2] = {&wrong_destroy, &wrong_destroy};
@@ -477,9 +476,9 @@ TEST(ManagerTest, DestructException) {
     ~object() noexcept(false) { throw std::runtime_error(""); }
   };
 
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
   {
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
     manager.construct<object>(metall::unique_instance)();
     ASSERT_THROW(manager.destroy<object>(metall::unique_instance),
                  std::exception);
@@ -488,8 +487,8 @@ TEST(ManagerTest, DestructException) {
 
 TEST(ManagerTest, GetInstanceType) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     ASSERT_EQ(manager.get_instance_kind(manager.construct<int>("named_obj")()),
               metall::manager::instance_kind::named_kind);
@@ -505,7 +504,7 @@ TEST(ManagerTest, GetInstanceType) {
   }
 
   {
-    manager_type manager(metall::open_read_only, dir_path().c_str());
+    manager_type manager(metall::open_read_only, dir_path());
 
     ASSERT_EQ(manager.get_instance_kind(manager.find<int>("named_obj").first),
               metall::manager::instance_kind::named_kind);
@@ -523,8 +522,8 @@ TEST(ManagerTest, GetInstanceType) {
 
 TEST(ManagerTest, GetInstanceLength) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     ASSERT_EQ(
         manager.get_instance_length(manager.construct<int>("named_obj")()), 1);
@@ -553,7 +552,7 @@ TEST(ManagerTest, GetInstanceLength) {
   }
 
   {
-    manager_type manager(metall::open_read_only, dir_path().c_str());
+    manager_type manager(metall::open_read_only, dir_path());
 
     {
       ASSERT_EQ(
@@ -584,8 +583,8 @@ TEST(ManagerTest, GetInstanceLength) {
 
 TEST(ManagerTest, IsInstanceType) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     ASSERT_TRUE(
         manager.is_instance_type<int>(manager.construct<int>("named_obj")()));
@@ -604,7 +603,7 @@ TEST(ManagerTest, IsInstanceType) {
   }
 
   {
-    manager_type manager(metall::open_read_only, dir_path().c_str());
+    manager_type manager(metall::open_read_only, dir_path());
 
     ASSERT_TRUE(
         manager.is_instance_type<int>(manager.find<int>("named_obj").first));
@@ -624,8 +623,8 @@ TEST(ManagerTest, IsInstanceType) {
 
 TEST(ManagerTest, InstanceDescription) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     auto *named_obj = manager.construct<int>("named_obj")();
     std::string desc_name = "desc name";
@@ -651,7 +650,7 @@ TEST(ManagerTest, InstanceDescription) {
   }
 
   {
-    manager_type manager(metall::open_only, dir_path().c_str());
+    manager_type manager(metall::open_only, dir_path());
 
     std::string buf;
 
@@ -677,7 +676,7 @@ TEST(ManagerTest, InstanceDescription) {
   }
 
   {
-    manager_type manager(metall::open_read_only, dir_path().c_str());
+    manager_type manager(metall::open_read_only, dir_path());
 
     std::string buf;
 
@@ -706,8 +705,8 @@ TEST(ManagerTest, InstanceDescription) {
 
 TEST(ManagerTest, CountObjects) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     ASSERT_EQ(manager.get_num_named_objects(), 0);
     manager.construct<int>("named_obj1")();
@@ -746,8 +745,8 @@ TEST(ManagerTest, CountObjects) {
   ptrdiff_t anony_offset1 = 0;
   ptrdiff_t anony_offset2 = 0;
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     manager.construct<int>("named_obj1")();
     manager.construct<int>(metall::unique_instance)();
@@ -762,7 +761,7 @@ TEST(ManagerTest, CountObjects) {
   }
 
   {
-    manager_type manager(metall::open_only, dir_path().c_str());
+    manager_type manager(metall::open_only, dir_path());
 
     ASSERT_EQ(manager.get_num_named_objects(), 2);
     ASSERT_TRUE(manager.destroy<int>("named_obj1"));
@@ -788,8 +787,8 @@ TEST(ManagerTest, CountObjects) {
 
 TEST(ManagerTest, NamedObjectIterator) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     // Everyone is at the end
     ASSERT_EQ(manager.named_begin(), manager.named_end());
@@ -832,8 +831,8 @@ TEST(ManagerTest, NamedObjectIterator) {
 
 TEST(ManagerTest, UniqueObjectIterator) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     // Everyone is at the end
     ASSERT_EQ(manager.named_begin(), manager.named_end());
@@ -877,8 +876,8 @@ TEST(ManagerTest, UniqueObjectIterator) {
 
 TEST(ManagerTest, AnonymoustObjectIterator) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     // Everyone is at the end
     ASSERT_EQ(manager.named_begin(), manager.named_end());
@@ -924,9 +923,9 @@ TEST(ManagerTest, AnonymoustObjectIterator) {
 }
 
 TEST(ManagerTest, GetSegment) {
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
   {
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
     auto *obj = manager.construct<int>(metall::unique_instance)();
     ASSERT_EQ(manager.unique_begin()->offset() +
                   static_cast<const char *>(manager.get_address()),
@@ -935,46 +934,46 @@ TEST(ManagerTest, GetSegment) {
 }
 
 TEST(ManagerTest, Consistency) {
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
 
   {
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     // Must be inconsistent before closing
-    ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
+    ASSERT_FALSE(manager_type::consistent(dir_path()));
 
     manager.construct<int>("dummy")(10);
   }
-  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+  ASSERT_TRUE(manager_type::consistent(dir_path()));
 
   {  // To make sure the consistent mark is cleared even after creating a new
      // data store using an old dir path
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
-    ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
+    ASSERT_FALSE(manager_type::consistent(dir_path()));
 
     manager.construct<int>("dummy")(10);
   }
-  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+  ASSERT_TRUE(manager_type::consistent(dir_path()));
 
   {
-    manager_type manager(metall::open_only, dir_path().c_str());
-    ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
+    manager_type manager(metall::open_only, dir_path());
+    ASSERT_FALSE(manager_type::consistent(dir_path()));
   }
-  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+  ASSERT_TRUE(manager_type::consistent(dir_path()));
 
   {
-    manager_type manager(metall::open_read_only, dir_path().c_str());
+    manager_type manager(metall::open_read_only, dir_path());
     // Still consistent if it is opened with the read-only mode
-    ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+    ASSERT_TRUE(manager_type::consistent(dir_path()));
   }
-  ASSERT_TRUE(manager_type::consistent(dir_path().c_str()));
+  ASSERT_TRUE(manager_type::consistent(dir_path()));
 }
 
 TEST(ManagerTest, TinyAllocation) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     const std::size_t alloc_size = k_min_object_size / 2;
 
@@ -995,8 +994,8 @@ TEST(ManagerTest, TinyAllocation) {
 
 TEST(ManagerTest, SmallAllocation) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     const std::size_t alloc_size = k_min_object_size;
 
@@ -1017,8 +1016,8 @@ TEST(ManagerTest, SmallAllocation) {
 
 TEST(ManagerTest, AllSmallAllocation) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
     for (std::size_t s = 1; s < k_chunk_size; ++s)
       manager.deallocate(manager.allocate(s));
   }
@@ -1026,8 +1025,8 @@ TEST(ManagerTest, AllSmallAllocation) {
 
 TEST(ManagerTest, MaxSmallAllocation) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     // Max small allocation size
     const std::size_t alloc_size =
@@ -1057,8 +1056,8 @@ TEST(ManagerTest, MaxSmallAllocation) {
 
 TEST(ManagerTest, MixedSmallAllocation) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path());
 
     const std::size_t alloc_size1 = k_min_object_size * 2;
     const std::size_t alloc_size2 = k_min_object_size * 4;
@@ -1097,8 +1096,8 @@ TEST(ManagerTest, MixedSmallAllocation) {
 
 TEST(ManagerTest, LargeAllocation) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path());
 
     // Assume that the object cache is not used for large allocation
     char *base_addr = nullptr;
@@ -1132,8 +1131,8 @@ TEST(ManagerTest, LargeAllocation) {
 
 TEST(ManagerTest, AllMemoryDeallocated) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path(), 1UL << 30UL);
 
     ASSERT_TRUE(manager.all_memory_deallocated());
 
@@ -1153,8 +1152,8 @@ TEST(ManagerTest, AllMemoryDeallocated) {
 
 TEST(ManagerTest, AlignedAllocation) {
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path());
 
     for (std::size_t alignment = k_min_object_size; alignment <= k_chunk_size;
          alignment *= 2) {
@@ -1208,21 +1207,20 @@ TEST(ManagerTest, AlignedAllocation) {
 }
 
 TEST(ManagerTest, Flush) {
-  manager_type::remove(dir_path().c_str());
-  manager_type manager(metall::create_only, dir_path().c_str());
+  manager_type::remove(dir_path());
+  manager_type manager(metall::create_only, dir_path());
 
   manager.construct<int>("int")(10);
 
   manager.flush();
 
-  ASSERT_FALSE(manager_type::consistent(dir_path().c_str()));
+  ASSERT_FALSE(manager_type::consistent(dir_path()));
 }
 
 TEST(ManagerTest, AnonymousConstruct) {
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
   manager_type *manager;
-  manager =
-      new manager_type(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+  manager = new manager_type(metall::create_only, dir_path(), 1UL << 30UL);
 
   int *const a = manager->construct<int>(metall::anonymous_instance)();
   ASSERT_NE(a, nullptr);
@@ -1238,10 +1236,9 @@ TEST(ManagerTest, AnonymousConstruct) {
 }
 
 TEST(ManagerTest, UniqueConstruct) {
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
   manager_type *manager;
-  manager =
-      new manager_type(metall::create_only, dir_path().c_str(), 1UL << 30UL);
+  manager = new manager_type(metall::create_only, dir_path(), 1UL << 30UL);
 
   int *const a = manager->construct<int>(metall::unique_instance)();
   ASSERT_NE(a, nullptr);
@@ -1263,44 +1260,44 @@ TEST(ManagerTest, UniqueConstruct) {
 }
 
 TEST(ManagerTest, UUID) {
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
   std::string uuid;
   {
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type manager(metall::create_only, dir_path());
 
-    uuid = manager_type::get_uuid(dir_path().c_str());
+    uuid = manager_type::get_uuid(dir_path());
     ASSERT_FALSE(uuid.empty());
   }
 
   {  // Returns the same UUID?
-    manager_type manager(metall::open_only, dir_path().c_str());
-    ASSERT_EQ(manager_type::get_uuid(dir_path().c_str()), uuid);
+    manager_type manager(metall::open_only, dir_path());
+    ASSERT_EQ(manager_type::get_uuid(dir_path()), uuid);
   }
 
   {  // Returns a new UUID?
-    manager_type manager(metall::create_only, dir_path().c_str());
-    ASSERT_NE(manager_type::get_uuid(dir_path().c_str()), uuid);
+    manager_type manager(metall::create_only, dir_path());
+    ASSERT_NE(manager_type::get_uuid(dir_path()), uuid);
   }
 }
 
 TEST(ManagerTest, Version) {
-  manager_type::remove(dir_path().c_str());
+  manager_type::remove(dir_path());
   {
-    manager_type manager(metall::create_only, dir_path().c_str());
-    ASSERT_EQ(manager_type::get_version(dir_path().c_str()), METALL_VERSION);
+    manager_type manager(metall::create_only, dir_path());
+    ASSERT_EQ(manager_type::get_version(dir_path()), METALL_VERSION);
   }
 
   {
-    manager_type manager(metall::open_only, dir_path().c_str());
-    ASSERT_EQ(manager_type::get_version(dir_path().c_str()), METALL_VERSION);
+    manager_type manager(metall::open_only, dir_path());
+    ASSERT_EQ(manager_type::get_version(dir_path()), METALL_VERSION);
   }
 }
 
 TEST(ManagerTest, Description) {
   // Set and get with non-static method
   {
-    manager_type::remove(dir_path().c_str());
-    manager_type manager(metall::create_only, dir_path().c_str());
+    manager_type::remove(dir_path());
+    manager_type manager(metall::create_only, dir_path());
 
     ASSERT_TRUE(manager.set_description("description1"));
     std::string description;
@@ -1311,23 +1308,21 @@ TEST(ManagerTest, Description) {
   // Get with static method
   {
     std::string description;
-    ASSERT_TRUE(
-        manager_type::get_description(dir_path().c_str(), &description));
+    ASSERT_TRUE(manager_type::get_description(dir_path(), &description));
     ASSERT_STREQ(description.c_str(), "description1");
   }
 
   // Set with static method
   {
-    manager_type::remove(dir_path().c_str());
+    manager_type::remove(dir_path());
     manager_type manager(metall::create_only,
-                         dir_path().c_str());  // Make a new data store
-    ASSERT_TRUE(
-        manager_type::set_description(dir_path().c_str(), "description2"));
+                         dir_path());  // Make a new data store
+    ASSERT_TRUE(manager_type::set_description(dir_path(), "description2"));
   }
 
   // Get with non-static method
   {
-    manager_type manager(metall::open_only, dir_path().c_str());
+    manager_type manager(metall::open_only, dir_path());
     std::string description;
     ASSERT_TRUE(manager.get_description(&description));
     ASSERT_STREQ(description.c_str(), "description2");
@@ -1337,18 +1332,20 @@ TEST(ManagerTest, Description) {
 TEST(ManagerTest, CheckSanity) {
   // This test should be run at the end of this execution unless reset the
   // values below:
-  metall::logger::set_log_level(metall::logger::level::silent);
+  metall::logger::set_log_level(metall::logger::level_filter::silent);
   metall::logger::abort_on_critical_error(false);
 
   {
-    auto *manager = new manager_type(metall::create_only, dir_path().c_str());
+    auto *manager = new manager_type(metall::create_only, dir_path());
     ASSERT_TRUE(manager->check_sanity());
+    ASSERT_FALSE(manager->read_only());
   }
 
   {
     auto *bad_manager =
-        new manager_type(metall::open_only, (dir_path() + "-invalid").c_str());
+        new manager_type(metall::open_only, dir_path().string() + "-invalid");
     ASSERT_FALSE(bad_manager->check_sanity());
+    ASSERT_TRUE(bad_manager->read_only());
   }
 }
 }  // namespace

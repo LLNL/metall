@@ -14,6 +14,7 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <filesystem>
 
 #include <boost/container/vector.hpp>
 #include <boost/container/scoped_allocator.hpp>
@@ -31,6 +32,7 @@ namespace metall {
 namespace kernel {
 
 namespace {
+namespace fs = std::filesystem;
 namespace mdtl = metall::mtlldetail;
 }
 
@@ -195,7 +197,7 @@ class bin_directory {
 
   /// \brief
   /// \param path
-  bool serialize(const char *path) const {
+  bool serialize(const fs::path &path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
       std::stringstream ss;
@@ -224,7 +226,7 @@ class bin_directory {
 
   /// \brief
   /// \param path
-  bool deserialize(const char *path) {
+  bool deserialize(const fs::path &path) {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
       std::stringstream ss;

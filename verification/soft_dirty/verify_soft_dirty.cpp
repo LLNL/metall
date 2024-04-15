@@ -7,6 +7,7 @@
 #include <metall/detail/mmap.hpp>
 #include <metall/detail/file.hpp>
 #include <metall/detail/memory.hpp>
+#include <cstdint>
 
 bool run_in_core_test(const ssize_t page_size, const std::size_t num_pages,
                       char *const map) {
