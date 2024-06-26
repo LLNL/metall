@@ -11,8 +11,6 @@ if (BUILD_C)
         return()
     endif ()
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
     add_library(metall_c metall_c.cpp)
     add_library(${PROJECT_NAME}::metall_c ALIAS metall_c)
 
