@@ -82,6 +82,7 @@ option(JUST_INSTALL_METALL_HEADER "Just install Metall header files (do not buil
 option(BUILD_UTILITY "Build utility programs" OFF)
 option(BUILD_DOC "Build API documentation" OFF)
 option(BUILD_C "Build C examples and libraries" OFF)
+option(BUILD_SHARED_LIBS "Generate shared libraries" OFF)
 option(BUILD_EXAMPLE "Build the examples" OFF)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
