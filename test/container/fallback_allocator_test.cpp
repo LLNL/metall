@@ -109,6 +109,20 @@ TEST(FallbackAllocatorAdaptorTest, Types) {
   }
 }
 
+TEST(FallbackAllocatorAdaptorTest, Availability) {
+  {
+    fb_alloc_type<int> allocator;
+    ASSERT_TRUE(!allocator.stateful_allocator_available());
+  }
+
+  {
+    metall::manager manager(metall::create_only, dir_path(),
+                            1UL << 27UL);
+    auto allocator = fb_alloc_type<int>(manager.get_allocator<int>());
+    ASSERT_TRUE(allocator.stateful_allocator_available());
+  }
+}
+
 TEST(FallbackAllocatorAdaptorTest, Exception) {
   fb_alloc_type<int> allocator;
 
