@@ -107,6 +107,13 @@ TEST(FallbackAllocatorAdaptorTest, Types) {
             alloc);
     GTEST_ASSERT_EQ(alloc, a2);
   }
+
+  {
+    metall::manager manager(metall::create_only, dir_path(),
+                            1UL << 27UL);
+    auto allocator = fb_alloc_type<int>(manager.get_allocator<int>());
+    ASSERT_EQ(allocator.get_stateful_allocator(), manager.get_allocator<int>());
+  }
 }
 
 TEST(FallbackAllocatorAdaptorTest, Availability) {

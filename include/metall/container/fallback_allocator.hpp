@@ -12,9 +12,9 @@
 
 namespace metall::container {
 
-/// \brief A STL compatible allocator which fallbacks to a heap allocator (e.g.,
-/// malloc()) if its constructor receives no argument to construct the stateful
-/// allocator instance.
+/// \brief A Metall STL compatible allocator which fallbacks to a heap allocator
+/// (e.g., malloc()) if its constructor receives no argument to construct the
+/// stateful allocator (Metall's normal STL compatible allocator) instance.
 /// \tparam StatefulAllocator The stateful allocator type. It must not be
 /// default constructible.
 template <typename StatefulAllocator>
@@ -69,7 +69,7 @@ class fallback_allocator_adaptor {
   fallback_allocator_adaptor(
       fallback_allocator_adaptor<stateful_allocator_type2>
           allocator_instance) noexcept
-      : m_stateful_allocator(allocator_instance.stateful_allocator()) {}
+      : m_stateful_allocator(allocator_instance.get_stateful_allocator()) {}
 
   /// \brief Construct a new instance using an instance of any
   /// stateful_allocator.
@@ -202,10 +202,10 @@ class fallback_allocator_adaptor {
   // ---------- This class's unique public functions ---------- //
 
   /// \brief Returns a reference to the stateful allocator.
-  stateful_allocator_type &stateful_allocator() { return m_stateful_allocator; }
+  stateful_allocator_type &get_stateful_allocator() { return m_stateful_allocator; }
 
   /// \brief Returns a const reference to the stateful allocator.
-  const stateful_allocator_type &stateful_allocator() const {
+  const stateful_allocator_type &get_stateful_allocator() const {
     return m_stateful_allocator;
   }
 
@@ -259,7 +259,7 @@ inline bool operator==(
     const fallback_allocator_adaptor<stateful_allocator_type> &rhd,
     const fallback_allocator_adaptor<stateful_allocator_type> &lhd) {
   // Return true if they point to the same manager kernel
-  return rhd.stateful_allocator() == lhd.stateful_allocator();
+  return rhd.get_stateful_allocator() == lhd.get_stateful_allocator();
 }
 
 template <typename stateful_allocator_type>
