@@ -202,12 +202,21 @@ class fallback_allocator_adaptor {
   }
 
   // ---------- This class's unique public functions ---------- //
+
+  /// \brief Returns a reference to the stateful allocatorator.
   stateful_allocatorator_type &stateful_allocatorator() {
     return m_stateful_allocatorator;
   }
 
+  /// \brief Returns a const reference to the stateful allocatorator.
   const stateful_allocatorator_type &stateful_allocatorator() const {
     return m_stateful_allocatorator;
+  }
+
+  /// \brief Returns true if the stateful allocatorator is available.
+  /// \return Returns true if the stateful allocatorator is available.
+  bool stateful_allocatorator_available() const {
+    return priv_stateful_allocatorator_available();
   }
 
  private:
