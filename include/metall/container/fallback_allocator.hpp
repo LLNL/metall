@@ -15,25 +15,25 @@ namespace metall::container {
 /// \brief A STL compatible allocator which fallbacks to a heap allocator (e.g.,
 /// malloc()) if its constructor receives no argument to construct the stateful
 /// allocator instance.
-/// \tparam StatefullAllocator The stateful allocator type. It must not be
+/// \tparam StatefulAllocator The stateful allocator type. It must not be
 /// default constructible.
-template <typename StatefullAllocator>
+template <typename StatefulAllocator>
 class fallback_allocator_adaptor {
-  // Check if the StatefullAllocator takes arugments in its constructor
-  static_assert(!std::is_constructible<StatefullAllocator>::value,
+  // Check if the StatefulAllocator takes arguments in its constructor
+  static_assert(!std::is_constructible<StatefulAllocator>::value,
                 "The stateful allocator must not be default constructible");
 
  private:
   template <typename T>
   using other_stateful_allocator_type = typename std::allocator_traits<
-      StatefullAllocator>::template rebind_alloc<T>;
+      StatefulAllocator>::template rebind_alloc<T>;
 
  public:
   // -------------------- //
   // Public types and static values
   // -------------------- //
   using stateful_allocator_type = typename std::remove_const<
-      typename std::remove_reference<StatefullAllocator>::type>::type;
+      typename std::remove_reference<StatefulAllocator>::type>::type;
 
   using value_type = typename stateful_allocator_type::value_type;
   using pointer = typename stateful_allocator_type::pointer;
