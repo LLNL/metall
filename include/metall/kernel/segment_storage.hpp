@@ -44,7 +44,7 @@ class segment_storage {
 
   segment_storage() {
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
-    logger::out(logger::level::info, __FILE__, __LINE__,
+    logger::out(logger::level::verbose, __FILE__, __LINE__,
                 "METALL_USE_ANONYMOUS_NEW_MAP is defined");
 #endif
 
@@ -296,12 +296,12 @@ class segment_storage {
 
     if (clone) {
       std::string s("Clone: " + source_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
       return mdtl::clone_files_in_directory_in_parallel(
           source_path, destination_path, max_num_threads);
     } else {
       std::string s("Copy: " + source_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
       return mdtl::copy_files_in_directory_in_parallel(
           source_path, destination_path, max_num_threads);
     }
@@ -386,7 +386,7 @@ class segment_storage {
 
     {
       std::string s("Create a segment under: " + top_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     if (!mdtl::directory_exist(top_path)) {
@@ -439,7 +439,7 @@ class segment_storage {
 
     {
       std::string s("Open a segment under: " + top_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     const auto header_size =
@@ -550,7 +550,7 @@ class segment_storage {
     {
       std::string s("Create and extend a file " + file_name.string() +
                     " with " + std::to_string(file_size) + " bytes");
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     if (!mdtl::create_file(file_name)) return false;
@@ -603,7 +603,7 @@ class segment_storage {
       ss << "Map a file " << path << " at " << segment_offset << " with "
          << file_size << " bytes; read-only mode is "
          << std::to_string(read_only);
-      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, ss.str().c_str());
     }
 
     const auto ret =
@@ -635,7 +635,7 @@ class segment_storage {
       std::string s("Map an anonymous region at " +
                     std::to_string(segment_offset) + " with " +
                     std::to_string(region_size));
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     const auto *addr =
@@ -709,7 +709,7 @@ class segment_storage {
       return false;
     }
 
-    logger::out(logger::level::info, __FILE__, __LINE__,
+    logger::out(logger::level::verbose, __FILE__, __LINE__,
                 "msync() for the application data segment");
     if (!priv_parallel_msync(sync)) {
       logger::out(logger::level::error, __FILE__, __LINE__,
@@ -755,7 +755,7 @@ class segment_storage {
     {
       std::stringstream ss;
       ss << "Sync files with " << num_threads << " threads";
-      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, ss.str().c_str());
     }
     std::vector<std::unique_ptr<std::thread>> threads(num_threads);
     for (auto &th : threads) {
@@ -812,7 +812,7 @@ class segment_storage {
     assert(m_anonymous_map_flag_list[block_no]);
     {
       std::string s("Sync anonymous map at block " + std::to_string(block_no));
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     auto *const addr = static_cast<char *>(m_segment) + block_no * k_block_size;
@@ -829,7 +829,7 @@ class segment_storage {
     {
       std::string s("Map block " + std::to_string(block_no) +
                     " as a non-anonymous map");
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
     [[maybe_unused]] static constexpr int map_nosync =
 #ifdef MAP_NOSYNC
@@ -912,7 +912,7 @@ class segment_storage {
     {
       std::string s("File free test result: ");
       s += m_free_file_space ? "success" : "failed";
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     return true;
