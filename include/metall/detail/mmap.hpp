@@ -289,7 +289,7 @@ inline bool uncommit_private_anonymous_pages(void *const addr,
                                              const size_t length) {
 #ifdef MADV_FREE
   if (!os_madvise(addr, length, MADV_FREE)) {
-    logger::perror(logger::level::info, __FILE__, __LINE__,
+    logger::perror(logger::level::verbose, __FILE__, __LINE__,
                    "madvise MADV_FREE");
     return false;
   }
@@ -298,7 +298,7 @@ inline bool uncommit_private_anonymous_pages(void *const addr,
 #warning "MADV_FREE is not defined. Metall uses MADV_DONTNEED instead."
 #endif
   if (!os_madvise(addr, length, MADV_DONTNEED)) {
-    logger::perror(logger::level::info, __FILE__, __LINE__,
+    logger::perror(logger::level::verbose, __FILE__, __LINE__,
                    "madvise MADV_DONTNEED");
     return false;
   }
@@ -309,7 +309,7 @@ inline bool uncommit_private_anonymous_pages(void *const addr,
 inline bool uncommit_private_nonanonymous_pages(void *const addr,
                                                 const size_t length) {
   if (!os_madvise(addr, length, MADV_DONTNEED)) {
-    logger::perror(logger::level::info, __FILE__, __LINE__,
+    logger::perror(logger::level::verbose, __FILE__, __LINE__,
                    "madvise MADV_DONTNEED");
     return false;
   }
@@ -319,7 +319,7 @@ inline bool uncommit_private_nonanonymous_pages(void *const addr,
 
 inline bool uncommit_shared_pages(void *const addr, const size_t length) {
   if (!os_madvise(addr, length, MADV_DONTNEED)) {
-    logger::perror(logger::level::info, __FILE__, __LINE__,
+    logger::perror(logger::level::verbose, __FILE__, __LINE__,
                    "madvise MADV_DONTNEED");
     return false;
   }
@@ -330,7 +330,7 @@ inline bool uncommit_shared_pages_and_free_file_space(
     [[maybe_unused]] void *const addr, [[maybe_unused]] const size_t length) {
 #ifdef MADV_REMOVE
   if (!os_madvise(addr, length, MADV_REMOVE)) {
-    logger::perror(logger::level::info, __FILE__, __LINE__,
+    logger::perror(logger::level::verbose, __FILE__, __LINE__,
                    "madvise MADV_REMOVE");
     return uncommit_shared_pages(addr, length);
   }
