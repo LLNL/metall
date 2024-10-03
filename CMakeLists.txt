@@ -192,7 +192,7 @@ endif ()
 # there is a tricky behavior/issue especially in Boost 1.70.0.
 set(Boost_NO_BOOST_CMAKE ON)
 
-find_package(Boost 1.64 QUIET)
+find_package(Boost 1.80 QUIET)
 if (NOT Boost_FOUND)
     FetchContent_Declare(Boost
             URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2)
@@ -201,7 +201,7 @@ if (NOT Boost_FOUND)
         FetchContent_Populate(Boost)
     endif ()
     set(BOOST_ROOT ${boost_SOURCE_DIR})
-    find_package(Boost 1.64)
+    find_package(Boost 1.80)
 endif ()
 
 # -------------------------------------------------------------------------------- #

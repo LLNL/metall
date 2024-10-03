@@ -18,13 +18,12 @@ All core files exist under
 - GCC 8.1 or more
     - 8.3 or more is recommended due to early implementation of the Filesystem library
 
-- Boost C++ Libraries 1.64 or more
+- Boost C++ Libraries 1.80 or more
     - Build is not required; needs only the header files.
-    - To use JSON containers in Metall, Boost C++ Libraries 1.75 or more is required.
 
 ## Build Example
 
-Metall depends on Boost C++ Libraries 1.64 or more (build is not required; needs only
+Metall depends on Boost C++ Libraries 1.80 or more (build is not required; needs only
 their header files).
 
 To build your program with Metall, all you have to do is just setting
@@ -33,11 +32,11 @@ include paths such as '-I' or CPLUS_INCLUDE_PATH.
 For example,
 
 ```bash
-# Download Boost (Boost C++ Libraries 1.64 or more is required)
+# Download Boost (Boost C++ Libraries 1.80 or more is required)
 # One can skip this step if Boost is already available.
-wget https://dl.bintray.com/boostorg/release/1.77.0/source/boost_1_77_0.tar.gz
-tar xvf boost_1_77_0.tar.gz
-export BOOST_ROOT=$PWD/boost_1_77_0
+wget https://dl.bintray.com/boostorg/release/1.80.0/source/boost_1_80_0.tar.gz
+tar xvf boost_1_80_0.tar.gz
+export BOOST_ROOT=$PWD/boost_1_80_0
 
 git clone https://github.com/LLNL/metall
 export METALL_INCLUDE=$PWD/metall/include
@@ -70,9 +69,6 @@ g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT}/include -I${METALL_RO
 Clang (or Apple clang) could be used instead of GCC to build Metall.
 However, we haven't tested it intensively.
 To run on macOS, Metall requires macOS >= 10.15.
-
-Also, Boost C++ Libraries 1.69 or more may be required
-if one wants to build Metall with Clang + CUDA.
 
 ```bash
 clang++ -std=c++17 [tutorial_program.cpp] -I../../include -I${BOOST_ROOT}

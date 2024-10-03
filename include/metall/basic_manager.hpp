@@ -205,8 +205,8 @@ class basic_manager {
   /// \param base_path Path to create a data store.
   /// \param capacity Total allocation size. Metall uses this value as a hint.
   // The actual limit could be smaller or larger than this value, depending on
-  // the internal implementation. However, a close minimum capacity should be
-  // available.
+  // the internal implementation. The gap between the hint and the actual limit
+  // will be reasonable (e.g., less than a few chunk sizes).
   basic_manager(create_only_t, const path_type &base_path,
                 const size_type capacity) noexcept {
     try {
