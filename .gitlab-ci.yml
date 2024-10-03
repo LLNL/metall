@@ -3,10 +3,6 @@
 # Spack must be available
 # It would be better to install all Boost versions manually,
 # as it causes errors often and could exceed the timelimit of the system.
-#
-# One might want to change the location of builds directory on LC clusters to avoid consuming the home directory space.
-# Type the following command on an LC cluster:
-# $ ln -s /usr/workspace/lc-username ~/.gitlab-runner
 
 stages:
   - install
@@ -14,18 +10,20 @@ stages:
 
 
 variables:
+  CUSTOM_CI_BUILDS_DIR: "/usr/workspace/$$USER/metall-ci-runner-builds-dir"
   GTEST_COLOR: "1"
   GIT_DEPTH: 0
+#  CI_DEBUG_TRACE: "true" # Enable this when debugging this CI
 
 
 install_boost:
   stage: install
   tags:
-    - quartz
+    - ruby
     - shell
   script:
     - hostname
-    - srun -N1 -ppdebug spack install boost@1.82.0 boost@1.81.0 boost@1.80.0 boost@1.79.0 boost@1.78.0 boost@1.77.0 boost@1.76.0 boost@1.75.0 boost@1.74.0 boost@1.73.0 boost@1.72.0 boost@1.71.0 boost@1.70.0 boost@1.69.0 boost@1.68.0 boost@1.67.0 boost@1.66.0 boost@1.65.1 boost@1.65.0 boost@1.64.0
+    - srun -N1 -ppci spack install boost@1.86.0 boost@1.85.0 boost@1.84.0 boost@1.83.0 boost@1.82.0 boost@1.81.0 boost@1.80.0
     - spack clean
 
 
@@ -39,7 +37,31 @@ install_boost:
     - module load gcc/${GCC_VERSION}
     - spack load --first boost@${BOOST_VERSION} arch=$(spack arch)
     - export METALL_TEST_DIR="/dev/shm/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
-    - srun -N1 -ppdebug bash ./scripts/CI/build_and_test.sh
+    - srun -N1 -ppci bash ./scripts/CI/build_and_test.sh
+
+build_gcc12.1.1_bst1.86.0:
+  extends: .build
+  variables:
+    GCC_VERSION: "12.1.1"
+    BOOST_VERSION: "1.86.0"
+
+build_gcc12.1.1_bst1.85.0:
+  extends: .build
+  variables:
+    GCC_VERSION: "12.1.1"
+    BOOST_VERSION: "1.85.0"
+
+build_gcc12.1.1_bst1.84.0:
+  extends: .build
+  variables:
+    GCC_VERSION: "12.1.1"
+    BOOST_VERSION: "1.84.0"
+
+build_gcc12.1.1_bst1.83.0:
+  extends: .build
+  variables:
+    GCC_VERSION: "12.1.1"
+    BOOST_VERSION: "1.83.0"
 
 build_gcc12.1.1_bst1.82.0:
   extends: .build
@@ -58,105 +80,3 @@ build_gcc12.1.1_bst1.80.0:
   variables:
     GCC_VERSION: "12.1.1"
     BOOST_VERSION: "1.80.0"
-
-build_gcc12.1.1_bst1.79.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.79.0"
-
-build_gcc12.1.1_bst1.78.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.78.0"
-
-build_gcc12.1.1_bst1.77.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.77.0"
-
-build_gcc12.1.1_bst1.76.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.76.0"
-
-build_gcc12.1.1_bst1.75.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.75.0"
-
-build_gcc12.1.1_bst1.74.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.74.0"
-
-build_gcc12.1.1_bst1.73.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.73.0"
-
-build_gcc12.1.1_bst1.72.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.72.0"
-
-build_gcc12.1.1_bst1.71.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.71.0"
-
-build_gcc12.1.1_bst1.70.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.70.0"
-
-build_gcc12.1.1_bst1.69.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.69.0"
-
-build_gcc12.1.1_bst1.68.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.68.0"
-
-build_gcc12.1.1_bst1.67.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.67.0"
-
-build_gcc12.1.1_bst1.66.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.66.0"
-
-build_gcc12.1.1_bst1.65.1:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.65.1"
-
-build_gcc12.1.1_bst1.65.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.65.0"
-
-build_gcc12.1.1_bst1.64.0:
-  extends: .build
-  variables:
-    GCC_VERSION: "12.1.1"
-    BOOST_VERSION: "1.64.0"
