@@ -4,6 +4,8 @@
 # It would be better to install all Boost versions manually,
 # as it causes errors often and could exceed the timelimit of the system.
 
+include: [component: $CI_SERVER_FQDN/lc-components/id_tokens/id_tokens-component@main]
+
 stages:
   - install
   - build
