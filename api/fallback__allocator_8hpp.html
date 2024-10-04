@@ -109,10 +109,10 @@ $(document).ready(function(){initNavTree('fallback__allocator_8hpp.html',''); in
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor receives no argument to construct the stateful allocator instance.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor&lt; StatefulAllocator &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor receives no argument to construct the stateful allocator (Metall's normal STL compatible allocator) instance.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmetall_1_1container_1_1fallback__allocator__adaptor_1_1rebind.html">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;::rebind&lt; T2 &gt;</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmetall_1_1container_1_1fallback__allocator__adaptor_1_1rebind.html">metall::container::fallback_allocator_adaptor&lt; StatefulAllocator &gt;::rebind&lt; T2 &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Makes another allocator type for type T2.  <a href="structmetall_1_1container_1_1fallback__allocator__adaptor_1_1rebind.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -127,12 +127,12 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a48ce134e75e1fe9e06a9fbc8e6632049"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type &gt; </td></tr>
-<tr class="memitem:a48ce134e75e1fe9e06a9fbc8e6632049"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html#a48ce134e75e1fe9e06a9fbc8e6632049">metall::container::operator==</a> (const fallback_allocator_adaptor&lt; stateful_allocatorator_type &gt; &amp;rhd, const fallback_allocator_adaptor&lt; stateful_allocatorator_type &gt; &amp;lhd)</td></tr>
-<tr class="separator:a48ce134e75e1fe9e06a9fbc8e6632049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2d92c1a0abdf1b3d1e11c40d0d1952e"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type &gt; </td></tr>
-<tr class="memitem:aa2d92c1a0abdf1b3d1e11c40d0d1952e"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html#aa2d92c1a0abdf1b3d1e11c40d0d1952e">metall::container::operator!=</a> (const fallback_allocator_adaptor&lt; stateful_allocatorator_type &gt; &amp;rhd, const fallback_allocator_adaptor&lt; stateful_allocatorator_type &gt; &amp;lhd)</td></tr>
-<tr class="separator:aa2d92c1a0abdf1b3d1e11c40d0d1952e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16b06d9e145062f2a29807d894aa5f30"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type &gt; </td></tr>
+<tr class="memitem:a16b06d9e145062f2a29807d894aa5f30"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html#a16b06d9e145062f2a29807d894aa5f30">metall::container::operator==</a> (const fallback_allocator_adaptor&lt; stateful_allocator_type &gt; &amp;rhd, const fallback_allocator_adaptor&lt; stateful_allocator_type &gt; &amp;lhd)</td></tr>
+<tr class="separator:a16b06d9e145062f2a29807d894aa5f30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0363a4f89bc9fa73a56abc3886709082"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type &gt; </td></tr>
+<tr class="memitem:a0363a4f89bc9fa73a56abc3886709082"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacemetall_1_1container.html#a0363a4f89bc9fa73a56abc3886709082">metall::container::operator!=</a> (const fallback_allocator_adaptor&lt; stateful_allocator_type &gt; &amp;rhd, const fallback_allocator_adaptor&lt; stateful_allocator_type &gt; &amp;lhd)</td></tr>
+<tr class="separator:a0363a4f89bc9fa73a56abc3886709082"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

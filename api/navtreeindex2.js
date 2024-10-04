@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"complex_map_8cpp-example.html":[3,0],
 "concurrent__map_8hpp.html":[2,0,1,0,1,1],
 "concurrent__map_8hpp_source.html":[2,0,1,0,1,1],
 "concurrent_map_8cpp-example.html":[3,17],
@@ -73,8 +74,8 @@ var NAVTREEINDEX2 =
 "equal_8hpp_source.html":[2,0,1,0,2,1],
 "examples.html":[3],
 "fallback__allocator_8hpp.html":[2,0,1,0,1,3],
-"fallback__allocator_8hpp.html#a48ce134e75e1fe9e06a9fbc8e6632049":[2,0,1,0,1,3,2],
-"fallback__allocator_8hpp.html#aa2d92c1a0abdf1b3d1e11c40d0d1952e":[2,0,1,0,1,3,3],
+"fallback__allocator_8hpp.html#a0363a4f89bc9fa73a56abc3886709082":[2,0,1,0,1,3,3],
+"fallback__allocator_8hpp.html#a16b06d9e145062f2a29807d894aa5f30":[2,0,1,0,1,3,2],
 "fallback__allocator_8hpp_source.html":[2,0,1,0,1,3],
 "fallback__allocator__adaptor_8hpp.html":[2,0,1,0,3,2],
 "fallback__allocator__adaptor_8hpp.html#a5efc2069721af950c29c8b44f3eb5aa9":[2,0,1,0,3,2,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX2 =
 "namespacemetall.html#a7a2f89786b4414df11cdf95898811a62":[0,0,0,18],
 "namespacemetall.html#aa9cfbd96a9ae4680a5fee90e7c9b9085":[0,0,0,16],
 "namespacemetall.html#af0208c9c4196932b08bd8157cccf3014":[0,0,0,14],
-"namespacemetall_1_1attraccs__detail.html":[0,0,0,0],
-"namespacemetall_1_1container.html":[0,0,0,1]
+"namespacemetall_1_1attraccs__detail.html":[0,0,0,0]
 };

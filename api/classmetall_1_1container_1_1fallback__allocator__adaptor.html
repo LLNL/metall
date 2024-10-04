@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Metall: metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt; Class Template Reference</title>
+<title>Metall: metall::container::fallback_allocator_adaptor&lt; StatefulAllocator &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -99,11 +99,11 @@ $(document).ready(function(){initNavTree('classmetall_1_1container_1_1fallback__
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classmetall_1_1container_1_1fallback__allocator__adaptor-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt; Class Template Reference</div>  </div>
+<div class="title">metall::container::fallback_allocator_adaptor&lt; StatefulAllocator &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor receives no argument to construct the stateful allocator instance.  
+<p>A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor receives no argument to construct the stateful allocator (Metall's normal STL compatible allocator) instance.  
  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="fallback__allocator_8hpp_source.html">/home/runner/work/metall/metall/include/metall/container/fallback_allocator.hpp</a>&gt;</code></p>
@@ -116,219 +116,224 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a73eefd397adafa18d71412c29d162bcf"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a73eefd397adafa18d71412c29d162bcf">stateful_allocatorator_type</a> = typename std::remove_const&lt; typename std::remove_reference&lt; stateful_allocator &gt;::type &gt;::type</td></tr>
-<tr class="separator:a73eefd397adafa18d71412c29d162bcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e66633d8a1fa702ff5bd26b1b1e3aa2"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a7e66633d8a1fa702ff5bd26b1b1e3aa2">value_type</a> = typename stateful_allocatorator_type::value_type</td></tr>
-<tr class="separator:a7e66633d8a1fa702ff5bd26b1b1e3aa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a11e6af01f577ba73fcd7c85c65408c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> = typename stateful_allocatorator_type::pointer</td></tr>
-<tr class="separator:a5a11e6af01f577ba73fcd7c85c65408c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d17aa433141f03a886c9c9539122b46"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a3d17aa433141f03a886c9c9539122b46">const_pointer</a> = typename stateful_allocatorator_type::const_pointer</td></tr>
-<tr class="separator:a3d17aa433141f03a886c9c9539122b46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c117b4735882233315c525007ef0933"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a8c117b4735882233315c525007ef0933">void_pointer</a> = typename stateful_allocatorator_type::void_pointer</td></tr>
-<tr class="separator:a8c117b4735882233315c525007ef0933"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a816a5d81862c1dea178c574da1bea59c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a816a5d81862c1dea178c574da1bea59c">const_void_pointer</a> = typename stateful_allocatorator_type::const_void_pointer</td></tr>
-<tr class="separator:a816a5d81862c1dea178c574da1bea59c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd4b19ad912a2c79808c92d05c1ea218"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#afd4b19ad912a2c79808c92d05c1ea218">difference_type</a> = typename stateful_allocatorator_type::difference_type</td></tr>
-<tr class="separator:afd4b19ad912a2c79808c92d05c1ea218"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6bd78d96ddf3f20a2091d580bb637027"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a> = typename stateful_allocatorator_type::size_type</td></tr>
-<tr class="separator:a6bd78d96ddf3f20a2091d580bb637027"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5570dd44bb0a6e6ece0b0c26aafdcbc3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5570dd44bb0a6e6ece0b0c26aafdcbc3">stateful_allocator_type</a> = typename std::remove_const&lt; typename std::remove_reference&lt; StatefulAllocator &gt;::type &gt;::type</td></tr>
+<tr class="separator:a5570dd44bb0a6e6ece0b0c26aafdcbc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdae2ca0111c539f19103e3cb8c91b30"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#abdae2ca0111c539f19103e3cb8c91b30">value_type</a> = typename stateful_allocator_type::value_type</td></tr>
+<tr class="separator:abdae2ca0111c539f19103e3cb8c91b30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64e0f3305e7be418c1e7fc13621ab5a2"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> = typename stateful_allocator_type::pointer</td></tr>
+<tr class="separator:a64e0f3305e7be418c1e7fc13621ab5a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc079d917fc764c33c36e67d99b54a9d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#afc079d917fc764c33c36e67d99b54a9d">const_pointer</a> = typename stateful_allocator_type::const_pointer</td></tr>
+<tr class="separator:afc079d917fc764c33c36e67d99b54a9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8fa93c2c175fa4d29d3c06bcf0a5e6f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#aa8fa93c2c175fa4d29d3c06bcf0a5e6f">void_pointer</a> = typename stateful_allocator_type::void_pointer</td></tr>
+<tr class="separator:aa8fa93c2c175fa4d29d3c06bcf0a5e6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2afe2be45bc6551d0d9e0dc55c8cd729"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a2afe2be45bc6551d0d9e0dc55c8cd729">const_void_pointer</a> = typename stateful_allocator_type::const_void_pointer</td></tr>
+<tr class="separator:a2afe2be45bc6551d0d9e0dc55c8cd729"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e9c577e49447ffde9932088828b8741"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a7e9c577e49447ffde9932088828b8741">difference_type</a> = typename stateful_allocator_type::difference_type</td></tr>
+<tr class="separator:a7e9c577e49447ffde9932088828b8741"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a5fea03618e0fdc7a3ed5243456bdc8"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a> = typename stateful_allocator_type::size_type</td></tr>
+<tr class="separator:a1a5fea03618e0fdc7a3ed5243456bdc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac285c0699e705494c6b1462c4fdfa6e9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ac285c0699e705494c6b1462c4fdfa6e9">fallback_allocator_adaptor</a> () noexcept</td></tr>
-<tr class="memdesc:ac285c0699e705494c6b1462c4fdfa6e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor which falls back on the regular allocator (i.e., malloc()).  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ac285c0699e705494c6b1462c4fdfa6e9">More...</a><br /></td></tr>
-<tr class="separator:ac285c0699e705494c6b1462c4fdfa6e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3963db67cecd91a5a03bbde047d5e6e8"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
-<tr class="memitem:a3963db67cecd91a5a03bbde047d5e6e8"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a3963db67cecd91a5a03bbde047d5e6e8">fallback_allocator_adaptor</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocatorator_type2 &gt; allocator_instance) noexcept</td></tr>
-<tr class="memdesc:a3963db67cecd91a5a03bbde047d5e6e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new instance using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor re...">fallback_allocator_adaptor</a> with any stateful_allocatorator type.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a3963db67cecd91a5a03bbde047d5e6e8">More...</a><br /></td></tr>
-<tr class="separator:a3963db67cecd91a5a03bbde047d5e6e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12b341f5a4a081b3f373d9ef3ebd0bf5"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
-<tr class="memitem:a12b341f5a4a081b3f373d9ef3ebd0bf5"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a12b341f5a4a081b3f373d9ef3ebd0bf5">fallback_allocator_adaptor</a> (stateful_allocatorator_type2 allocator_instance) noexcept</td></tr>
-<tr class="memdesc:a12b341f5a4a081b3f373d9ef3ebd0bf5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new instance using an instance of any stateful_allocatorator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a12b341f5a4a081b3f373d9ef3ebd0bf5">More...</a><br /></td></tr>
-<tr class="separator:a12b341f5a4a081b3f373d9ef3ebd0bf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49eb171689488ddd799ee7a55fcd17cd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a49eb171689488ddd799ee7a55fcd17cd">fallback_allocator_adaptor</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;other) noexcept=default</td></tr>
-<tr class="memdesc:a49eb171689488ddd799ee7a55fcd17cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a49eb171689488ddd799ee7a55fcd17cd">More...</a><br /></td></tr>
-<tr class="separator:a49eb171689488ddd799ee7a55fcd17cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4395474b0921f52a877d682ab171af40"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a4395474b0921f52a877d682ab171af40">fallback_allocator_adaptor</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&amp;other) noexcept=default</td></tr>
-<tr class="memdesc:a4395474b0921f52a877d682ab171af40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move constructor.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a4395474b0921f52a877d682ab171af40">More...</a><br /></td></tr>
-<tr class="separator:a4395474b0921f52a877d682ab171af40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a243736cf8f855f4ed46f137bc27c0899"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a243736cf8f855f4ed46f137bc27c0899">operator=</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;) noexcept=default</td></tr>
-<tr class="memdesc:a243736cf8f855f4ed46f137bc27c0899"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assign operator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a243736cf8f855f4ed46f137bc27c0899">More...</a><br /></td></tr>
-<tr class="separator:a243736cf8f855f4ed46f137bc27c0899"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37bcd56eadf8212a80d5f1f7319b5961"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
-<tr class="memitem:a37bcd56eadf8212a80d5f1f7319b5961"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a37bcd56eadf8212a80d5f1f7319b5961">operator=</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocatorator_type2 &gt; &amp;other) noexcept</td></tr>
-<tr class="memdesc:a37bcd56eadf8212a80d5f1f7319b5961"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor re...">fallback_allocator_adaptor</a> with any stateful_allocatorator type.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a37bcd56eadf8212a80d5f1f7319b5961">More...</a><br /></td></tr>
-<tr class="separator:a37bcd56eadf8212a80d5f1f7319b5961"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70f6dafeee0708f190127832d87edfa8"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
-<tr class="memitem:a70f6dafeee0708f190127832d87edfa8"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a70f6dafeee0708f190127832d87edfa8">operator=</a> (const stateful_allocatorator_type2 &amp;allocator_instance) noexcept</td></tr>
-<tr class="memdesc:a70f6dafeee0708f190127832d87edfa8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assign operator for any stateful_allocatorator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a70f6dafeee0708f190127832d87edfa8">More...</a><br /></td></tr>
-<tr class="separator:a70f6dafeee0708f190127832d87edfa8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a436f57449550643fd96728ddaccf7de5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a436f57449550643fd96728ddaccf7de5">operator=</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&amp;other) noexcept=default</td></tr>
-<tr class="memdesc:a436f57449550643fd96728ddaccf7de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assign operator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a436f57449550643fd96728ddaccf7de5">More...</a><br /></td></tr>
-<tr class="separator:a436f57449550643fd96728ddaccf7de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add4f1e348196cc4402fc9140506abd4f"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
-<tr class="memitem:add4f1e348196cc4402fc9140506abd4f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#add4f1e348196cc4402fc9140506abd4f">operator=</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocatorator_type2 &gt; &amp;&amp;other) noexcept</td></tr>
-<tr class="memdesc:add4f1e348196cc4402fc9140506abd4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor re...">fallback_allocator_adaptor</a> with any stateful_allocatorator type.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#add4f1e348196cc4402fc9140506abd4f">More...</a><br /></td></tr>
-<tr class="separator:add4f1e348196cc4402fc9140506abd4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c0ad14c2aa8760387e09fbd32a8793f"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
-<tr class="memitem:a1c0ad14c2aa8760387e09fbd32a8793f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1c0ad14c2aa8760387e09fbd32a8793f">operator=</a> (stateful_allocatorator_type2 &amp;&amp;allocator_instance) noexcept</td></tr>
-<tr class="memdesc:a1c0ad14c2aa8760387e09fbd32a8793f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assign operator for any stateful_allocatorator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1c0ad14c2aa8760387e09fbd32a8793f">More...</a><br /></td></tr>
-<tr class="separator:a1c0ad14c2aa8760387e09fbd32a8793f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f75f489b98fc35bf9ac541b8f3cdd05"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a2f75f489b98fc35bf9ac541b8f3cdd05">allocate</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a> n) const</td></tr>
-<tr class="memdesc:a2f75f489b98fc35bf9ac541b8f3cdd05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates n * sizeof(T) bytes of storage.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a2f75f489b98fc35bf9ac541b8f3cdd05">More...</a><br /></td></tr>
-<tr class="separator:a2f75f489b98fc35bf9ac541b8f3cdd05"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a663efdff17f8047afc5d4dbf45dee660"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a663efdff17f8047afc5d4dbf45dee660">deallocate</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> ptr, const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a> size) const</td></tr>
-<tr class="memdesc:a663efdff17f8047afc5d4dbf45dee660"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocates the storage reference by the pointer ptr.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a663efdff17f8047afc5d4dbf45dee660">More...</a><br /></td></tr>
-<tr class="separator:a663efdff17f8047afc5d4dbf45dee660"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5206ff38c57dccde052b97f95f23151"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae5206ff38c57dccde052b97f95f23151">max_size</a> () const noexcept</td></tr>
-<tr class="memdesc:ae5206ff38c57dccde052b97f95f23151"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the theoretical maximum allocation size.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae5206ff38c57dccde052b97f95f23151">More...</a><br /></td></tr>
-<tr class="separator:ae5206ff38c57dccde052b97f95f23151"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2b25710154d4e423d97256e9f266eb7"><td class="memTemplParams" colspan="2">template&lt;class... Args&gt; </td></tr>
-<tr class="memitem:ac2b25710154d4e423d97256e9f266eb7"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ac2b25710154d4e423d97256e9f266eb7">construct</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> &amp;ptr, Args &amp;&amp;...args) const</td></tr>
-<tr class="memdesc:ac2b25710154d4e423d97256e9f266eb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs an object of T.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ac2b25710154d4e423d97256e9f266eb7">More...</a><br /></td></tr>
-<tr class="separator:ac2b25710154d4e423d97256e9f266eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9f1aeaa67a03bfb4d1fdfb00b6e567b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae9f1aeaa67a03bfb4d1fdfb00b6e567b">destroy</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> &amp;ptr) const</td></tr>
-<tr class="memdesc:ae9f1aeaa67a03bfb4d1fdfb00b6e567b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deconstruct an object of T.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae9f1aeaa67a03bfb4d1fdfb00b6e567b">More...</a><br /></td></tr>
-<tr class="separator:ae9f1aeaa67a03bfb4d1fdfb00b6e567b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68b68bd65d9499cfca1ad5ddae60eea6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a73eefd397adafa18d71412c29d162bcf">stateful_allocatorator_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a68b68bd65d9499cfca1ad5ddae60eea6">stateful_allocatorator</a> ()</td></tr>
-<tr class="separator:a68b68bd65d9499cfca1ad5ddae60eea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab729ef2cb865c91d9f57f11f0dc456cb"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a73eefd397adafa18d71412c29d162bcf">stateful_allocatorator_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ab729ef2cb865c91d9f57f11f0dc456cb">stateful_allocatorator</a> () const</td></tr>
-<tr class="separator:ab729ef2cb865c91d9f57f11f0dc456cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adaf3b3e9833e7968e94017c56b154cd3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#adaf3b3e9833e7968e94017c56b154cd3">fallback_allocator_adaptor</a> () noexcept</td></tr>
+<tr class="memdesc:adaf3b3e9833e7968e94017c56b154cd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor which falls back on the regular allocator (i.e., malloc()).  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#adaf3b3e9833e7968e94017c56b154cd3">More...</a><br /></td></tr>
+<tr class="separator:adaf3b3e9833e7968e94017c56b154cd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e3a24c19b79d343a18882d8c7f16660"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
+<tr class="memitem:a4e3a24c19b79d343a18882d8c7f16660"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a4e3a24c19b79d343a18882d8c7f16660">fallback_allocator_adaptor</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator_type2 &gt; allocator_instance) noexcept</td></tr>
+<tr class="memdesc:a4e3a24c19b79d343a18882d8c7f16660"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new instance using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constru...">fallback_allocator_adaptor</a> with any stateful_allocator type.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a4e3a24c19b79d343a18882d8c7f16660">More...</a><br /></td></tr>
+<tr class="separator:a4e3a24c19b79d343a18882d8c7f16660"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9e5f2918f7d65826508af60ce885349"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
+<tr class="memitem:ae9e5f2918f7d65826508af60ce885349"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae9e5f2918f7d65826508af60ce885349">fallback_allocator_adaptor</a> (stateful_allocator_type2 allocator_instance) noexcept</td></tr>
+<tr class="memdesc:ae9e5f2918f7d65826508af60ce885349"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new instance using an instance of any stateful_allocator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae9e5f2918f7d65826508af60ce885349">More...</a><br /></td></tr>
+<tr class="separator:ae9e5f2918f7d65826508af60ce885349"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80b0bb65c1aed1444eae14641a3e1da2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a80b0bb65c1aed1444eae14641a3e1da2">fallback_allocator_adaptor</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;other) noexcept=default</td></tr>
+<tr class="memdesc:a80b0bb65c1aed1444eae14641a3e1da2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a80b0bb65c1aed1444eae14641a3e1da2">More...</a><br /></td></tr>
+<tr class="separator:a80b0bb65c1aed1444eae14641a3e1da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbf05f9862d46580c0edf941ead2c91e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#abbf05f9862d46580c0edf941ead2c91e">fallback_allocator_adaptor</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&amp;other) noexcept=default</td></tr>
+<tr class="memdesc:abbf05f9862d46580c0edf941ead2c91e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move constructor.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#abbf05f9862d46580c0edf941ead2c91e">More...</a><br /></td></tr>
+<tr class="separator:abbf05f9862d46580c0edf941ead2c91e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fc38cc04eec7bbe9274ae0ea967160c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a2fc38cc04eec7bbe9274ae0ea967160c">operator=</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;) noexcept=default</td></tr>
+<tr class="memdesc:a2fc38cc04eec7bbe9274ae0ea967160c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assign operator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a2fc38cc04eec7bbe9274ae0ea967160c">More...</a><br /></td></tr>
+<tr class="separator:a2fc38cc04eec7bbe9274ae0ea967160c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0bb84ba41180b44411d2ec5a7178647"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
+<tr class="memitem:ac0bb84ba41180b44411d2ec5a7178647"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ac0bb84ba41180b44411d2ec5a7178647">operator=</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator_type2 &gt; &amp;other) noexcept</td></tr>
+<tr class="memdesc:ac0bb84ba41180b44411d2ec5a7178647"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constru...">fallback_allocator_adaptor</a> with any stateful_allocator type.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ac0bb84ba41180b44411d2ec5a7178647">More...</a><br /></td></tr>
+<tr class="separator:ac0bb84ba41180b44411d2ec5a7178647"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2d924532fcbeca123032980a5e2478b"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
+<tr class="memitem:aa2d924532fcbeca123032980a5e2478b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#aa2d924532fcbeca123032980a5e2478b">operator=</a> (const stateful_allocator_type2 &amp;allocator_instance) noexcept</td></tr>
+<tr class="memdesc:aa2d924532fcbeca123032980a5e2478b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assign operator for any stateful_allocator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#aa2d924532fcbeca123032980a5e2478b">More...</a><br /></td></tr>
+<tr class="separator:aa2d924532fcbeca123032980a5e2478b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae061baa36380d38e5a5aaeb21d327853"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae061baa36380d38e5a5aaeb21d327853">operator=</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&amp;other) noexcept=default</td></tr>
+<tr class="memdesc:ae061baa36380d38e5a5aaeb21d327853"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assign operator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ae061baa36380d38e5a5aaeb21d327853">More...</a><br /></td></tr>
+<tr class="separator:ae061baa36380d38e5a5aaeb21d327853"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60d0dad37f83cd04a9ffe2acd4e73a97"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
+<tr class="memitem:a60d0dad37f83cd04a9ffe2acd4e73a97"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a60d0dad37f83cd04a9ffe2acd4e73a97">operator=</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator_type2 &gt; &amp;&amp;other) noexcept</td></tr>
+<tr class="memdesc:a60d0dad37f83cd04a9ffe2acd4e73a97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constru...">fallback_allocator_adaptor</a> with any stateful_allocator type.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a60d0dad37f83cd04a9ffe2acd4e73a97">More...</a><br /></td></tr>
+<tr class="separator:a60d0dad37f83cd04a9ffe2acd4e73a97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c2b4da980872c32902f5a65779ae4f5"><td class="memTemplParams" colspan="2">template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </td></tr>
+<tr class="memitem:a9c2b4da980872c32902f5a65779ae4f5"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a9c2b4da980872c32902f5a65779ae4f5">operator=</a> (stateful_allocator_type2 &amp;&amp;allocator_instance) noexcept</td></tr>
+<tr class="memdesc:a9c2b4da980872c32902f5a65779ae4f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assign operator for any stateful_allocator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a9c2b4da980872c32902f5a65779ae4f5">More...</a><br /></td></tr>
+<tr class="separator:a9c2b4da980872c32902f5a65779ae4f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65c832585836508f9ad9ef3d9503a5bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a65c832585836508f9ad9ef3d9503a5bc">allocate</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a> n) const</td></tr>
+<tr class="memdesc:a65c832585836508f9ad9ef3d9503a5bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates n * sizeof(T) bytes of storage.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a65c832585836508f9ad9ef3d9503a5bc">More...</a><br /></td></tr>
+<tr class="separator:a65c832585836508f9ad9ef3d9503a5bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af626b22432619b2d544fc2463fb95fcf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#af626b22432619b2d544fc2463fb95fcf">deallocate</a> (<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> ptr, const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a> size) const</td></tr>
+<tr class="memdesc:af626b22432619b2d544fc2463fb95fcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocates the storage reference by the pointer ptr.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#af626b22432619b2d544fc2463fb95fcf">More...</a><br /></td></tr>
+<tr class="separator:af626b22432619b2d544fc2463fb95fcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9df8e8c11823a504f01fb489a10d8148"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a9df8e8c11823a504f01fb489a10d8148">max_size</a> () const noexcept</td></tr>
+<tr class="memdesc:a9df8e8c11823a504f01fb489a10d8148"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the theoretical maximum allocation size.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a9df8e8c11823a504f01fb489a10d8148">More...</a><br /></td></tr>
+<tr class="separator:a9df8e8c11823a504f01fb489a10d8148"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d35f47fb7b42798aee6702482778dc6"><td class="memTemplParams" colspan="2">template&lt;class... Args&gt; </td></tr>
+<tr class="memitem:a0d35f47fb7b42798aee6702482778dc6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a0d35f47fb7b42798aee6702482778dc6">construct</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> &amp;ptr, Args &amp;&amp;...args) const</td></tr>
+<tr class="memdesc:a0d35f47fb7b42798aee6702482778dc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs an object of T.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a0d35f47fb7b42798aee6702482778dc6">More...</a><br /></td></tr>
+<tr class="separator:a0d35f47fb7b42798aee6702482778dc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c0d4d0602752c97a75a091f80d1d00a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5c0d4d0602752c97a75a091f80d1d00a">destroy</a> (const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> &amp;ptr) const</td></tr>
+<tr class="memdesc:a5c0d4d0602752c97a75a091f80d1d00a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deconstruct an object of T.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5c0d4d0602752c97a75a091f80d1d00a">More...</a><br /></td></tr>
+<tr class="separator:a5c0d4d0602752c97a75a091f80d1d00a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ed3632f1d644f1e98c6f52df13c862e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5570dd44bb0a6e6ece0b0c26aafdcbc3">stateful_allocator_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1ed3632f1d644f1e98c6f52df13c862e">get_stateful_allocator</a> ()</td></tr>
+<tr class="memdesc:a1ed3632f1d644f1e98c6f52df13c862e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a reference to the stateful allocator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1ed3632f1d644f1e98c6f52df13c862e">More...</a><br /></td></tr>
+<tr class="separator:a1ed3632f1d644f1e98c6f52df13c862e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadc3ea089cc83906751193d41e463c56"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5570dd44bb0a6e6ece0b0c26aafdcbc3">stateful_allocator_type</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#aadc3ea089cc83906751193d41e463c56">get_stateful_allocator</a> () const</td></tr>
+<tr class="memdesc:aadc3ea089cc83906751193d41e463c56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a const reference to the stateful allocator.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#aadc3ea089cc83906751193d41e463c56">More...</a><br /></td></tr>
+<tr class="separator:aadc3ea089cc83906751193d41e463c56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad475b4894ea85ebb113e48263c241e86"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ad475b4894ea85ebb113e48263c241e86">stateful_allocator_available</a> () const</td></tr>
+<tr class="memdesc:ad475b4894ea85ebb113e48263c241e86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the stateful allocator is available.  <a href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#ad475b4894ea85ebb113e48263c241e86">More...</a><br /></td></tr>
+<tr class="separator:ad475b4894ea85ebb113e48263c241e86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;typename stateful_allocator&gt;<br />
-class metall::container::fallback_allocator_adaptor&lt; stateful_allocator &gt;</h3>
+<div class="textblock"><h3>template&lt;typename StatefulAllocator&gt;<br />
+class metall::container::fallback_allocator_adaptor&lt; StatefulAllocator &gt;</h3>
 
-<p>A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor receives no argument to construct the stateful allocator instance. </p>
+<p>A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor receives no argument to construct the stateful allocator (Metall's normal STL compatible allocator) instance. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">stateful_allocator</td><td>The stateful allocator type. It must not be default constructible. </td></tr>
+    <tr><td class="paramname">StatefulAllocator</td><td>The stateful allocator type. It must not be default constructible. </td></tr>
   </table>
   </dd>
 </dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a73eefd397adafa18d71412c29d162bcf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73eefd397adafa18d71412c29d162bcf">&#9670;&nbsp;</a></span>stateful_allocatorator_type</h2>
+<a id="a5570dd44bb0a6e6ece0b0c26aafdcbc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5570dd44bb0a6e6ece0b0c26aafdcbc3">&#9670;&nbsp;</a></span>stateful_allocator_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a73eefd397adafa18d71412c29d162bcf">stateful_allocatorator_type</a> =  typename std::remove_const&lt; typename std::remove_reference&lt;stateful_allocator&gt;::type&gt;::type</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5570dd44bb0a6e6ece0b0c26aafdcbc3">stateful_allocator_type</a> =  typename std::remove_const&lt; typename std::remove_reference&lt;StatefulAllocator&gt;::type&gt;::type</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a7e66633d8a1fa702ff5bd26b1b1e3aa2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7e66633d8a1fa702ff5bd26b1b1e3aa2">&#9670;&nbsp;</a></span>value_type</h2>
+<a id="abdae2ca0111c539f19103e3cb8c91b30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abdae2ca0111c539f19103e3cb8c91b30">&#9670;&nbsp;</a></span>value_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a7e66633d8a1fa702ff5bd26b1b1e3aa2">value_type</a> =  typename stateful_allocatorator_type::value_type</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#abdae2ca0111c539f19103e3cb8c91b30">value_type</a> =  typename stateful_allocator_type::value_type</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a5a11e6af01f577ba73fcd7c85c65408c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5a11e6af01f577ba73fcd7c85c65408c">&#9670;&nbsp;</a></span>pointer</h2>
+<a id="a64e0f3305e7be418c1e7fc13621ab5a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64e0f3305e7be418c1e7fc13621ab5a2">&#9670;&nbsp;</a></span>pointer</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> =  typename stateful_allocatorator_type::pointer</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> =  typename stateful_allocator_type::pointer</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a3d17aa433141f03a886c9c9539122b46"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3d17aa433141f03a886c9c9539122b46">&#9670;&nbsp;</a></span>const_pointer</h2>
+<a id="afc079d917fc764c33c36e67d99b54a9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc079d917fc764c33c36e67d99b54a9d">&#9670;&nbsp;</a></span>const_pointer</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a3d17aa433141f03a886c9c9539122b46">const_pointer</a> =  typename stateful_allocatorator_type::const_pointer</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#afc079d917fc764c33c36e67d99b54a9d">const_pointer</a> =  typename stateful_allocator_type::const_pointer</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a8c117b4735882233315c525007ef0933"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8c117b4735882233315c525007ef0933">&#9670;&nbsp;</a></span>void_pointer</h2>
+<a id="aa8fa93c2c175fa4d29d3c06bcf0a5e6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8fa93c2c175fa4d29d3c06bcf0a5e6f">&#9670;&nbsp;</a></span>void_pointer</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a8c117b4735882233315c525007ef0933">void_pointer</a> =  typename stateful_allocatorator_type::void_pointer</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#aa8fa93c2c175fa4d29d3c06bcf0a5e6f">void_pointer</a> =  typename stateful_allocator_type::void_pointer</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a816a5d81862c1dea178c574da1bea59c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a816a5d81862c1dea178c574da1bea59c">&#9670;&nbsp;</a></span>const_void_pointer</h2>
+<a id="a2afe2be45bc6551d0d9e0dc55c8cd729"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2afe2be45bc6551d0d9e0dc55c8cd729">&#9670;&nbsp;</a></span>const_void_pointer</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a816a5d81862c1dea178c574da1bea59c">const_void_pointer</a> =  typename stateful_allocatorator_type::const_void_pointer</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a2afe2be45bc6551d0d9e0dc55c8cd729">const_void_pointer</a> =  typename stateful_allocator_type::const_void_pointer</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="afd4b19ad912a2c79808c92d05c1ea218"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd4b19ad912a2c79808c92d05c1ea218">&#9670;&nbsp;</a></span>difference_type</h2>
+<a id="a7e9c577e49447ffde9932088828b8741"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e9c577e49447ffde9932088828b8741">&#9670;&nbsp;</a></span>difference_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#afd4b19ad912a2c79808c92d05c1ea218">difference_type</a> =  typename stateful_allocatorator_type::difference_type</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a7e9c577e49447ffde9932088828b8741">difference_type</a> =  typename stateful_allocator_type::difference_type</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a6bd78d96ddf3f20a2091d580bb637027"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6bd78d96ddf3f20a2091d580bb637027">&#9670;&nbsp;</a></span>size_type</h2>
+<a id="a1a5fea03618e0fdc7a3ed5243456bdc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a5fea03618e0fdc7a3ed5243456bdc8">&#9670;&nbsp;</a></span>size_type</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a> =  typename stateful_allocatorator_type::size_type</td>
+          <td class="memname">using <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a> =  typename stateful_allocator_type::size_type</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -336,19 +341,19 @@ template&lt;typename stateful_allocator &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ac285c0699e705494c6b1462c4fdfa6e9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac285c0699e705494c6b1462c4fdfa6e9">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[1/5]</span></h2>
+<a id="adaf3b3e9833e7968e94017c56b154cd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adaf3b3e9833e7968e94017c56b154cd3">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[1/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -365,23 +370,23 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="a3963db67cecd91a5a03bbde047d5e6e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3963db67cecd91a5a03bbde047d5e6e8">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[2/5]</span></h2>
+<a id="a4e3a24c19b79d343a18882d8c7f16660"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e3a24c19b79d343a18882d8c7f16660">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[2/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <div class="memtemplate">
-template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </div>
+template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocatorator_type2 &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator_type2 &gt;&#160;</td>
           <td class="paramname"><em>allocator_instance</em></td><td>)</td>
           <td></td>
         </tr>
@@ -393,27 +398,27 @@ template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is
 </table>
 </div><div class="memdoc">
 
-<p>Construct a new instance using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor re...">fallback_allocator_adaptor</a> with any stateful_allocatorator type. </p>
+<p>Construct a new instance using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constru...">fallback_allocator_adaptor</a> with any stateful_allocator type. </p>
 
 </div>
 </div>
-<a id="a12b341f5a4a081b3f373d9ef3ebd0bf5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a12b341f5a4a081b3f373d9ef3ebd0bf5">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[3/5]</span></h2>
+<a id="ae9e5f2918f7d65826508af60ce885349"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9e5f2918f7d65826508af60ce885349">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[3/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <div class="memtemplate">
-template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </div>
+template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
           <td>(</td>
-          <td class="paramtype">stateful_allocatorator_type2&#160;</td>
+          <td class="paramtype">stateful_allocator_type2&#160;</td>
           <td class="paramname"><em>allocator_instance</em></td><td>)</td>
           <td></td>
         </tr>
@@ -425,25 +430,25 @@ template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is
 </table>
 </div><div class="memdoc">
 
-<p>Construct a new instance using an instance of any stateful_allocatorator. </p>
+<p>Construct a new instance using an instance of any stateful_allocator. </p>
 
 </div>
 </div>
-<a id="a49eb171689488ddd799ee7a55fcd17cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a49eb171689488ddd799ee7a55fcd17cd">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[4/5]</span></h2>
+<a id="a80b0bb65c1aed1444eae14641a3e1da2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80b0bb65c1aed1444eae14641a3e1da2">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[4/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt; &amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
           <td></td>
         </tr>
@@ -459,21 +464,21 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="a4395474b0921f52a877d682ab171af40"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4395474b0921f52a877d682ab171af40">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[5/5]</span></h2>
+<a id="abbf05f9862d46580c0edf941ead2c91e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbf05f9862d46580c0edf941ead2c91e">&#9670;&nbsp;</a></span>fallback_allocator_adaptor() <span class="overload">[5/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::<a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a> </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator &gt; &amp;&amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt; &amp;&amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
           <td></td>
         </tr>
@@ -490,21 +495,21 @@ template&lt;typename stateful_allocator &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a243736cf8f855f4ed46f137bc27c0899"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a243736cf8f855f4ed46f137bc27c0899">&#9670;&nbsp;</a></span>operator=() <span class="overload">[1/6]</span></h2>
+<a id="a2fc38cc04eec7bbe9274ae0ea967160c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fc38cc04eec7bbe9274ae0ea967160c">&#9670;&nbsp;</a></span>operator=() <span class="overload">[1/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::operator= </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::operator= </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt; &amp;&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -520,23 +525,23 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="a37bcd56eadf8212a80d5f1f7319b5961"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a37bcd56eadf8212a80d5f1f7319b5961">&#9670;&nbsp;</a></span>operator=() <span class="overload">[2/6]</span></h2>
+<a id="ac0bb84ba41180b44411d2ec5a7178647"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0bb84ba41180b44411d2ec5a7178647">&#9670;&nbsp;</a></span>operator=() <span class="overload">[2/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <div class="memtemplate">
-template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </div>
+template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::operator= </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::operator= </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocatorator_type2 &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator_type2 &gt; &amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
           <td></td>
         </tr>
@@ -548,27 +553,27 @@ template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is
 </table>
 </div><div class="memdoc">
 
-<p>Copy assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor re...">fallback_allocator_adaptor</a> with any stateful_allocatorator type. </p>
+<p>Copy assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constru...">fallback_allocator_adaptor</a> with any stateful_allocator type. </p>
 
 </div>
 </div>
-<a id="a70f6dafeee0708f190127832d87edfa8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a70f6dafeee0708f190127832d87edfa8">&#9670;&nbsp;</a></span>operator=() <span class="overload">[3/6]</span></h2>
+<a id="aa2d924532fcbeca123032980a5e2478b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2d924532fcbeca123032980a5e2478b">&#9670;&nbsp;</a></span>operator=() <span class="overload">[3/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <div class="memtemplate">
-template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </div>
+template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::operator= </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::operator= </td>
           <td>(</td>
-          <td class="paramtype">const stateful_allocatorator_type2 &amp;&#160;</td>
+          <td class="paramtype">const stateful_allocator_type2 &amp;&#160;</td>
           <td class="paramname"><em>allocator_instance</em></td><td>)</td>
           <td></td>
         </tr>
@@ -580,25 +585,25 @@ template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is
 </table>
 </div><div class="memdoc">
 
-<p>Copy assign operator for any stateful_allocatorator. </p>
+<p>Copy assign operator for any stateful_allocator. </p>
 
 </div>
 </div>
-<a id="a436f57449550643fd96728ddaccf7de5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a436f57449550643fd96728ddaccf7de5">&#9670;&nbsp;</a></span>operator=() <span class="overload">[4/6]</span></h2>
+<a id="ae061baa36380d38e5a5aaeb21d327853"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae061baa36380d38e5a5aaeb21d327853">&#9670;&nbsp;</a></span>operator=() <span class="overload">[4/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::operator= </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::operator= </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator &gt; &amp;&amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt; &amp;&amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
           <td></td>
         </tr>
@@ -614,23 +619,23 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="add4f1e348196cc4402fc9140506abd4f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#add4f1e348196cc4402fc9140506abd4f">&#9670;&nbsp;</a></span>operator=() <span class="overload">[5/6]</span></h2>
+<a id="a60d0dad37f83cd04a9ffe2acd4e73a97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60d0dad37f83cd04a9ffe2acd4e73a97">&#9670;&nbsp;</a></span>operator=() <span class="overload">[5/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <div class="memtemplate">
-template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </div>
+template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::operator= </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::operator= </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocatorator_type2 &gt; &amp;&amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&lt; stateful_allocator_type2 &gt; &amp;&amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
           <td></td>
         </tr>
@@ -642,27 +647,27 @@ template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is
 </table>
 </div><div class="memdoc">
 
-<p>Move assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constructor re...">fallback_allocator_adaptor</a> with any stateful_allocatorator type. </p>
+<p>Move assign operator, using an instance of <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html" title="A Metall STL compatible allocator which fallbacks to a heap allocator (e.g., malloc()) if its constru...">fallback_allocator_adaptor</a> with any stateful_allocator type. </p>
 
 </div>
 </div>
-<a id="a1c0ad14c2aa8760387e09fbd32a8793f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c0ad14c2aa8760387e09fbd32a8793f">&#9670;&nbsp;</a></span>operator=() <span class="overload">[6/6]</span></h2>
+<a id="a9c2b4da980872c32902f5a65779ae4f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c2b4da980872c32902f5a65779ae4f5">&#9670;&nbsp;</a></span>operator=() <span class="overload">[6/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <div class="memtemplate">
-template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator, stateful_allocatorator_type2 &gt;::value, int &gt;  = 0&gt; </div>
+template&lt;typename stateful_allocator_type2 , std::enable_if_t&lt; std::is_constructible&lt; stateful_allocator_type, stateful_allocator_type2 &gt;::value, int &gt;  = 0&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::operator= </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">fallback_allocator_adaptor</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::operator= </td>
           <td>(</td>
-          <td class="paramtype">stateful_allocatorator_type2 &amp;&amp;&#160;</td>
+          <td class="paramtype">stateful_allocator_type2 &amp;&amp;&#160;</td>
           <td class="paramname"><em>allocator_instance</em></td><td>)</td>
           <td></td>
         </tr>
@@ -674,25 +679,25 @@ template&lt;typename stateful_allocatorator_type2 , std::enable_if_t&lt; std::is
 </table>
 </div><div class="memdoc">
 
-<p>Move assign operator for any stateful_allocatorator. </p>
+<p>Move assign operator for any stateful_allocator. </p>
 
 </div>
 </div>
-<a id="a2f75f489b98fc35bf9ac541b8f3cdd05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f75f489b98fc35bf9ac541b8f3cdd05">&#9670;&nbsp;</a></span>allocate()</h2>
+<a id="a65c832585836508f9ad9ef3d9503a5bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65c832585836508f9ad9ef3d9503a5bc">&#9670;&nbsp;</a></span>allocate()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::allocate </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::allocate </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a>&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a>&#160;</td>
           <td class="paramname"><em>n</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -715,27 +720,27 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="a663efdff17f8047afc5d4dbf45dee660"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a663efdff17f8047afc5d4dbf45dee660">&#9670;&nbsp;</a></span>deallocate()</h2>
+<a id="af626b22432619b2d544fc2463fb95fcf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af626b22432619b2d544fc2463fb95fcf">&#9670;&nbsp;</a></span>deallocate()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::deallocate </td>
+          <td class="memname">void <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::deallocate </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a>&#160;</td>
           <td class="paramname"><em>ptr</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a>&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a>&#160;</td>
           <td class="paramname"><em>size</em>&#160;</td>
         </tr>
         <tr>
@@ -762,19 +767,19 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="ae5206ff38c57dccde052b97f95f23151"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae5206ff38c57dccde052b97f95f23151">&#9670;&nbsp;</a></span>max_size()</h2>
+<a id="a9df8e8c11823a504f01fb489a10d8148"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9df8e8c11823a504f01fb489a10d8148">&#9670;&nbsp;</a></span>max_size()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a6bd78d96ddf3f20a2091d580bb637027">size_type</a> <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::max_size </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a1a5fea03618e0fdc7a3ed5243456bdc8">size_type</a> <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::max_size </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -792,13 +797,13 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="ac2b25710154d4e423d97256e9f266eb7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac2b25710154d4e423d97256e9f266eb7">&#9670;&nbsp;</a></span>construct()</h2>
+<a id="a0d35f47fb7b42798aee6702482778dc6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d35f47fb7b42798aee6702482778dc6">&#9670;&nbsp;</a></span>construct()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <div class="memtemplate">
 template&lt;class... Args&gt; </div>
 <table class="mlabels">
@@ -806,9 +811,9 @@ template&lt;class... Args&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::construct </td>
+          <td class="memname">void <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::construct </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> &amp;&#160;</td>
           <td class="paramname"><em>ptr</em>, </td>
         </tr>
         <tr>
@@ -847,21 +852,21 @@ template&lt;class... Args&gt; </div>
 
 </div>
 </div>
-<a id="ae9f1aeaa67a03bfb4d1fdfb00b6e567b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae9f1aeaa67a03bfb4d1fdfb00b6e567b">&#9670;&nbsp;</a></span>destroy()</h2>
+<a id="a5c0d4d0602752c97a75a091f80d1d00a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c0d4d0602752c97a75a091f80d1d00a">&#9670;&nbsp;</a></span>destroy()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::destroy </td>
+          <td class="memname">void <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::destroy </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5a11e6af01f577ba73fcd7c85c65408c">pointer</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a64e0f3305e7be418c1e7fc13621ab5a2">pointer</a> &amp;&#160;</td>
           <td class="paramname"><em>ptr</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -883,19 +888,19 @@ template&lt;typename stateful_allocator &gt; </div>
 
 </div>
 </div>
-<a id="a68b68bd65d9499cfca1ad5ddae60eea6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68b68bd65d9499cfca1ad5ddae60eea6">&#9670;&nbsp;</a></span>stateful_allocatorator() <span class="overload">[1/2]</span></h2>
+<a id="a1ed3632f1d644f1e98c6f52df13c862e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ed3632f1d644f1e98c6f52df13c862e">&#9670;&nbsp;</a></span>get_stateful_allocator() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a73eefd397adafa18d71412c29d162bcf">stateful_allocatorator_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::stateful_allocatorator </td>
+          <td class="memname"><a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5570dd44bb0a6e6ece0b0c26aafdcbc3">stateful_allocator_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::get_stateful_allocator </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -908,21 +913,23 @@ template&lt;typename stateful_allocator &gt; </div>
 </table>
 </div><div class="memdoc">
 
+<p>Returns a reference to the stateful allocator. </p>
+
 </div>
 </div>
-<a id="ab729ef2cb865c91d9f57f11f0dc456cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab729ef2cb865c91d9f57f11f0dc456cb">&#9670;&nbsp;</a></span>stateful_allocatorator() <span class="overload">[2/2]</span></h2>
+<a id="aadc3ea089cc83906751193d41e463c56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aadc3ea089cc83906751193d41e463c56">&#9670;&nbsp;</a></span>get_stateful_allocator() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename stateful_allocator &gt; </div>
+template&lt;typename StatefulAllocator &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a73eefd397adafa18d71412c29d162bcf">stateful_allocatorator_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; stateful_allocator &gt;::stateful_allocatorator </td>
+          <td class="memname">const <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html#a5570dd44bb0a6e6ece0b0c26aafdcbc3">stateful_allocator_type</a>&amp; <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::get_stateful_allocator </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -934,6 +941,38 @@ template&lt;typename stateful_allocator &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Returns a const reference to the stateful allocator. </p>
+
+</div>
+</div>
+<a id="ad475b4894ea85ebb113e48263c241e86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad475b4894ea85ebb113e48263c241e86">&#9670;&nbsp;</a></span>stateful_allocator_available()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename StatefulAllocator &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classmetall_1_1container_1_1fallback__allocator__adaptor.html">metall::container::fallback_allocator_adaptor</a>&lt; StatefulAllocator &gt;::stateful_allocator_available </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns true if the stateful allocator is available. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns true if the stateful allocator is available. </dd></dl>
 
 </div>
 </div>
