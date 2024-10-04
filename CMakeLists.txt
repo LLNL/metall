@@ -9,14 +9,20 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
     cmake_policy(SET CMP0077 NEW)
 endif ()
 
+# When using the URL download method with the ExternalProject_Add() or
+# FetchContent_Declare() commands, sets the timestamps of extracted contents
+# to the time of extraction.
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
     cmake_policy(SET CMP0135 NEW)
 endif ()
 
+# Accept <PACKAGENAME>_ROOT variables for find_package() command.
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27")
     cmake_policy(SET CMP0144 NEW)
 endif ()
 
+# find_package(Boost) to search for the upstream BoostConfig.cmake.
+# Disable CMake's FindBoost module.
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30")
     cmake_policy(SET CMP0167 NEW)
 endif ()
@@ -196,15 +202,13 @@ if (PRIVATEER_ROOT)
 endif ()
 
 # ---------- Boost ---------- #
-find_package(Boost 1.80)
+include(find_boost_headers)
+find_boost_headers(1.80 FALSE)
 if (NOT Boost_FOUND)
-    message(STATUS "Boost is not found. Fetching Boost.")
+    message(STATUS "Fetching Boost")
     FetchContent_Declare(Boost
             URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2)
-    FetchContent_GetProperties(Boost)
-    if (NOT Boost_POPULATED)
-        FetchContent_Populate(Boost)
-    endif ()
+    FetchContent_MakeAvailable(Boost)
     set(BOOST_ROOT ${boost_SOURCE_DIR})
     find_package(Boost 1.80 REQUIRED)
 endif ()
