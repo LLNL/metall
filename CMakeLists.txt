@@ -13,6 +13,14 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
     cmake_policy(SET CMP0135 NEW)
 endif ()
 
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27")
+    cmake_policy(SET CMP0144 NEW)
+endif ()
+
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30")
+    cmake_policy(SET CMP0167 NEW)
+endif ()
+
 # -------------------------------------------------------------------------------- #
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
@@ -188,12 +196,9 @@ if (PRIVATEER_ROOT)
 endif ()
 
 # ---------- Boost ---------- #
-# Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
-# there is a tricky behavior/issue especially in Boost 1.70.0.
-set(Boost_NO_BOOST_CMAKE ON)
-
-find_package(Boost 1.80 QUIET)
+find_package(Boost 1.80)
 if (NOT Boost_FOUND)
+    message(STATUS "Boost is not found. Fetching Boost.")
     FetchContent_Declare(Boost
             URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2)
     FetchContent_GetProperties(Boost)
@@ -201,7 +206,7 @@ if (NOT Boost_FOUND)
         FetchContent_Populate(Boost)
     endif ()
     set(BOOST_ROOT ${boost_SOURCE_DIR})
-    find_package(Boost 1.80)
+    find_package(Boost 1.80 REQUIRED)
 endif ()
 
 # -------------------------------------------------------------------------------- #

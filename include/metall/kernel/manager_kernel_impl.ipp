@@ -734,8 +734,8 @@ T *manager_kernel<st, sst, cn, cs>::priv_generic_construct(
     return nullptr;
   }
 
-  // To prevent memory leak, deallocates the memory when array_construct throws
-  // exception
+  // To prevent memory leak, deallocates the memory when the array construction
+  // below throws exception
   std::unique_ptr<void, std::function<void(void *)>> ptr_holder(
       ptr, [this](void *const ptr) {
         try {
@@ -752,12 +752,22 @@ T *manager_kernel<st, sst, cn, cs>::priv_generic_construct(
         }
       });
 
+#if BOOST_VERSION >= 108500
+  table.construct_n(ptr, length);
+#else
   // Constructs each object in the allocated memory
   // When one of objects of T in the array throws exception,
   // this function calls T's destructor for successfully constructed objects and
   // rethrows the exception
-  mdtl::array_construct(ptr, length, table);
-
+  std::size_t constructed = 0;
+  try {
+    table.construct_n(ptr, length, constructed);
+  } catch (...) {
+    std::size_t destroyed = 0;
+    table.destroy_n(ptr, constructed, destroyed);
+    throw;
+  }
+#endif
   ptr_holder.release();  // release the pointer since the construction succeeded
 
   return static_cast<T *>(ptr);
