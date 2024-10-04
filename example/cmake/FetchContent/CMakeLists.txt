@@ -14,19 +14,15 @@ if (NOT Boost_FOUND)
     message(STATUS "Download or search previously downloaded Boost using FetchContent")
     FetchContent_Declare(Boost
             URL https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.bz2)
-    FetchContent_GetProperties(Boost)
-    if (NOT Boost_POPULATED)
-        FetchContent_Populate(Boost)
-    endif ()
-    set(BOOST_ROOT ${boost_SOURCE_DIR})
-    find_package(Boost 1.80)
+    FetchContent_MakeAvailable(Boost)
+    find_package(Boost 1.80 REQUIRED)
 endif ()
 
 # Download and setup Metall.
 if (NOT BUILD_C)
     # Just install Metall header files and avoid building executables in the repository.
     set(JUST_INSTALL_METALL_HEADER TRUE)
-endif()
+endif ()
 FetchContent_Declare(
         Metall
         GIT_REPOSITORY https://github.com/LLNL/metall.git
