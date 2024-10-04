@@ -23,7 +23,7 @@ endif ()
 
 
 # ---------- Boost ---------- #
-find_package(Boost 1.64 REQUIRED)
+find_package(Boost 1.80 REQUIRED)
 
 # ---------- MPI ---------- #
 find_package(MPI)

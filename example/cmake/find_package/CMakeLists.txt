@@ -14,7 +14,7 @@ message(STATUS "Metall_FOUND = ${Metall_FOUND}")
 # ---------------------------------------- #
 
 # Boost header files are required to use Metall C++ API
-find_package(Boost 1.64)
+find_package(Boost 1.80)
 find_package(Threads)
 
 if (Boost_FOUND AND Threads_FOUND)

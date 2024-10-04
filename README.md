@@ -32,9 +32,8 @@ All core files exist under
 
 ## Required
 
-- Boost C++ Libraries 1.64 or more.
+- Boost C++ Libraries 1.80 or more.
   - Build is not required; needs only their header files.
-  - To use JSON containers in Metall, Boost C++ Libraries 1.75 or more is required.
 - C++17 compiler
   - Tested with GCC 8.1 or more; however, 8.3 or more is recommended due to early implementation of the C++ Filesystem library.
 
@@ -45,11 +44,11 @@ To build your program with Metall, all you have to do is just setting include pa
 For example,
 
 ```bash
-# Download Boost (Boost C++ Libraries 1.64 or more is required)
+# Download Boost (Boost C++ Libraries 1.80 or more is required)
 # One can skip this step if Boost is already available.
-wget https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz
-tar xvf boost_1_78_0.tar.gz
-export BOOST_ROOT=$PWD/boost_1_78_0
+wget https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
+tar xvf boost_1_80_0.tar.gz
+export BOOST_ROOT=$PWD/boost_1_80_0
 
 git clone https://github.com/LLNL/metall
 export METALL_INCLUDE=$PWD/metall/include
@@ -60,8 +59,6 @@ g++ -std=c++17 your_program.cpp -lstdc++fs -I${BOOST_ROOT} -I${METALL_INCLUDE}
 ### Unofficial Support For Clang
 Clang can be used instead of GCC to build Metall.
 However, we haven't tested it intensively.
-Also, Boost C++ Libraries 1.69 or more may be required
-if one wants to build Metall with Clang + CUDA.
 
 ## Package Manager Support
 

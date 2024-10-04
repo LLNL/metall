@@ -24,9 +24,9 @@ Please install GCC 8.1 or more. One could also use Clang or Apple clang; however
 Only the header files are used by Metall. One does not have to build it.
 
 ```bash
-# Download Boost C++ Libraries (1.64 or more is required)
-wget https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz
-tar xvf boost_1_75_0.tar.gz
+# Download Boost C++ Libraries (1.80 or more is required)
+wget https://dl.bintray.com/boostorg/release/1.80.0/source/boost_1_80_0.tar.gz
+tar xvf boost_1_80_0.tar.gz
 ```
 
 # 1. Lecture Materials
@@ -48,11 +48,11 @@ tar xvf boost_1_75_0.tar.gz
 
 **Build example**
 ```bash
-# Download Boost C++ Libraries (1.64 or more is required)
+# Download Boost C++ Libraries (1.80 or more is required)
 # One can skip this step if Boost is already available.
-wget https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz
-tar xvf boost_1_75_0.tar.gz
-export BOOST_ROOT=$PWD/boost_1_75_0
+wget https://dl.bintray.com/boostorg/release/1.80.0/source/boost_1_80_0.tar.gz
+tar xvf boost_1_80_0.tar.gz
+export BOOST_ROOT=$PWD/boost_1_80_0
 
 git clone https://github.com/LLNL/metall
 cd metall/tutorial/nvmw21
