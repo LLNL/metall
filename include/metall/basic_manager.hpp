@@ -902,9 +902,10 @@ class basic_manager {
   /// \copydoc doc_thread_safe_alloc
   ///
   /// \param nbytes Number of bytes to allocate. Must
-  /// be a multiple alignment. \param alignment Alignment size. Alignment must
-  /// be a power of two and satisfy [min allocation size, chunk size]. \return
-  /// Returns a pointer to the allocated memory.
+  /// be a multiple alignment.
+  /// \param alignment Alignment size. Alignment must be a power of two and
+  /// satisfy [min allocation size, system page size].
+  /// \return Returns a pointer to the allocated memory.
   void *allocate_aligned(size_type nbytes, size_type alignment) noexcept {
     if (!check_sanity()) {
       return nullptr;
