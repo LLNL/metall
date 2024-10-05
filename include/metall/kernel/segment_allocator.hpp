@@ -148,6 +148,7 @@ class segment_allocator {
   /// \return The offset of an allocated memory.
   /// On error, k_null_offset is returned.
   difference_type allocate(const size_type nbytes) {
+    if (nbytes == 0) return k_null_offset;
     const bin_no_type bin_no = bin_no_mngr::to_bin_no(nbytes);
 
     const auto offset = (priv_small_object_bin(bin_no))
