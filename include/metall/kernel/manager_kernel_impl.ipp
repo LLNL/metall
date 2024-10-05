@@ -112,6 +112,7 @@ void *manager_kernel<st, sst, cn, cs>::allocate_aligned(
   }
   assert(offset >= 0);
 
+  assert((std::ptrdiff_t)m_segment_storage.get_segment() % alignment == 0);
   auto *addr = priv_to_address(offset);
   assert((uint64_t)addr % alignment == 0);
   return addr;

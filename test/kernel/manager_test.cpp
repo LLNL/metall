@@ -1154,10 +1154,11 @@ TEST(ManagerTest, AlignedAllocation) {
   {
     manager_type::remove(dir_path());
     manager_type manager(metall::create_only, dir_path());
+    const std::size_t page_size = metall::mtlldetail::get_page_size();
 
-    for (std::size_t alignment = k_min_object_size; alignment <= k_chunk_size;
+    for (std::size_t alignment = k_min_object_size; alignment <= page_size;
          alignment *= 2) {
-      for (std::size_t sz = alignment; sz <= k_chunk_size * 2;
+      for (std::size_t sz = alignment; sz <= page_size * 2;
            sz += alignment) {
         auto addr1 =
             static_cast<char *>(manager.allocate_aligned(sz, alignment));

@@ -436,7 +436,10 @@ class segment_storage {
       }
     }
 
-    priv_prepare_header_and_segment(segment_capacity_request);
+    if (!priv_prepare_header_and_segment(segment_capacity_request)) {
+      priv_set_broken_status();
+      return false;
+    }
 
     m_top_path = top_path;
     m_read_only = false;
@@ -473,8 +476,11 @@ class segment_storage {
       logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
-    priv_prepare_header_and_segment(read_only ? priv_get_size(top_path)
-                                              : segment_capacity_request);
+    if (!priv_prepare_header_and_segment(
+            read_only ? priv_get_size(top_path) : segment_capacity_request)) {
+      priv_set_broken_status();
+      return false;
+    }
 
     m_top_path = top_path;
     m_read_only = read_only;

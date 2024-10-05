@@ -164,10 +164,10 @@ class segment_allocator {
   /// within this segment, i.e., this function does not know the address this
   /// segment is mapped to. \param nbytes A size to allocate. Must be a multiple
   /// of alignment. \param alignment An alignment requirement. Alignment must be
-  /// a power of two and satisfy [min allocation size, chunk size]. \return On
-  /// success, returns the pointer to the beginning of newly allocated memory.
-  /// Returns k_null_offset, if the given arguments do not satisfy the
-  /// requirements above.
+  /// a power of two and satisfy [min allocation size, system page size].
+  /// \return On success, returns the pointer to the beginning of newly
+  /// allocated memory. Returns k_null_offset, if the given arguments do not
+  /// satisfy the requirements above.
   difference_type allocate_aligned(const size_type nbytes,
                                    const size_type alignment) {
     // This aligned allocation algorithm assumes that all power of 2 numbers
@@ -193,6 +193,10 @@ class segment_allocator {
     if (nbytes % alignment != 0) {
       return k_null_offset;
     }
+
+    // Internal allocation size must be a multiple of alignment
+    assert(bin_no_mngr::to_object_size(bin_no_mngr::to_bin_no(nbytes)) %
+               alignment == 0);
 
     // As long as the above requirements are satisfied, just calling the normal
     // allocate function is enough

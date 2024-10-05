@@ -372,7 +372,7 @@ inline void *reserve_aligned_vm_region(const size_t alignment,
   if (length % alignment != 0) {
     std::stringstream ss;
     ss << "length (" << length << ") is not a multiple of alignment ("
-       << ::sysconf(_SC_PAGE_SIZE) << ")";
+       << alignment << ")";
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return nullptr;
   }
