@@ -69,21 +69,6 @@ inline bool fsync(const fs::path &path) {
   return ret;
 }
 
-inline bool fsync_recursive(const fs::path &path) {
-  fs::path p(path);
-  p = fs::canonical(p);
-  while (true) {
-    if (!fsync(p.string())) {
-      return false;
-    }
-    if (p == p.root_path()) {
-      break;
-    }
-    p = p.parent_path();
-  }
-  return true;
-}
-
 inline bool extend_file_size_manually(const int fd, const off_t offset,
                                       const ssize_t file_size) {
   auto buffer = new unsigned char[4096];
@@ -176,6 +161,9 @@ inline bool directory_exist(const fs::path &dir_path) {
   return S_ISDIR(stat_buf.st_mode);
 }
 
+/// \brief Create a file
+/// \return Returns true if the file was created or already exists. Otherwise,
+/// returns false.
 inline bool create_file(const fs::path &file_path) {
   const int fd =
       ::open(file_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
@@ -185,10 +173,11 @@ inline bool create_file(const fs::path &file_path) {
     logger::perror(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
-
+  if (!os_fsync(fd)) return false;
   if (!os_close(fd)) return false;
 
-  return fsync_recursive(file_path);
+  // Sync the parent directory
+  return fsync(file_path.parent_path());
 }
 
 /// \brief Creates directories recursively.
