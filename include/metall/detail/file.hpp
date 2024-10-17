@@ -165,6 +165,17 @@ inline bool directory_exist(const fs::path &dir_path) {
 /// \return Returns true if the file was created or already exists. Otherwise,
 /// returns false.
 inline bool create_file(const fs::path &file_path) {
+  if (directory_exist(file_path)) {
+    std::stringstream ss;
+    ss << "Failed to create: " << file_path
+       << " (a directory with the same name exists)";
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    return false;
+  }
+  if (file_exist(file_path)) {
+    return true;
+  }
+
   const int fd =
       ::open(file_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   if (fd == -1) {
@@ -370,21 +381,24 @@ inline bool copy_file_sparse_manually(const fs::path &source_path,
 
 /**
  * \brief Prepares a file copy from source_path to destination_path
- *      by opening/creating the relevant files and setting appropriate permissions.
+ *      by opening/creating the relevant files and setting appropriate
+ * permissions.
  *
  * \param source_path path to source file
  * \param destination_path desired path of destination file
- * \param src out parameter for the file descriptor opened for source_path (will be opened read only)
- * \param dst out parameter for the file descriptor opened for destination_path (will be opened write only)
- * \return on success: size of source file as obtained by ::fstat. on failure: -1
+ * \param src out parameter for the file descriptor opened for source_path (will
+ * be opened read only)
+ * \param dst out parameter for the file descriptor opened for destination_path
+ * (will be opened write only)
+ * \return on success: size of source file as obtained by ::fstat. on failure:
+ * -1
  *
- * \warning if the function fails the user must not use the obtained src and dst file descriptors in any way
- *      (they don't need to be closed)
+ * \warning if the function fails the user must not use the obtained src and dst
+ * file descriptors in any way (they don't need to be closed)
  */
-inline off_t prepare_file_copy_linux(const std::filesystem::path &source_path,
-                                     const std::filesystem::path &destination_path,
-                                     int *src,
-                                     int *dst) {
+inline off_t prepare_file_copy_linux(
+    const std::filesystem::path &source_path,
+    const std::filesystem::path &destination_path, int *src, int *dst) {
   *src = ::open(source_path.c_str(), O_RDONLY);
   if (*src == -1) {
     std::stringstream ss;
@@ -402,7 +416,8 @@ inline off_t prepare_file_copy_linux(const std::filesystem::path &source_path,
     return -1;
   }
 
-  *dst = ::open(destination_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, st.st_mode);
+  *dst = ::open(destination_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC,
+                st.st_mode);
   if (*dst == -1) {
     std::stringstream ss;
     ss << "Unable to open " << destination_path;
@@ -424,7 +439,8 @@ inline off_t prepare_file_copy_linux(const std::filesystem::path &source_path,
  * Relevant man pages:
  *    - https://www.man7.org/linux/man-pages/man2/copy_file_range.2.html
  */
-inline bool copy_file_dense_linux(const int src, const int dst, const off_t src_size) {
+inline bool copy_file_dense_linux(const int src, const int dst,
+                                  const off_t src_size) {
   if (::copy_file_range(src, nullptr, dst, nullptr, src_size, 0) < 0) {
     logger::perror(logger::level::error, __FILE__, __LINE__, "copy_file_range");
     return false;
@@ -439,11 +455,13 @@ inline bool copy_file_dense_linux(const int src, const int dst, const off_t src_
  * \param destination_path path to destination file
  * \return if the operation was successful
  */
-inline bool copy_file_dense_linux(const std::filesystem::path &source_path,
-                                  const std::filesystem::path &destination_path) {
+inline bool copy_file_dense_linux(
+    const std::filesystem::path &source_path,
+    const std::filesystem::path &destination_path) {
   int src;
   int dst;
-  const off_t src_size = prepare_file_copy_linux(source_path, destination_path, &src, &dst);
+  const off_t src_size =
+      prepare_file_copy_linux(source_path, destination_path, &src, &dst);
   if (src_size >= 0) {
     if (copy_file_dense_linux(src, dst, src_size)) {
       os_fsync(dst);
@@ -455,7 +473,9 @@ inline bool copy_file_dense_linux(const std::filesystem::path &source_path,
 
   os_close(src);
   os_close(dst);
-  logger::out(logger::level::warning, __FILE__, __LINE__, "Unable to use accelerated dense copy, falling back to unaccelerated dense copy");
+  logger::out(logger::level::warning, __FILE__, __LINE__,
+              "Unable to use accelerated dense copy, falling back to "
+              "unaccelerated dense copy");
 
   return copy_file_dense(source_path, destination_path);
 }
@@ -486,8 +506,10 @@ inline bool create_hole_linux(const int fd, const off_t size) {
   }
 
   // punch a hole from old cursor to new cursor
-  if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, hole_end - size, size) < 0) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "fallocate(FALLOC_FL_PUNCH_HOLE)");
+  if (::fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+                  hole_end - size, size) < 0) {
+    logger::perror(logger::level::error, __FILE__, __LINE__,
+                   "fallocate(FALLOC_FL_PUNCH_HOLE)");
     return false;
   }
 
@@ -495,8 +517,8 @@ inline bool create_hole_linux(const int fd, const off_t size) {
 }
 
 /**
- * Performs a sparse copy from src to dst, by only copying actual data and manually recreating
- * all holes from src in dst.
+ * Performs a sparse copy from src to dst, by only copying actual data and
+ * manually recreating all holes from src in dst.
  *
  * I.e. for each "segment" (data segment or hole) in src do
  *      if segment is data => copy segment to dst
@@ -512,24 +534,28 @@ inline bool create_hole_linux(const int fd, const off_t size) {
  *      https://www.man7.org/linux/man-pages/man2/copy_file_range.2.html
  *      https://www.man7.org/linux/man-pages/man3/ftruncate.3p.html
  */
-inline bool copy_file_sparse_linux(const int src, const int dst, const off_t src_size) {
+inline bool copy_file_sparse_linux(const int src, const int dst,
+                                   const off_t src_size) {
   off_t old_off = 0;
   off_t off = 0;
 
   while ((off = ::lseek(src, off, SEEK_DATA)) >= 0) {
     if (!create_hole_linux(dst, off - old_off)) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Unable to punch hole");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Unable to punch hole");
       return false;
     }
 
     off_t const hole_start = ::lseek(src, off, SEEK_HOLE);
     if (hole_start < 0) {
-      logger::perror(logger::level::error, __FILE__, __LINE__, "fseek(SEEK_HOLE)");
+      logger::perror(logger::level::error, __FILE__, __LINE__,
+                     "fseek(SEEK_HOLE)");
       return false;
     }
 
     if (::copy_file_range(src, &off, dst, nullptr, hole_start - off, 0) < 0) {
-      logger::perror(logger::level::error, __FILE__, __LINE__, "copy_file_range");
+      logger::perror(logger::level::error, __FILE__, __LINE__,
+                     "copy_file_range");
       return false;
     }
 
@@ -539,21 +565,24 @@ inline bool copy_file_sparse_linux(const int src, const int dst, const off_t src
   if (errno != ENXIO) {
     // error condition: offset is _not_ within a hole at the end of the file.
     // previous lseek from while-loop condition must have failed
-    logger::perror(logger::level::error, __FILE__, __LINE__, "fseek(SEEK_DATA)");
+    logger::perror(logger::level::error, __FILE__, __LINE__,
+                   "fseek(SEEK_DATA)");
     return false;
   }
 
   if (old_off < src_size) {
     // the final extent is a hole we must call ftruncate
     // here in order to record the proper length in the destination.
-    // See also: https://github.com/coreutils/coreutils/blob/a257b63ce7ebcc4577adb5406b39fc0edd61dcac/src/copy.c#L643-L658
+    // See also:
+    // https://github.com/coreutils/coreutils/blob/a257b63ce7ebcc4577adb5406b39fc0edd61dcac/src/copy.c#L643-L658
     if (::ftruncate(dst, src_size) < 0) {
       logger::perror(logger::level::error, __FILE__, __LINE__, "ftruncate");
       return false;
     }
 
     if (!create_hole_linux(dst, src_size - old_off)) {
-      logger::out(logger::level::error, __FILE__, __LINE__, "Unable to punch hole");
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Unable to punch hole");
       return false;
     }
   }
@@ -565,13 +594,16 @@ inline bool copy_file_sparse_linux(const int src, const int dst, const off_t src
  * Attempts to perform a sparse copy from source_path to destination_path,
  * falling back to regular copy if the sparse copy fails.
  */
-inline bool copy_file_sparse_linux(const std::filesystem::path &source_path,
-                                   const std::filesystem::path &destination_path) {
+inline bool copy_file_sparse_linux(
+    const std::filesystem::path &source_path,
+    const std::filesystem::path &destination_path) {
   int src;
   int dst;
-  const off_t src_size = prepare_file_copy_linux(source_path, destination_path, &src, &dst);
+  const off_t src_size =
+      prepare_file_copy_linux(source_path, destination_path, &src, &dst);
   if (src_size < 0) {
-    logger::out(logger::level::error, __FILE__, __LINE__, "Unable to prepare for file copy");
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Unable to prepare for file copy");
     return false;
   }
 
@@ -584,7 +616,8 @@ inline bool copy_file_sparse_linux(const std::filesystem::path &source_path,
 
   {
     std::stringstream ss;
-    ss << "Unable to sparse copy " << source_path << " to " << destination_path << ", falling back to normal copy";
+    ss << "Unable to sparse copy " << source_path << " to " << destination_path
+       << ", falling back to normal copy";
     logger::out(logger::level::warning, __FILE__, __LINE__, ss.str().c_str());
   }
 
@@ -676,8 +709,7 @@ inline bool copy_files_in_directory_in_parallel_helper(
   if (!get_regular_file_names(source_dir_path, &src_file_names)) {
     std::stringstream ss;
     ss << "Failed to get file list in " << source_dir_path;
-    logger::out(logger::level::error, __FILE__, __LINE__,
-                ss.str().c_str());
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
@@ -696,9 +728,9 @@ inline bool copy_files_in_directory_in_parallel_helper(
   };
 
   const auto num_threads = std::min<std::size_t>(
-      src_file_names.size(),
-      max_num_threads > 0 ? max_num_threads
-                              : std::thread::hardware_concurrency());
+      src_file_names.size(), max_num_threads > 0
+                                 ? max_num_threads
+                                 : std::thread::hardware_concurrency());
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   for (std::size_t ix = 0; ix < num_threads; ++ix) {
