@@ -103,12 +103,7 @@ class bin_header {
  public:
   using cache_block_type = cache_block<difference_type, bin_no_type>;
 
-  bin_header() { clear(); }
-
-  inline void clear() {
-    m_active_block_size = 0;
-    m_active_block = nullptr;
-  }
+  bin_header() = default;
 
   // Move the active block to the next (older) block
   inline void move_to_next_active_block() {
@@ -193,12 +188,6 @@ class free_blocks_list {
     m_blocks = block;
   }
 
-  void clear() {
-    m_blocks = nullptr;
-    m_uninit_top = nullptr;
-    m_last_block = nullptr;
-  }
-
  private:
   // Blocks that were used and became empty
   const cache_block_type *m_blocks;
@@ -219,16 +208,9 @@ struct cache_header {
   using cache_block_type = cache_block<difference_type, bin_no_type>;
 
   cache_header(const cache_block_type *const blocks, std::size_t num_blocks)
-      : m_total_size_byte(0), m_free_blocks(blocks, num_blocks) {
+      : m_free_blocks(blocks, num_blocks) {
     assert(blocks);
     assert(num_blocks > 0);
-  }
-
-  void clear() {
-    m_total_size_byte = 0;
-    m_oldest_block = nullptr;
-    m_newest_block = nullptr;
-    m_free_blocks.clear();
   }
 
   inline void unregister(const cache_block_type *const block) {
@@ -276,7 +258,7 @@ struct cache_header {
   }
 
  private:
-  std::size_t m_total_size_byte;
+  std::size_t m_total_size_byte{0};
   const cache_block_type *m_oldest_block{nullptr};
   const cache_block_type *m_newest_block{nullptr};
   free_blocks_list_type m_free_blocks;
@@ -309,11 +291,13 @@ struct cache_container {
     // Do not initialize blocks on purpose to reduce the construction time
   }
 
-  void clear_headers() {
-    header.clear();
+  // Reset data to the initial state
+  void reset_headers() {
+    std::destroy_at(&header);
     for (std::size_t i = 0; i <= max_bin_no; ++i) {
-      bin_headers[i].clear();
+      std::destroy_at(&bin_headers[i]);
     }
+    init();
   }
 
   cache_heaer_type header;
@@ -399,9 +383,9 @@ class object_cache {
   using bin_no_manager = _bin_no_manager;
   using bin_no_type = typename bin_no_manager::bin_no_type;
   using object_allocator_type = _object_allocator_type;
-  using object_allocate_func_type = void (object_allocator_type::*const)(
+  using object_allocate_func_type = void (object_allocator_type:: *const)(
       const bin_no_type, const size_type, difference_type *const);
-  using object_deallocate_func_type = void (object_allocator_type::*const)(
+  using object_deallocate_func_type = void (object_allocator_type:: *const)(
       const bin_no_type, const size_type, const difference_type *const);
 
  private:
@@ -516,7 +500,7 @@ class object_cache {
           num_objects = cache_block_type::k_capacity;
         }
       }
-      cache.clear_headers();
+      cache.reset_headers();
     }
   }
 
