@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Metall
-   &#160;<span id="projectnumber">v0.28</span>
+   &#160;<span id="projectnumber">v0.29</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -2248,8 +2248,8 @@ template&lt;typename storage  = kernel::storage, typename segment_storage  = ker
 <p>This function is thread-safe. Other threads can also call the attributed object construction functions and allocate functions simultaneously.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">nbytes</td><td>Number of bytes to allocate. Must be a multiple alignment.</td></tr>
-    <tr><td class="paramname">alignment</td><td>Alignment size. Alignment must be a power of two and satisfy [min allocation size, chunk size]. </td></tr>
+    <tr><td class="paramname">nbytes</td><td>Number of bytes to allocate. Must be a multiple alignment. </td></tr>
+    <tr><td class="paramname">alignment</td><td>Alignment size. Alignment must be a power of two and satisfy [min allocation size, system page size]. </td></tr>
   </table>
   </dd>
 </dl>
