@@ -9,15 +9,29 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
     cmake_policy(SET CMP0077 NEW)
 endif ()
 
+# When using the URL download method with the ExternalProject_Add() or
+# FetchContent_Declare() commands, sets the timestamps of extracted contents
+# to the time of extraction.
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
     cmake_policy(SET CMP0135 NEW)
+endif ()
+
+# Accept <PACKAGENAME>_ROOT variables for find_package() command.
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27")
+    cmake_policy(SET CMP0144 NEW)
+endif ()
+
+# find_package(Boost) to search for the upstream BoostConfig.cmake.
+# Disable CMake's FindBoost module.
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30")
+    cmake_policy(SET CMP0167 NEW)
 endif ()
 
 # -------------------------------------------------------------------------------- #
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.28
+        VERSION 0.29
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 
@@ -82,6 +96,7 @@ option(JUST_INSTALL_METALL_HEADER "Just install Metall header files (do not buil
 option(BUILD_UTILITY "Build utility programs" OFF)
 option(BUILD_DOC "Build API documentation" OFF)
 option(BUILD_C "Build C examples and libraries" OFF)
+option(BUILD_SHARED_LIBS "Generate shared libraries" OFF)
 option(BUILD_EXAMPLE "Build the examples" OFF)
 option(BUILD_TEST "Build the test" OFF)
 option(RUN_LARGE_SCALE_TEST "Run large scale tests" OFF)
@@ -187,20 +202,15 @@ if (PRIVATEER_ROOT)
 endif ()
 
 # ---------- Boost ---------- #
-# Disable the boost-cmake feature (BoostConfig.cmake or boost-config.cmake) since
-# there is a tricky behavior/issue especially in Boost 1.70.0.
-set(Boost_NO_BOOST_CMAKE ON)
-
-find_package(Boost 1.64 QUIET)
+include(find_boost_headers)
+find_boost_headers(1.80 FALSE)
 if (NOT Boost_FOUND)
+    message(STATUS "Fetching Boost")
     FetchContent_Declare(Boost
             URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2)
-    FetchContent_GetProperties(Boost)
-    if (NOT Boost_POPULATED)
-        FetchContent_Populate(Boost)
-    endif ()
+    FetchContent_MakeAvailable(Boost)
     set(BOOST_ROOT ${boost_SOURCE_DIR})
-    find_package(Boost 1.64)
+    find_package(Boost 1.80 REQUIRED)
 endif ()
 
 # -------------------------------------------------------------------------------- #

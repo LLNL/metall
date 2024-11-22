@@ -7,26 +7,22 @@ project(myproject LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 # Boost header files are required for using Metall.
-find_package(Boost 1.64)
+find_package(Boost 1.80)
 # Download Boost if it does not exit.
 # NOTE: this process may take a long time as Boost is a big repository.
 if (NOT Boost_FOUND)
     message(STATUS "Download or search previously downloaded Boost using FetchContent")
     FetchContent_Declare(Boost
-            URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2)
-    FetchContent_GetProperties(Boost)
-    if (NOT Boost_POPULATED)
-        FetchContent_Populate(Boost)
-    endif ()
-    set(BOOST_ROOT ${boost_SOURCE_DIR})
-    find_package(Boost 1.64)
+            URL https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.bz2)
+    FetchContent_MakeAvailable(Boost)
+    find_package(Boost 1.80 REQUIRED)
 endif ()
 
 # Download and setup Metall.
 if (NOT BUILD_C)
     # Just install Metall header files and avoid building executables in the repository.
     set(JUST_INSTALL_METALL_HEADER TRUE)
-endif()
+endif ()
 FetchContent_Declare(
         Metall
         GIT_REPOSITORY https://github.com/LLNL/metall.git

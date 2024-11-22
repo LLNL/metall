@@ -44,7 +44,7 @@ class segment_storage {
 
   segment_storage() {
 #ifdef METALL_USE_ANONYMOUS_NEW_MAP
-    logger::out(logger::level::info, __FILE__, __LINE__,
+    logger::out(logger::level::verbose, __FILE__, __LINE__,
                 "METALL_USE_ANONYMOUS_NEW_MAP is defined");
 #endif
 
@@ -75,6 +75,7 @@ class segment_storage {
       : m_system_page_size(other.m_system_page_size),
         m_num_blocks(other.m_num_blocks),
         m_vm_region_size(other.m_vm_region_size),
+        m_segment_capacity(other.m_segment_capacity),
         m_current_segment_size(other.m_current_segment_size),
         m_vm_region(other.m_vm_region),
         m_segment(other.m_segment),
@@ -95,6 +96,7 @@ class segment_storage {
     m_system_page_size = other.m_system_page_size;
     m_num_blocks = other.m_num_blocks;
     m_vm_region_size = other.m_vm_region_size;
+    m_segment_capacity = other.m_segment_capacity;
     m_current_segment_size = other.m_current_segment_size;
     m_vm_region = other.m_vm_region;
     m_segment_header = other.m_segment_header;
@@ -256,14 +258,23 @@ class segment_storage {
     return total_file_size;
   }
 
-  std::size_t priv_aligment() const {
-    return std::max((size_t)m_system_page_size, (size_t)k_block_size);
+  std::size_t priv_round_up_to_block_size(const std::size_t nbytes) const {
+    const auto alignment =
+        std::max((size_t)m_system_page_size, (size_t)k_block_size);
+    return mdtl::round_up(nbytes, alignment);
+  }
+
+  std::size_t priv_round_down_to_block_size(const std::size_t nbytes) const {
+    const auto alignment =
+        std::max((size_t)m_system_page_size, (size_t)k_block_size);
+    return mdtl::round_down(nbytes, alignment);
   }
 
   void priv_clear_status() {
     m_system_page_size = 0;
     m_num_blocks = 0;
     m_vm_region_size = 0;
+    m_segment_capacity = 0;
     m_current_segment_size = 0;
     m_vm_region = nullptr;
     m_segment = nullptr;
@@ -277,9 +288,11 @@ class segment_storage {
   }
 
   bool priv_is_open() const {
+    // TODO: brush up this logic
     return (check_sanity() && m_system_page_size > 0 && m_num_blocks > 0 &&
-            m_vm_region_size > 0 && m_current_segment_size > 0 && m_vm_region &&
-            m_segment && !m_top_path.empty() && !m_block_fd_list.empty());
+            m_vm_region_size > 0 && m_segment_capacity > 0 &&
+            m_current_segment_size > 0 && m_vm_region && m_segment &&
+            !m_top_path.empty() && !m_block_fd_list.empty());
   }
 
   static bool priv_copy(const path_type &source_path,
@@ -296,12 +309,12 @@ class segment_storage {
 
     if (clone) {
       std::string s("Clone: " + source_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
       return mdtl::clone_files_in_directory_in_parallel(
           source_path, destination_path, max_num_threads);
     } else {
       std::string s("Copy: " + source_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
       return mdtl::copy_files_in_directory_in_parallel(
           source_path, destination_path, max_num_threads);
     }
@@ -309,20 +322,44 @@ class segment_storage {
     return false;
   }
 
+  bool priv_prepare_header_and_segment(
+      const std::size_t segment_capacity_request) {
+    const auto header_size = mdtl::round_up(sizeof(segment_header_type),
+                                            int64_t(m_system_page_size));
+    const auto vm_region_size =
+        header_size + priv_round_up_to_block_size(segment_capacity_request);
+    if (!priv_reserve_vm(vm_region_size)) {
+      priv_set_broken_status();
+      return false;
+    }
+    m_segment = reinterpret_cast<char *>(m_vm_region) + header_size;
+    m_segment_capacity =
+        priv_round_down_to_block_size(m_vm_region_size - header_size);
+    assert(m_segment_capacity >= segment_capacity_request);
+    assert(m_segment_capacity + header_size <= m_vm_region_size);
+    priv_construct_segment_header(m_vm_region);
+
+    return true;
+  }
+
   bool priv_reserve_vm(const std::size_t nbytes) {
     m_vm_region_size =
-        mdtl::round_up((int64_t)nbytes, (int64_t)priv_aligment());
+        mdtl::round_up((int64_t)nbytes, (int64_t)m_system_page_size);
     m_vm_region =
-        mdtl::reserve_aligned_vm_region(priv_aligment(), m_vm_region_size);
+        mdtl::reserve_aligned_vm_region(m_system_page_size, m_vm_region_size);
 
     if (!m_vm_region) {
       std::stringstream ss;
-      ss << "Cannot reserve a VM region " << nbytes << " bytes";
+      ss << "Cannot reserve a VM region " << m_vm_region_size << " bytes";
       logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       m_vm_region_size = 0;
       return false;
+    } else {
+      std::stringstream ss;
+      ss << "Reserved a VM region: " << m_vm_region_size << " bytes at "
+         << (uint64_t)m_vm_region;
+      logger::out(logger::level::verbose, __FILE__, __LINE__, ss.str().c_str());
     }
-    assert(reinterpret_cast<uint64_t>(m_vm_region) % priv_aligment() == 0);
 
     return true;
   }
@@ -352,8 +389,8 @@ class segment_storage {
       return false;
     }
 
-    const auto size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto size = mdtl::round_up(sizeof(segment_header_type),
+                                     int64_t(m_system_page_size));
     if (mdtl::map_anonymous_write_mode(addr, size, MAP_FIXED) != addr) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "Cannot allocate segment header");
@@ -368,8 +405,8 @@ class segment_storage {
 
   bool priv_deallocate_segment_header() {
     std::destroy_at(&m_segment_header);
-    const auto size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
+    const auto size = mdtl::round_up(sizeof(segment_header_type),
+                                     int64_t(m_system_page_size));
     const auto ret = mdtl::munmap(m_segment_header, size, false);
     m_segment_header = nullptr;
     if (!ret) {
@@ -379,14 +416,15 @@ class segment_storage {
     return ret;
   }
 
-  bool priv_create(const path_type &top_path, const std::size_t capacity) {
+  bool priv_create(const path_type &top_path,
+                   const std::size_t segment_capacity_request) {
     if (!check_sanity()) return false;
     if (is_open())
       return false;  // Cannot open multiple segments simultaneously.
 
     {
       std::string s("Create a segment under: " + top_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     if (!mdtl::directory_exist(top_path)) {
@@ -398,15 +436,10 @@ class segment_storage {
       }
     }
 
-    const auto header_size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
-    const auto vm_region_size = header_size + capacity;
-    if (!priv_reserve_vm(vm_region_size)) {
+    if (!priv_prepare_header_and_segment(segment_capacity_request)) {
       priv_set_broken_status();
       return false;
     }
-    m_segment = reinterpret_cast<char *>(m_vm_region) + header_size;
-    priv_construct_segment_header(m_vm_region);
 
     m_top_path = top_path;
     m_read_only = false;
@@ -431,7 +464,8 @@ class segment_storage {
     return true;
   }
 
-  bool priv_open(const path_type &top_path, const std::size_t capacity,
+  bool priv_open(const path_type &top_path,
+                 const std::size_t segment_capacity_request,
                  const bool read_only) {
     if (!check_sanity()) return false;
     if (is_open())
@@ -439,19 +473,14 @@ class segment_storage {
 
     {
       std::string s("Open a segment under: " + top_path.string());
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
-    const auto header_size =
-        mdtl::round_up(sizeof(segment_header_type), int64_t(priv_aligment()));
-    const auto vm_size =
-        header_size + ((read_only) ? priv_get_size(top_path) : capacity);
-    if (!priv_reserve_vm(vm_size)) {
+    if (!priv_prepare_header_and_segment(
+            read_only ? priv_get_size(top_path) : segment_capacity_request)) {
       priv_set_broken_status();
       return false;
     }
-    m_segment = reinterpret_cast<char *>(m_vm_region) + header_size;
-    priv_construct_segment_header(m_vm_region);
 
     m_top_path = top_path;
     m_read_only = read_only;
@@ -516,7 +545,7 @@ class segment_storage {
       return false;
     }
 
-    if (request_size > m_vm_region_size) {
+    if (request_size > m_segment_capacity) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "Requested segment size is bigger than the reserved VM size");
       return false;
@@ -550,7 +579,7 @@ class segment_storage {
     {
       std::string s("Create and extend a file " + file_name.string() +
                     " with " + std::to_string(file_size) + " bytes");
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     if (!mdtl::create_file(file_name)) return false;
@@ -587,7 +616,7 @@ class segment_storage {
     assert(!path.empty());
     assert(file_size > 0);
     assert(segment_offset >= 0);
-    assert(segment_offset + file_size <= m_vm_region_size);
+    assert(segment_offset + file_size <= m_segment_capacity);
 
     [[maybe_unused]] static constexpr int map_nosync =
 #ifdef MAP_NOSYNC
@@ -603,7 +632,7 @@ class segment_storage {
       ss << "Map a file " << path << " at " << segment_offset << " with "
          << file_size << " bytes; read-only mode is "
          << std::to_string(read_only);
-      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, ss.str().c_str());
     }
 
     const auto ret =
@@ -628,14 +657,14 @@ class segment_storage {
     assert(!path.empty());
     assert(region_size > 0);
     assert(segment_offset >= 0);
-    assert(segment_offset + region_size <= m_vm_region_size);
+    assert(segment_offset + region_size <= m_segment_capacity);
 
     const auto map_addr = static_cast<char *>(m_segment) + segment_offset;
     {
       std::string s("Map an anonymous region at " +
                     std::to_string(segment_offset) + " with " +
                     std::to_string(region_size));
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     const auto *addr =
@@ -709,7 +738,7 @@ class segment_storage {
       return false;
     }
 
-    logger::out(logger::level::info, __FILE__, __LINE__,
+    logger::out(logger::level::verbose, __FILE__, __LINE__,
                 "msync() for the application data segment");
     if (!priv_parallel_msync(sync)) {
       logger::out(logger::level::error, __FILE__, __LINE__,
@@ -755,7 +784,7 @@ class segment_storage {
     {
       std::stringstream ss;
       ss << "Sync files with " << num_threads << " threads";
-      logger::out(logger::level::info, __FILE__, __LINE__, ss.str().c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, ss.str().c_str());
     }
     std::vector<std::unique_ptr<std::thread>> threads(num_threads);
     for (auto &th : threads) {
@@ -812,7 +841,7 @@ class segment_storage {
     assert(m_anonymous_map_flag_list[block_no]);
     {
       std::string s("Sync anonymous map at block " + std::to_string(block_no));
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     auto *const addr = static_cast<char *>(m_segment) + block_no * k_block_size;
@@ -829,7 +858,7 @@ class segment_storage {
     {
       std::string s("Map block " + std::to_string(block_no) +
                     " as a non-anonymous map");
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
     [[maybe_unused]] static constexpr int map_nosync =
 #ifdef MAP_NOSYNC
@@ -912,7 +941,7 @@ class segment_storage {
     {
       std::string s("File free test result: ");
       s += m_free_file_space ? "success" : "failed";
-      logger::out(logger::level::info, __FILE__, __LINE__, s.c_str());
+      logger::out(logger::level::verbose, __FILE__, __LINE__, s.c_str());
     }
 
     return true;
@@ -924,6 +953,7 @@ class segment_storage {
   ssize_t m_system_page_size{0};
   std::size_t m_num_blocks{0};
   std::size_t m_vm_region_size{0};
+  std::size_t m_segment_capacity{0};
   std::size_t m_current_segment_size{0};
   void *m_vm_region{nullptr};
   void *m_segment{nullptr};

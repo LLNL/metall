@@ -205,8 +205,8 @@ class basic_manager {
   /// \param base_path Path to create a data store.
   /// \param capacity Total allocation size. Metall uses this value as a hint.
   // The actual limit could be smaller or larger than this value, depending on
-  // the internal implementation. However, a close minimum capacity should be
-  // available.
+  // the internal implementation. The gap between the hint and the actual limit
+  // will be reasonable (e.g., less than a few chunk sizes).
   basic_manager(create_only_t, const path_type &base_path,
                 const size_type capacity) noexcept {
     try {
@@ -902,9 +902,10 @@ class basic_manager {
   /// \copydoc doc_thread_safe_alloc
   ///
   /// \param nbytes Number of bytes to allocate. Must
-  /// be a multiple alignment. \param alignment Alignment size. Alignment must
-  /// be a power of two and satisfy [min allocation size, chunk size]. \return
-  /// Returns a pointer to the allocated memory.
+  /// be a multiple alignment.
+  /// \param alignment Alignment size. Alignment must be a power of two and
+  /// satisfy [min allocation size, system page size].
+  /// \return Returns a pointer to the allocated memory.
   void *allocate_aligned(size_type nbytes, size_type alignment) noexcept {
     if (!check_sanity()) {
       return nullptr;
