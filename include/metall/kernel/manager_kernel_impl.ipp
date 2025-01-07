@@ -419,12 +419,12 @@ manager_kernel<st, sst, cn, cs>::anonymous_end() const {
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
-template <typename T>
+template <typename T, typename proxy>
 T *manager_kernel<st, sst, cn, cs>::generic_construct(
     char_ptr_holder_type name, const size_type num, const bool try2find,
-    [[maybe_unused]] const bool do_throw, mdtl::in_place_interface &table) {
+    [[maybe_unused]] const bool do_throw, proxy &pr) {
   priv_check_sanity();
-  return priv_generic_construct<T>(name, num, try2find, table);
+  return priv_generic_construct<T>(name, num, try2find, pr);
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
@@ -694,15 +694,9 @@ bool manager_kernel<st, sst, cn, cs>::priv_unmark_properly_closed(
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
-template <typename T>
+template <typename T, typename proxy>
 T *manager_kernel<st, sst, cn, cs>::priv_generic_construct(
-    char_ptr_holder_type name, size_type length, bool try2find,
-    mdtl::in_place_interface &table) {
-  // Check overflow for security
-  if (length > ((std::size_t)-1) / table.size) {
-    return nullptr;
-  }
-
+    char_ptr_holder_type name, size_type length, bool try2find, proxy &pr) {
   void *ptr = nullptr;
   try {
 #ifdef METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
@@ -754,7 +748,7 @@ T *manager_kernel<st, sst, cn, cs>::priv_generic_construct(
       });
 
 #if BOOST_VERSION >= 108500
-  table.construct_n(ptr, length);
+  pr.construct_n(ptr, length);
 #else
   // Constructs each object in the allocated memory
   // When one of objects of T in the array throws exception,
@@ -762,10 +756,10 @@ T *manager_kernel<st, sst, cn, cs>::priv_generic_construct(
   // rethrows the exception
   std::size_t constructed = 0;
   try {
-    table.construct_n(ptr, length, constructed);
+    pr.construct_n(ptr, length, constructed);
   } catch (...) {
     std::size_t destroyed = 0;
-    table.destroy_n(ptr, constructed, destroyed);
+    pr.destroy_n(ptr, constructed, destroyed);
     throw;
   }
 #endif
