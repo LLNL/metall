@@ -12,7 +12,7 @@ jobs:
       - name: Test
         run: |
           pushd /dev/shm
-          wget -q https://boostorg.jfrog.io/artifactory/main/release/1.87.0/source/boost_1_87_0.tar.gz
+          wget -q https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.gz
           mkdir boost
           tar xf boost_1_87_0.tar.gz -C boost --strip-components 1
           export BOOST_ROOT=${PWD}/boost
@@ -32,7 +32,7 @@ jobs:
       - name: Test
         run: |
           pushd /dev/shm
-          wget -q https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
+          wget -q https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.gz
           mkdir boost
           tar xf boost_1_80_0.tar.gz -C boost --strip-components 1
           export BOOST_ROOT=${PWD}/boost
