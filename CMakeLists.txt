@@ -207,7 +207,8 @@ find_boost_headers(1.80 FALSE)
 if (NOT Boost_FOUND)
     message(STATUS "Fetching Boost")
     FetchContent_Declare(Boost
-            URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2)
+            URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2
+            SYSTEM)
     FetchContent_MakeAvailable(Boost)
     set(BOOST_ROOT ${boost_SOURCE_DIR})
     find_package(Boost 1.80 REQUIRED)
