@@ -1,8 +1,11 @@
-# GitLab CI YML file dedicated for LC environment (Quartz)
+# GitLab CI YML file dedicated for LC environment (Ruby)
 #
 # Spack must be available
 # It would be better to install all Boost versions manually,
 # as it causes errors often and could exceed the timelimit of the system.
+
+# For '--reserv=ci' option in Slurm, see:
+# https://lc.llnl.gov/confluence/spaces/GITLAB/pages/785285769/Special+partitions+for+CI+batch+jobs
 
 include: [component: $CI_SERVER_FQDN/lc-components/id_tokens/id_tokens-component@main]
 
@@ -25,21 +28,20 @@ install_boost:
     - shell
   script:
     - hostname
-    - srun -N1 -ppci spack install boost@1.86.0 boost@1.85.0 boost@1.84.0 boost@1.83.0 boost@1.82.0 boost@1.81.0 boost@1.80.0
-    - spack clean
+    - srun -N1 --reserv=ci -A seq sh -c 'for p in "boost@1.86.0" "boost@1.85.0" "boost@1.84.0" "boost@1.83.0" "boost@1.82.0" "boost@1.81.0" "boost@1.80.0"; do spack install --reuse $p; done; spack clean'
 
 
 .build:
   stage: build
   tags:
-    - quartz
+    - ruby
     - shell
   script:
     - echo "=== build section ==="
     - module load gcc/${GCC_VERSION}
     - spack load --first boost@${BOOST_VERSION} arch=$(spack arch)
     - export METALL_TEST_DIR="/dev/shm/metall_test-${CI_CONCURRENT_ID}-${CI_PIPELINE_IID}"
-    - srun -N1 -ppci bash ./scripts/CI/build_and_test.sh
+    - srun -N1 --reserv=ci -A seq bash ./scripts/CI/build_and_test.sh
 
 build_gcc12.1.1_bst1.86.0:
   extends: .build

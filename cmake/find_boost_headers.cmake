@@ -17,6 +17,8 @@ function(find_boost_headers min_version required)
     if (Boost_FOUND)
         set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
         set(Boost_FOUND ${Boost_FOUND} PARENT_SCOPE)
+        message(STATUS "Found Boost at ${Boost_INCLUDE_DIRS}")
+        message(STATUS "Boost version: ${Boost_VERSION}")
         return()
     endif ()
 

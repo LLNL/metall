@@ -31,7 +31,7 @@ endif ()
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.29
+        VERSION 0.30
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 
@@ -207,7 +207,8 @@ find_boost_headers(1.80 FALSE)
 if (NOT Boost_FOUND)
     message(STATUS "Fetching Boost")
     FetchContent_Declare(Boost
-            URL https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2)
+            URL https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2
+            SYSTEM)
     FetchContent_MakeAvailable(Boost)
     set(BOOST_ROOT ${boost_SOURCE_DIR})
     find_package(Boost 1.80 REQUIRED)

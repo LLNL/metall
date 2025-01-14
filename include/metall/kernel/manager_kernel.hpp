@@ -28,7 +28,6 @@
 #include <metall/kernel/attributed_object_directory.hpp>
 #include <metall/object_attribute_accessor.hpp>
 #include <metall/detail/utilities.hpp>
-#include <metall/detail/in_place_interface.hpp>
 #include <metall/detail/file.hpp>
 #include <metall/detail/file_clone.hpp>
 #include <metall/detail/char_ptr_holder.hpp>
@@ -328,11 +327,11 @@ class manager_kernel {
   /// the same name. \param do_throw Ignored. This method does not throw its own
   /// exception --- this function throws an exception thrown by the constructor
   /// of the object. This is how Boost.Interprocess treats this parameter.
-  /// \param table Reference to an in_place_interface object.
+  /// \param pr Reference to a CtorArgN object.
   /// \return Returns a pointer to the constructed object(s).
-  template <typename T>
+  template <typename T, typename proxy>
   T *generic_construct(char_ptr_holder_type name, size_type num, bool try2find,
-                       bool do_throw, mdtl::in_place_interface &table);
+                       bool do_throw, proxy &pr);
 
   /// \brief Return a reference to the segment header.
   /// \return A reference to the segment header.
@@ -500,9 +499,9 @@ class manager_kernel {
   static bool priv_unmark_properly_closed(const path_type &base_path);
 
   // ---------- For constructed objects  ---------- //
-  template <typename T>
+  template <typename T, typename proxy>
   T *priv_generic_construct(char_ptr_holder_type name, size_type length,
-                            bool try2find, mdtl::in_place_interface &table);
+                            bool try2find, proxy &pr);
 
   template <typename T>
   bool priv_register_attr_object_no_mutex(char_ptr_holder_type name,
