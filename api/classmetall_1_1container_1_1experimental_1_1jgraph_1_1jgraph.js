@@ -14,7 +14,7 @@ var classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph =
     [ "register_edge", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a672766a6a09a90d4b271a3bf1751a85a", null ],
     [ "find_vertex", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a7104a0bf0c6e15112ba6cc75de9217a9", null ],
     [ "find_vertex", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a5e1dad2625d250d19ab1e19ed42964f0", null ],
-    [ "find_edges", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a6465840cf3e8a926b54ae9a4940c25c5", null ],
+    [ "find_edges", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#abd616604050363146e1feed4557b71b3", null ],
     [ "num_vertices", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a1bed9c366567c31e718d3cd1402d3681", null ],
     [ "num_edges", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#a9b2bbd904c3b9ae27f8db43782c32ecd", null ],
     [ "degree", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html#af225baf66642c0c5e7944b1a41b3134e", null ],

@@ -8,8 +8,8 @@ var annotated_dup =
         [ "experimental", "namespacemetall_1_1container_1_1experimental.html", [
           [ "jgraph", "namespacemetall_1_1container_1_1experimental_1_1jgraph.html", [
             [ "jgdtl", "namespacemetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl.html", [
-              [ "vertex_iterator_impl", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl" ],
-              [ "edge_iterator_impl", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl" ]
+              [ "edge_iterator_impl", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1edge__iterator__impl" ],
+              [ "vertex_iterator_impl", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgdtl_1_1vertex__iterator__impl" ]
             ] ],
             [ "jgraph", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph.html", "classmetall_1_1container_1_1experimental_1_1jgraph_1_1jgraph" ]
           ] ]
@@ -29,15 +29,15 @@ var annotated_dup =
         [ "container_of_containers_iterator_adaptor", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor.html", "classmetall_1_1utility_1_1container__of__containers__iterator__adaptor" ],
         [ "metall_mpi_adaptor", "classmetall_1_1utility_1_1metall__mpi__adaptor.html", "classmetall_1_1utility_1_1metall__mpi__adaptor" ]
       ] ],
+      [ "anonymous_object_attr_accessor", "classmetall_1_1anonymous__object__attr__accessor.html", "classmetall_1_1anonymous__object__attr__accessor" ],
       [ "basic_manager", "classmetall_1_1basic__manager.html", "classmetall_1_1basic__manager" ],
+      [ "create_only_t", "structmetall_1_1create__only__t.html", null ],
       [ "logger", "classmetall_1_1logger.html", "classmetall_1_1logger" ],
       [ "named_object_attr_accessor", "classmetall_1_1named__object__attr__accessor.html", "classmetall_1_1named__object__attr__accessor" ],
-      [ "unique_object_attr_accessor", "classmetall_1_1unique__object__attr__accessor.html", "classmetall_1_1unique__object__attr__accessor" ],
-      [ "anonymous_object_attr_accessor", "classmetall_1_1anonymous__object__attr__accessor.html", "classmetall_1_1anonymous__object__attr__accessor" ],
-      [ "stl_allocator", "classmetall_1_1stl__allocator.html", "classmetall_1_1stl__allocator" ],
-      [ "create_only_t", "structmetall_1_1create__only__t.html", null ],
       [ "open_only_t", "structmetall_1_1open__only__t.html", null ],
-      [ "open_read_only_t", "structmetall_1_1open__read__only__t.html", null ]
+      [ "open_read_only_t", "structmetall_1_1open__read__only__t.html", null ],
+      [ "stl_allocator", "classmetall_1_1stl__allocator.html", "classmetall_1_1stl__allocator" ],
+      [ "unique_object_attr_accessor", "classmetall_1_1unique__object__attr__accessor.html", "classmetall_1_1unique__object__attr__accessor" ]
     ] ],
     [ "adjacency_list", "classadjacency__list.html", "classadjacency__list" ],
     [ "csr", "classcsr.html", "classcsr" ],

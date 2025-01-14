@@ -5,9 +5,7 @@ var dir_235ec97db2615a6da5aa3545099dbf82 =
     [ "fallback_allocator_adaptor.hpp", "fallback__allocator__adaptor_8hpp.html", "fallback__allocator__adaptor_8hpp" ],
     [ "filesystem.hpp", "filesystem_8hpp.html", "filesystem_8hpp" ],
     [ "hash.hpp", "hash_8hpp.html", "hash_8hpp" ],
-    [ "metall_mpi_adaptor.hpp", "metall__mpi__adaptor_8hpp.html", [
-      [ "metall_mpi_adaptor", "classmetall_1_1utility_1_1metall__mpi__adaptor.html", "classmetall_1_1utility_1_1metall__mpi__adaptor" ]
-    ] ],
+    [ "metall_mpi_adaptor.hpp", "metall__mpi__adaptor_8hpp.html", "metall__mpi__adaptor_8hpp" ],
     [ "metall_mpi_datastore.hpp", "metall__mpi__datastore_8hpp.html", "metall__mpi__datastore_8hpp" ],
     [ "mpi.hpp", "mpi_8hpp.html", "mpi_8hpp" ],
     [ "mutex.hpp", "mutex_8hpp.html", "mutex_8hpp" ],

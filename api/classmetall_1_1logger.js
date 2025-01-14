@@ -13,6 +13,6 @@ var classmetall_1_1logger =
     [ "~logger", "classmetall_1_1logger.html#a7a3cdd97a20df44e9ffc851323591d91", null ],
     [ "logger", "classmetall_1_1logger.html#a1d6c427bb502ffa494071364ac65818d", null ],
     [ "logger", "classmetall_1_1logger.html#ac9a67e3f97cceb4313f1aa8573b12c59", null ],
-    [ "operator=", "classmetall_1_1logger.html#a7f3a728769600ad820ce9e983972b17f", null ],
-    [ "operator=", "classmetall_1_1logger.html#a26e7974f2f6e10d2c062f98e9d99856b", null ]
+    [ "operator=", "classmetall_1_1logger.html#aca9d45a0ae426b117de4eeb1b8cf5632", null ],
+    [ "operator=", "classmetall_1_1logger.html#a4be8d7e794bc68f3ce4b2c380fd048d3", null ]
 ];

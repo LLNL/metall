@@ -14,14 +14,14 @@ var classmetall_1_1stl__allocator =
     [ "stl_allocator", "classmetall_1_1stl__allocator.html#aaf2369848851ce2b593f5205d39679bd", null ],
     [ "stl_allocator", "classmetall_1_1stl__allocator.html#ab5e2255e85e835405f4835e5395ae027", null ],
     [ "~stl_allocator", "classmetall_1_1stl__allocator.html#a37af343e7dddefd40f18e930be16d807", null ],
-    [ "operator=", "classmetall_1_1stl__allocator.html#a49ba02db09611bc361fdefc4301da8ef", null ],
-    [ "operator=", "classmetall_1_1stl__allocator.html#ab08bed36dd8c00bb20714cc4d468ee5e", null ],
-    [ "operator=", "classmetall_1_1stl__allocator.html#acad5e29cac14756c4dd13cbad804dca0", null ],
-    [ "operator=", "classmetall_1_1stl__allocator.html#a9ef9192f250f8e318e37886b9b0ec57a", null ],
+    [ "operator=", "classmetall_1_1stl__allocator.html#a366354ff4941be0ed3f3c8777cd936fb", null ],
+    [ "operator=", "classmetall_1_1stl__allocator.html#a5ae14e873cc97496b7e0ac2a1549f60c", null ],
+    [ "operator=", "classmetall_1_1stl__allocator.html#a79d407a180e0ae2d21743ab4bf37e722", null ],
+    [ "operator=", "classmetall_1_1stl__allocator.html#a8b70567e986f242831da32ff52c60f1c", null ],
     [ "allocate", "classmetall_1_1stl__allocator.html#a71341834b55ce31e88cea26ee963c817", null ],
     [ "deallocate", "classmetall_1_1stl__allocator.html#a1c82cc22467583a55e729908cd0fa89f", null ],
     [ "max_size", "classmetall_1_1stl__allocator.html#aec430748ad05b77f5578fe1da6cf9f41", null ],
     [ "construct", "classmetall_1_1stl__allocator.html#acc87ddb892546cef46f3634dabc004b8", null ],
     [ "destroy", "classmetall_1_1stl__allocator.html#a21c3acd9666ed79f2390cbb8028e3a81", null ],
-    [ "get_pointer_to_manager_kernel", "classmetall_1_1stl__allocator.html#afff83b9fcd813a3f2030df2f9d5cdc34", null ]
+    [ "get_pointer_to_manager_kernel", "classmetall_1_1stl__allocator.html#a4c1d849dbf3d630c8b7361e79ddfe13e", null ]
 ];
