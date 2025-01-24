@@ -84,14 +84,17 @@ template <typename st, typename sst, typename cn, std::size_t cs>
 void *manager_kernel<st, sst, cn, cs>::allocate(
     const manager_kernel<st, sst, cn, cs>::size_type nbytes) {
   priv_check_sanity();
+  std::cerr << __FILE__ << " " << __LINE__ << std::endl;
   if (m_segment_storage.read_only()) return nullptr;
-
+  std::cerr << __FILE__ << " " << __LINE__ << std::endl;
   const auto offset = m_segment_memory_allocator.allocate(nbytes);
+  std::cerr << __FILE__ << " " << __LINE__ << std::endl;
   if (offset == segment_memory_allocator::k_null_offset) {
+    std::cerr << __FILE__ << " " << __LINE__ << std::endl;
     return nullptr;
   }
   assert(offset >= 0);
-
+  std::cerr << __FILE__ << " " << __LINE__ << std::endl;
   return priv_to_address(offset);
 }
 

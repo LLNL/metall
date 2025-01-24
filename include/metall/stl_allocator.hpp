@@ -156,27 +156,32 @@ class stl_allocator {
   // -------------------- //
 
   pointer priv_allocate(const size_type n) const {
+    std::cerr << __FILE__ << " " << __LINE__ << std::endl;
     if (priv_max_size() < n) {
       throw std::bad_array_new_length();
     }
-
+    std::cerr << __FILE__ << " " << __LINE__ << std::endl;
     if (!get_pointer_to_manager_kernel()) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "nullptr: cannot access to manager kernel");
       throw std::bad_alloc();
     }
+    std::cerr << __FILE__ << " " << __LINE__ << std::endl;
     auto* manager_kernel = *get_pointer_to_manager_kernel();
     if (!manager_kernel) {
       logger::out(logger::level::error, __FILE__, __LINE__,
                   "nullptr: cannot access to manager kernel");
       throw std::bad_alloc();
     }
-
+    std::cerr << __FILE__ << " " << __LINE__ << " Allocate (bytes) " << n * sizeof(T) << std::endl;
     auto addr = pointer(
         static_cast<value_type *>(manager_kernel->allocate(n * sizeof(T))));
+    std::cerr << __FILE__ << " " << __LINE__  << std::endl;
     if (!addr) {
+      std::cerr << __FILE__ << " " << __LINE__ << std::endl;
       throw std::bad_alloc();
     }
+    std::cerr << __FILE__ << " " << __LINE__ << std::endl;
 
     return addr;
   }

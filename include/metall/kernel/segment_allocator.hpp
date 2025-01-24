@@ -156,6 +156,8 @@ class segment_allocator {
                             : priv_allocate_large_object(bin_no);
     assert(offset >= 0 || offset == k_null_offset);
 
+    std::cerr << __FILE__ << " " << __LINE__ << " offset = " << offset
+              << std::endl;
     return offset;
   }
 
@@ -196,7 +198,8 @@ class segment_allocator {
 
     // Internal allocation size must be a multiple of alignment
     assert(bin_no_mngr::to_object_size(bin_no_mngr::to_bin_no(nbytes)) %
-               alignment == 0);
+               alignment ==
+           0);
 
     // As long as the above requirements are satisfied, just calling the normal
     // allocate function is enough

@@ -153,9 +153,12 @@ class fallback_allocator_adaptor {
   /// \param n The size to allocation
   /// \return Returns a pointer
   pointer allocate(const size_type n) const {
+    std::cerr << __FILE__ << " " << __LINE__ << std::endl;
     if (priv_stateful_allocator_available()) {
+      std::cerr << __FILE__ << " " << __LINE__ << std::endl;
       return m_stateful_allocator.allocate(n);
     }
+    std::cerr << __FILE__ << " " << __LINE__ << std::endl;
     return priv_fallback_allocate(n);
   }
 
