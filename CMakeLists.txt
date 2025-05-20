@@ -114,7 +114,8 @@ set(BOOST_FETCH_URL "" CACHE STRING "A URL or file path to an archived Boost sou
 
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
-set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
+# set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
+option(USE_PRIVATEER "Build with Privateer" OFF)
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
@@ -203,10 +204,12 @@ if (UMAP_ROOT)
 endif ()
 
 # ---------- Privateer ---------- #
-if (PRIVATEER_ROOT)
-    message(STATUS "Privateer Root is ${PRIVATEER_ROOT}")
-    find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
-endif ()
+# if (PRIVATEER_ROOT)
+#     message(STATUS "Privateer Root is ${PRIVATEER_ROOT}")
+#     # find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+#     set(Privateer_DIR ${PRIVATEER_ROOT})
+#     find_package(Privateer)
+# endif ()
 
 # ---------- Boost ---------- #
 set(DEFAULT_BOOST_FETCH_URL "https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-cmake.tar.gz")
@@ -316,33 +319,25 @@ function(common_setup_for_metall_executable name)
     # --------------------
 
     # ----- Privateer----- #
-    if (PRIVATEER_ROOT)
-        target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
-        if (LIBPRIVATEER)
-            # 1) Privateer Dependencies
-            FIND_PACKAGE(OpenSSL)
-            if (OpenSSL_FOUND)
-                target_link_libraries(${name} PRIVATE OpenSSL::SSL)
-                target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
-            endif ()
-            target_link_libraries(${name} PRIVATE rt)
-            FIND_PACKAGE(OpenMP REQUIRED)
-            if (OpenMP_CXX_FOUND)
-                target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
-            else ()
-                message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
-            endif ()
-            if (ZSTD_ROOT)
-                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
-                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
-                target_link_libraries(${name} PRIVATE ${LIBZSTD})
-                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
-            endif ()
+    set(PRIVATEER_BUILD_TEST OFF CACHE BOOL "Build Privateer tests")
+    set(PRIVATEER_USE_SMARTCACHE ON CACHE BOOL "Build Privateer with SmartCache")
+    if (USE_PRIVATEER)
+        FetchContent_Declare(
+            Privateer
+            GIT_REPOSITORY git@github.com:LLNL/Privateer.git
+            GIT_TAG feature/mt_smartcache # Replace with the correct branch or tag
+        )
+        FetchContent_MakeAvailable(Privateer)
+        message(STATUS "Privateer source directory: ${Privateer_SOURCE_DIR}")
+        message(STATUS "Privateer binary directory: ${Privateer_BINARY_DIR}")
 
-            # 2) Link Privateer
-            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
-            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
-        endif ()
+        target_include_directories(${name} PUBLIC ${Privateer_SOURCE_DIR}/include)
+        target_link_directories(${name} PUBLIC ${Privateer_BINARY_DIR}/lib)
+      
+        add_dependencies(${name} privateer)
+        target_link_libraries(${name} PUBLIC privateer)
+        target_compile_definitions(${name} PUBLIC METALL_USE_PRIVATEER)
+        target_compile_definitions(${name} PUBLIC USE_SMARTCACHE)
     endif ()
     # --------------------
 endfunction()
