@@ -322,6 +322,16 @@ function(common_setup_for_metall_executable name)
     set(PRIVATEER_BUILD_TEST OFF CACHE BOOL "Build Privateer tests")
     set(PRIVATEER_USE_SMARTCACHE ON CACHE BOOL "Build Privateer with SmartCache")
     if (USE_PRIVATEER)
+
+        set(SPDLOG_BUILD_SHARED ON CACHE BOOL "" FORCE)
+        FetchContent_Declare(spdlog
+        URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.tar.gz)
+        # FetchContent_Populate(spdlog)
+        FetchContent_MakeAvailable(spdlog)
+        # install(TARGETS spdlog EXPORT PrivateerTargets)
+        FetchContent_GetProperties(spdlog BINARY_DIR spdlog_BINARY_DIR)
+        FetchContent_GetProperties(spdlog SOURCE_DIR spdlog_SOURCE_DIR)
+
         FetchContent_Declare(
             Privateer
             GIT_REPOSITORY git@github.com:LLNL/Privateer.git
@@ -331,13 +341,22 @@ function(common_setup_for_metall_executable name)
         message(STATUS "Privateer source directory: ${Privateer_SOURCE_DIR}")
         message(STATUS "Privateer binary directory: ${Privateer_BINARY_DIR}")
 
+        
+
         target_include_directories(${name} PUBLIC ${Privateer_SOURCE_DIR}/include)
         target_link_directories(${name} PUBLIC ${Privateer_BINARY_DIR}/lib)
       
+        
+
+
         add_dependencies(${name} privateer)
         target_link_libraries(${name} PUBLIC privateer)
         target_compile_definitions(${name} PUBLIC METALL_USE_PRIVATEER)
         target_compile_definitions(${name} PUBLIC USE_SMARTCACHE)
+
+        target_include_directories(${name} PUBLIC ${spdlog_SOURCE_DIR}/include)
+        target_link_libraries(${name} PUBLIC spdlog::spdlog)
+        target_compile_definitions(${name} PUBLIC SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
     endif ()
     # --------------------
 endfunction()
