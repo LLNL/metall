@@ -89,6 +89,65 @@ TEST(ManagerTest, CreateAndOpenModes) {
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
   }
+
+  // open combinations
+  {
+    manager_type::remove(dir_path());
+
+    // after create
+    {
+      manager_type manager{metall::create_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+
+      {
+        manager_type manager2{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
+      {
+        manager_type manager2{metall::open_read_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
+      {
+        manager_type manager2{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+    }
+
+    // after open
+    {
+      manager_type manager{metall::open_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+
+      {
+        manager_type manager2{metall::open_read_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
+      {
+        manager_type manager2{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+    }
+
+    // after read-only open
+    {
+      manager_type manager{metall::open_read_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+
+      {
+        manager_type manager2{metall::open_read_only, dir_path()};
+        ASSERT_TRUE(manager2.check_sanity());
+
+        manager_type manager3{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager3.check_sanity());
+      }
+
+      manager_type manager2{metall::open_read_only, dir_path()};
+      ASSERT_TRUE(manager2.check_sanity());
+    }
+  }
 }
 
 TEST(ManagerTest, ConstructArray) {
