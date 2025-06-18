@@ -14,7 +14,7 @@
 ///  METALL_VERSION / 100 % 1000 // the minor version.
 ///  METALL_VERSION % 100 // the patch level.
 /// \endcode
-#define METALL_VERSION 3000
+#define METALL_VERSION 3100
 
 namespace metall {
 /// \brief Variable type to handle a version data.
