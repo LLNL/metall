@@ -192,12 +192,6 @@ endif ()
 # ---------- Threads ---------- #
 find_package(Threads REQUIRED)
 
-
-# ---------- filesystem ---------- #
-include(check_cxx_filesystem_library)
-check_cxx_filesystem_library()
-
-
 # ---------- UMap ---------- #
 if (UMAP_ROOT)
     if (UNIX AND NOT APPLE)
