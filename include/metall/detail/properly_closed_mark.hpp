@@ -22,6 +22,8 @@ namespace metall::mtlldetail {
  */
 struct properly_closed_mark {
 private:
+  // if mark_path is empty, this mark is in an invalid state
+  // and should not create the mark on close
   std::filesystem::path m_mark_path{};
   int m_mark_fd = -1;
   bool m_read_only = false;
@@ -64,21 +66,8 @@ private:
     return ret == 0;
   }
 
-public:
-  properly_closed_mark() noexcept = default;
-
-  bool create(const std::filesystem::path &path) {
-    m_mark_path = path;
-    m_read_only = false;
-
-    return remove_file(m_mark_path);
-  }
-
-  bool open(const std::filesystem::path &path, const bool read_only) {
-    m_mark_path = path;
-    m_read_only = read_only;
-
-    if (read_only) {
+  bool open_impl() {
+    if (m_read_only) {
       return lock_shared();
     } else {
       if (!lock_exclusive()) {
@@ -87,6 +76,35 @@ public:
 
       return remove_file(m_mark_path);
     }
+  }
+
+public:
+  properly_closed_mark() noexcept = default;
+
+  bool create(const std::filesystem::path &path) {
+    m_mark_path = path;
+    m_read_only = false;
+
+    if (!remove_file(m_mark_path)) {
+      // could not create, prevent mark creation on close
+      m_mark_path.clear();
+      return false;
+    }
+
+    return true;
+  }
+
+  bool open(const std::filesystem::path &path, const bool read_only) {
+    m_mark_path = path;
+    m_read_only = read_only;
+
+    if (!open_impl()) {
+      // could not open, prevent mark creation on close
+      m_mark_path.clear();
+      return false;
+    }
+
+    return true;
   }
 
   properly_closed_mark(const properly_closed_mark &other) = delete;
@@ -111,7 +129,7 @@ public:
   }
 
   void close() {
-    if (!m_read_only) {
+    if (!m_read_only && !m_mark_path.empty()) {
       create_file(m_mark_path);
     }
     unlock();
