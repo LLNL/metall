@@ -130,8 +130,9 @@ inline std::pair<std::size_t, std::size_t> get_num_page_faults() {
       logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
       minflt = majflt = 0;
     }
+
+    fclose(f);
   }
-  fclose(f);
 #else
 #ifdef METALL_VERBOSE_SYSTEM_SUPPORT_WARNING
 #warning "get_num_page_faults() is not supported in this environment"
