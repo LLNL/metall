@@ -163,8 +163,8 @@ class manager_kernel {
   manager_kernel(const manager_kernel &) = delete;
   manager_kernel &operator=(const manager_kernel &) = delete;
 
-  manager_kernel(manager_kernel &&) noexcept = default;
-  manager_kernel &operator=(manager_kernel &&) noexcept = default;
+  manager_kernel(manager_kernel &&) = delete;
+  manager_kernel &operator=(manager_kernel &&) = delete;
 
  public:
   // -------------------- //
