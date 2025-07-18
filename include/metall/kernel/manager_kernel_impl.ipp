@@ -67,10 +67,7 @@ void manager_kernel<st, sst, cn, cs>::close() {
     m_good = false;
     m_segment_storage.release();
 
-    if (!m_segment_storage.read_only()) {
-      // This function must be called at the end
-      priv_mark_properly_closed(m_base_path);
-    }
+    m_properly_closed_mark.close();
   }
 }
 
@@ -687,13 +684,6 @@ bool manager_kernel<st, sst, cn, cs>::priv_mark_properly_closed(
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
-bool manager_kernel<st, sst, cn, cs>::priv_unmark_properly_closed(
-    const path_type &base_path) {
-  return mdtl::remove_file(
-      storage::get_path(base_path, k_properly_closed_mark_file_name));
-}
-
-template <typename st, typename sst, typename cn, std::size_t cs>
 template <typename T, typename proxy>
 T *manager_kernel<st, sst, cn, cs>::priv_generic_construct(
     char_ptr_holder_type name, size_type length, bool try2find, proxy &pr) {
@@ -854,21 +844,15 @@ bool manager_kernel<st, sst, cn, cs>::priv_open(
     return false;
   }
 
-  if (!priv_properly_closed(base_path)) {
+  if (!m_properly_closed_mark.open(storage::get_path(base_path, k_properly_closed_mark_file_name),
+                                   read_only)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
-                "Inconsistent data store — it was not closed properly and "
-                "might have been collapsed.");
+                "Unable to open data store — either it is already open, or it was not "
+                "closed properly and might have been collapsed.");
     return false;
   }
 
   m_base_path = base_path;
-
-  // Clear the consistent mark before opening with the write mode
-  if (!read_only && !priv_unmark_properly_closed(m_base_path)) {
-    logger::out(logger::level::error, __FILE__, __LINE__,
-                "Failed to erase the properly close mark before opening");
-    return false;
-  }
 
   if (!m_segment_storage.open(m_base_path, vm_reserve_size_request,
                               read_only)) {
@@ -908,7 +892,7 @@ bool manager_kernel<st, sst, cn, cs>::priv_create(
     return false;
   }
 
-  if (!priv_unmark_properly_closed(base_path)) {
+  if (!m_properly_closed_mark.create(storage::get_path(base_path, k_properly_closed_mark_file_name))) {
     std::stringstream ss;
     ss << "Failed to remove a closed mark under " << base_path;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());

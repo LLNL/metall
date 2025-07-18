@@ -89,6 +89,108 @@ TEST(ManagerTest, CreateAndOpenModes) {
       ASSERT_TRUE(manager.destroy<int>("int"));
     }
   }
+
+  // open combinations
+  {
+    manager_type::remove(dir_path());
+
+    // after create
+    {
+      manager_type manager{metall::create_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+
+      {
+        manager_type manager2{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
+      {
+        manager_type manager2{metall::open_read_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
+      {
+        manager_type manager2{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+    }
+
+    // after open
+    {
+      manager_type manager{metall::open_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+
+      {
+        manager_type manager2{metall::open_read_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
+      {
+        manager_type manager2{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+    }
+
+    // after read-only open
+    {
+      manager_type manager{metall::open_read_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+
+      {
+        manager_type manager2{metall::open_read_only, dir_path()};
+        ASSERT_TRUE(manager2.check_sanity());
+
+        manager_type manager3{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager3.check_sanity());
+      }
+
+      manager_type manager2{metall::open_read_only, dir_path()};
+      ASSERT_TRUE(manager2.check_sanity());
+    }
+  }
+}
+
+TEST(ManagerTest, ProperlyClosedMarkBug) {
+  manager_type::remove(dir_path());
+
+  {
+    manager_type mg1{metall::create_only, dir_path()};
+    ASSERT_FALSE(manager_type::consistent(dir_path())); // properly closed mark should not exist
+
+    {
+      manager_type mg2{metall::open_only, dir_path()};
+    }
+
+    ASSERT_FALSE(manager_type::consistent(dir_path())); // properly closed mark should still not exist (mg2 should not create it)
+  }
+
+  ASSERT_TRUE(manager_type::consistent(dir_path())); // now mg1 should have created it
+}
+
+TEST(ManagerTest, MoveManager) {
+  auto const p1 = dir_path() / "1";
+  auto const p2 = dir_path() / "2";
+
+  manager_type::remove(p1);
+  manager_type::remove(p2);
+
+  {
+    manager_type mg1{metall::create_only, p1};
+    ASSERT_FALSE(manager_type::consistent(p1)); // properly closed mark should not exist
+
+    {
+      manager_type mg2{metall::create_only, p2};
+      auto tmp = std::move(mg2);
+      mg2 = std::move(mg1);
+      mg1 = std::move(tmp);
+    }
+
+    ASSERT_TRUE(manager_type::consistent(p1));
+    ASSERT_FALSE(manager_type::consistent(p2));
+  }
+
+  ASSERT_TRUE(manager_type::consistent(p1));
+  ASSERT_TRUE(manager_type::consistent(p2));
 }
 
 TEST(ManagerTest, ConstructArray) {

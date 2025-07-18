@@ -184,7 +184,10 @@ inline bool create_file(const fs::path &file_path) {
     logger::perror(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
-  if (!os_fsync(fd)) return false;
+  if (!os_fsync(fd)) {
+    os_close(fd);
+    return false;
+  }
   if (!os_close(fd)) return false;
 
   // Sync the parent directory

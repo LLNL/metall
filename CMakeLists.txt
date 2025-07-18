@@ -31,7 +31,7 @@ endif ()
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.31
+        VERSION 0.32
         DESCRIPTION "A persistent memory allocator for data-centric analytics"
         HOMEPAGE_URL "https://github.com/LLNL/metall")
 
@@ -191,12 +191,6 @@ endif ()
 
 # ---------- Threads ---------- #
 find_package(Threads REQUIRED)
-
-
-# ---------- filesystem ---------- #
-include(check_cxx_filesystem_library)
-check_cxx_filesystem_library()
-
 
 # ---------- UMap ---------- #
 if (UMAP_ROOT)

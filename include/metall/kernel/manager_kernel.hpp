@@ -33,6 +33,7 @@
 #include <metall/detail/char_ptr_holder.hpp>
 #include <metall/detail/uuid.hpp>
 #include <metall/detail/ptree.hpp>
+#include <metall/detail/properly_closed_mark.hpp>
 
 #ifndef METALL_DISABLE_CONCURRENCY
 #define METALL_ENABLE_MUTEX_IN_MANAGER_KERNEL
@@ -162,8 +163,8 @@ class manager_kernel {
   manager_kernel(const manager_kernel &) = delete;
   manager_kernel &operator=(const manager_kernel &) = delete;
 
-  manager_kernel(manager_kernel &&) noexcept = default;
-  manager_kernel &operator=(manager_kernel &&) noexcept = default;
+  manager_kernel(manager_kernel &&) = delete;
+  manager_kernel &operator=(manager_kernel &&) = delete;
 
  public:
   // -------------------- //
@@ -496,7 +497,6 @@ class manager_kernel {
   static bool priv_check_version(const json_store &metadata_json);
   static bool priv_properly_closed(const path_type &base_path);
   static bool priv_mark_properly_closed(const path_type &base_path);
-  static bool priv_unmark_properly_closed(const path_type &base_path);
 
   // ---------- For constructed objects  ---------- //
   template <typename T, typename proxy>
@@ -559,6 +559,7 @@ class manager_kernel {
   // -------------------- //
   bool m_good{false};
   path_type m_base_path{};
+  mtlldetail::properly_closed_mark m_properly_closed_mark{};
   attributed_object_directory_type m_named_object_directory{};
   attributed_object_directory_type m_unique_object_directory{};
   attributed_object_directory_type m_anonymous_object_directory{};
