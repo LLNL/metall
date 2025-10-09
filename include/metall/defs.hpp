@@ -65,23 +65,11 @@
 #endif
 
 // --------------------
-// Macros for the object cache
+// Macros for the segment allocator
 // --------------------
 
-/// \def METALL_MAX_PER_CPU_CACHE_SIZE
-/// The maximum size of the per CPU (logical CPU core) cache in bytes.
-#ifndef METALL_MAX_PER_CPU_CACHE_SIZE
-#define METALL_MAX_PER_CPU_CACHE_SIZE (1ULL << 20ULL)
-#endif
-
-/// \def METALL_NUM_CACHES_PER_CPU
-/// The number of caches per CPU (logical CPU core).
-#ifndef METALL_NUM_CACHES_PER_CPU
-#define METALL_NUM_CACHES_PER_CPU 2
-#endif
-
 #ifdef DOXYGEN_SKIP
-/// \brief A macro to disable concurrency support.
+/// \brief If defined, disable concurrency support.
 /// \details
 /// If this macro is defined, Metall disables concurrency support and optimizes
 /// the internal behavior for single-thread usage. Applications must not call
@@ -89,6 +77,45 @@
 /// hand, Metall still may use multi-threading for internal operations, such
 /// as synchronizing data with files.
 #define METALL_DISABLE_CONCURRENCY
+#endif
+
+// --------------------
+// Macros for the object cache
+// --------------------
+
+#ifdef DOXYGEN_SKIP
+/// \brief If defined, Metall disables the object cache feature.
+#define METALL_DISABLE_OBJECT_CACHE
+#endif
+
+/// \def METALL_NUM_OBJECT_CACHES
+/// The number of object caches. This value must be greater than 0.
+#ifdef DOXYGEN_SKIP
+#define METALL_NUM_OBJECT_CACHES 2
+#endif
+
+#if defined(METALL_NUM_OBJECT_CACHES) && METALL_NUM_OBJECT_CACHES <= 0
+#warning "METALL_NUM_OBJECT_CACHES must be > 0. This value is ignored."
+#undef METALL_NUM_OBJECT_CACHES
+#endif
+
+/// \def METALL_NUM_CACHES_PER_CPU
+/// The number of caches per CPU (logical CPU core). This value must be greater than 0.
+/// This number is used only when METALL_NUM_OBJECT_CACHES is not defined.
+#ifndef METALL_NUM_CACHES_PER_CPU
+#define METALL_NUM_CACHES_PER_CPU 2
+#endif
+
+#if METALL_NUM_CACHES_PER_CPU <= 0
+#warning "METALL_NUM_CACHES_PER_CPU must be > 0."
+#undef METALL_NUM_CACHES_PER_CPU
+#define METALL_NUM_CACHES_PER_CPU 2
+#endif
+
+/// \def METALL_MAX_PER_CPU_CACHE_SIZE
+/// The maximum size of the per CPU (logical CPU core) cache in bytes.
+#ifndef METALL_MAX_PER_CPU_CACHE_SIZE
+#define METALL_MAX_PER_CPU_CACHE_SIZE (1ULL << 20ULL)
 #endif
 
 // --------------------
