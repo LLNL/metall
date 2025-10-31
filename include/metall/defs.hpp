@@ -89,7 +89,8 @@
 #endif
 
 /// \def METALL_NUM_OBJECT_CACHES
-/// The number of object caches. This value must be greater than 0.
+/// The total number of object caches. If this macro is defined,
+/// its value must be greater than 0.
 #ifdef DOXYGEN_SKIP
 #define METALL_NUM_OBJECT_CACHES 2
 #endif
@@ -100,8 +101,9 @@
 #endif
 
 /// \def METALL_NUM_CACHES_PER_CPU
-/// The number of caches per CPU (logical CPU core). This value must be greater than 0.
-/// This number is used only when METALL_NUM_OBJECT_CACHES is not defined.
+/// The number of caches per CPU (logical CPU core).
+/// This value must be greater than 0.
+/// This macro is ignored if METALL_NUM_OBJECT_CACHES is defined.
 #ifndef METALL_NUM_CACHES_PER_CPU
 #define METALL_NUM_CACHES_PER_CPU 2
 #endif
