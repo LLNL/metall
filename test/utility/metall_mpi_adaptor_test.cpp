@@ -82,6 +82,32 @@ bool force_remove_all(const fs::path &path, const MPI_Comm &comm,
                       std::string("cleanup ") + path.string());
 }
 
+bool ensure_directory_local(const fs::path &path, const MPI_Comm &comm,
+                            const int rank) {
+  std::error_code error;
+  fs::create_directories(path, error);
+  if (error) {
+    std::cerr << "Failed to create directory " << path << ": "
+              << error.message() << std::endl;
+  }
+
+  return sync_success(!error, comm, rank,
+                      std::string("create directory ") + path.string());
+}
+
+bool force_remove_all_local(const fs::path &path, const MPI_Comm &comm,
+                            const int rank) {
+  std::error_code error;
+  fs::remove_all(path, error);
+  if (error) {
+    std::cerr << "Failed to remove " << path << ": " << error.message()
+              << std::endl;
+  }
+
+  return sync_success(!error, comm, rank,
+                      std::string("cleanup ") + path.string());
+}
+
 bool expect_path_eq(const fs::path &actual, const fs::path &expected,
                     const int rank, const std::string &label) {
   if (actual == expected) {
@@ -343,6 +369,46 @@ bool test_capacity_constructor(const fs::path &root_path, const MPI_Comm &comm,
 }
 
 bool remove_and_verify(const fs::path &root_path, const MPI_Comm &comm,
+                       const int rank, const std::string &label);
+
+bool test_rank_specific_root_directories(const fs::path &root_dir,
+                                         const MPI_Comm &comm, const int rank,
+                                         const int world_size) {
+  const fs::path rank_root =
+      root_dir / (std::string("rank-") + std::to_string(rank));
+  const fs::path primary_root = rank_root / "primary";
+  const fs::path copy_root = rank_root / "copy";
+  const fs::path snapshot_root = rank_root / "snapshot";
+  const fs::path capacity_root = rank_root / "capacity";
+
+  bool ok = true;
+  ok &= ensure_directory_local(rank_root, comm, rank);
+  ok &= force_remove_all_local(primary_root, comm, rank);
+  ok &= force_remove_all_local(copy_root, comm, rank);
+  ok &= force_remove_all_local(snapshot_root, comm, rank);
+  ok &= force_remove_all_local(capacity_root, comm, rank);
+
+  if (ok) {
+    ok &= test_primary_datastore(primary_root, copy_root, snapshot_root, comm,
+                                 rank, world_size);
+  }
+  if (ok) {
+    ok &= test_capacity_constructor(capacity_root, comm, rank, world_size);
+  }
+  if (ok) {
+    ok &= remove_and_verify(copy_root, comm, rank, "rank-specific copy");
+    ok &=
+        remove_and_verify(snapshot_root, comm, rank, "rank-specific snapshot");
+    ok &= remove_and_verify(primary_root, comm, rank, "rank-specific primary");
+    ok &=
+        remove_and_verify(capacity_root, comm, rank, "rank-specific capacity");
+  }
+
+  ok &= force_remove_all_local(rank_root, comm, rank);
+  return ok;
+}
+
+bool remove_and_verify(const fs::path &root_path, const MPI_Comm &comm,
                        const int rank, const std::string &label) {
   bool ok = true;
   ok &= expect_true(adaptor_type::remove(root_path, comm), rank,
@@ -386,6 +452,7 @@ int main(int argc, char **argv) {
   const fs::path copy_root = root_dir / "copy";
   const fs::path snapshot_root = root_dir / "snapshot";
   const fs::path capacity_root = root_dir / "capacity";
+  const fs::path rank_specific_root_dir = root_dir / "rank-specific";
 
   success &= sync_success(ensure_directory(root_dir, rank), MPI_COMM_WORLD,
                           rank, "create test root directory");
@@ -393,6 +460,9 @@ int main(int argc, char **argv) {
   success &= force_remove_all(copy_root, MPI_COMM_WORLD, rank);
   success &= force_remove_all(snapshot_root, MPI_COMM_WORLD, rank);
   success &= force_remove_all(capacity_root, MPI_COMM_WORLD, rank);
+  success &= force_remove_all_local(
+      rank_specific_root_dir / (std::string("rank-") + std::to_string(rank)),
+      MPI_COMM_WORLD, rank);
 
   if (success) {
     success &= test_primary_datastore(primary_root, copy_root, snapshot_root,
@@ -410,11 +480,18 @@ int main(int argc, char **argv) {
     success &=
         remove_and_verify(capacity_root, MPI_COMM_WORLD, rank, "capacity");
   }
+  if (success) {
+    success &= test_rank_specific_root_directories(
+        rank_specific_root_dir, MPI_COMM_WORLD, rank, world_size);
+  }
 
   force_remove_all(copy_root, MPI_COMM_WORLD, rank);
   force_remove_all(snapshot_root, MPI_COMM_WORLD, rank);
   force_remove_all(primary_root, MPI_COMM_WORLD, rank);
   force_remove_all(capacity_root, MPI_COMM_WORLD, rank);
+  force_remove_all_local(
+      rank_specific_root_dir / (std::string("rank-") + std::to_string(rank)),
+      MPI_COMM_WORLD, rank);
 
   ::MPI_Finalize();
   return success ? 0 : 1;
