@@ -41,18 +41,21 @@ add_metall_executable(concurrent concurrent.cpp)
 add_metall_executable(custom_logger custom_logger.cpp)
 target_compile_definitions(custom_logger PRIVATE METALL_LOGGER_EXTERN_C=1)
 
-if (BUILD_C)
+if(BUILD_C)
     add_c_executable(c_api c_api.c)
     target_link_libraries(c_api PRIVATE metall_c)
 endif()
 
 include(setup_mpi)
-if (MPI_CXX_FOUND)
+if(MPI_CXX_FOUND)
     add_metall_executable(mpi_create mpi_create.cpp)
     setup_mpi_target(mpi_create)
 
     add_metall_executable(mpi_open mpi_open.cpp)
     setup_mpi_target(mpi_open)
+
+    add_metall_executable(mpi_multiple_storages mpi_multiple_storages.cpp)
+    setup_mpi_target(mpi_multiple_storages)
 else()
     message(STATUS "Will skip building the MPI examples")
 endif()

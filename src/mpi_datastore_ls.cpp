@@ -7,7 +7,7 @@
 #include <string>
 #include <filesystem>
 
-#include <metall/utility/metall_mpi_datastore.hpp>
+#include <metall/utility/metall_mpi_adaptor.hpp>
 #include <metall/utility/datastore_ls.hpp>
 
 int main(int argc, char *argv[]) {
@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
   const int mpi_rank = (argc < 3) ? 0 : std::stoi(argv[2]);
 
   const auto local_datastore_path =
-      metall::utility::mpi_datastore::make_local_dir_path(datastore_path,
-                                                          mpi_rank);
+      metall::utility::metall_mpi_adaptor::local_datastore_path(
+        datastore_path, mpi_rank);
 
   if (!metall::manager::consistent(local_datastore_path)) {
     std::cerr << "Inconsistent datastore or invalid datastore path"
