@@ -83,8 +83,8 @@ var NAVTREEINDEX3 =
 "classmetall_1_1named__object__attr__accessor.html#a296429a58495b30366278f782121298a":[1,0,0,8,4],
 "classmetall_1_1named__object__attr__accessor.html#a35e37f37f06029d1d1d7e4136a9628a8":[0,0,0,8,3],
 "classmetall_1_1named__object__attr__accessor.html#a35e37f37f06029d1d1d7e4136a9628a8":[1,0,0,8,3],
-"classmetall_1_1named__object__attr__accessor.html#a57367eef2164f2f5cec2332419e3362b":[0,0,0,8,0],
 "classmetall_1_1named__object__attr__accessor.html#a57367eef2164f2f5cec2332419e3362b":[1,0,0,8,0],
+"classmetall_1_1named__object__attr__accessor.html#a57367eef2164f2f5cec2332419e3362b":[0,0,0,8,0],
 "classmetall_1_1named__object__attr__accessor.html#a61e3be11e2545f215d590447b678e6e9":[0,0,0,8,7],
 "classmetall_1_1named__object__attr__accessor.html#a61e3be11e2545f215d590447b678e6e9":[1,0,0,8,7],
 "classmetall_1_1named__object__attr__accessor.html#a6ead5c977ed16c18e774add19546ae5b":[1,0,0,8,5],
@@ -248,6 +248,6 @@ var NAVTREEINDEX3 =
 "datastore__ls_8hpp_source.html":[2,0,1,0,3,1],
 "datastore_description_8cpp-example.html":[3,11],
 "defs_8hpp.html":[2,0,1,0,5],
-"defs_8hpp.html#a2005130766f7cd6ef71bb14c4752e10a":[2,0,1,0,5,7],
+"defs_8hpp.html#a2005130766f7cd6ef71bb14c4752e10a":[2,0,1,0,5,11],
 "defs_8hpp.html#a28a95f1a0bcc33db9ecbc14f1369eaab":[2,0,1,0,5,5]
 };

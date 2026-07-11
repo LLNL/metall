@@ -7,7 +7,9 @@ var defs_8hpp =
     [ "METALL_FREE_SMALL_OBJECT_SIZE_HINT", "defs_8hpp.html#a7634a45ec28ddcb73122272b4f052746", null ],
     [ "METALL_SEGMENT_BLOCK_SIZE", "defs_8hpp.html#a28a95f1a0bcc33db9ecbc14f1369eaab", null ],
     [ "METALL_DISABLE_FREE_FILE_SPACE", "defs_8hpp.html#a988d71efd14983db3f095a8c49b6961a", null ],
-    [ "METALL_MAX_PER_CPU_CACHE_SIZE", "defs_8hpp.html#a2005130766f7cd6ef71bb14c4752e10a", null ],
+    [ "METALL_DISABLE_CONCURRENCY", "defs_8hpp.html#a81c65c0f3d5de95e09a47d9b4b78e36b", null ],
+    [ "METALL_DISABLE_OBJECT_CACHE", "defs_8hpp.html#a7ca272ee9ef657fb45e1dc4a45269798", null ],
+    [ "METALL_NUM_OBJECT_CACHES", "defs_8hpp.html#a8be272419b003ccefe6da657f8a50f97", null ],
     [ "METALL_NUM_CACHES_PER_CPU", "defs_8hpp.html#af2c66f74606558253e47b474857098f4", null ],
-    [ "METALL_DISABLE_CONCURRENCY", "defs_8hpp.html#a81c65c0f3d5de95e09a47d9b4b78e36b", null ]
+    [ "METALL_MAX_PER_CPU_CACHE_SIZE", "defs_8hpp.html#a2005130766f7cd6ef71bb14c4752e10a", null ]
 ];

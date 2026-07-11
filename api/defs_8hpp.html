@@ -30,7 +30,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Metall<span id="projectnumber">&#160;v0.32</span>
+   <div id="projectname">Metall<span id="projectnumber">&#160;v0.33</span>
    </div>
    <div id="projectbrief">A persistent memory allocator for data-centric analytics</div>
   </td>
@@ -127,13 +127,18 @@ Macros</h2></td></tr>
 <tr class="memitem:a988d71efd14983db3f095a8c49b6961a" id="r_a988d71efd14983db3f095a8c49b6961a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#a988d71efd14983db3f095a8c49b6961a">METALL_DISABLE_FREE_FILE_SPACE</a></td></tr>
 <tr class="memdesc:a988d71efd14983db3f095a8c49b6961a"><td class="mdescLeft">&#160;</td><td class="mdescRight">If defined, the default segment storage does not free file space even thought the corresponding segment becomes free.  <br /></td></tr>
 <tr class="separator:a988d71efd14983db3f095a8c49b6961a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2005130766f7cd6ef71bb14c4752e10a" id="r_a2005130766f7cd6ef71bb14c4752e10a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#a2005130766f7cd6ef71bb14c4752e10a">METALL_MAX_PER_CPU_CACHE_SIZE</a>&#160;&#160;&#160;(1ULL &lt;&lt; 20ULL)</td></tr>
-<tr class="separator:a2005130766f7cd6ef71bb14c4752e10a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81c65c0f3d5de95e09a47d9b4b78e36b" id="r_a81c65c0f3d5de95e09a47d9b4b78e36b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#a81c65c0f3d5de95e09a47d9b4b78e36b">METALL_DISABLE_CONCURRENCY</a></td></tr>
+<tr class="memdesc:a81c65c0f3d5de95e09a47d9b4b78e36b"><td class="mdescLeft">&#160;</td><td class="mdescRight">If defined, disable concurrency support.  <br /></td></tr>
+<tr class="separator:a81c65c0f3d5de95e09a47d9b4b78e36b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ca272ee9ef657fb45e1dc4a45269798" id="r_a7ca272ee9ef657fb45e1dc4a45269798"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#a7ca272ee9ef657fb45e1dc4a45269798">METALL_DISABLE_OBJECT_CACHE</a></td></tr>
+<tr class="memdesc:a7ca272ee9ef657fb45e1dc4a45269798"><td class="mdescLeft">&#160;</td><td class="mdescRight">If defined, Metall disables the object cache feature.  <br /></td></tr>
+<tr class="separator:a7ca272ee9ef657fb45e1dc4a45269798"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8be272419b003ccefe6da657f8a50f97" id="r_a8be272419b003ccefe6da657f8a50f97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#a8be272419b003ccefe6da657f8a50f97">METALL_NUM_OBJECT_CACHES</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:a8be272419b003ccefe6da657f8a50f97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2c66f74606558253e47b474857098f4" id="r_af2c66f74606558253e47b474857098f4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#af2c66f74606558253e47b474857098f4">METALL_NUM_CACHES_PER_CPU</a>&#160;&#160;&#160;2</td></tr>
 <tr class="separator:af2c66f74606558253e47b474857098f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81c65c0f3d5de95e09a47d9b4b78e36b" id="r_a81c65c0f3d5de95e09a47d9b4b78e36b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#a81c65c0f3d5de95e09a47d9b4b78e36b">METALL_DISABLE_CONCURRENCY</a></td></tr>
-<tr class="memdesc:a81c65c0f3d5de95e09a47d9b4b78e36b"><td class="mdescLeft">&#160;</td><td class="mdescRight">A macro to disable concurrency support.  <br /></td></tr>
-<tr class="separator:a81c65c0f3d5de95e09a47d9b4b78e36b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2005130766f7cd6ef71bb14c4752e10a" id="r_a2005130766f7cd6ef71bb14c4752e10a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="defs_8hpp.html#a2005130766f7cd6ef71bb14c4752e10a">METALL_MAX_PER_CPU_CACHE_SIZE</a>&#160;&#160;&#160;(1ULL &lt;&lt; 20ULL)</td></tr>
+<tr class="separator:a2005130766f7cd6ef71bb14c4752e10a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Common definitions for Metall. </p>
@@ -247,18 +252,51 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a id="a2005130766f7cd6ef71bb14c4752e10a" name="a2005130766f7cd6ef71bb14c4752e10a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2005130766f7cd6ef71bb14c4752e10a">&#9670;&#160;</a></span>METALL_MAX_PER_CPU_CACHE_SIZE</h2>
+<a id="a81c65c0f3d5de95e09a47d9b4b78e36b" name="a81c65c0f3d5de95e09a47d9b4b78e36b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81c65c0f3d5de95e09a47d9b4b78e36b">&#9670;&#160;</a></span>METALL_DISABLE_CONCURRENCY</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define METALL_MAX_PER_CPU_CACHE_SIZE&#160;&#160;&#160;(1ULL &lt;&lt; 20ULL)</td>
+          <td class="memname">#define METALL_DISABLE_CONCURRENCY</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The maximum size of the per CPU (logical CPU core) cache in bytes. </p>
+
+<p>If defined, disable concurrency support. </p>
+<p>If this macro is defined, Metall disables concurrency support and optimizes the internal behavior for single-thread usage. Applications must not call any Metall functions concurrently if this macro is defined. On the other hand, Metall still may use multi-threading for internal operations, such as synchronizing data with files. </p>
+
+</div>
+</div>
+<a id="a7ca272ee9ef657fb45e1dc4a45269798" name="a7ca272ee9ef657fb45e1dc4a45269798"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ca272ee9ef657fb45e1dc4a45269798">&#9670;&#160;</a></span>METALL_DISABLE_OBJECT_CACHE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define METALL_DISABLE_OBJECT_CACHE</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>If defined, Metall disables the object cache feature. </p>
+
+</div>
+</div>
+<a id="a8be272419b003ccefe6da657f8a50f97" name="a8be272419b003ccefe6da657f8a50f97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8be272419b003ccefe6da657f8a50f97">&#9670;&#160;</a></span>METALL_NUM_OBJECT_CACHES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define METALL_NUM_OBJECT_CACHES&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The total number of object caches. If this macro is defined, its value must be greater than 0. </p>
 
 </div>
 </div>
@@ -273,24 +311,22 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The number of caches per CPU (logical CPU core). </p>
+<p>The number of caches per CPU (logical CPU core). This value must be greater than 0. This macro is ignored if METALL_NUM_OBJECT_CACHES is defined. </p>
 
 </div>
 </div>
-<a id="a81c65c0f3d5de95e09a47d9b4b78e36b" name="a81c65c0f3d5de95e09a47d9b4b78e36b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a81c65c0f3d5de95e09a47d9b4b78e36b">&#9670;&#160;</a></span>METALL_DISABLE_CONCURRENCY</h2>
+<a id="a2005130766f7cd6ef71bb14c4752e10a" name="a2005130766f7cd6ef71bb14c4752e10a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2005130766f7cd6ef71bb14c4752e10a">&#9670;&#160;</a></span>METALL_MAX_PER_CPU_CACHE_SIZE</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define METALL_DISABLE_CONCURRENCY</td>
+          <td class="memname">#define METALL_MAX_PER_CPU_CACHE_SIZE&#160;&#160;&#160;(1ULL &lt;&lt; 20ULL)</td>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>A macro to disable concurrency support. </p>
-<p>If this macro is defined, Metall disables concurrency support and optimizes the internal behavior for single-thread usage. Applications must not call any Metall functions concurrently if this macro is defined. On the other hand, Metall still may use multi-threading for internal operations, such as synchronizing data with files. </p>
+<p>The maximum size of the per CPU (logical CPU core) cache in bytes. </p>
 
 </div>
 </div>
