@@ -446,7 +446,7 @@ class object_cache {
   }
 
   explicit object_cache()
-      : m_num_caches(priv_get_num_cpus() * k_num_caches_per_cpu)
+      : m_num_caches(priv_get_num_cahes())
 #ifdef METALL_ENABLE_MUTEX_IN_OBJECT_CACHE
         ,
         m_mutex(m_num_caches)
@@ -542,6 +542,16 @@ class object_cache {
 
   inline static unsigned int priv_get_num_cpus() {
     return mdtl::get_num_cpus();
+  }
+
+  /// Calculate the number of caches to be used.
+  inline static unsigned int priv_get_num_cahes() {
+#ifdef METALL_NUM_OBJECT_CACHES
+    if (METALL_NUM_OBJECT_CACHES > 0) {
+      return METALL_NUM_OBJECT_CACHES;
+    }
+#endif
+    return priv_get_num_cpus() * k_num_caches_per_cpu;
   }
 
   inline size_type priv_cache_no() const {
