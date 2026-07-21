@@ -1442,6 +1442,7 @@ TEST(ManagerTest, CheckSanity) {
     auto *manager = new manager_type(metall::create_only, dir_path());
     ASSERT_TRUE(manager->check_sanity());
     ASSERT_FALSE(manager->read_only());
+    delete manager;
   }
 
   {
@@ -1449,6 +1450,7 @@ TEST(ManagerTest, CheckSanity) {
         new manager_type(metall::open_only, dir_path().string() + "-invalid");
     ASSERT_FALSE(bad_manager->check_sanity());
     ASSERT_TRUE(bad_manager->read_only());
+    delete bad_manager;
   }
 }
 }  // namespace
