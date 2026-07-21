@@ -1123,10 +1123,13 @@ bool manager_kernel<st, sst, cn, cs>::priv_remove_data_store(
 template <typename st, typename sst, typename cn, std::size_t cs>
 bool manager_kernel<st, sst, cn, cs>::priv_write_management_metadata(
     const path_type &base_path, const json_store &json_root) {
-  if (!mdtl::ptree::write_json(
-          json_root,
-          storage::get_path(base_path, {k_management_dir_name,
-                                        k_manager_metadata_file_name}))) {
+  const auto file_path = storage::get_path(
+      base_path, {k_management_dir_name, k_manager_metadata_file_name});
+  if (!mdtl::write_file_atomically(file_path,
+                                   [&json_root](const path_type &tmp_path) {
+                                     return mdtl::ptree::write_json(json_root,
+                                                                    tmp_path);
+                                   })) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to write management metadata");
     return false;
@@ -1246,22 +1249,24 @@ bool manager_kernel<st, sst, cn, cs>::priv_write_description(
   const auto &file_name = storage::get_path(
       base_path, {k_management_dir_name, k_description_file_name});
 
-  std::ofstream ofs(file_name);
-  if (!ofs.is_open()) {
-    std::string s("Failed to open: " + file_name.string());
-    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-    return false;
-  }
+  return mdtl::write_file_atomically(
+      file_name, [&description, &file_name](const path_type &tmp_path) {
+        std::ofstream ofs(tmp_path);
+        if (!ofs.is_open()) {
+          std::string s("Failed to open: " + tmp_path.string());
+          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+          return false;
+        }
 
-  if (!(ofs << description)) {
-    std::string s("Failed to write data:" + file_name.string());
-    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-    return false;
-  }
+        if (!(ofs << description)) {
+          std::string s("Failed to write data:" + file_name.string());
+          logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+          return false;
+        }
 
-  ofs.close();
-
-  return true;
+        ofs.close();
+        return true;
+      });
 }
 
 }  // namespace metall::kernel
