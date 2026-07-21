@@ -229,21 +229,33 @@ inline bool write_file_atomically(
   return true;
 }
 
+/// \brief Extends a file by writing zero bytes in [offset, offset +
+/// file_size).
+/// \param fd An open file descriptor.
+/// \param offset The position the zero bytes start at.
+/// \param file_size The number of zero bytes to write.
+/// \return On success, returns true. On error, returns false.
 inline bool extend_file_size_manually(const int fd, const off_t offset,
                                       const ssize_t file_size) {
-  auto buffer = new unsigned char[4096];
-  for (off_t i = offset; i < file_size / 4096 + offset; ++i) {
-    ::pwrite(fd, buffer, 4096, i * 4096);
+  constexpr std::size_t block_size = 4096;
+  const std::vector<unsigned char> buffer(block_size, 0);
+
+  ssize_t remaining = file_size;
+  off_t position = offset;
+  while (remaining > 0) {
+    const std::size_t write_size =
+        std::min<std::size_t>(block_size, remaining);
+    const ssize_t written = ::pwrite(fd, buffer.data(), write_size, position);
+    if (written == -1) {
+      if (errno == EINTR) continue;
+      logger::perror(logger::level::error, __FILE__, __LINE__, "pwrite");
+      return false;
+    }
+    remaining -= written;
+    position += written;
   }
-  const std::size_t remained_size = file_size % 4096;
-  if (remained_size > 0)
-    ::pwrite(fd, buffer, remained_size, file_size - remained_size);
 
-  delete[] buffer;
-
-  const bool ret = os_fsync(fd);
-
-  return ret;
+  return os_fsync(fd);
 }
 
 inline bool extend_file_size(const int fd, const std::size_t file_size,
