@@ -135,7 +135,7 @@ struct properly_closed_mark {
     return true;
   }
 
-  /// \brief Takes the lock and consumes the mark for an existing datastore.
+  /// \brief Takes the lock and checks the mark for an existing datastore.
   /// Writer: takes the exclusive lock, requires the mark, removes it and makes
   /// the removal durable before the caller modifies any data.
   /// Reader: takes the shared lock and requires the mark.

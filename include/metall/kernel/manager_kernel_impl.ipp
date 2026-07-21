@@ -627,7 +627,9 @@ bool manager_kernel<st, sst, cn, cs>::priv_create_datastore_directory(
     return false;
   }
 
-  // Make the new directory entries durable.
+  // Make the new directory entries durable. The fsync on base_path covers
+  // the entry of the new root directory. The tree fsync covers the root
+  // directory and the directories below it.
   const auto root_dir =
       storage::get_path(base_path, k_management_dir_name).parent_path();
   if (!mdtl::fsync_directory(base_path) ||
@@ -895,14 +897,14 @@ bool manager_kernel<st, sst, cn, cs>::priv_open(
                               read_only)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to open the application data segment");
-    priv_undo_consumed_mark();
+    priv_restore_properly_closed_mark();
     return false;
   }
   m_segment_storage.get_segment_header().manager_kernel_address = this;
 
   if (!priv_deserialize_management_data()) {
     m_segment_storage.release();
-    priv_undo_consumed_mark();
+    priv_restore_properly_closed_mark();
     return false;
   }
 
@@ -910,7 +912,7 @@ bool manager_kernel<st, sst, cn, cs>::priv_open(
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
-void manager_kernel<st, sst, cn, cs>::priv_undo_consumed_mark() {
+void manager_kernel<st, sst, cn, cs>::priv_restore_properly_closed_mark() {
   // A failed open did not modify the datastore. Recreating the mark keeps the
   // datastore openable.
   if (!m_properly_closed_mark.is_read_only()) {

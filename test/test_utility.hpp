@@ -9,8 +9,8 @@
 #include "gtest/gtest.h"
 
 #include <string>
-#include <cerrno>
 #include <cstdlib>
+#include <random>
 #include_next <sstream>
 #include <filesystem>
 
@@ -40,24 +40,13 @@ inline bool create_test_dir() {
   return true;
 }
 
-namespace detail {
-// Test executables can contain identically named test cases (for example,
-// manager_test and manager_test_single_thread). The program name keeps their
-// datastore paths distinct when ctest runs them concurrently.
-inline const char *get_program_name() {
-#if defined(__GLIBC__)
-  return ::program_invocation_short_name;
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-  return ::getprogname();
-#else
-  return "unknown";
-#endif
-}
-}  // namespace detail
-
 inline fs::path make_test_path(const fs::path &name = fs::path()) {
+  // Test executables can contain identically named test cases (for example,
+  // manager_test and manager_test_single_thread). A per-process random value
+  // keeps their datastore paths distinct when ctest runs them concurrently.
+  static const unsigned int process_random_value = std::random_device{}();
   std::stringstream file_name;
-  file_name << "metalltest-" << detail::get_program_name() << "-"
+  file_name << "metalltest-" << process_random_value << "-"
             << ::testing::UnitTest::GetInstance()->current_test_case()->name()
             << "-"
             << ::testing::UnitTest::GetInstance()->current_test_info()->name()

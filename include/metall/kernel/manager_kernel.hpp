@@ -509,7 +509,7 @@ class manager_kernel {
 
   static path_type priv_lock_file_path(const path_type &base_path);
 
-  void priv_undo_consumed_mark();
+  void priv_restore_properly_closed_mark();
 
   /// Publishes a fully written datastore copy: fsyncs the directory tree,
   /// creates the destination lockfile, replaces the datastore root of

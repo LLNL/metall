@@ -105,11 +105,7 @@ inline bool fsync(const fs::path &path) {
 /// \param dir_path A path to a directory.
 /// \return On success, returns true. On error, returns false.
 inline bool fsync_directory(const fs::path &dir_path) {
-#ifdef O_DIRECTORY
   const int fd = ::open(dir_path.c_str(), O_RDONLY | O_DIRECTORY);
-#else
-  const int fd = ::open(dir_path.c_str(), O_RDONLY);
-#endif
   if (fd == -1) {
     const std::string s("open directory for fsync: " + dir_path.string());
     logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
@@ -194,12 +190,12 @@ inline int make_named_tempfile(const fs::path &parent_path,
 /// to final_path, and the rename is made durable. On any failure the previous
 /// content of final_path stays intact and the temporary file is removed.
 /// \param final_path The path of the file to write.
-/// \param write_func A function bool(const fs::path &) that writes the file
+/// \param write_func A callable bool(const fs::path &) that writes the file
 /// content to the given path.
 /// \return On success, returns true. On error, returns false.
-inline bool write_file_atomically(
-    const fs::path &final_path,
-    const std::function<bool(const fs::path &)> &write_func) {
+template <typename write_function_type>
+inline bool write_file_atomically(const fs::path &final_path,
+                                  write_function_type &&write_func) {
   fs::path tmp_path;
   const int fd = make_named_tempfile(final_path.parent_path(), &tmp_path);
   if (fd == -1) {

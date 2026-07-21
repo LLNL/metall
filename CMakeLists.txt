@@ -175,12 +175,6 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
         endif ()
     endif ()
 endif ()
-
-# gcc with the macOS 26 SDK needs a workaround to compile the mach headers.
-# Must run before Boost is added so the flag reaches the Boost targets.
-include(check_gcc_macos_sdk)
-apply_gcc_macos_sdk_workaround_if_needed()
-
 # ---------- Metall Macros ---------- #
 foreach (X ${COMPILER_DEFS})
     message(STATUS "Metall compile definition: ${X}")
