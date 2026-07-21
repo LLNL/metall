@@ -235,10 +235,19 @@ inline bool os_munmap(void *const addr, const size_t length) {
   return true;
 }
 
+/// \brief Unmaps a region, optionally syncing it to the backing file first.
+/// \param addr The start address of the region.
+/// \param length The length of the region.
+/// \param call_msync If true, calls msync(2) with MS_SYNC before unmapping.
+/// \return On success, returns true. On error, returns false.
 inline bool munmap(void *const addr, const size_t length,
                    const bool call_msync) {
-  if (call_msync) return os_msync(addr, length, true);
-  return os_munmap(addr, length);
+  bool ret = true;
+  if (call_msync) {
+    ret &= os_msync(addr, length, true);
+  }
+  ret &= os_munmap(addr, length);
+  return ret;
 }
 
 inline bool munmap(const int fd, void *const addr, const size_t length,
