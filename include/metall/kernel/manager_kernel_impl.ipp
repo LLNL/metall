@@ -630,10 +630,8 @@ bool manager_kernel<st, sst, cn, cs>::priv_create_datastore_directory(
   // Make the new directory entries durable. The fsync on base_path covers
   // the entry of the new root directory. The tree fsync covers the root
   // directory and the directories below it.
-  const auto root_dir =
-      storage::get_path(base_path, k_management_dir_name).parent_path();
   if (!mdtl::fsync_directory(base_path) ||
-      !mdtl::fsync_directory_tree(root_dir)) {
+      !mdtl::fsync_directory_tree(storage::root_path(base_path))) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to fsync the datastore directories");
     return false;
