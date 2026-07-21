@@ -51,6 +51,7 @@ target_include_directories(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 target_link_libraries(${PROJECT_NAME}
     INTERFACE "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.1>>:stdc++fs>")
+include(metall_target_helpers)
 
 # Generate MetallTargets.cmake file
 install(TARGETS ${PROJECT_NAME}
@@ -138,19 +139,28 @@ endif()
 if(BOOST_INCLUDE_ROOT)
     # Legacy escape hatch for callers that want to supply Boost headers without
     # relying on Boost's CMake package or imported targets.
-    target_include_directories(${PROJECT_NAME}
-        INTERFACE $<BUILD_INTERFACE:${BOOST_INCLUDE_ROOT}>)
+    metall_add_build_interface_include_dirs(${PROJECT_NAME} ${BOOST_INCLUDE_ROOT})
 else()
     # Prefer a transitive Boost dependency so build-tree consumers do not need
-    # to repeat include path setup after linking Metall::Metall.
+    # to repeat include path setup after linking Metall::Metall. On newer CMake,
+    # BUILD_LOCAL_INTERFACE keeps that target-based dependency visible only to
+    # same-build consumers and strips it from both export() and install(EXPORT).
+    # Older CMake releases fall back to mirroring include paths directly.
     find_package(Boost 1.80 QUIET)
     if(TARGET Boost::headers)
-        target_link_libraries(${PROJECT_NAME} INTERFACE Boost::headers)
+        if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
+            metall_link_build_local_targets(${PROJECT_NAME} INTERFACE Boost::headers)
+        else()
+            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::headers)
+        endif()
     elseif(TARGET Boost::boost)
-        target_link_libraries(${PROJECT_NAME} INTERFACE Boost::boost)
+        if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
+            metall_link_build_local_targets(${PROJECT_NAME} INTERFACE Boost::boost)
+        else()
+            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::boost)
+        endif()
     elseif(Boost_FOUND)
-        target_include_directories(${PROJECT_NAME}
-            INTERFACE $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>)
+        metall_add_build_interface_include_dirs(${PROJECT_NAME} ${Boost_INCLUDE_DIRS})
     endif()
 endif()
 
@@ -241,6 +251,9 @@ if(PRIVATEER_ROOT)
 endif()
 
 # ---------- Boost ---------- #
+set(METALL_BOOST_HEADER_INCLUDE_DIRS "")
+set(METALL_BOOST_LINK_ITEMS "")
+set(METALL_BOOST_LOCAL_TARGET_DEPENDENCIES "")
 if(BOOST_INCLUDE_ROOT)
     message(STATUS "Boost include root is ${BOOST_INCLUDE_ROOT}")
 else()
@@ -261,131 +274,50 @@ else()
             COMPONENTS ${BOOST_COMPS})
     endif()
 
-    if(TARGET Boost::headers)
-        target_link_libraries(${PROJECT_NAME} INTERFACE Boost::headers)
-    elseif(TARGET Boost::boost)
-        target_link_libraries(${PROJECT_NAME} INTERFACE Boost::boost)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
+        # Same-build consumers of Metall::Metall, including metall_c, should
+        # see the full Boost component usage requirements without those local
+        # targets leaking into export() or install(EXPORT).
+        metall_link_build_local_targets(${PROJECT_NAME} INTERFACE ${BOOST_LIBS})
+    else()
+        # Older CMake releases do not support BUILD_LOCAL_INTERFACE, so copy
+        # Boost's compile usage requirements directly onto Metall's build tree.
+        if(TARGET Boost::headers)
+            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::headers ${BOOST_LIBS})
+        elseif(TARGET Boost::boost)
+            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::boost ${BOOST_LIBS})
+        elseif(Boost_FOUND)
+            metall_add_build_interface_include_dirs(${PROJECT_NAME} ${Boost_INCLUDE_DIRS})
+        endif()
     endif()
+
+    # Component targets often carry the real include directories and shared-lib
+    # compile definitions, while Boost::headers may only be a thin umbrella.
+    # Collect those include directories for export-safe library builds.
+    metall_collect_target_interface_property(boost_component_include_dirs INTERFACE_INCLUDE_DIRECTORIES ${BOOST_LIBS})
+    list(APPEND METALL_BOOST_HEADER_INCLUDE_DIRS ${boost_component_include_dirs})
+    list(REMOVE_DUPLICATES METALL_BOOST_HEADER_INCLUDE_DIRS)
+
+    if(NOT METALL_BOOST_HEADER_INCLUDE_DIRS)
+        if(Boost_SOURCE_DIR)
+            set(METALL_BOOST_HEADER_INCLUDE_DIRS ${Boost_SOURCE_DIR})
+        else()
+            set(METALL_BOOST_HEADER_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+        endif()
+    endif()
+
+    # Exported build products such as metall_c cannot directly reference local
+    # Boost targets in export metadata. Convert those local targets to linker
+    # file paths, then add explicit build dependencies so Boost is still built
+    # first inside this tree.
+    metall_convert_local_targets_to_link_items(METALL_BOOST_LINK_ITEMS ${BOOST_LIBS})
+    metall_collect_local_target_dependencies(METALL_BOOST_LOCAL_TARGET_DEPENDENCIES ${BOOST_LIBS})
 endif()
 
 # -------------------------------------------------------------------------------- #
 # Add executable functions
 # -------------------------------------------------------------------------------- #
-function(add_common_compile_options name)
-    # Common
-    target_compile_options(${name} PRIVATE -Wall)
-
-    # Debug
-    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Og>)
-    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-g3>)
-    target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-Wextra>)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_compile_options(${name} PRIVATE $<$<CONFIG:Debug>:-pg>)
-    endif()
-
-    # Release
-    target_compile_options(${name} PRIVATE $<$<CONFIG:Release>:-Ofast>)
-    target_compile_options(${name} PRIVATE $<$<CONFIG:Release>:-DNDEBUG>)
-
-    # Release with debug info
-    target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-Ofast>)
-    target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-g3>)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_compile_options(${name} PRIVATE $<$<CONFIG:RelWithDebInfo>:-pg>)
-    endif()
-endfunction()
-
-function(common_setup_for_metall_executable name)
-    target_link_libraries(${name} PRIVATE Threads::Threads)
-    if(BOOST_INCLUDE_ROOT)
-        target_include_directories(${name} PRIVATE ${BOOST_INCLUDE_ROOT})
-    else()
-        target_link_libraries(${name} PRIVATE ${BOOST_LIBS})
-    endif()
-
-    # ----- Compile Options ----- #
-    add_common_compile_options(${name})
-
-    # Memo:
-    # On macOS and FreeBSD libc++ is the default standard library and the -stdlib=libc++ is not required.
-    # https://libcxx.llvm.org/docs/UsingLibcxx.html
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
-        NOT (CMAKE_CXX_COMPILER_ID MATCHES "Darwin" OR CMAKE_CXX_COMPILER_ID MATCHES "FreeBSD"))
-        target_compile_options(${name} PRIVATE -stdlib=libc++)
-    endif()
-    # --------------------
-
-    # ----- Compile Definitions ----- #
-    foreach(X ${COMPILER_DEFS})
-        target_compile_definitions(${name} PRIVATE ${X})
-    endforeach()
-    # --------------------
-
-    # ----- CXX17 Filesystem Lib----- #
-    # GNU compilers prior to 9.1 requires linking with stdc++fs
-    if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-        if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1)
-            target_link_libraries(${name} PRIVATE stdc++fs)
-        endif()
-    endif()
-    # --------------------
-
-    # ----- Umap----- #
-    if(UMAP_ROOT)
-        target_include_directories(${name} PRIVATE ${UMAP_ROOT}/include)
-        if(LIBUMAP)
-            target_link_libraries(${name} PRIVATE ${LIBUMAP})
-            target_compile_definitions(${name} PRIVATE "METALL_USE_UMAP")
-        endif()
-    endif()
-    # --------------------
-
-    # ----- Privateer----- #
-    if(PRIVATEER_ROOT)
-        target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
-        if(LIBPRIVATEER)
-            # 1) Privateer Dependencies
-            FIND_PACKAGE(OpenSSL)
-            if(OpenSSL_FOUND)
-                target_link_libraries(${name} PRIVATE OpenSSL::SSL)
-                target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
-            endif()
-            target_link_libraries(${name} PRIVATE rt)
-            FIND_PACKAGE(OpenMP REQUIRED)
-            if(OpenMP_CXX_FOUND)
-                target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
-            else()
-                message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
-            endif()
-            if(ZSTD_ROOT)
-                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
-                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
-                target_link_libraries(${name} PRIVATE ${LIBZSTD})
-                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
-            endif()
-
-            # 2) Link Privateer
-            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
-            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
-        endif()
-    endif()
-    # --------------------
-endfunction()
-
-function(add_metall_executable name source)
-    set(ADDED_METALL_EXE FALSE PARENT_SCOPE) # Tell the caller if an executable is added w/o issue
-
-    add_executable(${name} ${source})
-    target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
-    common_setup_for_metall_executable(${name})
-
-    set(ADDED_METALL_EXE TRUE PARENT_SCOPE)
-endfunction()
-
-function(add_c_executable name source)
-    add_executable(${name} ${source})
-    add_common_compile_options(${name})
-endfunction()
+include(metall_executable_helpers)
 
 # -------------------------------------------------------------------------------- #
 # Build tree
