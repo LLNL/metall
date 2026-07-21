@@ -56,19 +56,37 @@ bool manager_kernel<st, sst, cn, cs>::open(
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
-void manager_kernel<st, sst, cn, cs>::close() {
-  if (m_segment_storage.is_open()) {
-    priv_check_sanity();
-    if (!m_segment_storage.read_only()) {
-      priv_serialize_management_data();
-      m_segment_storage.sync(true);
-    }
-
-    m_good = false;
-    m_segment_storage.release();
-
-    m_properly_closed_mark.close();
+bool manager_kernel<st, sst, cn, cs>::close() {
+  if (!m_segment_storage.is_open()) {
+    return true;
   }
+
+  priv_check_sanity();
+  const bool read_only = m_segment_storage.read_only();
+
+  bool success = true;
+  if (!read_only) {
+    success &= priv_serialize_management_data();
+    success &= m_segment_storage.sync(true);
+  }
+
+  m_good = false;
+  success &= m_segment_storage.release();
+
+  if (!read_only) {
+    if (success) {
+      success &= m_properly_closed_mark.mark_properly_closed();
+    } else {
+      // Some data may not have reached disk. Without the mark the next open
+      // reports the datastore as inconsistent instead of silently using it.
+      logger::out(logger::level::error, __FILE__, __LINE__,
+                  "Failed to persist the datastore on close; "
+                  "the properly-closed mark is not created");
+    }
+  }
+  m_properly_closed_mark.release();
+
+  return success;
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
@@ -609,7 +627,24 @@ bool manager_kernel<st, sst, cn, cs>::priv_create_datastore_directory(
     return false;
   }
 
+  // Make the new directory entries durable.
+  const auto root_dir =
+      storage::get_path(base_path, k_management_dir_name).parent_path();
+  if (!mdtl::fsync_directory(base_path) ||
+      !mdtl::fsync_directory_tree(root_dir)) {
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Failed to fsync the datastore directories");
+    return false;
+  }
+
   return true;
+}
+
+template <typename st, typename sst, typename cn, std::size_t cs>
+typename manager_kernel<st, sst, cn, cs>::path_type
+manager_kernel<st, sst, cn, cs>::priv_lock_file_path(
+    const path_type &base_path) {
+  return base_path / k_lock_file_name;
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
@@ -844,11 +879,13 @@ bool manager_kernel<st, sst, cn, cs>::priv_open(
     return false;
   }
 
-  if (!m_properly_closed_mark.open(storage::get_path(base_path, k_properly_closed_mark_file_name),
-                                   read_only)) {
+  if (!m_properly_closed_mark.open(
+          priv_lock_file_path(base_path),
+          storage::get_path(base_path, k_properly_closed_mark_file_name),
+          read_only)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
-                "Unable to open data store — either it is already open, or it was not "
-                "closed properly and might have been collapsed.");
+                "Unable to open data store: either it is already open, or it "
+                "was not closed properly and might have been collapsed.");
     return false;
   }
 
@@ -858,16 +895,28 @@ bool manager_kernel<st, sst, cn, cs>::priv_open(
                               read_only)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to open the application data segment");
+    priv_undo_consumed_mark();
     return false;
   }
   m_segment_storage.get_segment_header().manager_kernel_address = this;
 
   if (!priv_deserialize_management_data()) {
     m_segment_storage.release();
+    priv_undo_consumed_mark();
     return false;
   }
 
   return true;
+}
+
+template <typename st, typename sst, typename cn, std::size_t cs>
+void manager_kernel<st, sst, cn, cs>::priv_undo_consumed_mark() {
+  // A failed open did not modify the datastore. Recreating the mark keeps the
+  // datastore openable.
+  if (!m_properly_closed_mark.is_read_only()) {
+    m_properly_closed_mark.mark_properly_closed();
+  }
+  m_properly_closed_mark.release();
 }
 
 template <typename st, typename sst, typename cn, std::size_t cs>
@@ -885,17 +934,31 @@ bool manager_kernel<st, sst, cn, cs>::priv_create(
     return false;
   }
 
-  if (!priv_create_datastore_directory(base_path)) {
+  // The base directory must exist before the lockfile can be created in it.
+  if (!mdtl::create_directory(base_path)) {
     std::stringstream ss;
-    ss << "Failed to initialize datastore under " << base_path;
+    ss << "Failed to create directory " << base_path;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
-  if (!m_properly_closed_mark.create(storage::get_path(base_path, k_properly_closed_mark_file_name))) {
+  // The lock is taken before any existing data is destroyed. This refuses to
+  // re-create a datastore that another process has open.
+  if (!m_properly_closed_mark.create(
+          priv_lock_file_path(base_path),
+          storage::get_path(base_path, k_properly_closed_mark_file_name))) {
     std::stringstream ss;
-    ss << "Failed to remove a closed mark under " << base_path;
+    ss << "Failed to lock the datastore under " << base_path
+       << " (is it open elsewhere?)";
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    return false;
+  }
+
+  if (!priv_create_datastore_directory(base_path)) {
+    std::stringstream ss;
+    ss << "Failed to initialize datastore under " << base_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    m_properly_closed_mark.release();
     return false;
   }
 
@@ -904,6 +967,7 @@ bool manager_kernel<st, sst, cn, cs>::priv_create(
   if (!m_segment_storage.create(m_base_path, vm_reserve_size)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Cannot create an application data segment");
+    m_properly_closed_mark.release();
     return false;
   }
   m_segment_storage.get_segment_header().manager_kernel_address = this;
@@ -912,6 +976,7 @@ bool manager_kernel<st, sst, cn, cs>::priv_create(
       !priv_set_version(m_manager_metadata.get()) ||
       !priv_write_management_metadata(m_base_path, *m_manager_metadata)) {
     m_segment_storage.release();
+    m_properly_closed_mark.release();
     return false;
   }
 
@@ -1116,7 +1181,28 @@ bool manager_kernel<st, sst, cn, cs>::priv_copy_data_store(
 template <typename st, typename sst, typename cn, std::size_t cs>
 bool manager_kernel<st, sst, cn, cs>::priv_remove_data_store(
     const path_type &base_path) {
-  return storage::remove(base_path);
+  if (!mdtl::directory_exist(storage::root_path(base_path)) &&
+      !mdtl::file_exist(priv_lock_file_path(base_path))) {
+    return true;  // nothing to remove
+  }
+
+  // The lock refuses to remove a datastore that is open elsewhere. The
+  // lockfile itself is never removed: removing it would allow two processes
+  // to hold locks on different inodes of the same path.
+  mdtl::properly_closed_mark lock;
+  if (!lock.create(
+          priv_lock_file_path(base_path),
+          storage::get_path(base_path, k_properly_closed_mark_file_name))) {
+    std::string s("Cannot remove a datastore that is open elsewhere: " +
+                  base_path.string());
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+
+  if (!storage::remove(base_path)) {
+    return false;
+  }
+  return mdtl::fsync_directory(base_path);
 }
 
 // ---------- Management metadata ---------- //

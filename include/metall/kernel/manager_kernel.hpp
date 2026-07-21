@@ -119,6 +119,12 @@ class manager_kernel {
   static constexpr const char *k_properly_closed_mark_file_name =
       "properly_closed_mark";
 
+  // The lockfile lives next to the datastore root directory, not inside it,
+  // so it survives datastore re-creation and the lock can be taken before
+  // existing data is destroyed.
+  static constexpr const char *k_lock_file_name = "mds_lock";
+
+
   // For manager metadata data
   static constexpr const char *k_manager_metadata_file_name =
       "manager_metadata";
@@ -192,8 +198,14 @@ class manager_kernel {
   /// \return Returns true if success; otherwise, returns false
   bool open_read_only(const path_type &base_path);
 
-  /// \brief Expect to be called by a single thread
-  void close();
+  /// \brief Closes the datastore.
+  /// Serializes the management data, syncs the segment, and creates the
+  /// properly-closed mark only if everything succeeded.
+  /// Expect to be called by a single thread
+  /// \return Returns true if all data was persisted; otherwise, returns
+  /// false. On false, no properly-closed mark is created and the datastore is
+  /// reported as inconsistent by consistent().
+  bool close();
 
   /// \brief Flush data to persistent memory
   /// \param synchronous If true, performs synchronous operation;
@@ -491,6 +503,11 @@ class manager_kernel {
   //      directories and files for application data segment
 
   static bool priv_create_datastore_directory(const path_type &base_path);
+
+  static path_type priv_lock_file_path(const path_type &base_path);
+
+  void priv_undo_consumed_mark();
+
 
   // ---------- For consistence support  ---------- //
   static bool priv_consistent(const path_type &base_path);

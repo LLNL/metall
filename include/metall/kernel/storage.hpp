@@ -37,6 +37,11 @@ class storage {
     return path;
   }
 
+  /// \brief Returns the root directory of a datastore.
+  static path_type root_path(const path_type &base_path) {
+    return priv_get_root_path(base_path);
+  }
+
   /// \brief Create a new datastore. If a datastore already exists, remove it
   /// and create a new one.
   /// \param base_path A path to a directory where a datastore is created.
