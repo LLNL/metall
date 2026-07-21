@@ -1070,20 +1070,56 @@ bool manager_kernel<st, sst, cn, cs>::priv_snapshot(
     const path_type &destination_base_path, const bool clone,
     const int num_max_copy_threads) {
   priv_check_sanity();
-  priv_serialize_management_data();
 
-  if (!priv_create_datastore_directory(destination_base_path)) {
+  if (!priv_serialize_management_data()) {
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Failed to serialize management data for the snapshot");
+    return false;
+  }
+
+  // Lock the destination while it is replaced. This also creates the
+  // destination lockfile.
+  if (!mdtl::create_directory(destination_base_path)) {
     std::stringstream ss;
-    ss << "Failed to init the destination: " << destination_base_path;
+    ss << "Failed to create directory " << destination_base_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    return false;
+  }
+  mdtl::properly_closed_mark destination_lock;
+  if (!destination_lock.create(
+          priv_lock_file_path(destination_base_path),
+          storage::get_path(destination_base_path,
+                            k_properly_closed_mark_file_name))) {
+    std::stringstream ss;
+    ss << "The snapshot destination is open elsewhere: "
+       << destination_base_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    return false;
+  }
+
+  // The snapshot is built under a temporary base path and published with a
+  // rename, so a half-written snapshot is never visible under the final path.
+  const path_type tmp_base_path =
+      destination_base_path / k_tmp_datastore_dir_name;
+  if (!mdtl::remove_file(tmp_base_path)) {  // leftover of a crashed snapshot
+    std::stringstream ss;
+    ss << "Failed to remove leftover " << tmp_base_path;
+    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
+    return false;
+  }
+
+  if (!priv_create_datastore_directory(tmp_base_path)) {
+    std::stringstream ss;
+    ss << "Failed to init the snapshot destination: " << tmp_base_path;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
 
   // Copy segment directory
-  if (!m_segment_storage.snapshot(destination_base_path, clone,
+  if (!m_segment_storage.snapshot(tmp_base_path, clone,
                                   num_max_copy_threads)) {
     std::stringstream ss;
-    ss << "Failed to copy " << m_base_path << " to " << destination_base_path;
+    ss << "Failed to copy " << m_base_path << " to " << tmp_base_path;
     logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
     return false;
   }
@@ -1092,13 +1128,7 @@ bool manager_kernel<st, sst, cn, cs>::priv_snapshot(
   const auto src_mng_dir =
       storage::get_path(m_base_path, k_management_dir_name);
   const auto dst_mng_dir =
-      storage::get_path(destination_base_path, k_management_dir_name);
-  if (!mdtl::create_directory(dst_mng_dir)) {
-    std::stringstream ss;
-    ss << "Failed to create directory: " << dst_mng_dir;
-    logger::out(logger::level::error, __FILE__, __LINE__, ss.str().c_str());
-    return false;
-  }
+      storage::get_path(tmp_base_path, k_management_dir_name);
   // Use a normal copy instead of reflink.
   // reflink might slow down if there are many reflink copied files.
   if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir,
@@ -1113,17 +1143,18 @@ bool manager_kernel<st, sst, cn, cs>::priv_snapshot(
   json_store meta_data;
   if (!priv_set_uuid(&meta_data)) return false;
   if (!priv_set_version(&meta_data)) return false;
-  if (!priv_write_management_metadata(destination_base_path, meta_data))
-    return false;
+  if (!priv_write_management_metadata(tmp_base_path, meta_data)) return false;
 
-  // Finally, mark it as properly-closed
-  if (!priv_mark_properly_closed(destination_base_path)) {
+  // The mark is created inside the temporary base. It becomes visible under
+  // the final path together with all other files when the snapshot is
+  // published.
+  if (!priv_mark_properly_closed(tmp_base_path)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to create a properly closed mark");
     return false;
   }
 
-  return true;
+  return priv_publish_datastore_copy(tmp_base_path, destination_base_path);
 }
 
 // ---------- File operations ---------- //
@@ -1138,26 +1169,65 @@ bool manager_kernel<st, sst, cn, cs>::priv_copy_data_store(
     return false;
   }
 
-  if (!storage::create(dst_base_path)) {
+  // The source is opened read-only (shared lock) so no writer can modify or
+  // re-create it while it is copied.
+  mdtl::properly_closed_mark source_lock;
+  if (!source_lock.open(
+          priv_lock_file_path(src_base_path),
+          storage::get_path(src_base_path, k_properly_closed_mark_file_name),
+          true)) {
+    std::string s("Failed to lock the copy source: " + src_base_path.string());
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+
+  // Lock the destination while it is replaced. This also creates the
+  // destination lockfile.
+  if (!mdtl::create_directory(dst_base_path)) {
+    std::string s("Failed to create directory " + dst_base_path.string());
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+  mdtl::properly_closed_mark destination_lock;
+  if (!destination_lock.create(
+          priv_lock_file_path(dst_base_path),
+          storage::get_path(dst_base_path,
+                            k_properly_closed_mark_file_name))) {
+    std::string s("The copy destination is open elsewhere: " +
+                  dst_base_path.string());
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+
+  // The copy is built under a temporary base path and published with a
+  // rename, so a half-written copy is never visible under the final path.
+  const path_type tmp_base_path = dst_base_path / k_tmp_datastore_dir_name;
+  if (!mdtl::remove_file(tmp_base_path)) {  // leftover of a crashed copy
+    std::string s("Failed to remove leftover " + tmp_base_path.string());
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+
+  if (!priv_create_datastore_directory(tmp_base_path)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to initialize the datastore directory");
     return false;
   }
 
   // Copy segment directory
-  segment_storage::copy(src_base_path, dst_base_path, use_clone,
-                        num_max_copy_threads);
+  if (!segment_storage::copy(src_base_path, tmp_base_path, use_clone,
+                             num_max_copy_threads)) {
+    std::string s("Failed to copy the segment directory from " +
+                  src_base_path.string());
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
 
   // Copy management directory
   const auto src_mng_dir =
       storage::get_path(src_base_path, k_management_dir_name);
   const auto dst_mng_dir =
-      storage::get_path(dst_base_path, k_management_dir_name);
-  if (!mdtl::create_directory(dst_mng_dir)) {
-    std::string s("Failed to create directory: " + dst_mng_dir.string());
-    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
-    return false;
-  }
+      storage::get_path(tmp_base_path, k_management_dir_name);
   // Use a normal copy instead of reflink.
   // reflink might slow down if there are many reflink copied files.
   if (!mtlldetail::copy_files_in_directory_in_parallel(src_mng_dir, dst_mng_dir,
@@ -1168,11 +1238,48 @@ bool manager_kernel<st, sst, cn, cs>::priv_copy_data_store(
     return false;
   }
 
-  // Finally, mark it as properly-closed
-  if (!priv_mark_properly_closed(dst_base_path)) {
+  // The mark is created inside the temporary base and becomes visible with
+  // the rename.
+  if (!priv_mark_properly_closed(tmp_base_path)) {
     logger::out(logger::level::error, __FILE__, __LINE__,
                 "Failed to create a properly closed mark");
     return false;
+  }
+
+  return priv_publish_datastore_copy(tmp_base_path, dst_base_path);
+}
+
+template <typename st, typename sst, typename cn, std::size_t cs>
+bool manager_kernel<st, sst, cn, cs>::priv_publish_datastore_copy(
+    const path_type &tmp_base_path, const path_type &dst_base_path) {
+  const auto tmp_root = storage::root_path(tmp_base_path);
+  const auto dst_root = storage::root_path(dst_base_path);
+
+  // File contents were synced when they were written or copied. This makes
+  // the directory entries durable before the rename publishes them.
+  if (!mdtl::fsync_directory_tree(tmp_root)) {
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Failed to fsync the datastore copy");
+    return false;
+  }
+
+  // Replace an existing datastore root. The datastore is briefly absent, but
+  // never half-written.
+  if (!mdtl::remove_file(dst_root)) {
+    std::string s("Failed to remove " + dst_root.string());
+    logger::out(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+
+  if (!mdtl::atomic_durable_replace_file(dst_root, tmp_root)) {
+    return false;
+  }
+
+  // Remove the now empty temporary base directory.
+  if (!mdtl::remove_file(tmp_base_path) ||
+      !mdtl::fsync_directory(dst_base_path)) {
+    logger::out(logger::level::warning, __FILE__, __LINE__,
+                "Failed to clean up the temporary snapshot directory");
   }
 
   return true;

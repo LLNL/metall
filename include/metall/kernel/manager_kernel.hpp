@@ -124,6 +124,9 @@ class manager_kernel {
   // existing data is destroyed.
   static constexpr const char *k_lock_file_name = "mds_lock";
 
+  // Temporary directory a snapshot or copy is built in before it is renamed
+  // to the final datastore root.
+  static constexpr const char *k_tmp_datastore_dir_name = ".tmp_datastore";
 
   // For manager metadata data
   static constexpr const char *k_manager_metadata_file_name =
@@ -508,6 +511,12 @@ class manager_kernel {
 
   void priv_undo_consumed_mark();
 
+  /// Publishes a fully written datastore copy: fsyncs the directory tree,
+  /// creates the destination lockfile, replaces the datastore root of
+  /// dst_base_path with the one under tmp_base_path, and makes the change
+  /// durable.
+  static bool priv_publish_datastore_copy(const path_type &tmp_base_path,
+                                          const path_type &dst_base_path);
 
   // ---------- For consistence support  ---------- //
   static bool priv_consistent(const path_type &base_path);
