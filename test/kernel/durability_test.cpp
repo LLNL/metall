@@ -192,8 +192,9 @@ TEST(DurabilityTest, RemoveRefusedWhileOpen) {
   EXPECT_FALSE(metall::manager::consistent(path));
 }
 
-// A datastore created by a version without a lockfile opens normally.
-TEST(DurabilityTest, OpenWithoutLockfile) {
+// The lockfile is created once at datastore creation. A datastore without a
+// lockfile is broken and refuses to open. Re-creation makes it usable again.
+TEST(DurabilityTest, MissingLockfileRefusesOpen) {
   const auto path = ds_path("no_lockfile");
   metall::manager::remove(path);
 
@@ -203,16 +204,23 @@ TEST(DurabilityTest, OpenWithoutLockfile) {
     manager.construct<int>("v")(9);
   }
 
+  ASSERT_TRUE(fs::exists(path / k_lock_file_name));
   ASSERT_TRUE(fs::remove(path / k_lock_file_name));
 
   {
     metall::manager manager(metall::open_only, path);
-    ASSERT_TRUE(manager.check_sanity());
-    const auto v = manager.find<int>("v");
-    ASSERT_NE(v.first, nullptr);
-    EXPECT_EQ(*v.first, 9);
+    EXPECT_FALSE(manager.check_sanity());
   }
-  EXPECT_TRUE(metall::manager::consistent(path));
+  {
+    metall::manager manager(metall::open_read_only, path);
+    EXPECT_FALSE(manager.check_sanity());
+  }
+
+  // create() recreates the lockfile and the datastore.
+  {
+    metall::manager manager(metall::create_only, path);
+    EXPECT_TRUE(manager.check_sanity());
+  }
   EXPECT_TRUE(fs::exists(path / k_lock_file_name));
 }
 

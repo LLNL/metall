@@ -40,37 +40,47 @@ struct properly_closed_mark {
   std::filesystem::path m_mark_path{};
   bool m_read_only = false;
 
-  static int open_or_create_lockfile(
-      const std::filesystem::path &lockfile_path) {
+  // The lockfile is created only when a datastore is created. A missing
+  // lockfile on open means the datastore is broken or incomplete.
+  static int open_lockfile(const std::filesystem::path &lockfile_path) {
     const int fd = ::open(lockfile_path.c_str(), O_RDONLY);
-    if (fd >= 0) {
-      return fd;
-    }
-    if (errno != ENOENT) {
-      std::string s("open lockfile: " + lockfile_path.string());
+    if (fd < 0) {
+      std::string s("open lockfile (a missing lockfile means a broken "
+                    "datastore): " +
+                    lockfile_path.string());
       logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
-      return -1;
     }
-
-    // The lockfile does not exist yet (datastore created by an older version).
-    const int new_fd =
-        ::open(lockfile_path.c_str(), O_CREAT | O_RDONLY, S_IRUSR | S_IWUSR);
-    if (new_fd < 0) {
-      std::string s("create lockfile: " + lockfile_path.string());
-      logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
-      return -1;
-    }
-    // The lockfile must exist before the lock has any meaning for other
-    // processes.
-    fsync_directory(lockfile_path.parent_path());
-    return new_fd;
+    return fd;
   }
 
-  bool lock(const std::filesystem::path &lockfile_path,
-                 const bool shared) {
-    assert(m_lock_fd == -1);
+  // Creates the lockfile for a new datastore. A datastore create may also
+  // target an existing datastore; then the existing lockfile is opened
+  // instead. It is never replaced with a new inode: all processes must lock
+  // one inode, or two of them could hold "exclusive" locks on different
+  // inodes of the same path.
+  static int create_lockfile(const std::filesystem::path &lockfile_path) {
+    const int fd = ::open(lockfile_path.c_str(),
+                          O_CREAT | O_EXCL | O_RDONLY, S_IRUSR | S_IWUSR);
+    if (fd >= 0) {
+      // The new lockfile must exist durably before the lock has any meaning
+      // for other processes.
+      fsync_directory(lockfile_path.parent_path());
+      return fd;
+    }
 
-    const int fd = open_or_create_lockfile(lockfile_path);
+    if (errno == EEXIST) {
+      // Re-creating an existing datastore.
+      return open_lockfile(lockfile_path);
+    }
+
+    std::string s("create lockfile: " + lockfile_path.string());
+    logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return -1;
+  }
+
+  // Takes the flock on an open lockfile descriptor. Owns fd on success.
+  bool lock(const int fd, const bool shared) {
+    assert(m_lock_fd == -1);
     if (fd < 0) {
       return false;
     }
@@ -127,7 +137,7 @@ struct properly_closed_mark {
   /// open datastore), returns false.
   bool create(const std::filesystem::path &lockfile_path,
               const std::filesystem::path &mark_path) {
-    if (!lock(lockfile_path, false)) {
+    if (!lock(create_lockfile(lockfile_path), false)) {
       return false;
     }
     m_mark_path = mark_path;
@@ -143,7 +153,7 @@ struct properly_closed_mark {
   /// properly closed), returns false.
   bool open(const std::filesystem::path &lockfile_path,
             const std::filesystem::path &mark_path, const bool read_only) {
-    if (!lock(lockfile_path, read_only)) {
+    if (!lock(open_lockfile(lockfile_path), read_only)) {
       return false;
     }
 
