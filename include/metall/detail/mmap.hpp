@@ -217,6 +217,17 @@ inline std::pair<int, void *> map_file_write_private_mode(
   return std::make_pair(fd, mapped_addr);
 }
 
+/// \brief Calls msync(2) on the given range.
+/// On Linux, msync with MS_SYNC takes the same kernel path as fdatasync for
+/// the mapped range, including the device cache flush. On other platforms it
+/// writes the pages to the device without flushing the device cache; callers
+/// that need fsync-level durability there must also fsync the backing file
+/// descriptor (see os_fsync for the macOS design choice).
+/// \param addr The start address of the range.
+/// \param length The length of the range.
+/// \param sync If true, uses MS_SYNC. Otherwise, uses MS_ASYNC.
+/// \param additional_flags Flags that are added to the msync flags.
+/// \return On success, returns true. On error, returns false.
 inline bool os_msync(void *const addr, const size_t length, const bool sync,
                      const int additional_flags = 0) {
   if (::msync(addr, length, (sync ? MS_SYNC : MS_ASYNC) | additional_flags) !=
@@ -250,11 +261,33 @@ inline bool munmap(void *const addr, const size_t length,
   return ret;
 }
 
+/// \brief Unmaps a region and closes the backing file descriptor, optionally
+/// syncing the region durably first.
+/// \param fd The file descriptor of the backing file.
+/// \param addr The start address of the region.
+/// \param length The length of the region.
+/// \param call_msync If true, syncs the region to the backing file before
+/// unmapping. The sync is durable also on platforms where msync(2) does not
+/// flush the device cache, because the open file descriptor allows an
+/// additional fsync there.
+/// \return On success, returns true. On error, returns false.
 inline bool munmap(const int fd, void *const addr, const size_t length,
                    const bool call_msync) {
+  if (call_msync) {
+    bool ret = os_msync(addr, length, true);
+#ifndef __linux__
+    // os_msync alone does not flush the device cache on this platform. The
+    // file descriptor is still open here, so the flush can be added.
+    ret &= os_fsync(fd);
+#endif
+    ret &= os_close(fd);
+    ret &= os_munmap(addr, length);
+    return ret;
+  }
+
   bool ret = true;
   ret &= os_close(fd);
-  ret &= munmap(addr, length, call_msync);
+  ret &= munmap(addr, length, false);
   return ret;
 }
 
