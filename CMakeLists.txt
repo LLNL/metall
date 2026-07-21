@@ -265,15 +265,6 @@ function(common_setup_for_metall_executable name)
     # ----- Compile Options ----- #
     add_common_compile_options(${name})
 
-    # Memo:
-    # On macOS and FreeBSD libc++ is the default standard library and the -stdlib=libc++ is not required.
-    # https://libcxx.llvm.org/docs/UsingLibcxx.html
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
-            NOT (CMAKE_CXX_COMPILER_ID MATCHES "Darwin" OR CMAKE_CXX_COMPILER_ID MATCHES "FreeBSD"))
-        target_compile_options(${name} PRIVATE -stdlib=libc++)
-    endif ()
-    # --------------------
-
     # ----- Compile Definitions ----- #
     foreach (X ${COMPILER_DEFS})
         target_compile_definitions(${name} PRIVATE ${X})
