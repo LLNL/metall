@@ -12,8 +12,8 @@ jobs:
       - name: Test
         run: |
           pushd /dev/shm
-          wget -q https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-cmake.tar.gz
-          export BOOST_TAR="${PWD}/boost-1.87.0-cmake.tar.gz"
+          wget -q https://github.com/boostorg/boost/releases/download/boost-1.91.0-1/boost-1.91.0-1-cmake.tar.gz
+          export BOOST_TAR="${PWD}/boost-1.91.0-1/boost-1.91.0-1-cmake.tar.gz"
           popd
           export METALL_TEST_DIR=${GITHUB_JOB}
           export CC=gcc-12
