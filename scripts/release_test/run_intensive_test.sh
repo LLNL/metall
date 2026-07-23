@@ -37,6 +37,11 @@ main() {
   setup_test_dir
   export METALL_TEST_DIR
 
+  local additional_cmake_options=()
+  if [[ -n "${METALL_CMAKE_ADDITIONAL_OPTIONS}" ]]; then
+    read -r -a additional_cmake_options <<< "${METALL_CMAKE_ADDITIONAL_OPTIONS}"
+  fi
+
   # Build documents
   build_docs
 
@@ -82,7 +87,7 @@ main() {
                 -DBUILD_BENCH=ON \
                 -DBUILD_VERIFICATION=OFF \
                 -DCOMPILER_DEFS="${DEFS}" \
-                " ${METALL_CMAKE_ADDITIONAL_OPTIONS} "
+                "${additional_cmake_options[@]}"
 
             done
           done
