@@ -59,23 +59,20 @@ struct properly_closed_mark {
   // one inode, or two of them could hold "exclusive" locks on different
   // inodes of the same path.
   static int create_lockfile(const std::filesystem::path &lockfile_path) {
-    const int fd = ::open(lockfile_path.c_str(),
-                          O_CREAT | O_EXCL | O_RDONLY, S_IRUSR | S_IWUSR);
-    if (fd >= 0) {
-      // The new lockfile must exist durably before the lock has any meaning
-      // for other processes.
-      fsync_directory(lockfile_path.parent_path());
-      return fd;
+    // Creates the file if absent or opens the existing
+    // inode otherwise.
+    const int fd = ::open(lockfile_path.c_str(), O_CREAT | O_RDONLY,
+                          S_IRUSR | S_IWUSR);
+    if (fd < 0) {
+      std::string s("create lockfile: " + lockfile_path.string());
+      logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
+      return -1;
     }
 
-    if (errno == EEXIST) {
-      // Re-creating an existing datastore.
-      return open_lockfile(lockfile_path);
-    }
-
-    std::string s("create lockfile: " + lockfile_path.string());
-    logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
-    return -1;
+    // The new lockfile must exist durably before the lock has any meaning
+    // for other processes. Fsyncing when the file already existed is idempotent.
+    fsync_directory(lockfile_path.parent_path());
+    return fd;
   }
 
   // Takes the flock on an open lockfile descriptor. Owns fd on success.
