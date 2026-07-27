@@ -117,8 +117,13 @@ set(BOOST_INCLUDE_ROOT "" CACHE STRING "Path to Boost include directory. Specifi
 
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
+<<<<<<< HEAD
 set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
 option(FETCH_PRIVATEER_MAIN "Fetch Privateer from GitHub main using FetchContent" OFF)
+=======
+# set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
+option(USE_PRIVATEER "Build with Privateer" OFF)
+>>>>>>> 37ba6f850915a660d9ebe8295d5332bd43b8638d
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
@@ -201,6 +206,7 @@ if (UMAP_ROOT)
 endif ()
 
 # ---------- Privateer ---------- #
+<<<<<<< HEAD
 if (FETCH_PRIVATEER_MAIN AND PRIVATEER_ROOT)
     message(FATAL_ERROR "FETCH_PRIVATEER_MAIN and PRIVATEER_ROOT cannot be set at the same time")
 endif ()
@@ -232,6 +238,14 @@ if (PRIVATEER_ROOT)
         find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
     endif ()
 endif ()
+=======
+# if (PRIVATEER_ROOT)
+#     message(STATUS "Privateer Root is ${PRIVATEER_ROOT}")
+#     # find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+#     set(Privateer_DIR ${PRIVATEER_ROOT})
+#     find_package(Privateer)
+# endif ()
+>>>>>>> 37ba6f850915a660d9ebe8295d5332bd43b8638d
 
 # ---------- Boost ---------- #
 if (BOOST_INCLUDE_ROOT)
@@ -328,33 +342,44 @@ function(common_setup_for_metall_executable name)
     # --------------------
 
     # ----- Privateer----- #
-    if (PRIVATEER_ROOT)
-        target_include_directories(${name} PRIVATE ${PRIVATEER_ROOT}/include)
-        if (LIBPRIVATEER)
-            # 1) Privateer Dependencies
-            FIND_PACKAGE(OpenSSL)
-            if (OpenSSL_FOUND)
-                target_link_libraries(${name} PRIVATE OpenSSL::SSL)
-                target_link_libraries(${name} PRIVATE OpenSSL::Crypto)
-            endif ()
-            target_link_libraries(${name} PRIVATE rt)
-            FIND_PACKAGE(OpenMP REQUIRED)
-            if (OpenMP_CXX_FOUND)
-                target_link_libraries(${name} PRIVATE OpenMP::OpenMP_CXX)
-            else ()
-                message(FATAL_ERROR "OpenMP is required to build Metall with Privateer")
-            endif ()
-            if (ZSTD_ROOT)
-                find_library(LIBZSTD NAMES zstd PATHS ${ZSTD_ROOT}/lib)
-                target_include_directories(${name} PRIVATE ${ZSTD_ROOT}/lib)
-                target_link_libraries(${name} PRIVATE ${LIBZSTD})
-                target_compile_definitions(${name} PRIVATE USE_COMPRESSION)
-            endif ()
+    set(PRIVATEER_BUILD_TEST OFF CACHE BOOL "Build Privateer tests")
+    set(PRIVATEER_USE_SMARTCACHE ON CACHE BOOL "Build Privateer with SmartCache")
+    if (USE_PRIVATEER)
 
-            # 2) Link Privateer
-            target_link_libraries(${name} PRIVATE ${LIBPRIVATEER})
-            target_compile_definitions(${name} PRIVATE METALL_USE_PRIVATEER)
-        endif ()
+        set(SPDLOG_BUILD_SHARED ON CACHE BOOL "" FORCE)
+        FetchContent_Declare(spdlog
+        URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.tar.gz)
+        # FetchContent_Populate(spdlog)
+        FetchContent_MakeAvailable(spdlog)
+        # install(TARGETS spdlog EXPORT PrivateerTargets)
+        FetchContent_GetProperties(spdlog BINARY_DIR spdlog_BINARY_DIR)
+        FetchContent_GetProperties(spdlog SOURCE_DIR spdlog_SOURCE_DIR)
+
+        FetchContent_Declare(
+            Privateer
+            GIT_REPOSITORY git@github.com:LLNL/Privateer.git
+            GIT_TAG feature/mt_smartcache # Replace with the correct branch or tag
+        )
+        FetchContent_MakeAvailable(Privateer)
+        message(STATUS "Privateer source directory: ${Privateer_SOURCE_DIR}")
+        message(STATUS "Privateer binary directory: ${Privateer_BINARY_DIR}")
+
+        
+
+        target_include_directories(${name} PUBLIC ${Privateer_SOURCE_DIR}/include)
+        target_link_directories(${name} PUBLIC ${Privateer_BINARY_DIR}/lib)
+      
+        
+
+
+        add_dependencies(${name} privateer)
+        target_link_libraries(${name} PUBLIC privateer)
+        target_compile_definitions(${name} PUBLIC METALL_USE_PRIVATEER)
+        target_compile_definitions(${name} PUBLIC USE_SMARTCACHE)
+
+        target_include_directories(${name} PUBLIC ${spdlog_SOURCE_DIR}/include)
+        target_link_libraries(${name} PUBLIC spdlog::spdlog)
+        target_compile_definitions(${name} PUBLIC SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
     endif ()
     # --------------------
 endfunction()
