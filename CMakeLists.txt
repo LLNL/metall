@@ -206,7 +206,6 @@ if (UMAP_ROOT)
 endif ()
 
 # ---------- Privateer ---------- #
-<<<<<<< HEAD
 if (FETCH_PRIVATEER_MAIN AND PRIVATEER_ROOT)
     message(FATAL_ERROR "FETCH_PRIVATEER_MAIN and PRIVATEER_ROOT cannot be set at the same time")
 endif ()
@@ -238,14 +237,6 @@ if (PRIVATEER_ROOT)
         find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
     endif ()
 endif ()
-=======
-# if (PRIVATEER_ROOT)
-#     message(STATUS "Privateer Root is ${PRIVATEER_ROOT}")
-#     # find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
-#     set(Privateer_DIR ${PRIVATEER_ROOT})
-#     find_package(Privateer)
-# endif ()
->>>>>>> 37ba6f850915a660d9ebe8295d5332bd43b8638d
 
 # ---------- Boost ---------- #
 if (BOOST_INCLUDE_ROOT)
