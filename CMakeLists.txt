@@ -117,13 +117,8 @@ set(BOOST_INCLUDE_ROOT "" CACHE STRING "Path to Boost include directory. Specifi
 
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
-<<<<<<< HEAD
-set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
-option(FETCH_PRIVATEER_MAIN "Fetch Privateer from GitHub main using FetchContent" OFF)
-=======
 # set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
 option(USE_PRIVATEER "Build with Privateer" OFF)
->>>>>>> 37ba6f850915a660d9ebe8295d5332bd43b8638d
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
