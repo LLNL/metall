@@ -175,7 +175,6 @@ if (NOT RUN_BUILD_AND_TEST_WITH_CI)
         endif ()
     endif ()
 endif ()
-
 # ---------- Metall Macros ---------- #
 foreach (X ${COMPILER_DEFS})
     message(STATUS "Metall compile definition: ${X}")

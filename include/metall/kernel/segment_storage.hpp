@@ -770,8 +770,15 @@ class segment_storage {
 #endif
           const auto map =
               static_cast<char *>(m_segment) + block_no * k_block_size;
-          num_successes.fetch_add(mdtl::os_msync(map, k_block_size, sync) ? 1
-                                                                          : 0);
+          bool ok = mdtl::os_msync(map, k_block_size, sync);
+#ifndef __linux__
+          // On Linux, msync(MS_SYNC) syncs the files.
+          // Other platforms do not guarantee this.
+          if (ok && sync) {
+            ok = mdtl::os_fsync(m_block_fd_list[block_no]);
+          }
+#endif
+          num_successes.fetch_add(ok ? 1 : 0);
         } else {
           break;
         }

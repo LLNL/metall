@@ -26,6 +26,7 @@
 #endif
 
 #include <metall/detail/utilities.hpp>
+#include <metall/detail/file.hpp>
 #include <metall/logger.hpp>
 
 namespace metall {
@@ -195,9 +196,16 @@ class bin_directory {
     return m_table[bin_no].end();
   }
 
-  /// \brief
+  /// \brief Serializes the directory to a file, atomically and durably.
   /// \param path
   bool serialize(const fs::path &path) const {
+    return mdtl::write_file_atomically(
+        path,
+        [this](const fs::path &tmp_path) { return priv_serialize(tmp_path); });
+  }
+
+ private:
+  bool priv_serialize(const fs::path &path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
       std::stringstream ss;
@@ -224,6 +232,7 @@ class bin_directory {
     return true;
   }
 
+ public:
   /// \brief
   /// \param path
   bool deserialize(const fs::path &path) {

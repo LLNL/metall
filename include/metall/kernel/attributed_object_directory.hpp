@@ -22,6 +22,7 @@
 #include <boost/container/list.hpp>
 
 #include <metall/logger.hpp>
+#include <metall/detail/file.hpp>
 #include <metall/detail/ptree.hpp>
 #include <metall/detail/hash.hpp>
 
@@ -541,7 +542,10 @@ class attributed_object_directory {
       return false;
     }
 
-    if (!json::write_json(json_root, path)) {
+    if (!metall::mtlldetail::write_file_atomically(
+            path, [&json_root](const fs::path &tmp_path) {
+              return json::write_json(json_root, tmp_path);
+            })) {
       return false;
     }
 

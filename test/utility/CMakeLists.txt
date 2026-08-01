@@ -1,1 +1,3 @@
 add_metall_test_executable(bitset_test bitset_test.cpp)
+
+add_metall_test_executable(file_durability_test file_durability_test.cpp)

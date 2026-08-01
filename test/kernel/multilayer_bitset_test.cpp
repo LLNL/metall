@@ -129,6 +129,9 @@ void RandomSetAndResetHelper2(const std::size_t num_bits) {
       }
     } else {
       const auto n = std::min((size_t)dist(rnd_gen), num_bits - cnt_trues);
+      if (n == 0) {
+        continue;
+      }
       metall::kernel::multilayer_bitset::bit_position_type buf[n];
       bitset.find_and_set_many(num_bits, n, buf);
       cnt_trues += n;
@@ -156,8 +159,10 @@ void RandomSetAndResetHelper2(const std::size_t num_bits) {
   // Set the remaining bits
   {
     const auto num_rem = num_bits - cnt_trues;
-    metall::kernel::multilayer_bitset::bit_position_type buf[num_rem];
-    bitset.find_and_set_many(num_bits, num_rem, buf);
+    if (num_rem > 0) {
+      metall::kernel::multilayer_bitset::bit_position_type buf[num_rem];
+      bitset.find_and_set_many(num_bits, num_rem, buf);
+    }
   }
   for (std::size_t pos = 0; pos < num_bits; ++pos) {
     ASSERT_TRUE(bitset.get(num_bits, pos)) << "pos = " << pos;

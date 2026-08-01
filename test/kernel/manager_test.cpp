@@ -94,6 +94,16 @@ TEST(ManagerTest, CreateAndOpenModes) {
   {
     manager_type::remove(dir_path());
 
+    // on a datastore that does not exist
+    {
+      manager_type manager{metall::open_only, dir_path()};
+      ASSERT_FALSE(manager.check_sanity());
+    }
+    {
+      manager_type manager{metall::open_read_only, dir_path()};
+      ASSERT_FALSE(manager.check_sanity());
+    }
+
     // after create
     {
       manager_type manager{metall::create_only, dir_path()};
@@ -113,6 +123,11 @@ TEST(ManagerTest, CreateAndOpenModes) {
         manager_type manager2{metall::open_only, dir_path()};
         ASSERT_FALSE(manager2.check_sanity());
       }
+
+      {
+        manager_type manager2{metall::create_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
     }
 
     // after open
@@ -127,6 +142,11 @@ TEST(ManagerTest, CreateAndOpenModes) {
 
       {
         manager_type manager2{metall::open_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
+      {
+        manager_type manager2{metall::create_only, dir_path()};
         ASSERT_FALSE(manager2.check_sanity());
       }
     }
@@ -144,8 +164,27 @@ TEST(ManagerTest, CreateAndOpenModes) {
         ASSERT_FALSE(manager3.check_sanity());
       }
 
+      {
+        manager_type manager2{metall::create_only, dir_path()};
+        ASSERT_FALSE(manager2.check_sanity());
+      }
+
       manager_type manager2{metall::open_read_only, dir_path()};
       ASSERT_TRUE(manager2.check_sanity());
+    }
+
+    // after close, every mode works again and the datastore is intact
+    {
+      manager_type manager{metall::open_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+    }
+    {
+      manager_type manager{metall::open_read_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
+    }
+    {
+      manager_type manager{metall::create_only, dir_path()};
+      ASSERT_TRUE(manager.check_sanity());
     }
   }
 }
@@ -1442,6 +1481,7 @@ TEST(ManagerTest, CheckSanity) {
     auto *manager = new manager_type(metall::create_only, dir_path());
     ASSERT_TRUE(manager->check_sanity());
     ASSERT_FALSE(manager->read_only());
+    delete manager;
   }
 
   {
@@ -1449,6 +1489,7 @@ TEST(ManagerTest, CheckSanity) {
         new manager_type(metall::open_only, dir_path().string() + "-invalid");
     ASSERT_FALSE(bad_manager->check_sanity());
     ASSERT_TRUE(bad_manager->read_only());
+    delete bad_manager;
   }
 }
 }  // namespace
