@@ -32,9 +32,6 @@ run_build_and_test_kernel() {
   # Build
   local cmake_options=("$@")
   local cmake_file_location="${METALL_ROOT_DIR}"
-  printf 'cmake'
-  printf ' %q' "${cmake_file_location}" "${cmake_options[@]}"
-  printf '\n'
   or_die cmake "${cmake_file_location}" "${cmake_options[@]}"
   if [[ -z "${METALL_LIMIT_MAKE_PARALLELS}" ]]; then
     or_die make -j
