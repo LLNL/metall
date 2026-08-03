@@ -97,6 +97,7 @@ TEST(FallbackAllocatorAdaptorTest, Types) {
       GTEST_ASSERT_EQ(p->a, 10);
       GTEST_ASSERT_EQ(p->b, 20.0);
       std::allocator_traits<alloc_t>::destroy(alloc, metall::to_raw_pointer(p));
+      std::allocator_traits<alloc_t>::deallocate(alloc, p, 1);
     }
 
     GTEST_ASSERT_EQ(std::allocator_traits<alloc_t>::max_size(alloc),

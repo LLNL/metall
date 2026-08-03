@@ -47,12 +47,42 @@ inline bool os_close(const int fd) {
   return true;
 }
 
+/// \brief Calls fsync(2) on fd, retrying on EINTR.
+/// fsync is the durability primitive of this code base.
+/// On Linux it writes the data to the device and flushes the device write
+/// cache, so it is durable against power loss.
+/// On macOS it writes the data to the device but does not flush the device
+/// write cache. Only fcntl(F_FULLFSYNC) (very slow) flushes it duarable at power
+/// loss. whereas fsync is only process and OS crashes safe. Since  MacOS is
+/// typically no production target, it uses just fsync.
+/// \param fd An open file descriptor.
+/// \return On success, returns true. On error, returns false.
 inline bool os_fsync(const int fd) {
-  if (::fsync(fd) != 0) {
-    logger::perror(logger::level::error, __FILE__, __LINE__, "fsync");
-    return false;
+  while (::fsync(fd) != 0) {
+    if (errno != EINTR) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "fsync");
+      return false;
+    }
   }
   return true;
+}
+
+/// \brief Calls fdatasync(2) on fd, retrying on EINTR.
+/// Falls back to fsync(2) on platforms without fdatasync.
+/// \param fd An open file descriptor.
+/// \return On success, returns true. On error, returns false.
+inline bool os_fdatasync(const int fd) {
+#ifdef __linux__
+  while (::fdatasync(fd) != 0) {
+    if (errno != EINTR) {
+      logger::perror(logger::level::error, __FILE__, __LINE__, "fdatasync");
+      return false;
+    }
+  }
+  return true;
+#else
+  return os_fsync(fd);
+#endif
 }
 
 inline bool fsync(const fs::path &path) {
@@ -69,21 +99,159 @@ inline bool fsync(const fs::path &path) {
   return ret;
 }
 
-inline bool extend_file_size_manually(const int fd, const off_t offset,
-                                      const ssize_t file_size) {
-  auto buffer = new unsigned char[4096];
-  for (off_t i = offset; i < file_size / 4096 + offset; ++i) {
-    ::pwrite(fd, buffer, 4096, i * 4096);
+/// \brief Makes the entries of a directory durable with fsync(2).
+/// A file rename or unlink is durable only after the directory that holds the
+/// entry is fsynced.
+/// \param dir_path A path to a directory.
+/// \return On success, returns true. On error, returns false.
+inline bool fsync_directory(const fs::path &dir_path) {
+  const int fd = ::open(dir_path.c_str(), O_RDONLY | O_DIRECTORY);
+  if (fd == -1) {
+    const std::string s("open directory for fsync: " + dir_path.string());
+    logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
   }
-  const std::size_t remained_size = file_size % 4096;
-  if (remained_size > 0)
-    ::pwrite(fd, buffer, remained_size, file_size - remained_size);
 
-  delete[] buffer;
-
-  const bool ret = os_fsync(fd);
+  bool ret = true;
+  ret &= os_fsync(fd);
+  ret &= os_close(fd);
 
   return ret;
+}
+
+/// \brief Fsyncs dir_path and every directory below it.
+/// Used after a directory tree was populated with already-synced files to make
+/// all directory entries durable.
+/// \param dir_path A path to the root of a directory tree.
+/// \return On success, returns true. On error, returns false.
+inline bool fsync_directory_tree(const fs::path &dir_path) {
+  bool ret = fsync_directory(dir_path);
+  try {
+    for (const auto &p : fs::recursive_directory_iterator(dir_path)) {
+      if (p.is_directory()) {
+        ret &= fsync_directory(p.path());
+      }
+    }
+  } catch (...) {
+    logger::out(logger::level::error, __FILE__, __LINE__,
+                "Exception was thrown while walking a directory tree");
+    return false;
+  }
+  return ret;
+}
+
+/// \brief Replaces to_replace with replacement using rename(2) and makes the
+/// replacement durable.
+/// rename(2) is atomic but not durable. Fsyncing the parent directory makes
+/// the new directory entry durable.
+/// \pre The content of replacement is already synced to disk.
+/// \pre Both paths are on the same file system.
+/// \param to_replace The path that receives the new file.
+/// \param replacement The path of the file that replaces to_replace.
+/// \return On success, returns true. On error, returns false.
+inline bool atomic_durable_replace_file(const fs::path &to_replace,
+                                        const fs::path &replacement) {
+  if (::rename(replacement.c_str(), to_replace.c_str()) != 0) {
+    const std::string s("rename: " + replacement.string() + " -> " +
+                  to_replace.string());
+    logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return false;
+  }
+
+  return fsync_directory(to_replace.parent_path());
+}
+
+/// \brief Creates a named temporary file in parent_path with mkstemp(3).
+/// The file is not deleted automatically. The caller removes it, or renames it
+/// into place.
+/// \param parent_path Directory the temporary file is created in.
+/// \param tmp_file_path Receives the path of the created file.
+/// \return An open file descriptor on success, -1 on error.
+inline int make_named_tempfile(const fs::path &parent_path,
+                               fs::path *tmp_file_path) {
+  std::string filename_template = (parent_path / ".metall.XXXXXX").string();
+
+  // mkstemp mutates the template in place. std::string::data() is mutable and
+  // null-terminated.
+  const int fd = ::mkstemp(filename_template.data());
+  if (fd == -1) {
+    std::string s("mkstemp in: " + parent_path.string());
+    logger::perror(logger::level::error, __FILE__, __LINE__, s.c_str());
+    return -1;
+  }
+
+  *tmp_file_path = filename_template;
+  return fd;
+}
+
+/// \brief Writes a file atomically and durably.
+/// Calls write_func with a temporary path in the same directory as final_path.
+/// When write_func succeeds, the temporary file is synced to disk and renamed
+/// to final_path, and the rename is made durable. On any failure the previous
+/// content of final_path stays intact and the temporary file is removed.
+/// \param final_path The path of the file to write.
+/// \param write_func A callable bool(const fs::path &) that writes the file
+/// content to the given path.
+/// \return On success, returns true. On error, returns false.
+template <typename write_function_type>
+inline bool write_file_atomically(const fs::path &final_path,
+                                  write_function_type &&write_func) {
+  fs::path tmp_path;
+  const int fd = make_named_tempfile(final_path.parent_path(), &tmp_path);
+  if (fd == -1) {
+    return false;
+  }
+  // write_func opens the file itself. Only the path of the temporary file is
+  // needed here.
+  if (!os_close(fd)) {
+    std::error_code ec;
+    fs::remove(tmp_path, ec);
+    return false;
+  }
+
+  if (!write_func(tmp_path)) {
+    std::error_code ec;
+    fs::remove(tmp_path, ec);
+    return false;
+  }
+
+  if (!fsync(tmp_path) ||
+      !atomic_durable_replace_file(final_path, tmp_path)) {
+    std::error_code ec;
+    fs::remove(tmp_path, ec);
+    return false;
+  }
+
+  return true;
+}
+
+/// \brief Extends a file by writing zero bytes in [offset, offset +
+/// file_size).
+/// \param fd An open file descriptor.
+/// \param offset The position the zero bytes start at.
+/// \param file_size The number of zero bytes to write.
+/// \return On success, returns true. On error, returns false.
+inline bool extend_file_size_manually(const int fd, const off_t offset,
+                                      const ssize_t file_size) {
+  constexpr std::size_t block_size = 4096;
+  const std::vector<unsigned char> buffer(block_size, 0);
+
+  ssize_t remaining = file_size;
+  off_t position = offset;
+  while (remaining > 0) {
+    const std::size_t write_size =
+        std::min<std::size_t>(block_size, remaining);
+    const ssize_t written = ::pwrite(fd, buffer.data(), write_size, position);
+    if (written == -1) {
+      if (errno == EINTR) continue;
+      logger::perror(logger::level::error, __FILE__, __LINE__, "pwrite");
+      return false;
+    }
+    remaining -= written;
+    position += written;
+  }
+
+  return os_fsync(fd);
 }
 
 inline bool extend_file_size(const int fd, const std::size_t file_size,

@@ -14,6 +14,7 @@
 #include <filesystem>
 
 #include <metall/detail/utilities.hpp>
+#include <metall/detail/file.hpp>
 #include <metall/detail/mmap.hpp>
 #include <metall/kernel/multilayer_bitset.hpp>
 #include <metall/kernel/bin_number_manager.hpp>
@@ -294,9 +295,16 @@ class chunk_directory {
     return m_table[chunk_no].num_occupied_slots;
   }
 
-  /// \brief
+  /// \brief Serializes the directory to a file, atomically and durably.
   /// \param path
   bool serialize(const fs::path &path) const {
+    return mdtl::write_file_atomically(
+        path,
+        [this](const fs::path &tmp_path) { return priv_serialize(tmp_path); });
+  }
+
+ private:
+  bool priv_serialize(const fs::path &path) const {
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
       std::stringstream ss;
@@ -357,6 +365,7 @@ class chunk_directory {
     return true;
   }
 
+ public:
   /// \brief
   /// \param path
   /// \return

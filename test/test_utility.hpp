@@ -10,6 +10,7 @@
 
 #include <string>
 #include <cstdlib>
+#include <random>
 #include_next <sstream>
 #include <filesystem>
 
@@ -40,8 +41,12 @@ inline bool create_test_dir() {
 }
 
 inline fs::path make_test_path(const fs::path &name = fs::path()) {
+  // Test executables can contain identically named test cases (for example,
+  // manager_test and manager_test_single_thread). A per-process random value
+  // keeps their datastore paths distinct when ctest runs them concurrently.
+  static const unsigned int process_random_value = std::random_device{}();
   std::stringstream file_name;
-  file_name << "metalltest-"
+  file_name << "metalltest-" << process_random_value << "-"
             << ::testing::UnitTest::GetInstance()->current_test_case()->name()
             << "-"
             << ::testing::UnitTest::GetInstance()->current_test_info()->name()
