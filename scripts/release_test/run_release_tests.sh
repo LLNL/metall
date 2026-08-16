@@ -34,6 +34,7 @@ for CC_COMPILER in "${CC_COMPILERS[@]}"; do
       export METALL_CMAKE_ADDITIONAL_OPTIONS="-DBOOST_INCLUDE_ROOT=${BOOST_ROOT}/include"
 
       or_die bash ./scripts/release_test/run_intensive_test.sh
+    done
   done
 done
 
