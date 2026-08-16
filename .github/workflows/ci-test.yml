@@ -3,7 +3,7 @@ name: CI Test
 on: [push, pull_request]
 
 jobs:
-  bst1-91-0-1:
+  bst1-92-0:
     runs-on: ubuntu-latest
     env:
       METALL_LIMIT_MAKE_PARALLELS: 8
@@ -12,8 +12,8 @@ jobs:
       - name: Test
         run: |
           pushd /dev/shm
-          wget -q https://github.com/boostorg/boost/releases/download/boost-1.91.0-1/boost-1.91.0-1-cmake.tar.gz
-          export BOOST_TAR="${PWD}/boost-1.91.0-1-cmake.tar.gz"
+          wget -q https://github.com/boostorg/boost/releases/download/boost-1.92.0/boost-1.92.0-cmake.tar.gz
+          export BOOST_TAR="${PWD}/boost-1.92.0-cmake.tar.gz"
           popd
           export METALL_TEST_DIR=${GITHUB_JOB}
           export CC=gcc-12
