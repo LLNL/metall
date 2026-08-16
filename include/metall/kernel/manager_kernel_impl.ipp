@@ -770,7 +770,9 @@ T *manager_kernel<st, sst, cn, cs>::priv_generic_construct(
         }
       });
 
-#if BOOST_VERSION >= 108500
+#if BOOST_VERSION >= 109100
+  pr.construct_n(ptr, this, length);
+#elif BOOST_VERSION >= 108500
   pr.construct_n(ptr, length);
 #else
   // Constructs each object in the allocated memory
