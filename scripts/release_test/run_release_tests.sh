@@ -31,9 +31,9 @@ for CC_COMPILER in "${CC_COMPILERS[@]}"; do
       export METALL_TEST_DIR="/dev/shm/metall_test_${CC_COMPILER}_${CPP_COMPILER}_boost${BOOST_VER}"
       export METALL_BUILD_DIR="/dev/shm/metall_test_build_${CC_COMPILER}_${CPP_COMPILER}_boost${BOOST_VER}"
 
-    export METALL_CMAKE_ADDITIONAL_OPTIONS="-DBOOST_INCLUDE_ROOT=${BOOST_ROOT}/include"
+      export METALL_CMAKE_ADDITIONAL_OPTIONS="-DBOOST_INCLUDE_ROOT=${BOOST_ROOT}/include"
 
-    or_die bash ./scripts/release_test/run_intensive_test.sh
+      or_die bash ./scripts/release_test/run_intensive_test.sh
   done
 done
 
