@@ -31,9 +31,9 @@ endif()
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-    VERSION 0.33
-    DESCRIPTION "A persistent memory allocator for data-centric analytics"
-    HOMEPAGE_URL "https://github.com/LLNL/metall")
+        VERSION 0.34
+        DESCRIPTION "A persistent memory allocator for data-centric analytics"
+        HOMEPAGE_URL "https://github.com/LLNL/metall")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -222,10 +222,9 @@ if(NOT RUN_BUILD_AND_TEST_WITH_CI)
     if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
         if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.1)
             message(FATAL_ERROR "GCC version must be at least 8.1")
-        endif()
-    endif()
-endif()
-
+        endif ()
+    endif ()
+endif ()
 # ---------- Metall Macros ---------- #
 foreach(X ${COMPILER_DEFS})
     message(STATUS "Metall compile definition: ${X}")

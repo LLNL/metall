@@ -17,6 +17,8 @@ target_compile_definitions(manager_test_single_thread PRIVATE "METALL_DISABLE_CO
 
 add_metall_test_executable(snapshot_test snapshot_test.cpp)
 
+add_metall_test_executable(durability_test durability_test.cpp)
+
 add_metall_test_executable(copy_datastore_test copy_datastore_test.cpp)
 
 include(setup_omp)
