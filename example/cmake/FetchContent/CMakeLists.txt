@@ -13,7 +13,7 @@ endif()
 FetchContent_Declare(
     Metall
     GIT_REPOSITORY https://github.com/LLNL/metall.git
-    GIT_TAG feature/brush_up_cmake
+    GIT_TAG master
 )
 FetchContent_MakeAvailable(Metall)
 
