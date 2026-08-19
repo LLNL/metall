@@ -53,6 +53,11 @@ target_link_libraries(${PROJECT_NAME}
     INTERFACE "$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.1>>:stdc++fs>")
 include(metall_target_helpers)
 
+# List of Boost components Metall depends on. Defined here (before the config
+# file is generated) so MetallConfig.cmake can embed the same list and fetch a
+# matching Boost on its own when an installed consumer doesn't already have one.
+set(METALL_BOOST_COMPONENTS json unordered interprocess container property_tree uuid graph)
+
 # Generate MetallTargets.cmake file
 install(TARGETS ${PROJECT_NAME}
     EXPORT ${PROJECT_NAME}Targets
@@ -260,7 +265,7 @@ else()
     include(fetch_boost)
 
     # List of boost components Metall depends on
-    set(BOOST_COMPS json unordered interprocess container property_tree uuid graph)
+    set(BOOST_COMPS ${METALL_BOOST_COMPONENTS})
     # Link Boost UUID with libatomic fails on LC machines
     option(BOOST_UUID_LINK_LIBATOMIC "Link Boost UUID with libatomic" OFF)
 
