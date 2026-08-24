@@ -211,7 +211,7 @@ if (FETCH_PRIVATEER_MAIN)
     FetchContent_Declare(
             privateer
         GIT_REPOSITORY https://github.com/llnl/Privateer.git
-            GIT_TAG main)
+            GIT_TAG feature/auto_deps)
     FetchContent_MakeAvailable(privateer)
 
     if (EXISTS ${privateer_SOURCE_DIR}/include)
@@ -329,7 +329,9 @@ function(common_setup_for_metall_executable name)
 
     # ----- Privateer----- #
     set(PRIVATEER_BUILD_TEST OFF CACHE BOOL "Build Privateer tests")
-    set(PRIVATEER_USE_SMARTCACHE ON CACHE BOOL "Build Privateer with SmartCache")
+    set(PRIVATEER_USE_SMARTCACHE OFF CACHE BOOL "Build Privateer with SmartCache")
+    set(ENABLE_PAGE_EVICTION ON CACHE BOOL "Build Privateer with page eviction")
+    set(ENABLE_COMPRESSION ON CACHE BOOL "Build Privateer with compression")
     if (USE_PRIVATEER)
 
         set(SPDLOG_BUILD_SHARED ON CACHE BOOL "" FORCE)
@@ -344,7 +346,7 @@ function(common_setup_for_metall_executable name)
         FetchContent_Declare(
             Privateer
             GIT_REPOSITORY git@github.com:LLNL/Privateer.git
-            GIT_TAG feature/mt_smartcache # Replace with the correct branch or tag
+            GIT_TAG feature/auto_deps # Replace with the correct branch or tag
         )
         FetchContent_MakeAvailable(Privateer)
         message(STATUS "Privateer source directory: ${Privateer_SOURCE_DIR}")
@@ -361,7 +363,6 @@ function(common_setup_for_metall_executable name)
         add_dependencies(${name} privateer)
         target_link_libraries(${name} PUBLIC privateer)
         target_compile_definitions(${name} PUBLIC METALL_USE_PRIVATEER)
-        target_compile_definitions(${name} PUBLIC USE_SMARTCACHE)
 
         target_include_directories(${name} PUBLIC ${spdlog_SOURCE_DIR}/include)
         target_link_libraries(${name} PUBLIC spdlog::spdlog)
