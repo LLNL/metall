@@ -1,23 +1,43 @@
-## Metall datastore 'ls'
+# Metall datastore 'ls'
 
-`datastore_ls` is a utility program that lists object attributes in a Metall data store.
+`datastore_ls` is a utility program that lists object metadata stored in a
+Metall datastore.
 
-`mpi_datastore_ls` is available for Metall MPI data store,
-which is created by [Metall MPI Adaptor](https://github.com/LLNL/metall/blob/master/include/metall/utility/metall_mpi_adaptor.hpp).
-`mpi_datastore_ls` is not a MPI program.
+`mpi_datastore_ls` is the corresponding utility for a Metall MPI datastore
+created with the
+[Metall MPI adaptor](https://github.com/LLNL/metall/blob/master/include/metall/utility/metall_mpi_adaptor.hpp).
+`mpi_datastore_ls` itself is not an MPI program.
 
-### Synopsis
+These tools are useful when you want to:
+
+- confirm that named root objects were created,
+- inspect object counts, offsets, type IDs, and descriptions,
+- debug what is actually present in a datastore before reopening it in code.
+
+## Build
+
+```bash
+cmake -S . -B build -DBUILD_UTILITY=ON
+cmake --build build --target datastore_ls mpi_datastore_ls
+```
+
+To install the utilities under a chosen prefix:
+
+```bash
+cmake --install build --prefix /install/path
+```
+
+## Synopsis
+
 ```c++
 datastore_ls [/path/to/datastore]
 mpi_datastore_ls [/path/to/datastore] [MPI rank number]
 ```
 
-### Example
+## Example
+
 ```bash
-$ cmake [option]...
-$ make datastore_ls
-$ make install
-$/install/path/bin/datastore_ls /path/to/metall/datastore                                                                                 
+/install/path/bin/datastore_ls /path/to/metall/datastore
 [Named Object]
 |   Name |  Length |   Offset |              Type-ID |          Description |
 ----------------------------------------------------------------------------
@@ -35,3 +55,7 @@ $/install/path/bin/datastore_ls /path/to/metall/datastore
 |       1 |       16 |  6253375586064260614 |              |
 |     100 |  6291456 |  6253375586064260614 |              |
 ```
+
+The output is grouped by named, unique, and anonymous objects. For named
+objects, the `Name` column shows the key that applications can use with
+`manager.find()` to recover the object after reopening the datastore.

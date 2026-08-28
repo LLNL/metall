@@ -1,27 +1,38 @@
-## Background
+# Why Metall Exists
 
-Data-intensive applications play an essential role across many real-world data science domains.
-Often, these applications require storing data beyond a single process lifetime.
-Data often requires transformation into analytic-specific data structures to perform the analytic with reasonable execution time.  
-The task of ingesting data, indexing and partitioning data in preparation of running an analytic, is often more expensive than the analytic itself.
+Data-intensive applications often spend significant time loading raw data,
+building in-memory indexes, and reshaping data into structures that are fast
+for analytics. In many workflows, that preparation cost is higher than the
+analytic itself.
 
-The promise of persistent memory is that, once constructed, data structures can be re-analyzed and updated beyond the lifetime of a single execution, and new forms of persistent memory are increasing the viability of processing complex data analytics.
+Metall is designed for the cases where those data structures should survive a
+single process lifetime. Instead of rebuilding them on every run, an
+application can store them in a persistent heap and reopen them later.
 
+## What Metall Provides
 
-## Metall
+- A persistent heap for C++ objects backed by files and mapped into virtual
+  memory with `mmap`.
+- Support for both block storage and byte-addressable persistent memory, such
+  as NVMe SSDs and persistent-memory devices.
+- An API style based on Boost.Interprocess, which makes it possible to build
+  allocator-aware user-defined types and containers in persistent storage.
+- Snapshot support so applications can create explicit recovery points.
+- Support for datasets that may be larger than DRAM because the mapped region
+  can extend beyond physical memory.
 
-* Enables applications to allocate heap-based objects into both block-storage and byte-addressable persistent memories, just like main-memory
-	* e.g., NVMe SSD and Intel Optane DC Persistent Memory
+## Important Things to Know
 
-* Leverages a memory-mapped file mechanism (mmap)
-	* Applications can access mapped area as if it were regular memory
-	* mmap can map files bigger than the DRAM capacity
+- Metall is a persistent allocator, not a transactional database. Durability is
+  established at well-defined points such as clean shutdown or explicit
+  snapshot creation.
+- Objects stored in Metall must follow persistent-memory rules. In particular,
+  data structures should use offset pointers and allocator-aware types instead
+  of raw process-local pointer mechanisms.
+- Applications typically keep one or more named root objects so they can reopen
+  a datastore and rediscover the entry points of the object graph.
+- Metall supports multithreaded use within a process. In multi-process
+  workflows, each process is expected to manage its own Metall-managed data.
 
-* Incorporates the state-of-the-art allocation algorithms
-	* Some key ideas from [SuperMalloc](https://dl.acm.org/doi/10.1145/2887746.2754178) 
-
-* Provides the API developed by Boost.Interprocess
-  * Boost.Interprocess is an interprocess communication library
-  * Useful for allocating C++ custom data structures in persistent memory
-
-* Employs a coarse-grained consistency model, allowing the application to determine when it is appropriate to create durable snapshots of the persistent heap
+The following detail pages explain the practical constraints around pointers,
+snapshots, and crash recovery.

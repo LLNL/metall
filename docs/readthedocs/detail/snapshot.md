@@ -1,12 +1,27 @@
-## Efficient Snapshot
+# Efficient Snapshot
 
-In addition to the allocation APIs, Metall provides a snapshot feature that stores only the difference from the previous snapshot point instead of duplicating the entire persistent heap by leveraging [reflink](http://man7.org/linux/man-pages/man2/ioctl_ficlonerange.2.html).
+Metall can create point-in-time snapshots of a datastore. This is useful when
+an application wants an explicit recovery point before a major update, a new
+analytics phase, or an experiment that may rewrite a large part of the heap.
 
-With reflink, a copied file shares the same data blocks with the existing file;
-data blocks are copied only when they are modified (*copy-on-write*).
+When possible, Metall makes snapshots efficient by using
+[reflink](http://man7.org/linux/man-pages/man2/ioctl_ficlonerange.2.html)
+instead of copying the entire datastore eagerly.
 
-As reflink is relatively new, not all filesystems support it.
-Those that do include XFS, ZFS, Btrfs, and Apple File System (APFS) — we expect that more filesystems will implement this feature in the future.
+With reflink, the new snapshot initially shares data blocks with the source
+datastore. Physical blocks are copied later only if one side is modified. This
+copy-on-write behavior keeps snapshots cheap in both time and storage when the
+filesystem supports it.
 
-In case reflink is not supported by the underlying filesystem,
-Metall automatically falls back to a regular copy.
+## Important Behavior
+
+- A snapshot gives you an explicit recovery point; it does not make every write
+  transactional.
+- Snapshot efficiency depends on filesystem support for reflink.
+- If reflink is unavailable, Metall automatically falls back to a regular copy,
+  which is still correct but may cost more time and storage.
+- Filesystems that commonly support reflink include XFS, ZFS, Btrfs, and APFS.
+
+Snapshots fit naturally with Metall's coarse-grained persistence model: the
+application decides when the current heap state is important enough to preserve
+as a stable version.
