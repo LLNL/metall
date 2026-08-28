@@ -1,29 +1,29 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.14...3.30)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 
 # -------------------------------------------------------------------------------- #
 # CMake policy
 # -------------------------------------------------------------------------------- #
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.13")
     cmake_policy(SET CMP0077 NEW)
 endif()
 
 # When using the URL download method with the ExternalProject_Add() or
 # FetchContent_Declare() commands, sets the timestamps of extracted contents
 # to the time of extraction.
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
     cmake_policy(SET CMP0135 NEW)
 endif()
 
 # Accept <PACKAGENAME>_ROOT variables for find_package() command.
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
     cmake_policy(SET CMP0144 NEW)
 endif()
 
 # find_package(Boost) to search for the upstream BoostConfig.cmake.
 # Disable CMake's FindBoost module.
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.30")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
     cmake_policy(SET CMP0167 NEW)
 endif()
 
@@ -31,9 +31,9 @@ endif()
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-        VERSION 0.34
-        DESCRIPTION "A persistent memory allocator for data-centric analytics"
-        HOMEPAGE_URL "https://github.com/LLNL/metall")
+    VERSION 0.34
+    DESCRIPTION "A persistent memory allocator for data-centric analytics"
+    HOMEPAGE_URL "https://github.com/LLNL/metall")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -57,6 +57,8 @@ include(metall_target_helpers)
 # file is generated) so MetallConfig.cmake can embed the same list and fetch a
 # matching Boost on its own when an installed consumer doesn't already have one.
 set(METALL_BOOST_COMPONENTS json unordered interprocess container property_tree uuid graph)
+set(METALL_DEFAULT_BOOST_FETCH_URL
+    "https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.tar.gz")
 
 # Generate MetallTargets.cmake file
 install(TARGETS ${PROJECT_NAME}
@@ -126,6 +128,21 @@ set(BOOST_FETCH_URL CACHE STRING "URL or file path to an archived Boost source. 
 # We keep this option for using old Boost versions. This option will be removed in the future.
 set(BOOST_INCLUDE_ROOT "" CACHE STRING "Path to Boost include directory. Specified value is passed to target_include_directories().")
 
+set(metall_boost_source_options "")
+foreach(boost_source_option IN ITEMS BOOST_SOURCE_DIR BOOST_FETCH_URL BOOST_INCLUDE_ROOT)
+    if(DEFINED ${boost_source_option} AND NOT "${${boost_source_option}}" STREQUAL "")
+        list(APPEND metall_boost_source_options ${boost_source_option})
+    endif()
+endforeach()
+
+list(LENGTH metall_boost_source_options metall_boost_source_option_count)
+if(metall_boost_source_option_count GREATER 1)
+    list(JOIN metall_boost_source_options ", " metall_boost_source_options_string)
+    message(FATAL_ERROR
+        "Specify only one of BOOST_SOURCE_DIR, BOOST_FETCH_URL, or BOOST_INCLUDE_ROOT. "
+        "Currently set: ${metall_boost_source_options_string}")
+endif()
+
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
 set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
@@ -153,24 +170,16 @@ else()
     # Older CMake releases fall back to mirroring include paths directly.
     find_package(Boost 1.80 QUIET)
     if(TARGET Boost::headers)
-        if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
-            metall_link_build_local_targets(${PROJECT_NAME} INTERFACE Boost::headers)
-        else()
-            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::headers)
-        endif()
+        metall_attach_build_tree_boost_usage(${PROJECT_NAME} Boost::headers)
     elseif(TARGET Boost::boost)
-        if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
-            metall_link_build_local_targets(${PROJECT_NAME} INTERFACE Boost::boost)
-        else()
-            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::boost)
-        endif()
-    elseif(Boost_FOUND)
-        metall_add_build_interface_include_dirs(${PROJECT_NAME} ${Boost_INCLUDE_DIRS})
+        metall_attach_build_tree_boost_usage(${PROJECT_NAME} Boost::boost)
+    else()
+        metall_attach_build_tree_boost_usage(${PROJECT_NAME})
     endif()
 endif()
 
-foreach(X ${COMPILER_DEFS})
-    target_compile_definitions(${PROJECT_NAME} INTERFACE ${X})
+foreach(compile_definition IN LISTS COMPILER_DEFS)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE ${compile_definition})
 endforeach()
 
 # -------------------------------------------------------------------------------- #
@@ -222,12 +231,12 @@ if(NOT RUN_BUILD_AND_TEST_WITH_CI)
     if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
         if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.1)
             message(FATAL_ERROR "GCC version must be at least 8.1")
-        endif ()
-    endif ()
-endif ()
+        endif()
+    endif()
+endif()
 # ---------- Metall Macros ---------- #
-foreach(X ${COMPILER_DEFS})
-    message(STATUS "Metall compile definition: ${X}")
+foreach(compile_definition IN LISTS COMPILER_DEFS)
+    message(STATUS "Metall compile definition: ${compile_definition}")
 endforeach()
 
 
@@ -268,31 +277,27 @@ else()
     # Link Boost UUID with libatomic fails on LC machines
     option(BOOST_UUID_LINK_LIBATOMIC "Link Boost UUID with libatomic" OFF)
 
+    set(metall_boost_fetch_args URL ${METALL_DEFAULT_BOOST_FETCH_URL})
+
     if(BOOST_SOURCE_DIR)
-        fetch_boost(SOURCE ${BOOST_SOURCE_DIR} COMPONENTS ${BOOST_COMPS})
+        set(metall_boost_fetch_args SOURCE ${BOOST_SOURCE_DIR})
     elseif(BOOST_FETCH_URL)
-        fetch_boost(URL ${BOOST_FETCH_URL} COMPONENTS ${BOOST_COMPS})
-    else()
-        # Use default Boost version if not specified by the user
-        fetch_boost(URL "https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.tar.gz"
-            COMPONENTS ${BOOST_COMPS})
+        set(metall_boost_fetch_args URL ${BOOST_FETCH_URL})
     endif()
 
+    fetch_boost(${metall_boost_fetch_args} COMPONENTS ${BOOST_COMPS})
+
+    # Same-build consumers of Metall::Metall, including metall_c, should see
+    # the full Boost component usage requirements without local targets leaking
+    # into export() or install(EXPORT) metadata.
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
-        # Same-build consumers of Metall::Metall, including metall_c, should
-        # see the full Boost component usage requirements without those local
-        # targets leaking into export() or install(EXPORT).
-        metall_link_build_local_targets(${PROJECT_NAME} INTERFACE ${BOOST_LIBS})
+        metall_attach_build_tree_boost_usage(${PROJECT_NAME} ${BOOST_LIBS})
+    elseif(TARGET Boost::headers)
+        metall_attach_build_tree_boost_usage(${PROJECT_NAME} Boost::headers ${BOOST_LIBS})
+    elseif(TARGET Boost::boost)
+        metall_attach_build_tree_boost_usage(${PROJECT_NAME} Boost::boost ${BOOST_LIBS})
     else()
-        # Older CMake releases do not support BUILD_LOCAL_INTERFACE, so copy
-        # Boost's compile usage requirements directly onto Metall's build tree.
-        if(TARGET Boost::headers)
-            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::headers ${BOOST_LIBS})
-        elseif(TARGET Boost::boost)
-            metall_mirror_target_usage_to_build_interface(${PROJECT_NAME} Boost::boost ${BOOST_LIBS})
-        elseif(Boost_FOUND)
-            metall_add_build_interface_include_dirs(${PROJECT_NAME} ${Boost_INCLUDE_DIRS})
-        endif()
+        metall_attach_build_tree_boost_usage(${PROJECT_NAME})
     endif()
 
     # Component targets often carry the real include directories and shared-lib

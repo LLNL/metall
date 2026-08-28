@@ -1,3 +1,4 @@
+## Keep build-only include directories off exported and installed usage requirements.
 function(metall_add_build_interface_include_dirs target_name)
   foreach(include_dir IN LISTS ARGN)
     if(include_dir)
@@ -6,6 +7,7 @@ function(metall_add_build_interface_include_dirs target_name)
   endforeach()
 endfunction()
 
+## Keep build-only compile definitions off exported and installed usage requirements.
 function(metall_add_build_interface_compile_definitions target_name)
   foreach(compile_definition IN LISTS ARGN)
     if(compile_definition)
@@ -14,6 +16,7 @@ function(metall_add_build_interface_compile_definitions target_name)
   endforeach()
 endfunction()
 
+## Resolve alias targets before querying properties or forming export-safe link items.
 function(metall_resolve_target_name output_var target_name)
   if(TARGET ${target_name})
     get_target_property(aliased_target ${target_name} ALIASED_TARGET)
@@ -27,6 +30,7 @@ function(metall_resolve_target_name output_var target_name)
   endif()
 endfunction()
 
+## Replace local build targets with export-safe linker file references while preserving imported targets and plain link items.
 function(metall_convert_local_targets_to_link_items output_var)
   set(link_items "")
   foreach(link_item IN LISTS ARGN)
@@ -49,6 +53,7 @@ function(metall_convert_local_targets_to_link_items output_var)
   set(${output_var} ${link_items} PARENT_SCOPE)
 endfunction()
 
+## Track concrete local targets that must be built before generated linker file references are usable.
 function(metall_collect_local_target_dependencies output_var)
   set(local_target_dependencies "")
   foreach(link_item IN LISTS ARGN)
@@ -66,6 +71,7 @@ function(metall_collect_local_target_dependencies output_var)
   set(${output_var} ${local_target_dependencies} PARENT_SCOPE)
 endfunction()
 
+## Collect a target interface property across multiple dependencies while skipping missing entries and duplicates.
 function(metall_collect_target_interface_property output_var property_name)
   set(collected_values "")
   foreach(link_item IN LISTS ARGN)
@@ -82,6 +88,7 @@ function(metall_collect_target_interface_property output_var property_name)
   set(${output_var} ${collected_values} PARENT_SCOPE)
 endfunction()
 
+## Mirror dependency usage requirements directly onto a target's build interface for older CMake releases.
 function(metall_mirror_target_usage_to_build_interface target_name)
   metall_collect_target_interface_property(interface_include_dirs INTERFACE_INCLUDE_DIRECTORIES ${ARGN})
   metall_collect_target_interface_property(interface_compile_definitions INTERFACE_COMPILE_DEFINITIONS ${ARGN})
@@ -89,6 +96,7 @@ function(metall_mirror_target_usage_to_build_interface target_name)
   metall_add_build_interface_compile_definitions(${target_name} ${interface_compile_definitions})
 endfunction()
 
+## Prefer BUILD_LOCAL_INTERFACE when available and fall back to export-safe link items otherwise.
 function(metall_link_build_local_targets target_name visibility)
   if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
     foreach(link_item IN LISTS ARGN)
@@ -102,5 +110,18 @@ function(metall_link_build_local_targets target_name visibility)
     if(export_safe_link_items)
       target_link_libraries(${target_name} ${visibility} ${export_safe_link_items})
     endif()
+  endif()
+endfunction()
+
+## Centralize build-tree Boost wiring, with a legacy fallback to raw include directories.
+function(metall_attach_build_tree_boost_usage target_name)
+  if(ARGN)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
+      metall_link_build_local_targets(${target_name} INTERFACE ${ARGN})
+    else()
+      metall_mirror_target_usage_to_build_interface(${target_name} ${ARGN})
+    endif()
+  elseif(Boost_FOUND)
+    metall_add_build_interface_include_dirs(${target_name} ${Boost_INCLUDE_DIRS})
   endif()
 endfunction()

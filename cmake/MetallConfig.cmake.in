@@ -4,6 +4,10 @@ include(CMakeFindDependencyMacro)
 
 # find_package(Boost) should prefer the upstream BoostConfig.cmake over
 # CMake's removed FindBoost module.
+if(POLICY CMP0135)
+	cmake_policy(SET CMP0135 NEW)
+endif()
+
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif()
@@ -15,6 +19,7 @@ find_dependency(Threads REQUIRED)
 # The Boost components Metall itself was built against (see
 # METALL_BOOST_COMPONENTS in the top-level CMakeLists.txt).
 set(METALL_BOOST_COMPONENTS @METALL_BOOST_COMPONENTS@)
+set(METALL_DEFAULT_BOOST_FETCH_URL "@METALL_DEFAULT_BOOST_FETCH_URL@")
 
 find_package(Boost 1.80 QUIET)
 if(NOT Boost_FOUND)
@@ -24,11 +29,11 @@ if(NOT Boost_FOUND)
     set(BOOST_INCLUDE_LIBRARIES ${METALL_BOOST_COMPONENTS})
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
         FetchContent_Declare(Boost
-            URL https://github.com/boostorg/boost/releases/download/boost-1.92.0/boost-1.92.0-cmake.tar.gz
+			URL ${METALL_DEFAULT_BOOST_FETCH_URL}
             FIND_PACKAGE_ARGS 1.80)
     else()
         FetchContent_Declare(Boost
-            URL https://github.com/boostorg/boost/releases/download/boost-1.92.0/boost-1.92.0-cmake.tar.gz)
+			URL ${METALL_DEFAULT_BOOST_FETCH_URL})
     endif()
     FetchContent_MakeAvailable(Boost)
 endif()
@@ -36,9 +41,19 @@ endif()
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
 
 if (TARGET @PROJECT_NAME@::@PROJECT_NAME@)
+	set(_metall_boost_targets "")
+	foreach(_metall_boost_comp IN LISTS METALL_BOOST_COMPONENTS)
+		if(TARGET Boost::${_metall_boost_comp})
+			list(APPEND _metall_boost_targets Boost::${_metall_boost_comp})
+		endif()
+	endforeach()
+
 	# Boost target names differ across Boost/CMake combinations. Normalize the
 	# imported interface to whichever representation the local toolchain exposes.
-	if (TARGET Boost::headers)
+	if (_metall_boost_targets)
+		set_property(TARGET @PROJECT_NAME@::@PROJECT_NAME@ APPEND PROPERTY
+				INTERFACE_LINK_LIBRARIES "${_metall_boost_targets}")
+	elseif (TARGET Boost::headers)
 		set_property(TARGET @PROJECT_NAME@::@PROJECT_NAME@ APPEND PROPERTY
 				INTERFACE_LINK_LIBRARIES Boost::headers)
 	elseif (TARGET Boost::boost)
