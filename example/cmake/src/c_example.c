@@ -6,8 +6,8 @@
 #include <metall/c_api/metall.h>
 
 int main(void) {
-  metall_open(METALL_CREATE_ONLY, "/tmp/dir");
-  metall_close();
+  metall_manager* manager = metall_create("/tmp/dir");
+  metall_close(manager);
 
   return 0;
 }
