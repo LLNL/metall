@@ -41,3 +41,21 @@ jobs:
           export CXX=g++-12
           cd $GITHUB_WORKSPACE
           bash ./scripts/CI/run_ci_build_and_test.sh
+
+  cmake-consumer-smoke:
+    runs-on: ubuntu-latest
+    env:
+      METALL_LIMIT_MAKE_PARALLELS: 8
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test CMake consumer smoke paths
+        run: |
+          pushd /dev/shm
+          wget -q https://github.com/boostorg/boost/releases/download/boost-1.92.0/boost-1.92.0-cmake.tar.gz
+          export BOOST_TAR="${PWD}/boost-1.92.0-cmake.tar.gz"
+          popd
+          export CC=gcc-12
+          export CXX=g++-12
+          export METALL_CMAKE_ADDITIONAL_OPTIONS="-DBOOST_FETCH_URL=${BOOST_TAR}"
+          cd $GITHUB_WORKSPACE
+          bash ./scripts/CI/run_ci_install_tree_consumer_smoke_test.sh
