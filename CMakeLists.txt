@@ -31,9 +31,9 @@ endif()
 # Metall general configuration
 # -------------------------------------------------------------------------------- #
 project(Metall
-    VERSION 0.34
-    DESCRIPTION "A persistent memory allocator for data-centric analytics"
-    HOMEPAGE_URL "https://github.com/LLNL/metall")
+        VERSION 0.35
+        DESCRIPTION "A persistent memory allocator for data-centric analytics"
+        HOMEPAGE_URL "https://github.com/LLNL/metall")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
