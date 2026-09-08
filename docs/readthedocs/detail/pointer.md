@@ -1,18 +1,42 @@
-## Offset Pointer
+# Offset Pointers
 
-Applications have to take care of some restrictions regarding pointers to store objects in persistent memory.
-Applications cannot use raw pointers for data members in data structures stored in persistent memory
-because there is no guarantee that backing-files are mapped to the same virtual memory addresses every time.
+When a Metall datastore is reopened, its backing files may be mapped at a
+different virtual address from the previous run. That means a raw pointer value
+stored inside the persistent object graph is not stable across executions.
 
-To fix the problem, the **offset pointer** has to be used instead of the raw pointer.
-An offset pointer holds an offset between the address pointing at and itself so that it can always point to the same location regardless of the VM address it is mapped.
-Additionally, references, virtual functions, and virtual base classes have to be removed since those mechanisms also use raw pointers internally.
+To solve this, Metall uses an offset pointer instead of a raw pointer for
+persistent links between objects. An offset pointer stores the relative
+distance to the pointed-to object, so it remains valid even when the datastore
+is remapped at a different virtual address.
 
-The [offset pointer in Metall](https://github.com/KIwabuchi/metall/blob/develop/include/metall/offset_ptr.hpp) is just an alias of [offset pointer in Boost.Interprocess](https://www.boost.org/doc/libs/release/doc/html/interprocess/offset_ptr.html).
+Metall's `offset_ptr` is an alias of
+[Boost.Interprocess `offset_ptr`](https://www.boost.org/doc/libs/release/doc/html/interprocess/offset_ptr.html).
 
+## Rules for Types Stored in Metall
 
-## STL Container
+- Use `metall::offset_ptr<T>` for pointers that are part of persistent state.
+- Do not store C++ references in persistent objects.
+- Avoid virtual functions and virtual base classes in persisted types because
+  those features rely on process-local pointer state.
+- Use allocator-aware types for dynamically allocated members such as strings,
+  vectors, maps, and nested containers.
+- Keep at least one named root object so the application can reopen the
+  datastore and call `find` to recover the object graph.
 
-Unfortunately, some implementations of the STL container do not work with Boost.Interprocess and Metall due to offset pointer and some other reasons ([see detail](https://www.boost.org/doc/libs/release/doc/html/interprocess/allocators_containers.html#interprocess.allocators_containers.containers_explained.stl_container_requirements)).
-We recommend applications use containers in [Boost.Container](https://www.boost.org/doc/libs/release/doc/html/container.html).
+Raw pointers are still fine as temporary local variables after an object has
+been found or constructed. The restriction is about what gets stored in the
+persistent data structure itself.
 
+## Containers
+
+Not every implementation of the standard library containers works correctly
+with Boost.Interprocess-style allocators and offset pointers. For the detailed
+requirements, see the
+[Boost.Interprocess container notes](https://www.boost.org/doc/libs/release/doc/html/interprocess/allocators_containers.html#interprocess.allocators_containers.containers_explained.stl_container_requirements).
+
+In practice, the safest choices are:
+
+- [Boost.Container](https://www.boost.org/doc/libs/release/doc/html/container.html)
+  containers.
+- Metall's allocator-aware container facilities.
+- Simple user-defined types whose pointer ownership and allocators are explicit.

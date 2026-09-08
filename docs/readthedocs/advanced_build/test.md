@@ -1,52 +1,64 @@
 # Test Metall for Development
 
-There are two types of tests programs in Metall.
-
+Metall provides two main testing paths: the Google Test suite and a manual
+persistence check based on the adjacency-list benchmark.
 
 ## Google Test
 
-
 ### Build
 
-To run tests using Google Test,
-please see [this page](./cmake.md) about building the test programs.
+Configure the repository with `BUILD_TEST=ON`, then build it.
 
+```bash
+cmake -S . -B build -DBUILD_TEST=ON
+cmake --build build
+```
+
+Google Test is downloaded automatically unless `SKIP_DOWNLOAD_GTEST=ON`.
+See [the CMake build page](./cmake.md) for additional options.
 
 ### Run
 
 ```bash
-make test
+ctest --test-dir build --output-on-failure
 ```
 
-The test programs make data stores into `/tmp` by default.
+By default, the test programs create data stores under `/tmp/metall_test_dir`.
 
-To change the location, use an environmental value 'METALL_TEST_DIR'.
+To change the location, set the `METALL_TEST_DIR` environment variable.
 
 ```bash
-env METALL_TEST_DIR="/mnt/ssd/" make test
+env METALL_TEST_DIR="/mnt/ssd/metall-tests" ctest --test-dir build --output-on-failure
 ```
-
 
 ## Manual Test
-There is another test program in Metall's repository.  
-The test program uses [Adjacency List Benchmark](https://github.com/LLNL/metall/tree/master/bench/adjacency_list/).
-One program creates a graph data and another program opens it.
-This test is useful to make sure that Metall can store data persistently.
 
+Metall also includes a manual persistence test under
+[bench/adjacency_list](https://github.com/LLNL/metall/tree/master/bench/adjacency_list).
+One program creates graph data and another reopens it, which is useful for
+checking that data persists correctly across runs.
+
+Build the benchmark targets first:
+
+```bash
+cmake -S . -B build -DBUILD_BENCH=ON
+cmake --build build
+```
 
 Here is how to run the test with small data.
+
 ```bash
 cd metall/build/bench/adjacency_list/
-sh ../../../bench/adjacency_list/test/test.sh -d/path/to/store/data/store
+bash ../../../bench/adjacency_list/test/test.sh -d /path/to/store/data
 ```
-
 
 Here is how to run the test with large data.
+
 ```bash
 cd metall/build/bench/adjacency_list/
-sh ../../../bench/adjacency_list/test/test_large.sh -d/path/to/store/data/store -v17
+bash ../../../bench/adjacency_list/test/test_large.sh -d /path/to/store/data -v17
 ```
 
-In test_large.sh, the input data is generated on the fly using an R-MAT graph generator.
-`-vN` option controls the size of the graph to generate, where N is a int number called SCALE.
-The number of vertices in a generated R-MAT graph is `2^N` and that of edges (undirected) is `16 x 2^N`.
+In `test_large.sh`, the input graph is generated on the fly with an R-MAT
+generator. The `-vN` option controls the graph scale. For a given `N`, the
+generated graph has `2^N` vertices and `16 x 2^N` undirected edges.

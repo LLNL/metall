@@ -1,3 +1,5 @@
+# API Overview
+
 Metall employs the API developed by Boost.Interprocess (BIP).
 
 Although BIP has been developed as an interprocess communication library, it has a collection of APIs that are useful for persistent memory allocators.
@@ -8,8 +10,26 @@ containers, in persistent memory.
 To work with the C++ STL containers, Boost.Interprocess has an allocator class that is compatible with the STL allocator.
 It also offers an interface similar to a key-value store so that applications can find already allocated objects when reattaching the previously created application data.
 
-Metall supports multi-thread.
-In multi-process environment, Metall assumes each process allocates its own Metall object(s).
+Metall supports multithreaded use within a process.
+In a multi-process environment, Metall assumes each process manages its own
+Metall object(s).
+
+## Important Usage Pattern
+
+Most applications use Metall in the following way:
+
+- create or open a `metall::manager`,
+- construct one or more named root objects,
+- allocate nested data through the manager's allocator,
+- reopen the datastore later and use `find()` on the root name,
+- create snapshots or copies at application-defined recovery points.
+
+Two practical points matter a lot:
+
+- `open_read_only` protects the datastore from accidental modification, but a
+  write through that mapping can still fault at runtime.
+- After an unclean shutdown, check the datastore with `metall::manager::consistent()`
+  before using it as the live source of truth.
 
 ## Main APIs in Metall
 
@@ -55,7 +75,7 @@ allocator_type<T> manager.get_allocator<T>()
 T* manager.construct<T, Args>(char* name)(Args... args)
 
 // Finds an already constructed object with key name
-T* manager.find<T>(char* name)
+std::pair<T*, std::size_t> manager.find<T>(char* name)
 
 // Destroys a previously created named and unique instance
 // Calls the destructor and frees the memory.
@@ -89,7 +109,9 @@ bool manager.set_instance_description(const T *ptr, const std::string& descripti
 
 // ---------- Snapshot (Metall original) ---------- //
 // Takes a snapshot of the current datastore.
-bool manager.snapshot(const char *destination_dir_path)
+bool manager.snapshot(const char *destination_dir_path,
+                      bool clone = true,
+                      int num_max_copy_threads = 0)
 
 // ---------- Utilities (Metall original) ---------- //
 // Check if a datastore exists and is consistent
@@ -97,7 +119,10 @@ bool manager.snapshot(const char *destination_dir_path)
 static bool metall::manager::consistent(const char *dir_path)
 
 // Copies datastore
-static bool metall::manager::copy(const char *source_dir_path, const char *destination_dir_path)
+static bool metall::manager::copy(const char *source_dir_path,
+                                  const char *destination_dir_path,
+                                  bool clone = true,
+                                  int num_max_copy_threads = 0)
 
 // Removes datastore synchronously
 static bool metall::manager::remove(const char *dir_path)
@@ -120,15 +145,15 @@ static bool metall::get_description(const char *dir_path, std::string *descripti
 
 Example programs are located in [example](https://github.com/LLNL/metall/tree/master/example).
 
-## FUll API document
+## Full API document
 
-The full API document is available [here](https://software.llnl.gov/metall/api/).
+The full API document is available on the
+[Metall API reference site](https://software.llnl.gov/metall/api/).
 
-To generate the full API document locally using Doxygen:
+To generate the full API document locally:
 
 ```bash
 cd metall
-mkdir build_doc
-cd build_doc
-doxygen ../docs/Doxyfile.in
+cmake -S . -B build -DBUILD_DOC=ON
+cmake --build build --target build_doc
 ```
