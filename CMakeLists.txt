@@ -145,7 +145,8 @@ endif()
 
 # ---------- Experimental options ---------- #
 set(UMAP_ROOT "" CACHE PATH "UMap installed root directory")
-set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
+# set(PRIVATEER_ROOT "" CACHE PATH "Privateer installed root directory")
+option(USE_PRIVATEER "Build with Privateer" OFF)
 
 option(ONLY_DOWNLOAD_GTEST "Only downloading Google Test" OFF)
 option(SKIP_DOWNLOAD_GTEST "Skip downloading Google Test" OFF)
@@ -258,10 +259,37 @@ if(UMAP_ROOT)
 endif()
 
 # ---------- Privateer ---------- #
-if(PRIVATEER_ROOT)
+if (FETCH_PRIVATEER_MAIN AND PRIVATEER_ROOT)
+    message(FATAL_ERROR "FETCH_PRIVATEER_MAIN and PRIVATEER_ROOT cannot be set at the same time")
+endif ()
+
+if (FETCH_PRIVATEER_MAIN)
+    set(CMAKE_GIT_TERMINAL_PROMPT OFF CACHE BOOL
+        "Disable interactive git credential prompts during FetchContent downloads" FORCE)
+    FetchContent_Declare(
+            privateer
+        GIT_REPOSITORY https://github.com/llnl/Privateer.git
+            GIT_TAG feature/auto_deps)
+    FetchContent_MakeAvailable(privateer)
+
+    if (EXISTS ${privateer_SOURCE_DIR}/include)
+        set(PRIVATEER_ROOT ${privateer_SOURCE_DIR})
+    endif ()
+
+    if (TARGET privateer)
+        set(LIBPRIVATEER privateer)
+    else ()
+        find_library(LIBPRIVATEER NAMES privateer
+                PATHS ${privateer_BINARY_DIR} ${privateer_BINARY_DIR}/lib ${privateer_SOURCE_DIR}/lib)
+    endif ()
+endif ()
+
+if (PRIVATEER_ROOT)
     message(STATUS "Privateer Root is ${PRIVATEER_ROOT}")
-    find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
-endif()
+    if (NOT LIBPRIVATEER)
+        find_library(LIBPRIVATEER NAMES privateer PATHS ${PRIVATEER_ROOT}/lib)
+    endif ()
+endif ()
 
 # ---------- Boost ---------- #
 set(METALL_BOOST_HEADER_INCLUDE_DIRS "")

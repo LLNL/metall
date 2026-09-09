@@ -1,0 +1,64 @@
+Best strategy: create a new branch from v0.32 and replay only your non-merge commits with cherry-pick.
+
+Why this is the right approach:
+- Your current branch contains upstream Metall commits after v0.32, including release v0.33 work by others.
+- You want only your changes on top of v0.32, not the upstream history that came in through merges.
+- git cherry-pick lets you apply just your selected commits and skip merge commits entirely.
+
+Recommended workflow:
+
+1. Identify your non-merge commits after v0.32.
+2. Start a fresh branch from v0.32.
+3. Cherry-pick your commits in chronological order.
+4. Resolve conflicts as they come, because some of your commits were originally made on top of newer upstream code.
+5. Run build/tests after the replay.
+
+Concretely, the shape is:
+
+git checkout -b feature/privateer_deps_v032 v0.32
+git cherry-pick <oldest-your-commit> <next> <next> ...
+
+From the history we already saw, your non-merge commits in v0.32..HEAD appear to be:
+
+b8ba0934  Privateer FetchContent
+37ba6f85  add spglog dep.
+f50d9491  pull Privateer fetchcontent
+58f44121  fix conflict
+1d3724da  fix conflict accidental push
+0806f005  fix conflict
+59197180  pull privateer auto deps
+
+And the merge commit you should skip is:
+
+1ec7281e  Merge branch 'master' of github.com:llnl/metall into feature/privateer_deps
+
+Important caveat:
+- The fix conflict commits may depend on upstream v0.33 changes that will not exist on top of v0.32.
+- So the cleanest practical approach is often to first inspect/squash your commits conceptually into a smaller logical series before replaying them.
+- In other words, the best technical strategy is still cherry-pick, but not necessarily every commit blindly.
+
+What I would recommend specifically:
+
+1. Create a new branch from v0.32.
+2. Cherry-pick your earliest substantive commit first:
+   - b8ba0934
+3. Then cherry-pick the later feature commits one by one:
+   - 37ba6f85
+   - f50d9491
+   - 59197180
+4. Treat the fix conflict commits carefully:
+   - 58f44121
+   - 1d3724da
+   - 0806f005
+   These may be merge-artifact cleanup rather than real standalone feature work. Often it is better to skip them initially and only manually reapply any missing hunks if needed.
+5. Build and test.
+6. If something is missing, inspect those skipped conflict-fix commits and manually port the relevant parts.
+
+Why not rebase --onto?
+- git rebase --onto v0.32 <base> current-branch is possible, but your branch contains merge commits and upstream history by others.
+- Rebase in this case is more fragile and harder to reason about.
+- Cherry-picking a curated list is more controlled and auditable.
+
+Why not merge v0.32 into your current branch?
+- That would not remove the upstream v0.33 commits already present.
+- It would keep the mixed history you are trying to avoid.

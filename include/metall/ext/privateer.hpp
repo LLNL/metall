@@ -249,13 +249,20 @@ class privateer_segment_storage {
     return std::pair<std::string, std::string>(base_dir, stash_dir);
   }
 
-  void release() { priv_release(); }
+  bool release() {
+    priv_release();
+    return true;
+  }
 
-  void sync(const bool sync) { priv_sync_segment(sync); }
+  bool sync(const bool sync) {
+    priv_sync_segment(sync);
+    return true;
+  }
 
-  void free_region(const std::ptrdiff_t, const std::size_t) {
+  bool free_region(const std::ptrdiff_t, const std::size_t) {
     // Do nothing
     // Privateer does not free file region
+    return true;
   }
 
   void *get_segment() const { return m_segment; }
