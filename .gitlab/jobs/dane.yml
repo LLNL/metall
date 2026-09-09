@@ -1,0 +1,30 @@
+###############################################################################
+# Dane Machine Jobs
+###############################################################################
+
+bst1-92-0:
+  extends: .job_on_dane
+  variables:
+    BOOST_VERSION: "1.92.0"
+    TEST_TYPE: "build_and_test"
+    METALL_LIMIT_MAKE_PARALLELS: "8"
+    COMPILER: "gcc"
+    COMPILER_VERSION: "13.3.1-magic"
+
+bst1-80-0:
+  extends: .job_on_dane
+  variables:
+    BOOST_VERSION: "1.80.0"
+    TEST_TYPE: "build_and_test"
+    METALL_LIMIT_MAKE_PARALLELS: "8"
+    COMPILER: "gcc"
+    COMPILER_VERSION: "13.3.1-magic"
+
+cmake-consumer-smoke:
+  extends: .job_on_dane
+  variables:
+    BOOST_VERSION: "1.92.0"
+    TEST_TYPE: "consumer_smoke"
+    METALL_LIMIT_MAKE_PARALLELS: "8"
+    COMPILER: "gcc"
+    COMPILER_VERSION: "13.3.1-magic"
