@@ -39,6 +39,11 @@ main() {
   setup_test_dir
   export METALL_TEST_DIR
 
+  local additional_cmake_options=()
+  if [[ -n "${METALL_CMAKE_ADDITIONAL_OPTIONS}" ]]; then
+    read -r -a additional_cmake_options <<< "${METALL_CMAKE_ADDITIONAL_OPTIONS}"
+  fi
+
   local BUILD_TYPES=(Debug)
   if [[ -n "${METALL_BUILD_TYPES}" ]]; then
     BUILD_TYPES=($(echo $METALL_BUILD_TYPES | tr ";" "\n"))
@@ -56,7 +61,7 @@ main() {
         -DBUILD_EXAMPLE=ON \
         -DRUN_BUILD_AND_TEST_WITH_CI=ON \
         -DBUILD_VERIFICATION=OFF \
-        " ${METALL_CMAKE_ADDITIONAL_OPTIONS} "
+        "${additional_cmake_options[@]}"
   done
 }
 

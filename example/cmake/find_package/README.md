@@ -1,60 +1,59 @@
-# Find Metall from CMake Project
+# Finding Metall from a CMake Project
 
-On this page, we describe how to **find/link an already installed** Metall package from a CMake project.
+This example shows how to **find and link an already installed** Metall
+package from a CMake project, using CMake's [`find_package`](https://cmake.org/cmake/help/latest/command/find_package.html).
 
-To have CMake download, install, and link Metall, see another example [here](../FetchContent).
+To have CMake download, build, and link Metall instead, see the
+[FetchContent example](../FetchContent).
 
-Here is an example CMake file that finds an already installed Metall package [CMakeLists.txt](CMakeLists.txt).
+The [CMakeLists.txt](CMakeLists.txt) in this directory:
+- Calls `find_package(Metall REQUIRED)`. `MetallConfig.cmake` resolves (and,
+  if needed, fetches) a suitable Boost on its own, so no separate Boost setup
+  is required here.
+- Builds `cpp_example`, which links `Metall::Metall` (the C++ API).
+- Builds `c_example`, which links `Metall::metall_c` (the C API), if the
+  library was installed (i.e. Metall was built with `-DBUILD_C=ON`).
 
-## 0. (pre-step) Install Metall
+## 1. Install Metall
 
-Here is how to build example programs.
+Metall must be installed before this example can find it.
 
-### 0-1. Install Metall Manually
+### Option A: Install manually
 
-To install Metall at `"/path/to/install"`, for example:
 ```bash
 cd metall
 mkdir build
 cd build
 
+# Add -DBUILD_C=ON to also build/install the Metall C API library.
 cmake ../ -DCMAKE_INSTALL_PREFIX="/path/to/install"
-# (option) add the following options to build the Metall C API library
--DBOOST_ROOT=/path/to/boost -DBUILD_C=ON 
-
 make && make install
 ```
 
-
-### 0-2. Install Metall using Spack
-
-Alternatively, one can install Metall using Spack.
-
-Please note that Metall C API is not supported with Spack. 
+### Option B: Install with Spack
 
 ```bash
-# Install Metall using Spack
-# Boost is also install
+# Boost is installed automatically as a dependency.
 spack install metall
 ```
 
+Note: the Metall C API is not supported when installed via Spack.
 
-## 1. Build
-
-Here is how to use the CMake file in this directory.
+## 2. Build this example
 
 ```bash
 mkdir build
 cd build
 
+# Point CMake at the Metall install from step 1.
 export CMAKE_PREFIX_PATH="/path/to/install"
-# Or (if one uses Spack)
-spack load metall # Spack exports CMAKE_PREFIX_PATH (and also BOOST_ROOT).
+# Or, if installed with Spack, this exports CMAKE_PREFIX_PATH (and BOOST_ROOT):
+# spack load metall
 
-cmake ../ \
--DBOOST_ROOT=/path/to/boost # Required if one wants to build programs that uses Metall C++ API.
-# Or (if one uses Spack)
 cmake ../
-
 make
 ```
+
+This produces `cpp_example` and, if `Metall::metall_c` was installed,
+`c_example` in the build directory. Run either directly, e.g. `./cpp_example`.
+

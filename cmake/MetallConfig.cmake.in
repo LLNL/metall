@@ -1,3 +1,82 @@
 @PACKAGE_INIT@
 
+include(CMakeFindDependencyMacro)
+
+# find_package(Boost) should prefer the upstream BoostConfig.cmake over
+# CMake's removed FindBoost module.
+if(POLICY CMP0135)
+	cmake_policy(SET CMP0135 NEW)
+endif()
+
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
+
+# Installed C++ consumers need these dependencies resolved before the imported
+# Metall target can expose its transitive usage requirements.
+find_dependency(Threads REQUIRED)
+
+# The Boost components Metall itself was built against (see
+# METALL_BOOST_COMPONENTS in the top-level CMakeLists.txt).
+set(METALL_BOOST_COMPONENTS @METALL_BOOST_COMPONENTS@)
+set(METALL_DEFAULT_BOOST_FETCH_URL "@METALL_DEFAULT_BOOST_FETCH_URL@")
+
+find_package(Boost 1.80 QUIET)
+if(NOT Boost_FOUND)
+    # No suitable Boost is installed on this system; fetch one that matches
+    # what Metall needs instead of failing consumers outright.
+    include(FetchContent)
+    set(BOOST_INCLUDE_LIBRARIES ${METALL_BOOST_COMPONENTS})
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
+        FetchContent_Declare(Boost
+			URL ${METALL_DEFAULT_BOOST_FETCH_URL}
+            FIND_PACKAGE_ARGS 1.80)
+    else()
+        FetchContent_Declare(Boost
+			URL ${METALL_DEFAULT_BOOST_FETCH_URL})
+    endif()
+    FetchContent_MakeAvailable(Boost)
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
+
+if (TARGET @PROJECT_NAME@::@PROJECT_NAME@)
+	set(_metall_boost_targets "")
+	foreach(_metall_boost_comp IN LISTS METALL_BOOST_COMPONENTS)
+		if(TARGET Boost::${_metall_boost_comp})
+			list(APPEND _metall_boost_targets Boost::${_metall_boost_comp})
+		endif()
+	endforeach()
+
+	# Boost target names differ across Boost/CMake combinations. Normalize the
+	# imported interface to whichever representation the local toolchain exposes.
+	if (_metall_boost_targets)
+		set_property(TARGET @PROJECT_NAME@::@PROJECT_NAME@ APPEND PROPERTY
+				INTERFACE_LINK_LIBRARIES "${_metall_boost_targets}")
+	elseif (TARGET Boost::headers)
+		set_property(TARGET @PROJECT_NAME@::@PROJECT_NAME@ APPEND PROPERTY
+				INTERFACE_LINK_LIBRARIES Boost::headers)
+	elseif (TARGET Boost::boost)
+		set_property(TARGET @PROJECT_NAME@::@PROJECT_NAME@ APPEND PROPERTY
+				INTERFACE_LINK_LIBRARIES Boost::boost)
+	elseif (DEFINED Boost_INCLUDE_DIRS AND Boost_INCLUDE_DIRS)
+		set_property(TARGET @PROJECT_NAME@::@PROJECT_NAME@ APPEND PROPERTY
+				INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")
+	endif ()
+endif ()
+
+# Metall::metall_c exports its compiled Boost dependencies as
+# $<TARGET_LINKER_FILE:...> generator expressions (required so install(EXPORT)
+# doesn't reject referencing local, non-exported Boost targets). The Unix
+# Makefiles generator can't derive build order from a bare genexp file
+# reference, so consumers linking Metall::metall_c should call this function
+# instead of target_link_libraries() directly to also get the ordering fixed
+# up for parallel builds (make -j).
+function(metall_target_link_metall_c target_name)
+	target_link_libraries(${target_name} PRIVATE @PROJECT_NAME@::metall_c)
+	foreach(_metall_boost_comp IN LISTS METALL_BOOST_COMPONENTS)
+		if(TARGET Boost::${_metall_boost_comp})
+			add_dependencies(${target_name} Boost::${_metall_boost_comp})
+		endif()
+	endforeach()
+endfunction()
