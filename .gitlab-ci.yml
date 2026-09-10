@@ -5,7 +5,6 @@
 # Required: Define stages
 stages:
   - prerequisites
-  - install_boost
   - build-and-test
 
 # Configuration variables
