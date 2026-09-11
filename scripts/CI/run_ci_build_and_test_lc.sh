@@ -17,20 +17,18 @@ echo "gcc version: $(gcc --version | head -n 1)"
 WORK_DIR=$(mktemp -d -p /dev/shm boost_ci_XXXXXX 2>/dev/null || mktemp -d -t boost_ci_XXXXXX)
 trap 'rm -rf "${WORK_DIR}"' EXIT
 
-if [[ "${BOOST_VERSION}" == "1.92.0" ]]; then
-  pushd "${WORK_DIR}" > /dev/null
-  wget -q https://github.com/boostorg/boost/releases/download/boost-1.92.0/boost-1.92.0-cmake.tar.gz
-  export BOOST_TAR="${PWD}/boost-1.92.0-cmake.tar.gz"
-  popd > /dev/null
-  export METALL_CMAKE_ADDITIONAL_OPTIONS="-DBOOST_FETCH_URL=${BOOST_TAR}"
-elif [[ "${BOOST_VERSION}" == "1.80.0" ]]; then
-  pushd "${WORK_DIR}" > /dev/null
-  wget -q https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.gz
+pushd "${WORK_DIR}" > /dev/null
+
+if [[ -n "${BOOST_UNCOMPRESS}" && "${BOOST_UNCOMPRESS}" == "true" ]]; then
   mkdir boost
-  tar xf boost_1_80_0.tar.gz -C boost --strip-components 1
+  tar xf "${BOOST_PATH}" -C boost --strip-components 1
   export METALL_CMAKE_ADDITIONAL_OPTIONS="-DBOOST_INCLUDE_ROOT=${PWD}/boost"
-  popd > /dev/null
+else
+  export METALL_CMAKE_ADDITIONAL_OPTIONS="-DBOOST_FETCH_URL=${BOOST_PATH}"
 fi
+
+popd > /dev/null
+
 
 if [[ "${TEST_TYPE}" == "consumer_smoke" ]]; then
   bash ./scripts/CI/run_ci_install_tree_consumer_smoke_test.sh

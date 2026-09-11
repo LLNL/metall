@@ -15,7 +15,7 @@ variables:
 
   # Build command
   JOB_CMD:
-    value: "./scripts/CI/build-and-test_lc.sh"
+    value: "./scripts/CI/run_ci_build_and_test_lc.sh"
     expand: false
 
   # Optional: Service user
