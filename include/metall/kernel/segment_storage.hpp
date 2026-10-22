@@ -404,7 +404,9 @@ class segment_storage {
   }
 
   bool priv_deallocate_segment_header() {
-    std::destroy_at(&m_segment_header);
+    if (m_segment_header) {
+      std::destroy_at(m_segment_header);
+    }
     const auto size = mdtl::round_up(sizeof(segment_header_type),
                                      int64_t(m_system_page_size));
     const auto ret = mdtl::munmap(m_segment_header, size, false);
