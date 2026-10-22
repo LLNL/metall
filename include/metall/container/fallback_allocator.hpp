@@ -177,23 +177,34 @@ class fallback_allocator_adaptor {
   }
 
   /// \brief Constructs an object of T
+  /// \details With the stateful allocator, this goes through
+  /// std::allocator_traits of the stateful allocator with a raw pointer.
+  /// std::allocator_traits takes the allocator by non-const reference, so it
+  /// gets a copy of the stateful allocator.
   /// \tparam Args The types of the constructor arguments
   /// \param ptr A pointer to allocated storage
   /// \param args The constructor arguments to use
   template <class... Args>
   void construct(const pointer &ptr, Args &&...args) const {
     if (priv_stateful_allocator_available()) {
-      m_stateful_allocator.construct(ptr, std::forward<Args>(args)...);
+      stateful_allocator_type allocator(m_stateful_allocator);
+      std::allocator_traits<stateful_allocator_type>::construct(
+          allocator, to_raw_pointer(ptr), std::forward<Args>(args)...);
     } else {
       priv_fallback_construct(ptr, std::forward<Args>(args)...);
     }
   }
 
   /// \brief Deconstruct an object of T
+  /// \details With the stateful allocator, this goes through
+  /// std::allocator_traits of the stateful allocator with a raw pointer, as
+  /// construct() does.
   /// \param ptr A pointer to the object
   void destroy(const pointer &ptr) const {
     if (priv_stateful_allocator_available()) {
-      m_stateful_allocator.destroy(ptr);
+      stateful_allocator_type allocator(m_stateful_allocator);
+      std::allocator_traits<stateful_allocator_type>::destroy(
+          allocator, to_raw_pointer(ptr));
     } else {
       priv_fallback_destroy(ptr);
     }

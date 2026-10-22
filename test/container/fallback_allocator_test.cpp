@@ -309,3 +309,27 @@ TEST(FallbackAllocatorAdaptorTest, PersistentNestedContainer) {
     ASSERT_EQ(map->at(1)[0], 3);
   }
 }
+
+TEST(FallbackAllocatorAdaptorTest, ConstructDestroy) {
+  struct counted_type {
+    explicit counted_type(int *count) : count(count) { ++*count; }
+    ~counted_type() { --*count; }
+    int *count;
+  };
+  using alloc_t = fb_alloc_type<counted_type>;
+  using traits = std::allocator_traits<alloc_t>;
+
+  // With the stateful allocator and with the fallback (malloc)
+  metall::manager manager(metall::create_only, dir_path(), 1UL << 27UL);
+  for (alloc_t alloc :
+       {alloc_t(manager.get_allocator<counted_type>()), alloc_t()}) {
+    int count = 0;
+    auto p = traits::allocate(alloc, 1);
+    traits::construct(alloc, metall::to_raw_pointer(p), &count);
+    ASSERT_EQ(count, 1);
+    ASSERT_EQ(p->count, &count);
+    traits::destroy(alloc, metall::to_raw_pointer(p));
+    ASSERT_EQ(count, 0);
+    traits::deallocate(alloc, p, 1);
+  }
+}

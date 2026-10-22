@@ -8,11 +8,15 @@
 #include <memory>
 #include <unordered_set>
 #include <filesystem>
+#include <cstdint>
+#include <type_traits>
+#include <utility>
 
 #include <boost/container/scoped_allocator.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/unordered_map.hpp>
 #include <metall/metall.hpp>
+#include <metall/container/vector.hpp>
 #include "../test_utility.hpp"
 
 namespace {
@@ -317,5 +321,84 @@ TEST(StlAllocatorTest, PersistentNestedContainer) {
     ASSERT_EQ(map->at(0)[1], 2);
     ASSERT_EQ(map->at(1)[0], 3);
   }
+}
+
+// std::allocator_traits calls a.construct(p, args...) and a.destroy(p), with a
+// raw pointer p, only if these calls are well-formed. Otherwise, it constructs
+// with placement new and destroys with the destructor.
+template <typename alloc_t, typename = void>
+struct has_member_construct : std::false_type {};
+
+template <typename alloc_t>
+struct has_member_construct<
+    alloc_t, std::void_t<decltype(std::declval<alloc_t &>().construct(
+                 std::declval<typename alloc_t::value_type *>(),
+                 std::declval<const typename alloc_t::value_type &>()))>>
+    : std::true_type {};
+
+template <typename alloc_t, typename = void>
+struct has_member_destroy : std::false_type {};
+
+template <typename alloc_t>
+struct has_member_destroy<
+    alloc_t, std::void_t<decltype(std::declval<alloc_t &>().destroy(
+                 std::declval<typename alloc_t::value_type *>()))>>
+    : std::true_type {};
+
+struct trivially_copyable_type {
+  std::uint64_t key;
+  std::uint64_t value;
+};
+
+TEST(StlAllocatorTest, NoConstructDestroy) {
+  // The allocator of a container of a trivially copyable type has no
+  // construct() and destroy(), so std::allocator_traits constructs in place
+  // and destroys with the destructor.
+  using vector_type = metall::container::vector<trivially_copyable_type>;
+  using alloc_t = vector_type::allocator_type;
+  static_assert(std::is_trivially_copyable_v<trivially_copyable_type>);
+  static_assert(std::is_same_v<alloc_t, alloc_type<trivially_copyable_type>>);
+  static_assert(!has_member_construct<alloc_t>::value,
+                "std::allocator_traits must not call construct() of "
+                "metall::manager::allocator_type");
+  static_assert(!has_member_destroy<alloc_t>::value,
+                "std::allocator_traits must not call destroy() of "
+                "metall::manager::allocator_type");
+  static_assert(!has_member_construct<alloc_type<std::uint64_t>>::value);
+  static_assert(!has_member_destroy<alloc_type<std::uint64_t>>::value);
+
+  metall::manager manager(metall::create_only, dir_path(), 1UL << 24UL);
+  vector_type vector(manager.get_allocator<>());
+  for (std::uint64_t i = 0; i < 1024; ++i) {
+    vector.push_back(trivially_copyable_type{i, i * 2});
+  }
+  vector.erase(vector.begin());
+  ASSERT_EQ(vector.size(), 1023U);
+  for (std::uint64_t i = 0; i < vector.size(); ++i) {
+    ASSERT_EQ(vector[i].key, i + 1);
+    ASSERT_EQ(vector[i].value, (i + 1) * 2);
+  }
+}
+
+TEST(StlAllocatorTest, ConstructDestroyInPlace) {
+  struct counted_type {
+    explicit counted_type(int *count) : count(count) { ++*count; }
+    ~counted_type() { --*count; }
+    int *count;
+  };
+  using alloc_t = alloc_type<counted_type>;
+  using traits = std::allocator_traits<alloc_t>;
+
+  metall::manager manager(metall::create_only, dir_path(), 1UL << 24UL);
+  alloc_t alloc = manager.get_allocator<counted_type>();
+
+  int count = 0;
+  auto p = traits::allocate(alloc, 1);
+  traits::construct(alloc, metall::to_raw_pointer(p), &count);
+  ASSERT_EQ(count, 1);
+  ASSERT_EQ(p->count, &count);
+  traits::destroy(alloc, metall::to_raw_pointer(p));
+  ASSERT_EQ(count, 0);
+  traits::deallocate(alloc, p, 1);
 }
 }  // namespace

@@ -30,6 +30,11 @@ namespace metall {
 /// allocated by different Metall managers invokes copy operations instead of
 /// move operations. Also, swapping containers allocated by different Metall
 /// managers will result in undefined behavior.
+/// \note
+/// This allocator has no construct() and destroy() members.
+/// std::allocator_traits constructs objects with placement new and destroys
+/// them with their destructor. A container can then copy trivially copyable
+/// elements as bytes (e.g., with memcpy).
 template <typename T, typename metall_manager_kernel_type>
 class stl_allocator {
  public:
@@ -130,19 +135,6 @@ class stl_allocator {
   /// \return The size of the theoretical maximum allocation size
   size_type max_size() const noexcept { return priv_max_size(); }
 
-  /// \brief Constructs an object of T
-  /// \tparam Args The types of the constructor arguments
-  /// \param ptr A pointer to allocated storage
-  /// \param args The constructor arguments to use
-  template <class... Args>
-  void construct(const pointer &ptr, Args &&...args) const {
-    priv_construct(ptr, std::forward<Args>(args)...);
-  }
-
-  /// \brief Deconstruct an object of T
-  /// \param ptr A pointer to the object
-  void destroy(const pointer &ptr) const { priv_destroy(ptr); }
-
   // ---------- This class's unique public functions ---------- //
   /// \brief Returns a pointer that points to manager kernel
   /// \return A pointer that points to manager kernel
@@ -207,20 +199,6 @@ class stl_allocator {
 
   size_type priv_max_size() const noexcept {
     return std::numeric_limits<size_type>::max() / sizeof(value_type);
-  }
-
-  template <class... arg_types>
-  void priv_construct(const pointer &ptr, arg_types &&...args) const {
-    ::new ((void *)to_raw_pointer(ptr))
-        value_type(std::forward<arg_types>(args)...);
-  }
-
-  void priv_destroy(const pointer &ptr) const {
-    if (!ptr) {
-      logger::out(logger::level::error, __FILE__, __LINE__,
-                  "pointer is nullptr");
-    }
-    (*ptr).~value_type();
   }
 
   // -------------------- //
